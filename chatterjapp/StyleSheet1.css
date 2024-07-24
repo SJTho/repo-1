@@ -1,0 +1,47 @@
+﻿
+
+/*global*/
+* {
+    margin;0px;
+    padding:0px;
+    width:100%;
+}
+
+/*app-bar*/
+h1 {
+    color: #00838f;
+}
+
+h2 {
+    color: #00838f;
+    font-size: smaller;
+}
+
+p {
+    background-color: lightgray;
+}
+
+button {
+    background-color: #00838f;
+    color: white;
+    text-transform: uppercase;
+    font-size: larger;
+}
+
+/*channels-list*/
+#channel {
+    background-color:white;
+}
+
+.channel-list {
+    list-style-type: none;
+}
+
+.category {
+    font-weight: bold;
+}
+.datestamp {
+    font-size: smaller;
+}
+
+/*messages*/
