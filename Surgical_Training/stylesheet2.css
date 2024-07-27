@@ -5,6 +5,8 @@
 body{
     width:100%;
     background-color:cadetblue;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: large;
 }
 
 
@@ -58,10 +60,14 @@ header {
     font-size: x-large;
 }
 
+select {
+    text-align: center;
+    font-size: x-large;
+}
 
-/*footer*/
+    /*footer*/
 
-footer {
+    footer {
     position: fixed;
     left:0;
     bottom: 0;
