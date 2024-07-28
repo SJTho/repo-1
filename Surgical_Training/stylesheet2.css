@@ -6,6 +6,7 @@ html {
     font-size: 100%
 }
 
+
 body{
     width:100%;
     background-color:cadetblue;
@@ -55,9 +56,19 @@ header {
     position: absolute;
     top: 20%;
     left:5%;
-
-   
 }
+
+li {
+    list-style-type: none;
+}
+
+
+
+.hidden {
+    display: none;
+}
+
+
 
 #enter-role {
     text-align:center;
@@ -78,7 +89,7 @@ select {
     color: white;
     background-color: grey;
     text-align: center;
-    height:140px;
+    height:100px;
     width:100%;
     padding-top:10px;
 }
@@ -86,4 +97,9 @@ select {
             text-decoration-line: none;
             font-size: x-large;
             color: black;
+        }
+
+        footer img {
+            height: 60px;
+            width:60px;
         }
