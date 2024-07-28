@@ -82,7 +82,8 @@ select {
     width:100%;
     padding-top:10px;
 }
-footer a {
-    color: black;
-    text-decoration-line:none;
-}
+        footer a {
+            text-decoration-line: none;
+            font-size: x-large;
+            color: black;
+        }
