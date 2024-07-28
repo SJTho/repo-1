@@ -2,6 +2,10 @@
 
 /*whole document*/
 
+html {
+    font-size: 100%
+}
+
 body{
     width:100%;
     background-color:cadetblue;
