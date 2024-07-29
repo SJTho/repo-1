@@ -34,18 +34,32 @@
 
         <label>What is your role? &nbsp;</label>
         
-        <select id="iscp-role" size="1" style="width:250px;">
+        <select id="iscp-role" size="1" style="width:450px;" onchange="updatelinks(this.value)">
             <option value="none">not registered</option>
-            <option value="Trainee">Trainee</option>
-            <option value="CS">Clinical Supervisor</option>
-            <option value="AES">Assigned Educational Supervisor</option>
-            <option value="TPD">Training Programme Director</option>
+            <option value="trainee">Trainee</option>
+            <option value="cs">Clinical Supervisor</option>
+            <option value="aes">Assigned Educational Supervisor</option>
+            <option value="tpd">Training Programme Director</option>
             <option value="hos">Head of School</option>
         </select>
         <br /><br />
     </div>
     <div name id="first-box">
-        links to ISCP pages
+
+        <ul name id="linklist">
+
+            <div class="trainee hidden">
+            <li><a href="https://client.elogbook.org/" target="_self">Home page</a></li></div>
+            <div class="hos hidden">
+            <li> <a href="https://client.elogbook.org/eLogbook/Operations/OperationMaintain/Add" target="_self">Add operation</a></li></div>
+            <div class="tpd hidden">
+            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
+            <div class="aes hidden">
+            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
+            <div class="aes hidden">
+            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
+
+        </ul>
     </div>
 
     <footer>

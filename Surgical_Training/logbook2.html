@@ -37,7 +37,7 @@
 
         <label>What is your role? &nbsp;</label>
 
-        <select id="logbook-role" size="1" style="width:250px;" onchange="updatelinks(this.value)">
+        <select id="logbook-role" size="1" style="width:450px;" onchange="updatelinks(this.value)">
             <option value="user">User</option>
             <option value="director">Director</option>
         </select>
@@ -47,18 +47,18 @@
 
     <div name id="first-box">
 
-        <ul>
+        <ul name id="linklist">
 
-            <span class="user">
-            <li><a href="https://client.elogbook.org/" target="_self">Home page</a></li></span>
-            <span class="user">
-            <li> <a href="https://client.elogbook.org/eLogbook/Operations/OperationMaintain/Add" target="_self">Add operation</a></li></span>
-            <span class="director">
-            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></span>
-            <span class="director">
-            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></span>
-            <span class="director">
-            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></span>
+            <div class="user hidden">
+            <li><a href="https://client.elogbook.org/" target="_self">Home page</a></li></div>
+            <div class="user hidden">
+            <li> <a href="https://client.elogbook.org/eLogbook/Operations/OperationMaintain/Add" target="_self">Add operation</a></li></div>
+            <div class="director hidden">
+            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
+            <div class="director hidden">
+            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
+            <div class="director hidden">
+            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
 
         </ul>
     </div>
