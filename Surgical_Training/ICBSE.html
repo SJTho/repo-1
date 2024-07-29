@@ -8,19 +8,19 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     <script src="script1.js"></script>
 </head>
-<body>
+<body onload="updatelinks('candidate');">
 
 
     <header>
         <!--header contains the Surgical trainer banner-->
- 
-            <table Style="width:100%;">
-                <tr>
-                    <th><img src="images/menuiconblack.png" alt="menu_icon" style="width:60px;height:60px;" /></th>
-                    <th> <span name id="surgical-training-banner">Surgical Training</span></th>
-                    <th><img src="images/helpicon.png" alt="menu_icon" style="width:70px;height:70px;"</th>
-                </tr>
-            </table>
+
+        <table Style="width:100%;">
+            <tr>
+                <th><img src="images/menuiconblack.png" alt="menu_icon" style="width:60px;height:60px;" /></th>
+                <th> <span name id="surgical-training-banner">Surgical Training</span></th>
+                <th><img src="images/helpicon.png" alt="menu_icon" style="width:70px;height:70px;"</th>
+            </tr>
+        </table>
 
     </header>
 
@@ -31,7 +31,7 @@
     <div name id="enter-role">
 
         <label>What is your role? &nbsp;</label>
-        
+
         <select id="icbse-role" size="1" style="width:450px;" onchange="updatelinks(this.value)">
             <option value="candidate">Candidate</option>
             <option value="examiner">Examiner</option>
@@ -42,18 +42,30 @@
     <div name id="first-box">
         <ul name id="linklist">
 
-         <div class="candidate hidden">
-         <li><a href="https://client.elogbook.org/" target="_self">Home page</a></li></div>
-         <div class="candidate hidden">
-         <li> <a href="https://client.elogbook.org/eLogbook/Operations/OperationMaintain/Add" target="_self">Add operation</a></li></div>
-         <div class="examiner hidden">
-         <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
-         <div class="examiner hidden">
-         <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
-         <div class="examiner hidden">
-         <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
+            <div class="candidate hidden">
+            <li><a href="https://www.intercollegiatemrcsexams.org.uk/" target="_self">Home page</a></li>
+    </div>
+    <div class="candidate hidden">
+        <li> <a href="https://www.rcseng.ac.uk/education-and-exams/exams/surgical/#Surgical=True&Dental=False" target="_self">Application RCSEng</a></li>
+    </div>
+    <div class="candidate hidden">
+        <li> <a href="https://www.rcsed.ac.uk/exams" target="_self">Application RCSEd</a></li>
+    </div>
+    <div class="candidate hidden">
+        <li> <a href="https://rcpsg.ac.uk/surgeons/exams" target="_self">Application RCPSG</a></li>
+    </div>
+    <div class="candidate hidden">
+        <li> <a href="https://www.rcsi.com/dublin" target="_self">Application RCSI</a></li>
+    </div>
+    <div class="examiner hidden">
+        <li><a href="https://www.rcseng.ac.uk/education-and-exams/exams/examiner-vacancies/" target="_self">RCSEng Examiner application</a></li>
+    </div>
+    <div class="examiner hidden"><li><a href="https://www.rcsed.ac.uk/professional-support-development-resources/grants-jobs-and-placements/professional-appointments/examiner-vacancies" target="_self">RCSEd Examiner application</a></li></div>
+    <div class="examiner hidden"><li><a href="https://rcpsg.ac.uk/work-with-us/intercollegiate-mrcs-part-b-osce-invitation-to-become-an-examiner" target="_self">RCPSG Examiner application</a></li></div>
+    <div class="examiner hidden"><li><a href="https://www.rcsi.com/surgery/exams/court-of-examiners" target="_self">RCSI Examiner application</a></li></div>
 
-        </ul>
+
+    </ul>
     </div>
 
     <footer>

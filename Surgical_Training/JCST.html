@@ -30,28 +30,21 @@
 
     <div name id="enter-role">
 
-        <label>What is your role? &nbsp;</label>
+  
         
- <select id="logbook-role" size="1" style="width:450px;" onchange="updatelinks(this.value)">
-            <option value="trainee">Trainee</option>
-            <option value="trainer">Trainer</option>
-        </select>
+ 
         <br /> <br />
     </div>
 
     <div name id="first-box">
          <ul name id="linklist">
 
-            <div class="trainee hidden">
-            <li><a href="https://client.elogbook.org/" target="_self">Home page</a></li></div>
-            <div class="trainee hidden">
-            <li> <a href="https://client.elogbook.org/eLogbook/Operations/OperationMaintain/Add" target="_self">Add operation</a></li></div>
-            <div class="trainer hidden">
-            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
-            <div class="trainer hidden">
-            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
-            <div class="trainer hidden">
-            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
+            <div class="all">
+            <li><a href="https://www.jcst.org/" target="_self">JCST Home page</a></li></div>
+            <div class="all">
+            <li><a href="https://www.jcst.org/data-requests/" target="_self">JCST Data Requests</a></li></div>
+            <div class="all">
+            <li> <a href="https://www.copmed.org.uk/publications/gold-guide/gold-guide-9th-edition" target="_self">Gold Guide (COPMeD document)</a></li></div>
 
          </ul>
     </div>
@@ -72,5 +65,5 @@
         </div>
     </footer>
 
-</body>
+</bodyonload="updatelinks('user');">
 </html>

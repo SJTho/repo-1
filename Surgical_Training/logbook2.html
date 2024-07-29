@@ -8,76 +8,86 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     <script src="script1.js"></script>
 </head>
-<body>
+<body onload="updatelinks('user');">
 
+        <header>
+            <!--header contains the Surgical trainer banner-->
 
-    <header>
-        <!--header contains the Surgical trainer banner-->
-
-        <table Style="width:100%;">
-            <tr>
-                <th><img src="images/menuiconblack.png" alt="menu_icon" style="width:60px;height:60px;" /></th>
-                <th> <span name id="surgical-training-banner">Surgical Training</span></th>
-                <th><img src="images/helpicon.png" alt="menu_icon" style="width:70px;height:70px;"</th>
-            </tr>
-        </table>
-
-
-
-
-
-
-    </header>
-
-
-    <!--content contains the central content in seperate containers-->
-    <br />  <br />  <br />  <br />  <br />  <br /> <br />
-
-    <div name id="enter-role">
-
-        <label>What is your role? &nbsp;</label>
-
-        <select id="logbook-role" size="1" style="width:450px;" onchange="updatelinks(this.value)">
-            <option value="user">User</option>
-            <option value="director">Director</option>
-        </select>
-        <br />
-    </div>
-
-
-    <div name id="first-box">
-
-        <ul name id="linklist">
-
-            <div class="user hidden">
-            <li><a href="https://client.elogbook.org/" target="_self">Home page</a></li></div>
-            <div class="user hidden">
-            <li> <a href="https://client.elogbook.org/eLogbook/Operations/OperationMaintain/Add" target="_self">Add operation</a></li></div>
-            <div class="director hidden">
-            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
-            <div class="director hidden">
-            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
-            <div class="director hidden">
-            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">Directors page</a></li></div>
-
-        </ul>
-    </div>
-
-    <footer>
-        <!--footer contains the foot bar-->
-        <div name id="foot-text">
             <table Style="width:100%;">
                 <tr>
-                    <th><span name id="home"><a href="index.html"><img src="images/homeicon.svg" alt="home_icon" /><br />Home</a></span></th>
-                    <th><span name id="ISCP"><a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a></span></th>
-                    <th><span name id="eLogbook"><a href="logbook2.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></span></th>
-                    <th><span name id="JCST"><a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />JCST</a></span></th>
-                    <th><span name id="JCIE"><a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a></span></th>
-                    <th><span name id="ICBSE"><a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a></span></th>
+                    <th><img src="images/menuiconblack.png" alt="menu_icon" style="width:60px;height:60px;" /></th>
+                    <th> <span name id="surgical-training-banner">Surgical Training</span></th>
+                    <th><img src="images/helpicon.png" alt="menu_icon" style="width:70px;height:70px;"</th>
                 </tr>
             </table>
-        </div>
-    </footer>
 
-</body>
+
+
+
+
+
+        </header>
+
+
+        <!--content contains the central content in seperate containers-->
+        <br />  <br />  <br />  <br />  <br />  <br /> <br />
+
+        <div name id="enter-role">
+
+            <label>What is your role? &nbsp;</label>
+
+            <select id="logbook-role" size="1" style="width:450px;" onchange="updatelinks(this.value)">
+                <option value="user">User</option>
+                <option value="director">Director</option>
+            </select>
+            <br />
+        </div>
+
+
+        <div name id="first-box">
+
+            <ul name id="linklist">
+
+                <div class="user hidden">
+                <li><a href="https://www.elogbook.org/" target="_self">Website</a></li>
+        </div>
+        <div class="user hidden">
+            <li> <a href="https://client.elogbook.org/eLogbook/Operations/OperationMaintain/Add" target="_self">Add Operations</a></li>
+        </div>
+        <div class="user hidden">
+            <li> <a href="https://client.elogbook.org/eLogbook/Operations/OperationList" target="_self">Browse Operations</a></li>
+        </div>
+        <div class="user hidden">
+            <li> <a href="https://client.elogbook.org/eLogbook/Operations/ConsolidationFilters" target="_self">Browse Filters</a></li>
+        </div>
+        <div class="user hidden">
+            <li> <a href="https://client.elogbook.org/eLogbook/Operations/ConsolidationReports" target="_self">My Reports</a></li>
+        </div>
+        <div class="user hidden">
+            <li> <a href="https://client.elogbook.org/eLogbook/User/UserDetails" target="_self">My Details</a></li>
+        </div>
+        <div class="director hidden">
+            <li><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">My Training Programmes</a></li>
+        </div>
+
+
+        </ul>
+        </div>
+
+        <footer>
+            <!--footer contains the foot bar-->
+            <div name id="foot-text">
+                <table Style="width:100%;">
+                    <tr>
+                        <th><span name id="home"><a href="index.html"><img src="images/homeicon.svg" alt="home_icon" /><br />Home</a></span></th>
+                        <th><span name id="ISCP"><a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a></span></th>
+                        <th><span name id="eLogbook"><a href="logbook2.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></span></th>
+                        <th><span name id="JCST"><a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />JCST</a></span></th>
+                        <th><span name id="JCIE"><a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a></span></th>
+                        <th><span name id="ICBSE"><a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a></span></th>
+                    </tr>
+                </table>
+            </div>
+        </footer>
+    </body>
 </html>
