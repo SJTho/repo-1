@@ -90,17 +90,17 @@ select {
     color: white;
     background-color: grey;
     text-align: center;
-    height:100px;
+    height:60px;
     width:100%;
     padding-top:10px;
 }
         footer a {
             text-decoration-line: none;
-            font-size: x-large;
+            font-size: large;
             color: black;
         }
 
-        footer img {
-            height: 60px;
-            width:60px;
-        }
+      footer img {
+          height:30px;
+          width:30px;
+      }
