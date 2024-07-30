@@ -60,7 +60,7 @@ header {
 }
 
 li {
-    padding:10px;
+    padding:5px;
 }
 
 
@@ -73,9 +73,7 @@ li {
 #enter-role {
     text-align: center;
     font-size: large;
-    position: absolute;
-    top: 20px;
-    left: 5%;
+
 }
 
 select {
