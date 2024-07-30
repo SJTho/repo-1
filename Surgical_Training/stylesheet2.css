@@ -49,7 +49,7 @@ header {
     height: 50%;
     background-color: lightgrey;
     position: absolute;
-    top: 20%;
+    top: 200px;
     left:5%;
 }
 
@@ -70,7 +70,7 @@ li {
     text-align: center;
     font-size: large;
     position: absolute;
-    top: 15%;
+    top: 140px;
     left: 5%;
 }
 
@@ -91,11 +91,11 @@ footer {
     text-align: center;
     height: 40px;
     width: 100%;
-    padding: 10px;
+   padding:10px;
+   
 }
         footer a {
             text-decoration-line: none;
-            font-size: large;
             color: black;
         }
 
