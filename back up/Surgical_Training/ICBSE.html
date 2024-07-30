@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>ICBSE</title>
+    <link rel="stylesheet" href="../Surgical_Training/stylesheet2.css" />
+    <script src="../Surgical_Training/Script1.js"></script>
+</head>
+<body onload="updatelinks('candidate');">
+
+
+    <header>
+        <!--header contains the Surgical trainer banner-->
+
+        <table Style="width:100%;">
+            <tr>
+                <th><img src="images/menuiconblack.png" alt="menu_icon" style="width:60px;height:60px;" /></th>
+                <th> <span name id="surgical-training-banner">Surgical Training</span></th>
+                <th><img src="images/helpicon.png" alt="menu_icon" style="width:70px;height:70px;"</th>
+            </tr>
+        </table>
+
+    </header>
+
+
+    <!--content contains the central content in seperate containers-->
+    <br />  <br />  <br />  <br />  <br />  <br /> <br />
+
+    <div name id="enter-role">
+
+        <label>What is your role? &nbsp;</label>
+
+        <select id="icbse-role" size="1" style="width:450px;" onchange="updatelinks(this.value)">
+            <option value="candidate">Candidate</option>
+            <option value="examiner">Examiner</option>
+        </select>
+        <br /> <br />
+    </div>
+
+    <div name id="first-box">
+        <ul name id="linklist">
+
+            <div class="candidate hidden">
+            <li><a href="https://www.intercollegiatemrcsexams.org.uk/" target="_self">Home page</a></li>
+    </div>
+    <div class="candidate hidden">
+        <li> <a href="https://www.rcseng.ac.uk/education-and-exams/exams/surgical/#Surgical=True&Dental=False" target="_self">Application RCSEng</a></li>
+    </div>
+    <div class="candidate hidden">
+        <li> <a href="https://www.rcsed.ac.uk/exams" target="_self">Application RCSEd</a></li>
+    </div>
+    <div class="candidate hidden">
+        <li> <a href="https://rcpsg.ac.uk/surgeons/exams" target="_self">Application RCPSG</a></li>
+    </div>
+    <div class="candidate hidden">
+        <li> <a href="https://www.rcsi.com/dublin" target="_self">Application RCSI</a></li>
+    </div>
+    <div class="examiner hidden">
+        <li><a href="https://www.rcseng.ac.uk/education-and-exams/exams/examiner-vacancies/" target="_self">RCSEng Examiner application</a></li>
+    </div>
+    <div class="examiner hidden"><li><a href="https://www.rcsed.ac.uk/professional-support-development-resources/grants-jobs-and-placements/professional-appointments/examiner-vacancies" target="_self">RCSEd Examiner application</a></li></div>
+    <div class="examiner hidden"><li><a href="https://rcpsg.ac.uk/work-with-us/intercollegiate-mrcs-part-b-osce-invitation-to-become-an-examiner" target="_self">RCPSG Examiner application</a></li></div>
+    <div class="examiner hidden"><li><a href="https://www.rcsi.com/surgery/exams/court-of-examiners" target="_self">RCSI Examiner application</a></li></div>
+
+
+    </ul>
+    </div>
+
+    <footer>
+        <!--footer contains the foot bar-->
+        <div name id="foot-text">
+            <table Style="width:100%;">
+                <tr>
+                    <th><span name id="home"><a href="index.html"><img src="images/homeicon.svg" alt="home_icon" /><br />Home</a></span></th>
+                    <th><span name id="ISCP"><a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a></span></th>
+                    <th><span name id="eLogbook"><a href="logbook2.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></span></th>
+                    <th><span name id="JCST"><a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />JCST</a></span></th>
+                    <th><span name id="JCIE"><a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a></span></th>
+                    <th><span name id="ICBSE"><a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a></span></th>
+                </tr>
+            </table>
+        </div>
+    </footer>
+
+</body>
+</html>
