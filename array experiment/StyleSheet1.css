@@ -1,0 +1,17 @@
+﻿
+
+tbody th {
+    background-color: lightgrey;
+    text-align: center;
+}
+
+thead {
+    background-color: darkgrey;
+    text-align: center;
+}
+
+label {
+    display: inline-block;
+    width: 120px;
+}
+

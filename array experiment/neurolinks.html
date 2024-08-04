@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>index</title>
+    <script src="Script1.js"></script>
+    <link rel="stylesheet" href="stylesheet1.css">
+
+</head>
+<body onload="ShowList()">
+
+
+    <div class="container">
+        <h1>WAITING LIST</h1>
+        <table id="myTable" ;>
+            <thead>
+                <tr>
+                    <th width="250px" ;>Category</th>
+                    <th width="250px" ;>Name</th>
+                    <th width="250px" ;>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <br /> </br> </br>
+
+
+    <label>First Name: </label>
+    <input type="text" id="firstName" name="firstName" />
+    </br> </br>
+    <label>Family Name: </label>
+    <input type="text" id="surname" name="surname" />
+    <br /> </br>
+
+    <input type="submit" value="Add to list" onclick="AddToList()">
+    <button onclick="RemoveFromList()">Remove one</button>
+    <br /> </br>
+    <button onclick="SortWaitingList()">Sort</button>
+
+
+
+</body>
+</html>
