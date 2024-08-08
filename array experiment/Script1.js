@@ -1,62 +1,85 @@
 // JavaScript source code
 
+let intro = document.querySelector('.splashscreen')
+let logo = document.querySelector('.splashscreenheader')
+let logoSpan = document.querySelectorAll('.logo')
+
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        logoSpan.forEach((span, idx) => {
+            setTimeout(() => {
+                span.classList.add('active')
+            }, (idx + 1) * 100);
+        });
+
+        setTimeout(() => {
+            intro.style.display = 'none'
+        }, 3700);
+    })
+})
+
+
+
+    
 
 
 const waitinglist = [
-    { type: "Original", firstName: "Bill", surname: "Jones", Time:"9:00"},
-    { type: "Original", firstName: "James", surname: "Smith", Time: "9:10" },
-    { type: "Original", firstName: "Bob", surname: "Bloggs", Time: "9:20" },
+    { type: "Original", firstName: "Bill", surname: "Jones", Time:"1722788947957"},
+    { type: "Original", firstName: "James", surname: "Smith", Time: "1722786945555" },
+    { type: "Original", firstName: "Bob", surname: "Bloggs", Time: "1722788946957" },
 ]; 
 
 
 function AddToList() {
   
-    var newfirstName = document.getElementById("firstName").value;
-    var newsurname = document.getElementById("surname").value;
-    //const timestamp1 = Date.now();
-    const d = new Date();
-    var timestamp2 = d.getHours() + ":" + d.getMinutes();
-    waitinglist.push({ type: "New", firstName: newfirstName, surname: newsurname, Time: timestamp2 });
-
+    waitinglist.push({ type: "New", firstName: document.getElementById("firstName").value, surname: document.getElementById("surname").value, Time: Date.now() });
     ShowList();
+    document.getElementById("addarecord").style.visibility = 'hidden';
+    document.getElementById("showaddfields").style.visibility = 'visible';
 
 }
 
-
-function RemoveFromList() {
-
-    waitinglist.shift();
-    ShowList();
-}
 
 
 function ShowList() {
     
-
+    waitinglist.sort(function (a, b) { return a.Time - b.Time });
     let variable2 = "";
     for (let i = 0; i < waitinglist.length; i++) {
-        variable2 += "<tr><th>" + waitinglist[i].type + "</th>";
-        variable2 += "<th>" + waitinglist[i].firstName + " " + waitinglist[i].surname + "</th>";
-        variable2 += "<th>" + waitinglist[i].Time + "</th></tr>";
+        variable2 += "<tr><th onclick='editrecord(" + i + ")'>" + waitinglist[i].type + "</th>";
+        variable2 += "<th onclick='editrecord(" + i + ")'>" + waitinglist[i].firstName + " " + waitinglist[i].surname + "</th>";
+        var date = new Date(Number(waitinglist[i].Time));
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        variable2 += "<th onclick='editrecord(" + i + ")'>" + hours + ":" + minutes + "</th>";
+        variable2 += "<th>" + "<img src='icons/delete.jpg' onclick='deleterecord(" + i + ")'>" + "</th></tr>";
     }
+
         document.querySelector("#myTable tbody").innerHTML = variable2;
  
     
     }
 
 
-function SortWaitingList() {
-    waitinglist.sort(function (a, b) {
-        let x = a.type.toLowerCase();
-        let y = b.type.toLowerCase();
-        if (x < y) { return -1; }
-        if (x > y) { return 1; }
-        return 0;
-    });
+function deleterecord(s) { 
+    waitinglist.splice(s, 1);
     ShowList();
 }
 
+function editrecord(s) {
+    document.getElementById("editarecord").style.visibility = 'visible';
+    document.getElementById("firstNameEdit").value = waitinglist[s].firstName;
+    document.getElementById("surnameEdit").value = waitinglist[s].surname;
+    document.getElementById("recordnumber").value = s;
+}
 
-//array.map(function (currentValue, index, arr), thisValue)
+function editrecordsubmit() {
+    waitinglist.splice(document.getElementById("recordnumber").value, 1, { type: "Updated", firstName: document.getElementById("firstNameEdit").value, surname: document.getElementById("surnameEdit").value, Time: Date.now() });
+    document.getElementById("editarecord").style.visibility = 'hidden';
+    ShowList();
+}
 
- 
+function showaddfields() {
+    document.getElementById("addarecord").style.visibility = 'visible';
+    document.getElementById("showaddfields").style.visibility = 'hidden';
+}

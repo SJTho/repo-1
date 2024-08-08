@@ -6,6 +6,7 @@
     <title>chatter|app</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="stylesheet1.css" />
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=maps,marker&v=beta"></script>
 </head>
 <Header>
     <div class="headbar">
@@ -17,6 +18,16 @@
 
 
 <body>
+
+    <gmp-map center="53.4142989,-1.2301242"
+             zoom="4"
+             map-id="DEMO_MAP_ID"
+             style="height: 400px">
+    
+        <gmp-advanced-marker position="53.4142989,-1.2301242"
+                             title="Test"></gmp-advanced-marker>
+      
+    </gmp-map>
 
     <!--channels section-->
     <section name id="channel">
@@ -76,9 +87,9 @@
             <p> This is gobbledegook</p>
             <small>01/01/2022</small>
         </div>
-        
+
         <br />
-        <input type="text"/>
+        <input type="text" />
         <button>Send</button>
     </section>
 </body>
