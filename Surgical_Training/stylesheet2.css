@@ -8,7 +8,7 @@
     padding: 0px;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
-    font-size: large;
+    font-size: 100%;
 }
 
 
@@ -74,7 +74,7 @@ header {
     color: white;
     background-color: black;
     text-align: left;
-    font-size:xx-large;
+    font-size:2em;
     text-transform:uppercase; 
 }
 
@@ -108,7 +108,7 @@ h1 {
     text-align: center;
     transform: translate(-50%,-50%);
     color: black;
-    font-size: x-large;
+    font-size: 1.5em;
     text-transform: uppercase;
 }
 
@@ -117,7 +117,6 @@ h1 {
     top: 10%;
     left: 50%;
     text-align: center;
-    font-size: large;
     transform: translate(-50%,-50%);
 }
 
