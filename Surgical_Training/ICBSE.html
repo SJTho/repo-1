@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../Surgical_Training/stylesheet2.css" />
     <script src="../Surgical_Training/Script1.js"></script>
 </head>
+
 <body onload="updatelinks('candidate');">
 
 
@@ -20,63 +21,52 @@
 
     </header>
 
+    <!--content contains the central content-->
+
     <section name id="content">
-        <!--contains the central content in seperate containers-->
-        <br />
+
+
+        <h1>Intercollegiate Committee on Basic Surgical Examinations</h1>
+
 
         <div name id="enter-role">
 
             <label>What is your role? &nbsp;</label>
-
             <select id="icbse-role" size="1" onchange="updatelinks(this.value)">
                 <option value="candidate">Candidate</option>
                 <option value="examiner">Examiner</option>
             </select>
-            <br /> <br />
         </div>
 
-        <div name id="first-box">
-            <ul name id="linklist">
-
-                <div class="candidate">
-                <li><a href="https://www.intercollegiatemrcsexams.org.uk/" target="_self">Home page</a></li>
-        </div>
-        <div class="candidate">
-            <li> <a href="https://www.rcseng.ac.uk/education-and-exams/exams/surgical/#Surgical=True&Dental=False" target="_self">Application RCSEng</a></li>
-        </div>
-        <div class="candidate">
-            <li> <a href="https://www.rcsed.ac.uk/exams" target="_self">Application RCSEd</a></li>
-        </div>
-        <div class="candidate">
-            <li> <a href="https://rcpsg.ac.uk/surgeons/exams" target="_self">Application RCPSG</a></li>
-        </div>
-        <div class="candidate">
-            <li> <a href="https://www.rcsi.com/dublin" target="_self">Application RCSI</a></li>
-        </div>
-        <div class="examiner">
-            <li><a href="https://www.rcseng.ac.uk/education-and-exams/exams/examiner-vacancies/" target="_self">RCSEng Examiner application</a></li>
-        </div>
-        <div class="examiner"><li><a href="https://www.rcsed.ac.uk/professional-support-development-resources/grants-jobs-and-placements/professional-appointments/examiner-vacancies" target="_self">RCSEd Examiner application</a></li></div>
-        <div class="examiner"><li><a href="https://rcpsg.ac.uk/work-with-us/intercollegiate-mrcs-part-b-osce-invitation-to-become-an-examiner" target="_self">RCPSG Examiner application</a></li></div>
-        <div class="examiner"><li><a href="https://www.rcsi.com/surgery/exams/court-of-examiners" target="_self">RCSI Examiner application</a></li></div>
-
+       
+        <ul name id="linklist">
+            <li class="candidate"><a href="https://www.intercollegiatemrcsexams.org.uk/" target="_self">Home page</a></li>
+            <li class="candidate"> <a href="https://www.rcseng.ac.uk/education-and-exams/exams/surgical/#Surgical=True&Dental=False" target="_self">Application RCSEng</a></li>
+            <li class="candidate"> <a href="https://www.rcsed.ac.uk/exams" target="_self">Application RCSEd</a></li>
+            <li class="candidate"> <a href="https://rcpsg.ac.uk/surgeons/exams" target="_self">Application RCPSG</a></li>
+            <li class="candidate"> <a href="https://www.rcsi.com/dublin" target="_self">Application RCSI</a></li>
+            <li class="examiner"><a href="https://www.rcseng.ac.uk/education-and-exams/exams/examiner-vacancies/" target="_self">RCSEng Examiner application</a></li>
+            <li class="examiner"><a href="https://www.rcsed.ac.uk/professional-support-development-resources/grants-jobs-and-placements/professional-appointments/examiner-vacancies" target="_self">RCSEd Examiner application</a></li>
+            <li class="examiner"><a href="https://rcpsg.ac.uk/work-with-us/intercollegiate-mrcs-part-b-osce-invitation-to-become-an-examiner" target="_self">RCPSG Examiner application</a></li>
+            <li class="examiner"><a href="https://www.rcsi.com/surgery/exams/court-of-examiners" target="_self">RCSI Examiner application</a></li>
 
         </ul>
-        </div>
+        
     </section>
+
+    <!--footer contains the foot bar-->
+
     <footer>
-        <!--footer contains the foot bar-->
-        <div name id="foot-text">
-            <table Style="width:100%;">
-                <tr>
-                    <th width="20%"><span name id="ISCP"><a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a></span></th>
-                    <th width="20%"><span name id="eLogbook"><a href="logbook2.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></span></th>
-                    <th width="20%"><span name id="JCST"><a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />JCST COPSS</a></span></th>
-                    <th width="20%"><span name id="JCIE"><a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a></span></th>
-                    <th width="20%" style="background-color:dimgrey"><span name id="ICBSE"><a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a></span></th>
-                </tr>
-            </table>
-        </div>
+        <table Style="width:100%;">
+            <tr>
+                <th width="20%"><a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a></th>
+                <th width="20%"><a href="JCST.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></th>
+                <th width="20%"><a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />JCST COPSS</a></th>
+                <th width="20%"><a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a></th>
+                <th width="20%"><a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a></th>
+            </tr>
+        </table>
+
     </footer>
 
 </body>

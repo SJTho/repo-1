@@ -21,17 +21,15 @@
     </header>
 
 
-    </header>
+    <!--content contains the central content-->
 
     <section name id="content">
-        <!--contains the central content in seperate containers-->
 
-        <br />
+        <h1>Intercollegiate Surgical Curriculum Programme</h1>
 
         <div name id="enter-role">
 
             <label>What is your role? &nbsp;</label>
-
             <select id="iscp-role" size="1" onchange="updatelinks(this.value)">
                 <option value="trainee">Trainee</option>
                 <option value="cs">Clinical Supervisor</option>
@@ -39,36 +37,38 @@
                 <option value="tpd">Training Programme Director</option>
                 <option value="hos">Head of School</option>
             </select>
-            <br /><br />
+           
         </div>
+
+
         <div name id="first-box">
 
             <ul name id="linklist">
-
-                <div class="trainee">
-                <li><a href="https://www.iscp.ac.uk/" target="_self">Home page</a></li>
+                <li class="trainee"><a href="https://www.iscp.ac.uk/" target="_self">Home page</a></li>
+                <li class="trainee"><a href="https://www.iscp.ac.uk/2020/account-details/user" target="_self">My Details</a></li>
+                <li class="hos"><a href="" target="_self">A HoS link</a></li>
+                <li class="tpd"><a href="" target="_self">A TPD link</a></li>
+                <li class="cs"><a href="https://www.iscp.ac.uk/mytrainees/cs.aspx?role_type=cs" target="_self">My Trainees as a Clinical Supervisor</a></li>
+                <li class="aes"><a href="https://www.iscp.ac.uk/mytrainees/aes.aspx?role_type=aes" target="_self">My Trainees as an Assigned Educational Supervisor</a></li>
+                <li class="aes"><a href="" target="_self">Another AES link</a></li>
+            </ul>
         </div>
-        <div class="hos"><li><a href="" target="_self">A HoS link</a></li></div>
-        <div class="tpd"><li><a href="" target="_self">A TPD link</a></li></div>
-        <div class="aes"><li><a href="" target="_self">An Aes link</a></li></div>
-        <div class="aes"><li><a href="" target="_self">Another AES link</a></li></div>
 
-        </ul>
-        </div>
     </section>
+
+    <!--footer contains the foot bar-->
+
     <footer>
-        <!--footer contains the foot bar-->
-        <div name id="foot-text">
-            <table Style="width:100%;">
-                <tr>
-                    <th width="20%" style="background-color:dimgrey"><span name id="ISCP"><a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a></span></th>
-                    <th width="20%"><span name id="eLogbook"><a href="logbook2.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></span></th>
-                    <th width="20%"><span name id="JCST"><a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />JCST COPSS</a></span></th>
-                    <th width="20%"><span name id="JCIE"><a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a></span></th>
-                    <th width="20%"><span name id="ICBSE"><a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a></span></th>
-                </tr>
-            </table>
-        </div>
+        <table Style="width:100%;">
+            <tr>
+                <th width="20%"><a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a></th>
+                <th width="20%"><a href="JCST.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></th>
+                <th width="20%"><a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />JCST COPSS</a></th>
+                <th width="20%"><a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a></th>
+                <th width="20%"><a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a></th>
+            </tr>
+        </table>
+
     </footer>
 
 </body>

@@ -1,4 +1,4 @@
-﻿/*css form surgical training*/
+﻿/*css form neurolinks*/
 
 /*whole document*/
 
@@ -22,7 +22,6 @@
     width: 100%;
     height: 100vh;
     background-color: cadetblue;
-  
 }
 
 .splashscreenheader {
@@ -40,21 +39,25 @@
     opacity: 0.2;
 }
 
-    .logo.active {
-        bottom: 0;
-        opacity: 1;
-        font-size: larger;
-        transition: ease-in-out 0.5s;
+.logo.active {
+    bottom: 0;
+    opacity: 1;
+    font-size: larger;
+    transition: ease-in-out 0.5s;
     }
 
+/*document body contains 3 sections: header, content and footer*/
 
+body {
+    width: 100%;
+    height: 100vh;
+}
 
-
-/*header banner*/
+/*header holds the banner*/
 
 header {
     width: 100%;
-    height: 90px;
+    height: 10%;
     background-color: black;
     position: absolute;
     left: 0;
@@ -72,10 +75,8 @@ header {
     background-color: black;
     text-align: left;
     font-size:xx-large;
-    text-transform:uppercase;
-   
+    text-transform:uppercase; 
 }
-
 
 #help-button {
     position: absolute;
@@ -87,30 +88,45 @@ header {
     height: 70px;
 }
 
-/*content*/
-body {
-    background-color:cadetblue;
-    width: 100%;
-    height: 100vh;
-}
+
+/*content is the main section*/
 
 #content {
+    background-color: cadetblue;
     width: 100%;
-    position: fixed;
-    top: 100px;
+    position: absolute;
+    top: 10%;
     left: 0;
+    height: 93%;
     font-size: smaller
 }
 
-#linklist {
-    
-
+h1 {
     position: absolute;
-    top: 60px;
+    top: 4%;
+    left: 50%;
+    text-align: center;
+    transform: translate(-50%,-50%);
+    color: black;
+    font-size: x-large;
+    text-transform: uppercase;
+}
+
+#enter-role {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    text-align: center;
+    font-size: large;
+    transform: translate(-50%,-50%);
+}
+
+#linklist {
+    position: absolute;
+    top: 20%;
     left: 5%;
     list-style-type: none;
     width:90%;
-    padding:5px;
 }
 
 li {
@@ -121,38 +137,27 @@ li {
     display: none;
 }
 
-#enter-role {
-    text-align: center;
-    font-size: large;
-
-}
-
-select {
-    text-align: center;
-    font-size: large;
-
-}
-
-/*footer*/
+/*footer holds the site navigation buttons*/
 
 footer {
     position: absolute;
     left: 0;
     bottom: 0;
-    color: white;
-    background-color: grey;
+    background-color: dimgrey;
     text-align: center;
-    height: 40px;
+    height: 7%;
     width: 100%;
-
 }
+
 footer a {
+    position: absolute;
+    top: 10%;
     text-decoration-line: none;
     color: black;
-    font-size:small
+    font-size: small;
 }
 
 footer img {
-    height:10%;
-    width:10%;
+    height: 30px;
+    width: 30px;
 }
