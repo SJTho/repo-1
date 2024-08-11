@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="../Surgical_Training/stylesheet2.css" />
     <script src="../Surgical_Training/Script1.js"></script>
 </head>
-<body onload="updatelinks('user');">
+
+<body onload="retrievefromstorage();">
 
 
     <!--header contains the Neurolinks banner-->
@@ -24,32 +25,98 @@
 
     <section name id="content">
 
-        
+
         <h1>Logbook</h1>
 
 
         <div name id="enter-role">
 
             <label>What is your role? &nbsp;</label>
-            <select id="logbook-role" size="1" onchange="updatelinks(this.value)">
-                <option value="user">User</option>
-                <option value="director">Director</option>
+            <select id="role" size="1" onchange="ShowList()">
+                <option value="logbook-user">User</option>
+                <option value="logbook-director">Director</option>
             </select>
         </div>
 
 
+        <table id="myTable" ;>
+            <thead>
+                <tr>
+                    <th width="250px" ;>Name</th>
+                    <th width="750px" ;>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
 
-        <ul name id="linklist">
+        <button id="showaddfields" onclick="showaddfields()">Add</button>
        
-          <li class="user"><a href="https://www.elogbook.org/" target="_self">Website</a> </></li>
-          <li class="user"><a href="https://client.elogbook.org/eLogbook/Operations/OperationMaintain/Add" target="_self">Add Operations</a></li>
-          <li class="user"> <a href="https://client.elogbook.org/eLogbook/Operations/OperationList" target="_self">Browse Operations</a></li>
-          <li class="user"> <a href="https://client.elogbook.org/eLogbook/Operations/ConsolidationFilters" target="_self">Browse Filters</a></li>
-          <li class="user"> <a href="https://client.elogbook.org/eLogbook/Operations/ConsolidationReports" target="_self">My Reports</a></li>
-          <li class="user"> <a href="https://client.elogbook.org/eLogbook/User/UserDetails" target="_self">My Details</a></li>
-          <li class="director"><a href="https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList" target="_self">My Training Programmes</a></li>
-      
-        </ul>
+
+        <div id="addarecord">
+            <h3 style="text-align:center">Add New Link</h3>
+            <br />
+            <label>Order: </label>
+            <input type="text" id="order" name="order" />
+            <br /><br />
+            <label>Display text: </label>
+            <input type="text" id="displaytext" name="displaytext" />
+            <br /> <br />
+            <label>url: </label>
+            <input type="text" id="linkurl" name="linkurl" />
+            <br /> <br />
+            <label>Description: </label>
+            <input type="text" id="description" name="description" />
+            <br /> <br />
+            <label>Expiry date (if any): </label>
+            <input type="text" id="expires" name="expires" />
+            <br /> <br />
+            <label>Show to (select all that apply): </label>
+            <select id="who" size="1">
+                <option value="logbook-user">User</option>
+                <option value="logbook-director">Director</option>
+            </select>
+            <br /> <br />
+            <label>The system will record your ip address and add a time stamp</label>
+            <br /> <br />
+            <label id="spaceforsubmit"></label>
+            <input type="submit" value="Submit" onclick="AddToList()">
+            <br />
+
+        </div>
+
+        <div id="editarecord">
+            <h3 style="text-align:center">Edit a Link</h3>
+            <br />
+            <label>Order: </label>
+            <input type="text" id="orderEdit" name="orderEdit" />
+            <br /> <br />
+            <label>Display text: </label>
+            <input type="text" id="displaytextEdit" name="displaytextEdit" />
+            <br /> <br />
+            <label>url: </label>
+            <input type="text" id="linkurlEdit" name="linkurlEdit" />
+            <br /> <br />
+            <label>Description: </label>
+            <input type="text" id="descriptionEdit" name="descriptionEdit" />
+            <br /> <br />
+            <label>Expiry date (if any): </label>
+            <input type="text" id="expiresEdit" name="expiresEdit" />
+            <br /> <br />
+            <label>Show to (select all that apply): </label>
+            <select id="whoEdit" size="1">
+                <option value="logbook-user">User</option>
+                <option value="logbook-director">Director</option>
+            </select>
+            <br /> <br />
+            <label>The system will record your ip address and add a time stamp</label>
+            <br /> <br />
+            <label id="spaceforsubmit"></label>
+            <input type="submit" value="Submit" onclick="editrecordsubmit()">
+            <br />
+            <textarea id="recordnumber" name="recordnumber" style="display:none;"></textarea>
+
+        </div>
 
     </section>
 
@@ -60,7 +127,7 @@
         <table Style="width:100%;">
             <tr>
                 <th width="20%"><a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a></th>
-                <th width="20%"><a href="JCST.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></th>
+                <th width="20%"><a href="logbook2.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></th>
                 <th width="20%"><a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />JCST COPSS</a></th>
                 <th width="20%"><a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a></th>
                 <th width="20%"><a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a></th>

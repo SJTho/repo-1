@@ -74,18 +74,18 @@ header {
     color: white;
     background-color: black;
     text-align: left;
-    font-size:2em;
+    font-size:1.2em;
     text-transform:uppercase; 
 }
 
 #help-button {
     position: absolute;
-    right: 5%;
+    right: 3%;
     top: 55%;
     transform: translate(-50%,-50%);
     color: white;
-    width: 70px;
-    height: 70px;
+    width: 30px;
+    height: 30px;
 }
 
 
@@ -108,7 +108,7 @@ h1 {
     text-align: center;
     transform: translate(-50%,-50%);
     color: black;
-    font-size: 1.5em;
+    font-size: 1.1em;
     text-transform: uppercase;
 }
 
@@ -120,21 +120,70 @@ h1 {
     transform: translate(-50%,-50%);
 }
 
-#linklist {
-    position: absolute;
-    top: 20%;
-    left: 5%;
-    list-style-type: none;
-    width:90%;
-}
 
 li {
     padding:5px;
 }
 
-.hidden {
-    display: none;
+
+/*table building elements*/
+
+#myTable {
+    position:absolute;
+    top:20%;
+    left:5%;
 }
+
+    #myTable thead {
+        text-align: left;
+    }
+
+    #myTable tbody th {
+        text-align: left;
+        padding: 3% 0% 0% 1%;
+    }
+
+
+#showaddfields {
+    position: absolute;
+    top:20%;
+    right:10%;
+}
+
+
+#clearstorage {
+    position: absolute;
+    top: 20%;
+    right: 50%;
+}
+
+#addarecord {
+    visibility: hidden;
+    border-style: solid;
+    width: 350px;
+    padding: 5px 20px 20px 20px;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 1;
+    background-color: cadetblue;
+}
+
+#editarecord {
+    visibility: hidden;
+    border-style: solid;
+    width: 350px;
+    padding: 5px 20px 20px 20px;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 1;
+    background-color: cadetblue;
+}
+
+
 
 /*footer holds the site navigation buttons*/
 
@@ -157,6 +206,6 @@ footer a {
 }
 
 footer img {
-    height: 30px;
-    width: 30px;
+    height: 15px;
+    width: 15px;
 }

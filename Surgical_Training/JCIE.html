@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="../Surgical_Training/stylesheet2.css" />
     <script src="../Surgical_Training/Script1.js"></script>
 </head>
-<body onload="updatelinks('candidate');">
+
+<body onload="retrievefromstorage();">
 
 
     <!--header contains the Surgical trainer banner-->
@@ -32,23 +33,93 @@
         <div name id="enter-role">
 
             <label>What is your role? &nbsp;</label>
-            <select id="jcie-role" size="1" onchange="updatelinks(this.value)">
-                <option value="candidate">Candidate</option>
-                <option value="examiner">Examiner</option>
+            <select id="role" size="1" onchange="ShowList()">
+                <option value="JCIE-candidate">Candidate</option>
+                <option value="JCIE-examiner">Examiner</option>
             </select>
 
         </div>
 
+        <table id="myTable" ;>
+            <thead>
+                <tr>
+                    <th width="250px" ;>Name</th>
+                    <th width="750px" ;>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
 
-        <ul name id="linklist">
+        <button id="showaddfields" onclick="showaddfields()">Add New</button>
+    
 
-            <li class="candidate"><a href="https://www.jcie.org.uk/Content/content.aspx" target="_self">Home page</a></li>
-            <li class="candidate"><a href="https://www.jcie.org.uk/calendar/calendar.aspx" target="_self">Exam dates</a></li>
-            <li class="candidate"><a href="https://www.jcie.org.uk/content/content.aspx?ID=22" target="_self">Apply</a></li>
-            <li class="examiner"><a href="https://www.jcie.org.uk/content/content.aspx?ID=23" target="_self">Examiner Application</a></li>
-            <li class="examiner"><a href="https://www.jcie.org.uk/content/content.aspx?ID=41" target="_self">Question Writers Panel Application</a></li>
 
-        </ul>
+        <div id="addarecord">
+            <h3 style="text-align:center">Add New Link</h3>
+            <br />
+            <label>Order: </label>
+            <input type="text" id="order" name="order" />
+            <br /><br />
+            <label>Display text: </label>
+            <input type="text" id="displaytext" name="displaytext" />
+            <br /> <br />
+            <label>url: </label>
+            <input type="text" id="linkurl" name="linkurl" />
+            <br /> <br />
+            <label>Description: </label>
+            <input type="text" id="description" name="description" />
+            <br /> <br />
+            <label>Expiry date (if any): </label>
+            <input type="text" id="expires" name="expires" />
+            <br /> <br />
+            <label>Show to (select all that apply): </label>
+            <select id="who" size="1">
+                <option value="JCIE-candidate">Candidate</option>
+                <option value="JCIE-examiner">Examiner</option>
+            </select>
+            <br /> <br />
+            <label>The system will record your ip address and add a time stamp</label>
+            <br /> <br />
+            <label id="spaceforsubmit"></label>
+            <input type="submit" value="Submit" onclick="AddToList()">
+            <br />
+
+        </div>
+
+        <div id="editarecord">
+            <h3 style="text-align:center">Edit a Link</h3>
+            <br />
+            <label>Order: </label>
+            <input type="text" id="orderEdit" name="orderEdit" />
+            <br /> <br />
+            <label>Display text: </label>
+            <input type="text" id="displaytextEdit" name="displaytextEdit" />
+            <br /> <br />
+            <label>url: </label>
+            <input type="text" id="linkurlEdit" name="linkurlEdit" />
+            <br /> <br />
+            <label>Description: </label>
+            <input type="text" id="descriptionEdit" name="descriptionEdit" />
+            <br /> <br />
+            <label>Expiry date (if any): </label>
+            <input type="text" id="expiresEdit" name="expiresEdit" />
+            <br /> <br />
+            <label>Show to (select all that apply): </label>
+            <select id="whoEdit" size="1">
+                <option value="JCIE-candidate">Candidate</option>
+                <option value="JCIE-examiner">Examiner</option>
+            </select>
+            <br /> <br />
+            <label>The system will record your ip address and add a time stamp</label>
+            <br /> <br />
+            <label id="spaceforsubmit"></label>
+            <input type="submit" value="Submit" onclick="editrecordsubmit()">
+            <br />
+            <textarea id="recordnumber" name="recordnumber" style="display:none;"></textarea>
+
+        </div>
+
 
     </section>
 
@@ -58,7 +129,7 @@
         <table Style="width:100%;">
             <tr>
                 <th width="20%"><a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a></th>
-                <th width="20%"><a href="JCST.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></th>
+                <th width="20%"><a href="logbook2.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a></th>
                 <th width="20%"><a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />JCST COPSS</a></th>
                 <th width="20%"><a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a></th>
                 <th width="20%"><a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a></th>
