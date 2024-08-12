@@ -11,6 +11,12 @@
     font-size: 100%;
 }
 
+@media screen and (max-width: 992px) {
+    .navbar {
+        display: none;
+    }
+}
+
 
 /*splashscreen intro on index page*/
 
