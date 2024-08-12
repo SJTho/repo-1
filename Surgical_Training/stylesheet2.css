@@ -88,7 +88,6 @@ header {
     height: 30px;
 }
 
-
 /*content is the main section*/
 
 #content {
@@ -97,14 +96,15 @@ header {
     position: absolute;
     top: 10%;
     left: 0;
-    height: 93%;
-    font-size: smaller
+    height: 85%;
+    font-size: small
 }
 
 h1 {
     position: absolute;
     top: 4%;
     left: 50%;
+    width:90%;
     text-align: center;
     transform: translate(-50%,-50%);
     color: black;
@@ -193,7 +193,7 @@ footer {
     bottom: 0;
     background-color: dimgrey;
     text-align: center;
-    height: 7%;
+    height: 5%;
     width: 100%;
 }
 
@@ -209,7 +209,7 @@ footer {
         padding: 10px;
         text-decoration-line: none;
         color: black;
-        font-size: small;
+        font-size: x-small;
     }
 
     footer img {
