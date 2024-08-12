@@ -24,6 +24,10 @@
     })
 
 
+ // This hides the address bar:
+document.addEventListener("click", function () {
+    window.scrollTo(0, 1)
+});
 
 //define the start array if not in localstorage
 
