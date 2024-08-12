@@ -197,15 +197,22 @@ footer {
     width: 100%;
 }
 
-footer a {
-    position: absolute;
-    top: 10%;
-    text-decoration-line: none;
-    color: black;
-    font-size: small;
-}
+    footer div {
+        display: grid;
+        grid-auto-flow:column;
+        grid-gap: 1px;
+        justify-items: center;
+        margin: auto;
+    }
 
-footer img {
-    height: 15px;
-    width: 15px;
-}
+ footer a {
+        padding: 10px;
+        text-decoration-line: none;
+        color: black;
+        font-size: small;
+    }
+
+    footer img {
+        height: 15px;
+        width: 15px;
+    }
