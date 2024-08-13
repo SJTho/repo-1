@@ -27,8 +27,7 @@
 
 
         <h1>Logbook</h1>
-
-
+      
         <div name id="enter-role">
 
             <label>What is your role? &nbsp;</label>
@@ -39,19 +38,29 @@
         </div>
 
 
-        <table id="myTable" ;>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
 
-        
-        <button id="showaddfields1" onclick="showaddfields()">Add</button>
+        <div name id="buttonsandtable">
+
+            <label>Edit&nbsp;</label>
+            <label class="switch">
+                <input type="checkbox" onclick="showeditbuttons()">
+                <span class="slider round"></span>
+            </label>
+
+            <button id="showaddfields" onclick="showaddfields()">Add</button>
+            <br /><br />
+            <table id="myTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
 
         <div id="addarecord">
             <h3 style="text-align:center">Add New Link</h3>
@@ -125,11 +134,11 @@
 
     <footer>
         <div>
-            <a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" />ISCP</a>
-            <a href="logbook2.html"><img src="images/logbookicon.png" alt="logbook_icon" />Logbook</a>
-            <a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" />CST COPSS</a>
-            <a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" />JCIE</a>
-            <a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" />ICBSE</a>
+            <a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a>
+            <a href="logbook2.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a>
+            <a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />CST COPSS</a>
+            <a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a>
+            <a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a>
         </div>
     </footer>
 </body>

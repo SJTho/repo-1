@@ -36,19 +36,28 @@
 
 
 
-        <table id="myTable" ;>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div name id="buttonsandtable">
 
+            <label>Edit&nbsp;</label>
+            <label class="switch">
+                <input type="checkbox" onclick="showeditbuttons()">
+                <span class="slider round"></span>
+            </label>
 
-        <button id="showaddfields" onclick="showaddfields()">Add New</button>
+            <button id="showaddfields" onclick="showaddfields()">Add</button>
+            <br /><br />
+
+            <table id="myTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
 
 
         <div id="addarecord">

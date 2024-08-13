@@ -25,7 +25,6 @@
 
 
 
-
 //define the start array if not in localstorage
 
 let linksarray = [
@@ -159,4 +158,13 @@ function retrievefromstorage() {
 function clearstorage() {
     localStorage.clear();
     ShowList();
+}
+
+function showeditbuttons() {
+    var x = document.getElementById("showaddfields");
+    if (x.style.display === "inline-block") {
+        x.style.display = "none";
+    } else {
+        x.style.display = "inline-block";
+    }
 }
