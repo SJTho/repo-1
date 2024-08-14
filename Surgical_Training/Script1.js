@@ -38,7 +38,7 @@ let linksarray = [
     { order: 6, displaytext: "My Training Programmes", linkurl: "https://client.elogbook.org/eLogbook/Director/TrainingProgrammeList", description: "see how your trainees and your training programme are doing", expires: "01/01/1950", showto: "logbook-director" },
     { order: 6, displaytext: "JCST Home Page", linkurl: "https://www.jcst.org/", description: "JCST landing page", expires: "01/01/1950", showto: "JCST-all" },
     { order: 6, displaytext: "JCST Data Requests", linkurl: "https://www.jcst.org/data-requests/", description: "Request data from ISCP, JCST and the logbook", expires: "01/01/1950", showto: "JCST-all" },
-    { order: 6, displaytext: "Gold Guide", linkurl: "https://www.copmed.org.uk/publications/gold-guide/gold-guide-9th-edition", description: "Guide to the rules that govern training", expires: "01/01/1950", showto: "JCST-all" },
+    { order: 6, displaytext: "Gold Guide", linkurl: "https://www.copmed.org.uk/publications/gold-guide/gold-guide-9th-edition", description: "Guide to the rules that govern training (provided by the Conference of the Postgraduate Medical Deans)", expires: "01/01/1950", showto: "JCST-all" },
     { order: 6, displaytext: "Home Page", linkurl: "https://www.jcie.org.uk/Content/content.aspx", description: "JCIE home page", expires: "01/01/1950", showto: "JCIE-candidate" },
     { order: 6, displaytext: "Exam dates", linkurl: "https://www.jcie.org.uk/calendar/calendar.aspx", description: "Calender of exam dates", expires: "01/01/1950", showto: "JCIE-candidate" },
     { order: 6, displaytext: "Apply", linkurl: "https://www.jcie.org.uk/content/content.aspx?ID=22", description: "Apply for an examination", expires: "01/01/1950", showto: "JCIE-candidate" },
