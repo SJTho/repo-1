@@ -83,24 +83,25 @@ function AddToList() {
     });
     localStorage.setItem("myarray", JSON.stringify(linksarray));
     ShowList();
+    showeditbuttons();
     document.getElementById("addarecord").style.visibility = 'hidden';
     document.getElementById("showaddfields").style.visibility = 'visible';
 
 }
 
-//sorts and updates the diaplayed list
+//sorts and updates the displayed list
 function ShowList() {
 
     linksarray.sort(function (a, b) { return a.order - b.order });
-
+    document.getElementById("showaddfields").style.display="none";
     let Role = document.getElementById("role").value;
     let variable2 = "";
     for (let i = 0; i < linksarray.length; i++) {
         if (linksarray[i].showto == Role) { 
         variable2 += "<tr><th><a href=" + linksarray[i].linkurl + " target='_self'>" + linksarray[i].displaytext + "</a></th>";
             variable2 += "<th>" + linksarray[i].description; + "</th>";
-            variable2 += "<th>" + "<img src='images/edit.jpg' style='width:18px' onclick='editrecord(" + i + ")'>" + "</th>";
-        variable2 += "<th>" + "<img src='images/delete.jpg' style='width:18px' onclick='deleterecord(" + i + ")'>" + "</th></tr>";
+            variable2 += "<th  class='hideable hidden'>" + "<label onclick='editrecord(" + i + ")'>Edit</label>" + "</th>";
+            variable2 += "<th class='hideable hidden'>" + "<label onclick='deleterecord(" + i + ")'>Delete</label>" + "</th></tr>";
 
     }
 }
@@ -110,7 +111,9 @@ function ShowList() {
 //this function deletes a single record
 function deleterecord(s) {
     linksarray.splice(s, 1);
+    localStorage.setItem("myarray", JSON.stringify(linksarray));
     ShowList();
+    showeditbuttons();
 }
 
 
@@ -142,6 +145,7 @@ function editrecordsubmit() {
     document.getElementById("editarecord").style.visibility = 'hidden';
     localStorage.setItem("myarray", JSON.stringify(linksarray));
     ShowList();
+    showeditbuttons();
 }
 
 //These funtions store or retrieve data from localstorage
@@ -161,10 +165,25 @@ function clearstorage() {
 }
 
 function showeditbuttons() {
+
+   
+    const r = document.getElementsByClassName("hideable");
+    for (let i = 0; i < r.length; i++) {
+        if (r[i].style.display === "inline-block") {
+            r[i].style.display = "none";
+        } else {
+            r[i].style.display = "inline-block";
+        }
+    };
+
+
+
     var x = document.getElementById("showaddfields");
+
     if (x.style.display === "inline-block") {
         x.style.display = "none";
     } else {
         x.style.display = "inline-block";
     }
+
 }

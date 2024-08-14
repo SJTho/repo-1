@@ -127,14 +127,17 @@ h1 {
     top: 100px;
     left: 5%;
     width: 90%;
+   
 }
 
-/* The switch - the box around the slider */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 45px;
-    height: 16px;
+/* Toggle switch */
+
+      /*The switch - the box around the slider */
+     .switch {
+        position: relative;
+        display: inline-block;
+        width: 45px;
+        height: 16px;
 }
 
     /* Hide default HTML checkbox */
@@ -144,17 +147,17 @@ h1 {
         height: 0;
     }
 
-/* The slider */
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
+    /* The slider */
+    .slider {
+       position: absolute;
+       cursor: pointer;
+       top: 0;
+       left: 0;
+       right: 0;
+       bottom: 0;
+       background-color: #ccc;
+       -webkit-transition: .4s;
+       transition: .4s;
 }
 
     .slider:before {
@@ -169,22 +172,22 @@ h1 {
         transition: .4s;
     }
 
-input:checked + .slider {
-    background-color: #2196F3;
+    input:checked + .slider {
+        background-color: #2196F3;
 }
 
-input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
 }
 
-input:checked + .slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
 }
 
-.slider.round {
-    border-radius: 34px;
+    .slider.round {
+        border-radius: 34px;
 }
 
     .slider.round:before {
@@ -201,18 +204,28 @@ input:checked + .slider:before {
 
 #myTable {
     width: 100%;
+    background-color: grey;
 }
-
-    #myTable thead {
-        text-align: left;
-    }
 
     #myTable tbody th {
         text-align: left;
-        padding: 3% 0% 0% 2%;
+        padding: 1% 1% 1% 1%;
     }
 
+    #myTable label {
+        color: blue;
+        text-decoration-line: underline;
+    }
 
+    .hidden {
+        display: none;
+}
+
+#showaddfields {
+    position: absolute;
+    right: 5%;
+    display: none;
+}
 
 #addarecord {
     visibility: hidden;
@@ -267,7 +280,7 @@ footer {
         margin: auto;
     }
 
- footer a {
+    footer a {
         text-decoration-line: none;
         color: black;
         font-size: x-small;
