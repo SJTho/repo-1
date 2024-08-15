@@ -258,6 +258,7 @@ h1 {
     top: 50%;
     left: 45%;
     transform: translate(-50%,-50%);
+    display: none;
 }
 
 /*footer holds the site navigation buttons*/
