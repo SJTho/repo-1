@@ -4,7 +4,6 @@
 //splashscreen sequence on intro slide
 
 
-
     let intro = document.querySelector('.splashscreen')
     let logo = document.querySelector('.splashscreenheader')
     let logoSpan = document.querySelectorAll('.logo')
