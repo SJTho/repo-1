@@ -24,15 +24,6 @@
     })
 
 
-//This calls the add to homescreen function if required
-if (
-    (("standalone" in window.navigator) && !window.navigator.standalone)
-    ||
-    (!window.matchMedia('(display-mode: standalone)').matches)
-) {
-    addToHomescreen();
-}
-
 
 //define the start array if not in localstorage
 
