@@ -162,6 +162,7 @@ function retrievefromstorage() {
 
 function clearstorage() {
     localStorage.clear();
+    showIndexContent();
     ShowList();
 }
 
@@ -193,4 +194,11 @@ function showTextOnPage() {
     document.getElementById("textOnPage").style.display = "block";
     document.getElementById("buttonsandtable").style.display = "none";
     document.getElementById("enter-role").style.display = "none";
+}
+
+
+function showIndexContent() {
+    document.getElementById("textOnPage").style.display = "none";
+    document.getElementById("buttonsandtable").style.display = "block";
+    document.getElementById("enter-role").style.display = "block";
 }

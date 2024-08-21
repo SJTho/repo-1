@@ -59,7 +59,7 @@
 
     <header>
 
-        <a href="../Surgilinks/home.html"><span name id="surgical-training-banner">Neurolinks</span></a>
+        <<span name id="surgical-training-banner" onclick="showIndexContent()">Neurolinks</span>
         <img name id="help-button" src="images/helpicon.png" alt="help_icon" onclick="showTextOnPage()"/>
 
     </header>
@@ -72,9 +72,29 @@
         <!--textOnPage is free text used on index and help pages only-->
         <div name id="textOnPage">
             <br />
-            <p style="text-align:center;">This is help content </p>
+            <h2>Reset all links to Default</h2>
             <br />
-            <button id="clearstorage" onclick="clearstorage()">Clear all local stored links</button>
+            <p>
+                To reset everything to the default settings click <a onclick="clearstorage()" href="#">
+                    here
+                </a>.  Take care this is irreversible!
+            </p>
+            <br />
+            <br />
+            <h2>Export all links</h2>
+            <br />
+            <p>
+                To export your list of links to another device.
+            </p>
+            <br />
+            <br />
+            <h2>Cookies and passwords</h2>
+            <br />
+            <p>This is a webapp. It uses "local storage" to store links on your device. Local storage is a bit like a cookie but no cookies are used.</p>
+            <p>The app does not store passwords but if you allow your device to save passwords you will be able to access the various links without needing to enter a password.</p>
+            <br />
+            <br />
+            <button id="closeTextOnPage" onclick="showIndexContent()">Close</button>
         </div>
 
    

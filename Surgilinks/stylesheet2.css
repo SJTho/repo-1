@@ -260,10 +260,12 @@ header {
 
 
 /* Hidden except to admin - button used to reset local storage to default values */
+
 #clearstorage {
-    position: absolute;
-    top: 50px;
-    left: 45%;
-    transform: translate(-50%,-50%);
+    display: inline-block;   
 }
 
+
+#closeTextOnPage {
+    display: inline-block;
+}
