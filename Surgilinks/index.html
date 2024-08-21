@@ -25,7 +25,6 @@
     <link rel="apple-touch-icon" sizes="144x144" href="../Surgilinks/images/icons/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="../Surgilinks/images/icons/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../Surgilinks/images/icons/apple-icon-180x180.png">
-
     <link rel="icon" type="image/png" sizes="192x192" href="../Surgilinks/images/icons/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="../Surgilinks/images/icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="../Surgilinks/images/icons/favicon-96x96.png">
@@ -37,7 +36,7 @@
 
 </head>
 
-<body>
+<body onload="ShowList()">
     <!--the splashscreen displays when the app is first opened on z-index 2-->
 
     <div class="splashscreen">
@@ -61,7 +60,7 @@
     <header>
 
         <a href="../Surgilinks/home.html"><span name id="surgical-training-banner">Neurolinks</span></a>
-        <a href="../Surgilinks/help.html"><img name id="help-button" src="images/helpicon.png" alt="help_icon" /></a>
+        <img name id="help-button" src="images/helpicon.png" alt="help_icon" onclick="showTextOnPage()"/>
 
     </header>
 
@@ -73,26 +72,27 @@
         <!--textOnPage is free text used on index and help pages only-->
         <div name id="textOnPage">
             <br />
-            <p style="text-align:center;">An intercollegiate training app?<p>
-            <p style="text-align:center;">This is a demonstration of what could be .... </p>
-            <br /><br /><br /><br /><br />
-            <div>
-                <button id="clearstorage" onclick="clearstorage()">Clear all local stored links</button>
-            </div>
+            <p style="text-align:center;">This is help content </p>
+            <br />
+            <button id="clearstorage" onclick="clearstorage()">Clear all local stored links</button>
         </div>
 
-
-        <!--linkGroupTitle shows the group currently showing in the table-->
-        <div name id="linkGroupTitle">
-            <h1>Logbook</h1>
-        </div>
-
-
-        <!--enter-role allows a user to filter the table to their role-->
+   
+        <!--enter-role allows a user to filter the table to their role and link category-->
         <div name id="enter-role">
             <select id="role" size="1" onchange="ShowList()">
-                <option value="logbook-user">User</option>
-                <option value="logbook-director">Director</option>
+                <option value="all">All</option>
+                <option value="trainee">Trainee</option>
+                <option value="consultant">Consultant</option>
+            </select>
+            <select id="categoryFilter" size="1" onchange="ShowList()">
+                <option value="all">All</option>
+                <option value="logbook">Logbook</option>
+                <option value="ISCP">ISCP</option>
+                <option value="JCST-COPPS">JCST & COPPS</option>
+                <option value="JCIE">JCIE</option>
+                <option value="ICBSE">ICBSE</option>
+                <option value="coursesConferences">Courses and Conferences</option>
             </select>
         </div>
 
@@ -183,16 +183,7 @@
     </section>
 
 
-    <!--footer contains the foot bar-->
-    <footer>
-        <div>
-            <a href="ISCP.html"><img src="images/iscpicon.png" alt="ISCP_icon" /><br />ISCP</a>
-            <a href="logbook2.html"><img src="images/logbookicon.png" alt="logbook_icon" /><br />Logbook</a>
-            <a href="JCST.html"><img src="images/jcsticon.png" alt="JCST_icon" /><br />JCST</a>
-            <a href="JCIE.html"><img src="images/jcieicon.png" alt="JCIE_icon" /><br />JCIE</a>
-            <a href="ICBSE.html"><img src="images/icbseicon.png" alt="ICBSE_icon" /><br />ICBSE</a>
-        </div>
-    </footer>
+  
 
 
     <script src="../Surgilinks/Script1.js"></script>
