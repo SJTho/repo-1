@@ -114,6 +114,7 @@ header {
 
 /* Free Text on page */
 #textOnPage {
+    margin-left:10px;
     display: none;
 }
 
