@@ -87,7 +87,7 @@
             <br />
             <h2>Cookies and passwords</h2>
             <br />
-            <p>This is a webapp. It uses "local storage" to store links on your device. Local storage is a bit like a cookie but no cookies are used.</p><br />
+            <p>This is a webapp and it uses "local storage" to store links on your device. Local storage is a bit like a cookie, local storage is essential if the app is to function.</p><br />
             <p>The app itself does not store any passwords but if you allow your device to save them then you should be able to access the various links without needing to worry about login screens.</p>
             <br />
             <br />
@@ -133,6 +133,7 @@
         <!--addarecord is a popup for adding new links-->
         <div id="addarecord">
             <h3 style="text-align:center">Add New Link</h3>
+            <h3 id="closeBox" onclick="closebox()">X</h3>
             <br />
             <label>Order: </label>
             <input type="text" id="order" name="order" />
@@ -146,19 +147,22 @@
             <label>Description: </label>
             <input type="text" id="description" name="description" />
             <br /> <br />
+            <label>Category: </label>
+            <input type="text" id="category" name="category" />
+            <br /> <br />
             <label>Expiry date (if any): </label>
             <input type="text" id="expires" name="expires" />
             <br /> <br />
             <label>Show to (select all that apply): </label>
             <select id="who" size="1">
-                <option value="logbook-user">User</option>
-                <option value="logbook-director">Director</option>
+                <option value="trainee">Trainee</option>
+                <option value="consultant">Consultant</option>
             </select>
             <br /> <br />
             <label>The system will record your ip address and add a time stamp</label>
             <br /> <br />
             <label id="spaceforsubmit"></label>
-            <input type="submit" value="Submit" onclick="AddToList()">
+            <input type="submit" value="Submit" onclick="AddToList()" style="position: absolute; left: 50%; transform: translateX(-50%);">
             <br />
         </div>
 
@@ -166,6 +170,7 @@
         <!--editarecord is a popup for editing existing links-->
         <div id="editarecord">
             <h3 style="text-align:center">Edit a Link</h3>
+            <h3 id="closeBox" onclick="closebox()">X</h3>
             <br />
             <label>Order: </label>
             <input type="text" id="orderEdit" name="orderEdit" />
@@ -182,16 +187,19 @@
             <label>Expiry date (if any): </label>
             <input type="text" id="expiresEdit" name="expiresEdit" />
             <br /> <br />
+            <label>Category: </label>
+            <input type="text" id="categoryEdit" name="categoryEdit" />
+            <br /> <br />
             <label>Show to (select all that apply): </label>
             <select id="whoEdit" size="1">
-                <option value="logbook-user">User</option>
-                <option value="logbook-director">Director</option>
+                <option value="trainee">Trainee</option>
+                <option value="consultant">Consultant</option>
             </select>
             <br /> <br />
             <label>The system will record your ip address and add a time stamp</label>
             <br /> <br />
             <label id="spaceforsubmit"></label>
-            <input type="submit" value="Submit" onclick="editrecordsubmit()">
+            <input type="submit" value="Submit" onclick="editrecordsubmit()" style="position: absolute; left: 50%; transform: translateX(-50%);">
             <br />
             <textarea id="recordnumber" name="recordnumber" style="display:none;"></textarea>
         </div>

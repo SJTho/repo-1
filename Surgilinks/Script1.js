@@ -66,7 +66,6 @@ let linksarray = [
 
 function showaddfields() {
     document.getElementById("addarecord").style.visibility = 'visible';
-    document.getElementById("showaddfields").style.visibility = 'hidden';
 }
 
 
@@ -78,6 +77,7 @@ function AddToList() {
         linkurl: document.getElementById("linkurl").value,
         description: document.getElementById("description").value,
         expires: document.getElementById("expires").value,
+        category: document.getElementById("category").value,
         showto: document.getElementById("who").value
     });
     localStorage.setItem("myarray", JSON.stringify(linksarray));
@@ -127,6 +127,7 @@ function editrecord(s) {
     document.getElementById("linkurlEdit").value = linksarray[s].linkurl;
     document.getElementById("descriptionEdit").value = linksarray[s].description;
     document.getElementById("expiresEdit").value = linksarray[s].expires;
+    document.getElementById("categoryEdit").value = linksarray[s].category;
     document.getElementById("whoEdit").value = linksarray[s].showto;
 
     document.getElementById("recordnumber").value = s;
@@ -140,6 +141,7 @@ function editrecordsubmit() {
         linkurl: document.getElementById("linkurlEdit").value,
         description: document.getElementById("descriptionEdit").value,
         expires: document.getElementById("expiresEdit").value,
+        category: document.getElementById("categoryEdit").value,
         showto: document.getElementById("whoEdit").value,
     });
 
@@ -201,4 +203,10 @@ function showIndexContent() {
     document.getElementById("textOnPage").style.display = "none";
     document.getElementById("buttonsandtable").style.display = "block";
     document.getElementById("enter-role").style.display = "block";
+}
+
+
+function closebox() {
+    document.getElementById("editarecord").style.visibility = "hidden";
+    document.getElementById("addarecord").style.visibility = "hidden";
 }
