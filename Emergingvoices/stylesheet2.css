@@ -1,0 +1,75 @@
+﻿/*css form neurolinks*/
+
+/*whole document*/
+
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    font-size: 100%;
+}
+
+
+
+
+/*document body contains 3 sections: header, content and footer*/
+
+body {
+    width: 100%;
+    height: 100vh;
+    background-color: cadetblue;
+}
+
+
+
+
+/*content is the main section*/
+
+
+
+h1 {
+    position: relative;
+    top: 20px;
+    left: 50%;
+    width:90%;
+    text-align: center;
+    transform: translate(-50%,-50%);
+    color: black;
+    font-size: 2em;
+    text-transform: uppercase;
+}
+
+p {
+    position: relative;
+    top: 40px;
+    left: 50%;
+    text-align: center;
+    transform: translate(-50%,-50%);
+}
+
+
+
+
+
+
+/*footer holds the site navigation buttons*/
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    background-color: dimgrey;
+    text-align: center;
+    height: 5%;
+    width: 100%;
+}
+
+    footer div {
+        display: grid;
+        grid-auto-flow:column;        
+        padding: 5px 0 0 0;
+        justify-items: center;
+        margin: auto;
+    }
