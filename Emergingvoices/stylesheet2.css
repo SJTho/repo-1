@@ -37,7 +37,7 @@ h1 {
     text-align: center;
     transform: translate(-50%,-50%);
     color: black;
-    font-size: 2em;
+    font-size: 3em;
     text-transform: uppercase;
 }
 
@@ -47,6 +47,7 @@ p {
     left: 50%;
     text-align: center;
     transform: translate(-50%,-50%);
+    font-size: 1.5em;
 }
 
 
@@ -62,14 +63,7 @@ footer {
     bottom: 0;
     background-color: dimgrey;
     text-align: center;
-    height: 5%;
+    height: 8%;
     width: 100%;
+    font-size: 1.5em;
 }
-
-    footer div {
-        display: grid;
-        grid-auto-flow:column;        
-        padding: 5px 0 0 0;
-        justify-items: center;
-        margin: auto;
-    }
