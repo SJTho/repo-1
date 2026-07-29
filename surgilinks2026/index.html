@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UK Surgical Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0b1526;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #1f3b6f;
+            padding: 20px;
+            margin: 15px auto;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            background: #2a4c8a;
+        }
+
+        a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        #roleSelect,
+        #specialtySelect {
+            margin-bottom: 25px;
+            background: #14233d;
+            padding: 15px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        #roleSelect select,
+        #specialtySelect select {
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Surgical Hub (UK)</h1>
+
+    <!-- Role Selector -->
+    <div id="roleSelect">
+        <label for="role">Select Role:</label>
+        <select id="role">
+            <option value="trainee">Trainee</option>
+            <option value="trainer">Trainer</option>
+        </select>
+    </div>
+
+    <!-- Specialty Selector -->
+    <div id="specialtySelect">
+        <label for="specialty">Select Specialty:</label>
+        <select id="specialty">
+            <option value="Cardiothoracic Surgery">Cardiothoracic Surgery</option>
+            <option value="Core Surgery">Core Surgery</option>
+            <option value="General Surgery">General Surgery</option>
+            <option value="Maxillofacial Surgery">Maxillofacial Surgery</option>
+            <option value="Neurosurgery">Neurosurgery</option>
+            <option value="Otolaryngology">Otolaryngology</option>
+            <option value="Paediatric Surgery">Paediatric Surgery</option>
+            <option value="Plastic Surgery">Plastic Surgery</option>
+            <option value="Trauma and Orthopaedics">Trauma and Orthopaedics</option>
+            <option value="Urology">Urology</option>
+            <option value="Vascular Surgery">Vascular Surgery</option>
+        </select>
+    </div>
+
+    <!-- Dynamic Links -->
+    <div id="linksContainer"></div>
+
+    <script>
+        const specialtyLinks = {
+            "Cardiothoracic Surgery": "https://scts.org",
+            "Core Surgery": null,
+            "General Surgery": "https://www.alsgbi.org",
+            "Maxillofacial Surgery": "https://www.baoms.org.uk",
+            "Neurosurgery": "https://www.sbns.org.uk",
+            "Otolaryngology": "https://www.entuk.org",
+            "Paediatric Surgery": "https://www.baps.org.uk",
+            "Plastic Surgery": "https://www.bapras.org.uk",
+            "Trauma and Orthopaedics": "https://www.boa.ac.uk",
+            "Urology": "https://www.baus.org.uk",
+            "Vascular Surgery": "https://www.vascularsociety.org.uk"
+        };
+
+        const roleSelect = document.getElementById("role");
+        const specialtySelect = document.getElementById("specialty");
+        const linksContainer = document.getElementById("linksContainer");
+
+        roleSelect.value = localStorage.getItem("userRole") || "trainee";
+        specialtySelect.value = localStorage.getItem("userSpecialty") || "Neurosurgery";
+
+        roleSelect.addEventListener("change", () => {
+            localStorage.setItem("userRole", roleSelect.value);
+            renderLinks();
+        });
+
+        specialtySelect.addEventListener("change", () => {
+            localStorage.setItem("userSpecialty", specialtySelect.value);
+            renderLinks();
+        });
+
+        function createCard(title, url, description) {
+            return `
+        <div class="card" onclick="window.open('${url}','_blank')">
+          <a>${title}</a>
+          <p>${description}</p>
+        </div>
+      `;
+        }
+
+        function renderLinks() {
+            const role = roleSelect.value;
+            const specialty = specialtySelect.value;
+
+            let html = "";
+
+            html += createCard("ISCP", "https://www.iscp.ac.uk", "Portfolio, WBAs, curriculum.");
+            html += createCard("eLogbook", "https://www.elogbook.org", "Case logging for ARCP and certification.");
+
+            if (role === "trainee") {
+                html += createCard("JCST", "https://www.jcst.org", "Training oversight, certification guidance.");
+                html += createCard("JCIE", "https://www.jcie.org.uk", "FRCS exam information and timelines.");
+
+                // NEW: MCQ page link
+                html += `
+          <div class="card" onclick="window.location.href='mcq.html'">
+            <a>Practice MCQs</a>
+            <p>Generate customised MCQs.</p>
+          </div>
+        `;
+            }
+
+            const assocURL = specialtyLinks[specialty];
+            if (assocURL) {
+                html += createCard(specialty, assocURL, "Specialty association resources.");
+            }
+
+            linksContainer.innerHTML = html;
+        }
+
+        renderLinks();
+    </script>
+</body>
+
+</html>
