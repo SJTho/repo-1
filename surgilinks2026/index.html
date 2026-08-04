@@ -39,18 +39,40 @@
         </select>
     </div>
 
-    <!-- Dynamic Links -->
-    <div id="linksContainer"></div>
+    <!-- Icon Grid -->
+    <div id="linksContainer" class="iconGrid"></div>
+
+    <!-- MCQ Button (separate) -->
+    <div id="mcqContainer"></div>
+
+    <!-- Delete Popup -->
+    <div id="deletePopup" style="
+        display:none;
+        position:fixed;
+        top:0; left:0;
+        width:100%; height:100%;
+        background:rgba(0,0,0,0.7);
+        justify-content:center;
+        align-items:center;
+    ">
+        <div style="
+            background:#14233d;
+            padding:20px;
+            border-radius:10px;
+            width:300px;
+            text-align:center;
+        ">
+            <p style="margin-bottom:20px;">Delete this custom link?</p>
+            <button id="confirmDelete" style="background:#8a2a2a; margin-bottom:10px;">Delete</button>
+            <button id="cancelDelete">Cancel</button>
+        </div>
+    </div>
 
     <script>
-
-
-
-
         const specialtyLinks = {
             "Cardiothoracic Surgery": "https://scts.org",
             "Core Surgery": null,
-            "General Surgery": "https://www.alsgbi.org",
+            "General Surgery": "https://www.asgbi.org.uk/",
             "Maxillofacial Surgery": "https://www.baoms.org.uk",
             "Neurosurgery": "https://www.sbns.org.uk",
             "Otolaryngology": "https://www.entuk.org",
@@ -61,9 +83,24 @@
             "Vascular Surgery": "https://www.vascularsociety.org.uk"
         };
 
+        const specialtyLabels = {
+            "Maxillofacial Surgery": "Maxfax Surgery",
+            "Trauma and Orthopaedics": "Trauma and Ortho",
+            "Cardiothoracic Surgery": "Cardiac and Thoracic",
+            "Neurosurgery": "Neuro",
+            "Otolaryngology": "ENT"
+        };
+
         const roleSelect = document.getElementById("role");
         const specialtySelect = document.getElementById("specialty");
         const linksContainer = document.getElementById("linksContainer");
+        const mcqContainer = document.getElementById("mcqContainer");
+
+        const deletePopup = document.getElementById("deletePopup");
+        const confirmDelete = document.getElementById("confirmDelete");
+        const cancelDelete = document.getElementById("cancelDelete");
+
+        let deleteIndex = null;
 
         roleSelect.value = localStorage.getItem("userRole") || "trainee";
         specialtySelect.value = localStorage.getItem("userSpecialty") || "Neurosurgery";
@@ -78,47 +115,152 @@
             renderLinks();
         });
 
-        function createCard(title, url, description) {
-            return `
-        <div class="card" onclick="window.open('${url}','_blank')">
-          <a>${title}</a>
-          <p>${description}</p>
-        </div>
-      `;
+        function createIconCard(icon, label, url) {
+            const card = document.createElement("div");
+            card.className = "iconCard";
+
+            card.addEventListener("click", () => {
+                window.open(url, "_blank");
+            });
+
+            card.innerHTML = `
+                <div class="icon">${icon}</div>
+                <p class="iconLabel">${label}</p>
+            `;
+
+            return card;
         }
 
+        function createMCQCard() {
+            const card = document.createElement("div");
+            card.className = "mcqCard";
+
+            card.addEventListener("click", () => {
+                window.location.href = "mcqcore.html";
+            });
+
+            card.innerHTML = `
+                <div class="icon">🧠</div>
+                <p>MCQs</p>
+            `;
+
+            return card;
+        }
+
+        // -----------------------------
+        // Custom Buttons (max 3)
+        // -----------------------------
+        function loadCustomButtons() {
+            const saved = JSON.parse(localStorage.getItem("customButtons") || "[]");
+            return saved.slice(0, 3);
+        }
+
+        function saveCustomButtons(buttons) {
+            localStorage.setItem("customButtons", JSON.stringify(buttons));
+        }
+
+        function renderCustomButtons() {
+            const buttons = loadCustomButtons();
+            const fragment = document.createDocumentFragment();
+
+            buttons.forEach((btn, index) => {
+                const card = document.createElement("div");
+                card.className = "iconCard";
+
+                card.addEventListener("click", () => {
+                    window.open(btn.url, "_blank");
+                });
+
+                const iconHTML = btn.image
+                    ? `<img src="${btn.image}" class="customIcon">`
+                    : `<div class="icon"></div>`; // no paperclip icon
+
+                card.innerHTML = `
+                    ${iconHTML}
+                    <p class="iconLabel">${btn.name}</p>
+                    <div style="font-size:18px; margin-top:5px; cursor:pointer;">❌</div>
+                `;
+
+                card.querySelector("div:last-child").addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    deleteIndex = index;
+                    deletePopup.style.display = "flex";
+                });
+
+                fragment.appendChild(card);
+            });
+
+            return fragment;
+        }
+
+        // Delete confirmation
+        confirmDelete.addEventListener("click", () => {
+            const buttons = loadCustomButtons();
+            buttons.splice(deleteIndex, 1);
+            saveCustomButtons(buttons);
+            deletePopup.style.display = "none";
+            renderLinks();
+        });
+
+        cancelDelete.addEventListener("click", () => {
+            deletePopup.style.display = "none";
+        });
+
+        // Add Link button (only if < 3 custom buttons)
+        function createAddLinkButton() {
+            const card = document.createElement("div");
+            card.className = "iconCard";
+
+            card.addEventListener("click", () => {
+                window.location.href = "custom_button.html";
+            });
+
+            card.innerHTML = `
+                <div class="icon"></div>
+                <p class="iconLabel">Add Link</p>
+            `;
+
+            return card;
+        }
+
+        // -----------------------------
+        // Render All Buttons
+        // -----------------------------
         function renderLinks() {
+            linksContainer.innerHTML = "";
+            mcqContainer.innerHTML = "";
+
             const role = roleSelect.value;
             const specialty = specialtySelect.value;
 
-            let html = "";
+            // First four system buttons
+            linksContainer.appendChild(createIconCard("📘", "ISCP", "https://www.iscp.ac.uk"));
+            linksContainer.appendChild(createIconCard("📊", "eLogbook", "https://client.elogbook.org/"));
+            linksContainer.appendChild(createIconCard("🎓", "JCIE", "https://www.jcie.org.uk"));
+            linksContainer.appendChild(createIconCard("🏛️", "JCST", "https://www.jcst.org"));
 
-            html += createCard("ISCP", "https://www.iscp.ac.uk", "Portfolio, WBAs, curriculum.");
-            html += createCard("eLogbook", "https://www.elogbook.org", "Case logging for ARCP and certification.");
-
-            if (role === "trainee") {
-                html += createCard("JCST", "https://www.jcst.org", "Training oversight, certification guidance.");
-                html += createCard("JCIE", "https://www.jcie.org.uk", "FRCS exam information and timelines.");
-
-                // NEW: MCQ page link
-                html += `
-          <div class="card" onclick="window.location.href='mcqcore.html'">
-            <a>Practice MCQs</a>
-            <p>Generate customised MCQs.</p>
-          </div>
-        `;
-            }
-
+            // Specialty association (always 5th)
             const assocURL = specialtyLinks[specialty];
             if (assocURL) {
-                html += createCard(specialty, assocURL, "Specialty association resources.");
+                const displayLabel = specialtyLabels[specialty] || specialty;
+                linksContainer.appendChild(createIconCard("👥", displayLabel, assocURL));
             }
 
-            linksContainer.innerHTML = html;
+            // Custom buttons (6th, 7th, 8th)
+            linksContainer.appendChild(renderCustomButtons());
+
+            // Add Link button only if fewer than 3 custom buttons
+            if (loadCustomButtons().length < 3) {
+                linksContainer.appendChild(createAddLinkButton());
+            }
+
+            // MCQ button (separate)
+            mcqContainer.appendChild(createMCQCard());
         }
 
         renderLinks();
     </script>
+
 </body>
 
 </html>

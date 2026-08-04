@@ -167,3 +167,63 @@ a {
   border-radius: 6px;
   font-size: 16px;
 }
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 15px;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.iconCard {
+  background: #1f3b6f;
+  padding: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  text-align: center;
+  font-size: 32px;
+}
+
+.iconCard:hover {
+  background: #2a4c8a;
+}
+
+.mcqCard {
+  background: #2a4c8a;
+  padding: 20px;
+  border-radius: 12px;
+  width: 120px;
+  margin: 30px auto;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.2s;
+}
+
+.mcqCard:hover {
+  background: #3b5ca3;
+}
+
+.mcqCard .icon {
+  font-size: 40px;
+}
+
+.mcqCard p {
+  margin-top: 8px;
+  font-size: 1rem;
+}
+
+.iconLabel {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.customIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  margin-bottom: 6px;
+}
