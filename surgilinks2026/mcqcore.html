@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice MCQs</title>
+
+  <!-- External stylesheet -->
+  <link rel="stylesheet" href="./mcqcore.css">
+</head>
+
+<body>
+
+  <h1>Practice MCQs</h1>
+
+  <div id="mcqArea">
+    <label for="mcqCount">How many questions?</label>
+    <input type="number" id="mcqCount" min="1" placeholder="e.g., 20">
+
+    <label for="mcqAreas">Which area of surgery?</label>
+    <select id="mcqAreas">
+      <option value="all">All</option>
+      <option value="Upper GI">Upper GI</option>
+      <option value="HPB">HPB</option>
+      <option value="Trauma">Trauma</option>
+      <option value="Orthopaedics">Orthopaedics</option>
+      <option value="Urology">Urology</option>
+      <option value="General">General</option>
+      <option value="Vascular">Vascular</option>
+      <option value="Colorectal">Colorectal</option>
+      <option value="Neurotrauma">Neurotrauma</option>
+    </select>
+
+    <label for="mcqLevel">Level:</label>
+    <select id="mcqLevel">
+      <option value="all">All</option>
+      <option value="Finals">Finals</option>
+      <option value="MRCS">MRCS</option>
+      <option value="JCIE">JCIE</option>
+    </select>
+
+    <button onclick="generateMCQs()">Submit</button>
+
+    <div id="mcqQuestions"></div>
+    <div id="scoreDisplay"></div>
+
+    <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
+  </div>
+
+  <!-- External dataset -->
+  <script src="./mcqData.js"></script>
+
+  <script>
+    function selectOption(qIndex, optIndex, element) {
+      const allOptions = document.querySelectorAll(`label.optionLabel[data-q="${qIndex}"]`);
+      allOptions.forEach(opt => opt.classList.remove("selected"));
+      element.classList.add("selected");
+
+      const radio = element.querySelector("input[type='radio']");
+      radio.checked = true;
+    }
+
+    function storeScore(score, total, topic, level) {
+      const now = new Date();
+      const timestamp =
+        now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0") + "-" +
+        String(now.getDate()).padStart(2, "0") + " " +
+        String(now.getHours()).padStart(2, "0") + ":" +
+        String(now.getMinutes()).padStart(2, "0");
+
+      const entry = {score, total, topic, level, timestamp};
+
+      let stored = localStorage.getItem("scores");
+      let scores = stored ? JSON.parse(stored) : [];
+
+      scores.push(entry);
+
+      localStorage.setItem("scores", JSON.stringify(scores));
+    }
+
+    window.copilot = {
+      generateMCQs: async ({count, topic, level}) => {
+        let filtered = demoPool;
+
+        if (topic !== "all") {
+          filtered = filtered.filter(q => q.topic.toLowerCase() === topic.toLowerCase());
+        }
+
+        if (level !== "all") {
+          filtered = filtered.filter(q => q.level.toLowerCase() === level.toLowerCase());
+        }
+
+        for (let i = filtered.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+        }
+
+        return filtered.slice(0, count);
+      }
+    };
+
+    async function generateMCQs() {
+      const count = parseInt(document.getElementById("mcqCount").value);
+      const topic = document.getElementById("mcqAreas").value;
+      const level = document.getElementById("mcqLevel").value;
+
+      if (!count || count < 1) {
+        alert("Please enter a valid number of questions.");
+        return;
+      }
+
+      const container = document.getElementById("mcqQuestions");
+      container.innerHTML = "";
+      document.getElementById("scoreDisplay").innerHTML = "";
+
+      let questions = await window.copilot.generateMCQs({count, topic, level});
+
+      if (!questions || questions.length === 0) {
+        alert("No questions available for that topic/level.");
+        return;
+      }
+
+      questions.forEach((q, index) => {
+        const block = document.createElement("div");
+        block.className = "questionBlock";
+
+        block.innerHTML = `
+          <p><strong>Q${index + 1} (${q.level}):</strong> ${q.stem}</p>
+          ${q.options.map((opt, j) => `
+            <label class="optionLabel" data-q="${index}" onclick="selectOption(${index}, ${j}, this)">
+              <input type="radio" name="q${index}" value="${j}">
+              ${opt}
+            </label>
+          `).join("")}
+        `;
+
+        block.dataset.correct = q.correctIndex;
+        block.dataset.explanation = q.explanation;
+
+        container.appendChild(block);
+      });
+
+      const submitBtn = document.createElement("button");
+      submitBtn.textContent = "Submit";
+
+      submitBtn.onclick = () => {
+        let score = 0;
+        const blocks = document.querySelectorAll(".questionBlock");
+
+        blocks.forEach((block, index) => {
+          const selected = document.querySelector(`input[name="q${index}"]:checked`);
+          const correct = block.dataset.correct;
+          const explanation = block.dataset.explanation;
+
+          if (selected && selected.value === correct) score++;
+
+          if (!block.querySelector(".explanation")) {
+            const explanationDiv = document.createElement("div");
+            explanationDiv.className = "explanation";
+            explanationDiv.innerHTML = `<strong>Explanation:</strong> ${explanation}`;
+            block.appendChild(explanationDiv);
+          }
+        });
+
+        document.getElementById("scoreDisplay").innerHTML =
+          `You scored ${score} out of ${questions.length}`;
+
+        storeScore(score, questions.length, topic, level);
+      };
+
+      container.appendChild(submitBtn);
+
+      const scoresBtn = document.createElement("button");
+      scoresBtn.textContent = "Scores";
+      scoresBtn.onclick = () => window.location.href = "scores.html";
+
+      container.appendChild(scoresBtn);
+    }
+  </script>
+
+</body>
+
+</html>
