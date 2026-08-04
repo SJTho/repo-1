@@ -126,3 +126,44 @@ button:hover {
     padding: 12px;
   }
 }
+
+
+
+
+.card {
+  background: #1f3b6f;
+  padding: 20px;
+  margin: 15px auto;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.card:hover {
+  background: #2a4c8a;
+}
+
+a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#roleSelect,
+#specialtySelect {
+  margin-bottom: 25px;
+  background: #14233d;
+  padding: 15px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+#roleSelect select,
+#specialtySelect select {
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 16px;
+}
