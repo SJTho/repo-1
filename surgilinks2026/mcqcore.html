@@ -50,8 +50,8 @@
       <option value="FRCS">FRCS</option>
     </select>
 
-    <button onclick="generateMCQs()">Submit</button>
 
+    <button id="startSubmitBtn" onclick="generateMCQs()">Submit</button>
     <div id="mcqQuestions"></div>
     <div id="scoreDisplay"></div>
 
@@ -209,9 +209,19 @@
         return;
       }
 
+
       const container = document.getElementById("mcqQuestions");
       container.innerHTML = "";
       document.getElementById("scoreDisplay").innerHTML = "";
+      // Hide the input controls once questions are shown
+      document.getElementById("mcqCount").style.display = "none";
+      document.getElementById("mcqAreas").style.display = "none";
+      document.getElementById("mcqLevel").style.display = "none";
+      document.getElementById("startSubmitBtn").style.display = "none";
+      document.querySelector("label[for='mcqCount']").style.display = "none";
+      document.querySelector("label[for='mcqAreas']").style.display = "none";
+      document.querySelector("label[for='mcqLevel']").style.display = "none";
+
 
       let questions = await window.copilot.generateMCQs({count, topic, level});
 
@@ -243,7 +253,13 @@
       const submitBtn = document.createElement("button");
       submitBtn.textContent = "Submit";
 
+
       submitBtn.onclick = () => {
+        // Remove the submit button immediately
+        submitBtn.remove();
+        scoresBtn.style.display = "inline-block";
+
+
         let score = 0;
         let scalpelDelta = 0;
 
@@ -282,10 +298,8 @@
           }
         });
 
-        // No score display
         document.getElementById("scoreDisplay").innerHTML = "";
 
-        // Update scalpel points
         let currentPoints = parseInt(localStorage.getItem("scalpelPoints")) || 0;
         let newPoints = currentPoints + scalpelDelta;
         localStorage.setItem("scalpelPoints", String(newPoints));
@@ -298,7 +312,8 @@
       container.appendChild(submitBtn);
 
       const scoresBtn = document.createElement("button");
-      scoresBtn.textContent = "Scores";
+      scoresBtn.textContent = "Progress";
+      scoresBtn.style.display = "none";   // hide initially
       scoresBtn.onclick = () => window.location.href = "scores.html";
 
       container.appendChild(scoresBtn);
