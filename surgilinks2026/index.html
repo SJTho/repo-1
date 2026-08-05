@@ -10,7 +10,22 @@
 </head>
 
 <body>
+
+    <!-- Top-left points + rank -->
+    <div id="topLeftInfo">
+        <div id="pointsValue" class="tinyText">
+            🧑‍⚕️ <span id="pointsNumber"></span>
+        </div>
+        <div id="rankValue" class="tinyText"></div>
+    </div>
+
+    <!-- Top-right help button -->
+    <div id="helpButton">❓</div>
+
     <h1>Surgical Hub</h1>
+
+    <!-- Rank-Up Celebration Banner -->
+    <div id="rankUpBanner"></div>
 
     <!-- Specialty Selector -->
     <div id="specialtySelect">
@@ -24,7 +39,7 @@
             <option value="Otolaryngology">Otolaryngology</option>
             <option value="Paediatric Surgery">Paediatric Surgery</option>
             <option value="Plastic Surgery">Plastic Surgery</option>
-            <option value="Trauma and Orthopaedics">Trauma and Orthopaedics</option>
+            <option value="Trauma and Orthopaedics">Trauma and Ortho</option>
             <option value="Urology">Urology</option>
             <option value="Vascular Surgery">Vascular Surgery</option>
         </select>
@@ -33,7 +48,7 @@
     <!-- Icon Grid -->
     <div id="linksContainer" class="iconGrid"></div>
 
-    <!-- MCQ Button (separate) -->
+    <!-- MCQ + Spend/Add Points -->
     <div id="mcqContainer"></div>
 
     <!-- Delete Popup -->
@@ -60,6 +75,111 @@
     </div>
 
     <script>
+        document.getElementById("helpButton").addEventListener("click", () => {
+            window.location.href = "help.html";
+        });
+        /* -----------------------------------------
+           DAILY REWARD (+10 per day)
+        ----------------------------------------- */
+        function giveDailyReward() {
+            const today = new Date().toISOString().split("T")[0];
+            const last = localStorage.getItem("lastDailyReward");
+
+            if (last !== today) {
+                let pts = parseInt(localStorage.getItem("scalpelPoints")) || 0;
+                pts += 10;
+                localStorage.setItem("scalpelPoints", String(pts));
+                localStorage.setItem("lastDailyReward", today);
+
+                alert("Daily reward: +10 points!");
+            }
+        }
+
+        giveDailyReward();
+
+
+        /* -----------------------------------------
+           Points System
+        ----------------------------------------- */
+        if (!localStorage.getItem("scalpelPoints")) {
+            localStorage.setItem("scalpelPoints", "200");
+        }
+
+        function getScalpelPoints() {
+            return parseInt(localStorage.getItem("scalpelPoints")) || 0;
+        }
+
+        function setScalpelPoints(amount) {
+            localStorage.setItem("scalpelPoints", String(amount));
+        }
+
+
+        /* -----------------------------------------
+           Rank System
+        ----------------------------------------- */
+        function getRank(points) {
+            if (points <= 300) return "Observer";
+            if (points <= 600) return "Assistant";
+            if (points <= 900) return "Supervised Scrubbed";
+            if (points <= 1200) return "Supervised Unscrubbed";
+            return "Independent Practice";
+        }
+
+        function rankIndex(rank) {
+            const ranks = [
+                "Observer",
+                "Assistant",
+                "Supervised Scrubbed",
+                "Supervised Unscrubbed",
+                "Independent Practice"
+            ];
+            return ranks.indexOf(rank);
+        }
+
+        let previousRank = localStorage.getItem("previousRank") || null;
+
+        function showRankUpAnimation(newRank) {
+            const banner = document.getElementById("rankUpBanner");
+            banner.textContent = `🎉 Rank Up! You are now: ${newRank}`;
+            banner.style.display = "block";
+
+            for (let i = 0; i < 30; i++) {
+                const conf = document.createElement("div");
+                conf.className = "confetti";
+                conf.style.left = Math.random() * window.innerWidth + "px";
+                conf.style.background = ["gold", "white", "#4CAF50", "#2196F3"][Math.floor(Math.random() * 4)];
+                document.body.appendChild(conf);
+
+                setTimeout(() => conf.remove(), 1200);
+            }
+
+            setTimeout(() => {
+                banner.style.display = "none";
+            }, 3000);
+        }
+
+        function updatePointsDisplay() {
+            const pts = getScalpelPoints();
+            const newRank = getRank(pts);
+
+            document.getElementById("pointsNumber").textContent = pts;
+            document.getElementById("rankValue").textContent = newRank;
+
+            if (previousRank && rankIndex(newRank) > rankIndex(previousRank)) {
+                showRankUpAnimation(newRank);
+            }
+
+            previousRank = newRank;
+            localStorage.setItem("previousRank", newRank);
+        }
+
+        updatePointsDisplay();
+        window.addEventListener("focus", updatePointsDisplay);
+
+
+        /* -----------------------------------------
+           Specialty + Links System
+        ----------------------------------------- */
         const specialtyLinks = {
             "Cardiothoracic Surgery": "https://scts.org",
             "Core Surgery": null,
@@ -75,11 +195,16 @@
         };
 
         const specialtyLabels = {
-            "Maxillofacial Surgery": "Maxfax Surgery",
-            "Trauma and Orthopaedics": "Trauma and Ortho",
-            "Cardiothoracic Surgery": "Cardiac and Thoracic",
-            "Neurosurgery": "Neuro",
-            "Otolaryngology": "ENT"
+            "Maxillofacial Surgery": "BAOMS",
+            "Trauma and Orthopaedics": "BOA",
+            "Cardiothoracic Surgery": "SCTS",
+            "Neurosurgery": "SBNS",
+            "Otolaryngology": "ENTUK",
+            "Paediatric Surgery": "BAPS",
+            "Plastic Surgery": "BAPRAS",
+            "Urology": "BAUS",
+            "Vascular Surgery": "VSGBI",
+            "General Surgery": "ASGBI"
         };
 
         const specialtySelect = document.getElementById("specialty");
@@ -102,8 +227,6 @@
         function createIconCard(icon, label, url) {
             const card = document.createElement("div");
             card.className = "iconCard";
-
-            // ensure iconCard can host top-right delete icon
             card.style.position = "relative";
 
             card.addEventListener("click", () => {
@@ -134,9 +257,49 @@
             return card;
         }
 
-        // -----------------------------
-        // Custom Buttons (max 3)
-        // -----------------------------
+        function createSpendPointsCard() {
+            const card = document.createElement("div");
+            card.className = "iconCard";
+
+            card.addEventListener("click", () => {
+                let pts = getScalpelPoints();
+                if (pts < 50) {
+                    alert("Not enough points!");
+                    return;
+                }
+                setScalpelPoints(pts - 50);
+                updatePointsDisplay();
+                alert("You spent 50 points!");
+            });
+
+            card.innerHTML = `
+                <div class="icon">💉</div>
+                <p class="iconLabel">Spend 50 Points</p>
+            `;
+
+            return card;
+        }
+
+        function createAdd20PointsCard() {
+            const card = document.createElement("div");
+            card.className = "iconCard";
+
+            card.addEventListener("click", () => {
+                let pts = getScalpelPoints();
+                pts += 20;
+                setScalpelPoints(pts);
+                updatePointsDisplay();
+                alert("+20 points added!");
+            });
+
+            card.innerHTML = `
+                <div class="icon">➕</div>
+                <p class="iconLabel">Add 20 Points</p>
+            `;
+
+            return card;
+        }
+
         function loadCustomButtons() {
             const saved = JSON.parse(localStorage.getItem("customButtons") || "[]");
             return saved.slice(0, 3);
@@ -145,7 +308,6 @@
         function saveCustomButtons(buttons) {
             localStorage.setItem("customButtons", JSON.stringify(buttons));
         }
-
 
         function renderCustomButtons() {
             const buttons = loadCustomButtons();
@@ -159,16 +321,15 @@
                     window.open(btn.url, "_blank");
                 });
 
-                // FIX: ensure icon always exists
                 const iconHTML = btn.image
                     ? `<img src="${btn.image}" class="customIcon">`
-                    : `<div class="icon smallIcon">🔗</div>`;   // placeholder icon
+                    : `<div class="icon smallIcon">🔗</div>`;
 
                 card.innerHTML = `
-            ${iconHTML}
-            <p class="iconLabel">${btn.name}</p>
-            <div class="customDeleteBtn">❌</div>
-        `;
+                    ${iconHTML}
+                    <p class="iconLabel">${btn.name}</p>
+                    <div class="customDeleteBtn">❌</div>
+                `;
 
                 card.querySelector(".customDeleteBtn").addEventListener("click", (event) => {
                     event.stopPropagation();
@@ -182,7 +343,6 @@
             return fragment;
         }
 
-        // Delete confirmation
         confirmDelete.addEventListener("click", () => {
             const buttons = loadCustomButtons();
             buttons.splice(deleteIndex, 1);
@@ -195,7 +355,6 @@
             deletePopup.style.display = "none";
         });
 
-        // Add Link button (only if < 3 custom buttons)
         function createAddLinkButton() {
             const card = document.createElement("div");
             card.className = "iconCard";
@@ -205,51 +364,45 @@
             });
 
             card.innerHTML = `
-        <div class="icon smallIcon">🔗</div>
-        <p class="iconLabel">Add Link</p>
-    `;
+                <div class="icon smallIcon">🔗</div>
+                <p class="iconLabel">Add Link</p>
+            `;
 
             return card;
         }
 
-        // -----------------------------
-        // Render All Buttons
-        // -----------------------------
         function renderLinks() {
             linksContainer.innerHTML = "";
             mcqContainer.innerHTML = "";
 
             const specialty = specialtySelect.value;
 
-            // First four system buttons
             linksContainer.appendChild(createIconCard("📘", "ISCP", "https://www.iscp.ac.uk"));
             linksContainer.appendChild(createIconCard("📊", "eLogbook", "https://client.elogbook.org/"));
-            linksContainer.appendChild(
-                createIconCard("📝", "MRCS", "https://www.intercollegiatemrcsexams.org.uk/")
-            );
+            linksContainer.appendChild(createIconCard("📝", "MRCS", "https://www.intercollegiatemrcsexams.org.uk/"));
             linksContainer.appendChild(createIconCard("🎓", "JCIE", "https://www.jcie.org.uk"));
             linksContainer.appendChild(createIconCard("🏛️", "JCST", "https://www.jcst.org"));
 
-            // Specialty association (always 5th)
             const assocURL = specialtyLinks[specialty];
             if (assocURL) {
                 const displayLabel = specialtyLabels[specialty] || specialty;
                 linksContainer.appendChild(createIconCard("👥", displayLabel, assocURL));
             }
 
-            // Custom buttons (6th, 7th, 8th)
             linksContainer.appendChild(renderCustomButtons());
 
-            // Add Link button only if fewer than 3 custom buttons
             if (loadCustomButtons().length < 3) {
                 linksContainer.appendChild(createAddLinkButton());
             }
 
-            // MCQ button (separate)
             mcqContainer.appendChild(createMCQCard());
+            mcqContainer.appendChild(createSpendPointsCard());
+            mcqContainer.appendChild(createAdd20PointsCard());
         }
 
         renderLinks();
     </script>
 
 </body>
+
+</html>

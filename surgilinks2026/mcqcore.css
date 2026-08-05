@@ -1,3 +1,76 @@
+/* --- MOBILE OPTIMISATION --- */
+
+
+
+/* Top-right info pinned properly */
+#topLeftInfo {
+  position: fixed;
+  top: 8px;
+  left: 10px;
+  text-align: left;
+  z-index: 9999;
+}
+
+/* Tiny text for points + rank */
+.tinyText {
+  font-size: 0.75rem;
+  color: #ffffff;
+  line-height: 1rem;
+}
+
+/* Surgeon emoji sizing */
+#pointsValue {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Keep H1 centred and spaced */
+h1 {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 1.8rem;
+}
+
+
+
+/* Icon cards scale nicely on mobile */
+.iconCard,
+.mcqCard {
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Make icons scale */
+.icon,
+.smallIcon {
+  font-size: 1.8rem;
+}
+
+/* Custom icons */
+.customIcon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* Buttons inside MCQ container */
+#mcqContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px;
+}
+
+/* Delete popup mobile-friendly */
+#deletePopup div {
+  width: 85%;
+  max-width: 300px;
+}
+
+
 body {
   font-family: Arial, sans-serif;
   background: #0b1526;
@@ -5,12 +78,10 @@ body {
   margin: 0;
   padding: 10px;
   text-align: center;
+  overflow-x: hidden;
 }
 
-h1 {
-  margin-bottom: 20px;
-  font-size: 1.8rem;
-}
+
 
 #mcqArea {
   background: #14233d;
@@ -102,6 +173,10 @@ button:hover {
 #closeBtn {
   background: #8a2a2a;
   margin-top: 30px;
+  margin: 30px auto;
+  width: 150px;
+  /* reduced width */
+  display: block;
 }
 
 #closeBtn:hover {
@@ -262,4 +337,85 @@ a {
   line-height: 32px;
   margin-top: 14px;
   /* lowers the icon to match ISCP/JCIE/eLogbook */
+}
+
+.pointsBox {
+  background: #14233d;
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+#rankUpBanner {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #14233d;
+  color: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  text-align: center;
+  z-index: 9999;
+  display: none;
+  animation: popIn 0.4s ease-out;
+}
+
+@keyframes popIn {
+  from {
+    transform: translateX(-50%) scale(0.6);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: gold;
+  top: -10px;
+  left: 50%;
+  opacity: 0.9;
+  animation: fall 1s linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(300px) translateX(calc(-50vw + 100px));
+    opacity: 0;
+  }
+}
+
+
+.scalpelIcon {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+}
+
+/* Help button (top-right corner) */
+#helpButton {
+  position: fixed;
+  top: 8px;
+  right: 10px;
+  font-size: 1rem;
+  background: #14233d;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 9999;
+  transition: 0.2s;
+}
+
+#helpButton:hover {
+  background: #1f3b6f;
 }

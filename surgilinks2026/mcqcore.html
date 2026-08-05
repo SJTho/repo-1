@@ -6,12 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Practice MCQs</title>
 
-  <!-- External stylesheet -->
   <link rel="stylesheet" href="./mcqcore.css">
 </head>
 
 <body>
 
+  <!-- Top-left points + rank -->
+  <div id="topLeftInfo">
+    <div id="pointsValue" class="tinyText">
+      🧑‍⚕️ <span id="pointsNumber"></span>
+    </div>
+    <div id="rankValue" class="tinyText"></div>
+  </div>
+  <!-- Top-right help button -->
+  <div id="helpButton">❓</div>
   <h1>Practice MCQs</h1>
 
   <div id="mcqArea">
@@ -50,15 +58,96 @@
     <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
   </div>
 
-  <!-- External dataset -->
   <script src="./mcqData.js"></script>
 
   <script>
-    // Auto-select specialty based on index.html
+
+    document.getElementById("helpButton").addEventListener("click", () => {
+      window.location.href = "help.html";
+    });
+    /* -----------------------------------------
+       DAILY REWARD (+10 per day)
+    ----------------------------------------- */
+    function giveDailyReward() {
+      const today = new Date().toISOString().split("T")[0];
+      const last = localStorage.getItem("lastDailyReward");
+
+      if (last !== today) {
+        let pts = parseInt(localStorage.getItem("scalpelPoints")) || 0;
+        pts += 10;
+        localStorage.setItem("scalpelPoints", String(pts));
+        localStorage.setItem("lastDailyReward", today);
+
+        alert("Daily reward: +10 points!");
+      }
+    }
+
+    giveDailyReward();
+
+
+    /* -----------------------------------------
+       Points + Rank Display (same as index.html)
+    ----------------------------------------- */
+
+    function getScalpelPoints() {
+      return parseInt(localStorage.getItem("scalpelPoints")) || 0;
+    }
+
+    function setScalpelPoints(amount) {
+      localStorage.setItem("scalpelPoints", String(amount));
+    }
+
+    function getRank(points) {
+      if (points <= 300) return "Observer";
+      if (points <= 600) return "Assistant";
+      if (points <= 900) return "Supervised Scrubbed";
+      if (points <= 1200) return "Supervised Unscrubbed";
+      return "Independent Practice";
+    }
+
+    function rankIndex(rank) {
+      const ranks = [
+        "Observer",
+        "Assistant",
+        "Supervised Scrubbed",
+        "Supervised Unscrubbed",
+        "Independent Practice"
+      ];
+      return ranks.indexOf(rank);
+    }
+
+    let previousRank = localStorage.getItem("previousRank") || null;
+
+    function showRankUpAnimation(newRank) {
+      const banner = document.getElementById("rankUpBanner");
+      if (!banner) return; // mcqcore doesn't show banner
+    }
+
+    function updatePointsDisplay() {
+      const pts = getScalpelPoints();
+      const newRank = getRank(pts);
+
+      document.getElementById("pointsNumber").textContent = pts;
+      document.getElementById("rankValue").textContent = newRank;
+
+      if (previousRank && rankIndex(newRank) > rankIndex(previousRank)) {
+        showRankUpAnimation(newRank);
+      }
+
+      previousRank = newRank;
+      localStorage.setItem("previousRank", newRank);
+    }
+
+    updatePointsDisplay();
+    window.addEventListener("focus", updatePointsDisplay);
+
+
+    /* -----------------------------------------
+       Auto-select specialty based on index.html
+    ----------------------------------------- */
     const savedSpecialty = localStorage.getItem("userSpecialty");
     if (savedSpecialty) {
-      const mcqAreasSelect = document.getElementById("mcqAreas");
-      mcqAreasSelect.value = savedSpecialty;
+      document.getElementById("mcqAreas").value = savedSpecialty;
     }
 
     function selectOption(qIndex, optIndex, element) {
@@ -156,6 +245,8 @@
 
       submitBtn.onclick = () => {
         let score = 0;
+        let scalpelDelta = 0;
+
         const blocks = document.querySelectorAll(".questionBlock");
 
         blocks.forEach((block, index) => {
@@ -163,7 +254,25 @@
           const correct = block.dataset.correct;
           const explanation = block.dataset.explanation;
 
-          if (selected && selected.value === correct) score++;
+          const isCorrect = selected && selected.value === correct;
+
+          if (isCorrect) {
+            score++;
+            scalpelDelta += 2;
+
+            block.style.border = "2px solid #4CAF50";
+            block.insertAdjacentHTML("beforeend",
+              `<p class="resultTag" style="color:#4CAF50;"><strong>Correct (+2)</strong></p>`
+            );
+
+          } else {
+            scalpelDelta -= 1;
+
+            block.style.border = "2px solid #b30000";
+            block.insertAdjacentHTML("beforeend",
+              `<p class="resultTag" style="color:#b30000;"><strong>Wrong (-1)</strong></p>`
+            );
+          }
 
           if (!block.querySelector(".explanation")) {
             const explanationDiv = document.createElement("div");
@@ -173,8 +282,15 @@
           }
         });
 
-        document.getElementById("scoreDisplay").innerHTML =
-          `You scored ${score} out of ${questions.length}`;
+        // No score display
+        document.getElementById("scoreDisplay").innerHTML = "";
+
+        // Update scalpel points
+        let currentPoints = parseInt(localStorage.getItem("scalpelPoints")) || 0;
+        let newPoints = currentPoints + scalpelDelta;
+        localStorage.setItem("scalpelPoints", String(newPoints));
+
+        updatePointsDisplay();
 
         storeScore(score, questions.length, topic, level);
       };
