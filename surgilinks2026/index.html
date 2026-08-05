@@ -4,22 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UK Surgical Hub</title>
+    <title>Surgical Hub</title>
 
     <link rel="stylesheet" href="./mcqcore.css">
 </head>
 
 <body>
-    <h1>Surgical Hub (UK)</h1>
-
-    <!-- Role Selector -->
-    <div id="roleSelect">
-        <label for="role">Select Role:</label>
-        <select id="role">
-            <option value="trainee">Trainee</option>
-            <option value="trainer">Trainer</option>
-        </select>
-    </div>
+    <h1>Surgical Hub</h1>
 
     <!-- Specialty Selector -->
     <div id="specialtySelect">
@@ -91,7 +82,6 @@
             "Otolaryngology": "ENT"
         };
 
-        const roleSelect = document.getElementById("role");
         const specialtySelect = document.getElementById("specialty");
         const linksContainer = document.getElementById("linksContainer");
         const mcqContainer = document.getElementById("mcqContainer");
@@ -102,13 +92,7 @@
 
         let deleteIndex = null;
 
-        roleSelect.value = localStorage.getItem("userRole") || "trainee";
         specialtySelect.value = localStorage.getItem("userSpecialty") || "Neurosurgery";
-
-        roleSelect.addEventListener("change", () => {
-            localStorage.setItem("userRole", roleSelect.value);
-            renderLinks();
-        });
 
         specialtySelect.addEventListener("change", () => {
             localStorage.setItem("userSpecialty", specialtySelect.value);
@@ -118,6 +102,9 @@
         function createIconCard(icon, label, url) {
             const card = document.createElement("div");
             card.className = "iconCard";
+
+            // ensure iconCard can host top-right delete icon
+            card.style.position = "relative";
 
             card.addEventListener("click", () => {
                 window.open(url, "_blank");
@@ -159,6 +146,7 @@
             localStorage.setItem("customButtons", JSON.stringify(buttons));
         }
 
+
         function renderCustomButtons() {
             const buttons = loadCustomButtons();
             const fragment = document.createDocumentFragment();
@@ -171,17 +159,18 @@
                     window.open(btn.url, "_blank");
                 });
 
+                // FIX: ensure icon always exists
                 const iconHTML = btn.image
                     ? `<img src="${btn.image}" class="customIcon">`
-                    : `<div class="icon"></div>`; // no paperclip icon
+                    : `<div class="icon smallIcon">🔗</div>`;   // placeholder icon
 
                 card.innerHTML = `
-                    ${iconHTML}
-                    <p class="iconLabel">${btn.name}</p>
-                    <div style="font-size:18px; margin-top:5px; cursor:pointer;">❌</div>
-                `;
+            ${iconHTML}
+            <p class="iconLabel">${btn.name}</p>
+            <div class="customDeleteBtn">❌</div>
+        `;
 
-                card.querySelector("div:last-child").addEventListener("click", (event) => {
+                card.querySelector(".customDeleteBtn").addEventListener("click", (event) => {
                     event.stopPropagation();
                     deleteIndex = index;
                     deletePopup.style.display = "flex";
@@ -216,9 +205,9 @@
             });
 
             card.innerHTML = `
-                <div class="icon"></div>
-                <p class="iconLabel">Add Link</p>
-            `;
+        <div class="icon smallIcon">🔗</div>
+        <p class="iconLabel">Add Link</p>
+    `;
 
             return card;
         }
@@ -230,12 +219,14 @@
             linksContainer.innerHTML = "";
             mcqContainer.innerHTML = "";
 
-            const role = roleSelect.value;
             const specialty = specialtySelect.value;
 
             // First four system buttons
             linksContainer.appendChild(createIconCard("📘", "ISCP", "https://www.iscp.ac.uk"));
             linksContainer.appendChild(createIconCard("📊", "eLogbook", "https://client.elogbook.org/"));
+            linksContainer.appendChild(
+                createIconCard("📝", "MRCS", "https://www.intercollegiatemrcsexams.org.uk/")
+            );
             linksContainer.appendChild(createIconCard("🎓", "JCIE", "https://www.jcie.org.uk"));
             linksContainer.appendChild(createIconCard("🏛️", "JCST", "https://www.jcst.org"));
 
@@ -262,5 +253,3 @@
     </script>
 
 </body>
-
-</html>

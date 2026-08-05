@@ -16,28 +16,30 @@
 
   <div id="mcqArea">
     <label for="mcqCount">How many questions?</label>
-    <input type="number" id="mcqCount" min="1" placeholder="e.g., 20">
+    <input type="number" id="mcqCount" min="1" value="20">
 
-    <label for="mcqAreas">Which area of surgery?</label>
+    <label for="mcqAreas">Which specialty?</label>
     <select id="mcqAreas">
       <option value="all">All</option>
-      <option value="Upper GI">Upper GI</option>
-      <option value="HPB">HPB</option>
-      <option value="Trauma">Trauma</option>
-      <option value="Orthopaedics">Orthopaedics</option>
+      <option value="Cardiothoracic Surgery">Cardiothoracic Surgery</option>
+      <option value="Core Surgery">Core Surgery</option>
+      <option value="General Surgery">General Surgery</option>
+      <option value="Maxillofacial Surgery">Maxillofacial Surgery</option>
+      <option value="Neurosurgery">Neurosurgery</option>
+      <option value="Otolaryngology">Otolaryngology</option>
+      <option value="Paediatric Surgery">Paediatric Surgery</option>
+      <option value="Plastic Surgery">Plastic Surgery</option>
+      <option value="Trauma and Orthopaedics">Trauma and Orthopaedics</option>
       <option value="Urology">Urology</option>
-      <option value="General">General</option>
-      <option value="Vascular">Vascular</option>
-      <option value="Colorectal">Colorectal</option>
-      <option value="Neurotrauma">Neurotrauma</option>
+      <option value="Vascular Surgery">Vascular Surgery</option>
     </select>
 
-    <label for="mcqLevel">Level:</label>
+    <label for="mcqLevel">Level</label>
     <select id="mcqLevel">
       <option value="all">All</option>
-      <option value="Finals">Finals</option>
+      <option value="MBBS">MBBS</option>
       <option value="MRCS">MRCS</option>
-      <option value="JCIE">JCIE</option>
+      <option value="FRCS">FRCS</option>
     </select>
 
     <button onclick="generateMCQs()">Submit</button>
@@ -52,6 +54,13 @@
   <script src="./mcqData.js"></script>
 
   <script>
+    // Auto-select specialty based on index.html
+    const savedSpecialty = localStorage.getItem("userSpecialty");
+    if (savedSpecialty) {
+      const mcqAreasSelect = document.getElementById("mcqAreas");
+      mcqAreasSelect.value = savedSpecialty;
+    }
+
     function selectOption(qIndex, optIndex, element) {
       const allOptions = document.querySelectorAll(`label.optionLabel[data-q="${qIndex}"]`);
       allOptions.forEach(opt => opt.classList.remove("selected"));
@@ -181,5 +190,3 @@
   </script>
 
 </body>
-
-</html>
