@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta-name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Events</title>
+
+    <!-- Link to your main stylesheet -->
+    <link rel="stylesheet" href="mcqcore.css">
+</head>
+
+<body>
+
+  <!-- Top-left points + rank -->
+  <div id="topLeftInfo">
+    <div id="pointsValue" class="tinyText">
+      🧑‍⚕️ <span id="pointsNumber"></span>
+    </div>
+    <div id="rankValue" class="tinyText"></div>
+  </div>
+
+  <!-- Top-right help button -->
+  <div id="helpButton">❓</div>
+
+  <h1>Upcoming Events</h1>
+
+  <div id="specialtyDisplay"></div>
+
+  <div id="eventsContainer"></div>
+
+  <!-- Load your JS data file -->
+  <script src="TestDates.js"></script>
+
+  <script>
+    /* -----------------------------------------
+       HELP BUTTON
+    ----------------------------------------- */
+    document.getElementById("helpButton").addEventListener("click", () => {
+      window.location.href = "help.html";
+    });
+
+    /* -----------------------------------------
+       DAILY REWARD (+10 per day)
+    ----------------------------------------- */
+    function giveDailyReward() {
+      const today = new Date().toISOString().split("T")[0];
+      const last = localStorage.getItem("lastDailyReward");
+
+      if (last !== today) {
+        let pts = parseInt(localStorage.getItem("scalpelPoints")) || 0;
+        pts += 10;
+        localStorage.setItem("scalpelPoints", String(pts));
+        localStorage.setItem("lastDailyReward", today);
+
+        alert("Daily reward: +10 points!");
+      }
+    }
+
+    giveDailyReward();
+
+
+    /* -----------------------------------------
+       POINTS + RANK DISPLAY
+    ----------------------------------------- */
+
+    function getScalpelPoints() {
+      return parseInt(localStorage.getItem("scalpelPoints")) || 0;
+    }
+
+    function getRank(points) {
+      if (points <= 300) return "Observer";
+      if (points <= 600) return "Assistant";
+      if (points <= 900) return "Supervised Scrubbed";
+      if (points <= 1200) return "Supervised Unscrubbed";
+      return "Independent Practice";
+    }
+
+    function rankIndex(rank) {
+      const ranks = [
+        "Observer",
+        "Assistant",
+        "Supervised Scrubbed",
+        "Supervised Unscrubbed",
+        "Independent Practice"
+      ];
+      return ranks.indexOf(rank);
+    }
+
+    let previousRank = localStorage.getItem("previousRank") || null;
+
+    function updatePointsDisplay() {
+      const pts = getScalpelPoints();
+      const newRank = getRank(pts);
+
+      document.getElementById("pointsNumber").textContent = pts;
+      document.getElementById("rankValue").textContent = newRank;
+
+      previousRank = newRank;
+      localStorage.setItem("previousRank", newRank);
+    }
+
+    updatePointsDisplay();
+    window.addEventListener("focus", updatePointsDisplay);
+
+
+    /* -----------------------------------------
+       USER TOKEN (anonymous identity)
+    ----------------------------------------- */
+    if (!localStorage.getItem("userToken")) {
+      const token = crypto.randomUUID();
+      localStorage.setItem("userToken", token);
+    }
+
+
+    /* -----------------------------------------
+       EVENT REGISTRATION SYSTEM
+    ----------------------------------------- */
+
+    function registerForEvent(ev) {
+      const token = localStorage.getItem("userToken");
+      const registrations = JSON.parse(localStorage.getItem("registrations") || "[]");
+
+      const alreadyRegistered = registrations.some(r =>
+        r.token === token &&
+        r.eventTitle === ev.title &&
+        r.eventDate === ev.date
+      );
+
+      if (alreadyRegistered) {
+        alert("You are already registered for this event.");
+        return;
+      }
+
+      registrations.push({
+        token,
+        eventTitle: ev.title,
+        eventDate: ev.date,
+        startTime: ev.startTime,
+        finishTime: ev.finishTime,
+        registeredAt: new Date().toISOString()
+      });
+
+      localStorage.setItem("registrations", JSON.stringify(registrations));
+
+      alert("Registration successful!");
+    }
+
+    function isRegistered(ev) {
+      const token = localStorage.getItem("userToken");
+      const registrations = JSON.parse(localStorage.getItem("registrations") || "[]");
+
+      return registrations.some(r =>
+        r.token === token &&
+        r.eventTitle === ev.title &&
+        r.eventDate === ev.date
+      );
+    }
+
+
+    /* -----------------------------------------
+       SPECIALTY + EVENT DISPLAY
+    ----------------------------------------- */
+
+    const specialty = localStorage.getItem("userSpecialty");
+
+    document.getElementById("specialtyDisplay").textContent =
+      "Your specialty: " + (specialty || "Not set");
+
+    const container = document.getElementById("eventsContainer");
+    const events = TestDates;
+
+    const filtered = specialty
+      ? events.filter(e =>
+        e.specialty.toLowerCase().trim() === specialty.toLowerCase().trim()
+      )
+      : events;
+
+
+    /* -----------------------------------------
+       RENDER EVENTS
+    ----------------------------------------- */
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<p>No upcoming events for your specialty.</p>`;
+    } else {
+      filtered.forEach(ev => {
+
+        const ukDate = new Date(ev.date).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        });
+
+        const card = document.createElement("div");
+        card.className = "eventCard";
+
+        const already = isRegistered(ev);
+
+        card.innerHTML = `
+          <h3>${ev.title}</h3>
+          <p><strong>Date:</strong> ${ukDate}</p>
+          <p><strong>Start time:</strong> Available between ${ev.startTime} and ${ev.finishTime}</p>
+          ${already
+            ? `<p class="alreadyRegisteredMsg">You have already registered</p>`
+            : `<button class="registerBtn">Register</button>`
+          }
+        `;
+
+        if (!already) {
+          card.querySelector(".registerBtn").addEventListener("click", () => {
+            registerForEvent(ev);
+
+            card.querySelector(".registerBtn").outerHTML =
+              `<p class="alreadyRegisteredMsg">You have already registered</p>`;
+          });
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+  </script>
+
+</body>
+
+</html>

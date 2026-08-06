@@ -45,6 +45,16 @@
 </head>
 
 <body>
+  <!-- Top-left points + rank -->
+  <div id="topLeftInfo">
+    <div id="pointsValue" class="tinyText">
+      🧑‍⚕️ <span id="pointsNumber"></span>
+    </div>
+    <div id="rankValue" class="tinyText"></div>
+  </div>
+  <!-- Top-right help button -->
+  <div id="helpButton">❓</div>
+  <h1>Practice MCQs</h1>
 
   <h1>Your Scores</h1>
 
@@ -76,6 +86,32 @@
   </div>
 
   <script>
+
+    document.getElementById("helpButton").addEventListener("click", () => {
+      window.location.href = "help.html";
+    });
+
+    function getScalpelPoints() {
+      return parseInt(localStorage.getItem("scalpelPoints")) || 0;
+    }
+
+    function getRank(points) {
+      if (points <= 300) return "Observer";
+      if (points <= 600) return "Assistant";
+      if (points <= 900) return "Supervised Scrubbed";
+      if (points <= 1200) return "Supervised Unscrubbed";
+      return "Independent Practice";
+    }
+
+    function updateHelpPagePoints() {
+      const pts = getScalpelPoints();
+      const rank = getRank(pts);
+
+      document.getElementById("pointsNumber").textContent = pts;
+      document.getElementById("rankValue").textContent = rank;
+    }
+
+    updateHelpPagePoints();
     // Load stored scores
     let stored = localStorage.getItem("scores");
     let scores = stored ? JSON.parse(stored) : [];

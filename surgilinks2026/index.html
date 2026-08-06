@@ -251,7 +251,24 @@
 
             card.innerHTML = `
                 <div class="icon">🧠</div>
-                <p>MCQs</p>
+                <p>Test MCQs</p>
+            `;
+
+            return card;
+        }
+
+
+        function createFormalTestCard() {
+            const card = document.createElement("div");
+            card.className = "mcqCard";
+
+            card.addEventListener("click", () => {
+                window.location.href = "formaltestcore.html";
+            });
+
+            card.innerHTML = `
+                <div class="icon">🧠</div>
+                <p>Examination</p>
             `;
 
             return card;
@@ -396,8 +413,7 @@
             }
 
             mcqContainer.appendChild(createMCQCard());
-            mcqContainer.appendChild(createSpendPointsCard());
-            mcqContainer.appendChild(createAdd20PointsCard());
+            mcqContainer.appendChild(createFormalTestCard());
         }
 
         renderLinks();

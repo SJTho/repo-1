@@ -28,11 +28,9 @@
 /* Keep H1 centred and spaced */
 h1 {
   text-align: center;
-  margin-top: 30px;
+  margin-top: 40px;
   font-size: 1.8rem;
 }
-
-
 
 /* Icon cards scale nicely on mobile */
 .iconCard,
@@ -59,9 +57,16 @@ h1 {
 /* Buttons inside MCQ container */
 #mcqContainer {
   display: flex;
+  justify-content: centre;
+  gap: 20px;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 10px;
+}
+
+.mcqCardButtons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 /* Delete popup mobile-friendly */
@@ -80,8 +85,6 @@ body {
   text-align: center;
   overflow-x: hidden;
 }
-
-
 
 #mcqArea {
   background: #14233d;
@@ -419,3 +422,51 @@ a {
 #helpButton:hover {
   background: #1f3b6f;
 }
+
+
+
+#specialtyDisplay {
+  font-size: 18px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.eventCard {
+  border: 1px solid #ccc;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 6px;
+  background: #f9f9f9;
+  color: #000;
+  /* override mcqcore dark theme */
+}
+
+.eventCard h3 {
+  margin-top: 0;
+}
+
+
+.registerBtn {
+  margin-top: 12px;
+  padding: 6px 10px;
+  background: #2a4c8a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  width: 15%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.registerBtn:hover {
+  background: #3b5ca3;
+}
+
+.alreadyRegisteredMsg {
+  margin-top: 12px;
+  font-weight: bold;
+  color: #2a4c8a;
+  text-align: center;
