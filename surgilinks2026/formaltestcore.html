@@ -7,6 +7,13 @@
     <title>Upcoming Events</title>
 
     <link rel="stylesheet" href="mcqcore.css">
+
+    <style>
+      .closedMsg {
+        color: red;
+        font-weight: bold;
+      }
+    </style>
 </head>
 
 <body>
@@ -196,20 +203,27 @@
         const already = isRegistered(ev);
         const live = isEventLive(ev);
 
+        const now = new Date();
+        const eventEnd = new Date(ev.date + "T" + ev.finishTime);
+        const closed = now > eventEnd;
+
         card.innerHTML = `
           <h3>${ev.title}</h3>
           <p><strong>Date:</strong> ${ukDate}</p>
           <p><strong>Start time:</strong> Available between ${ev.startTime} and ${ev.finishTime}</p>
 
-          ${already
-            ? live
-              ? `<button class="registerBtn startBtn">Start</button>`
-              : `<p class="alreadyRegisteredMsg">You have already registered</p>`
-            : `<button class="registerBtn">Register</button>`
+          ${closed
+            ? `<p class="closedMsg">Closed</p>`
+            : already
+              ? (live
+                ? `<button class="registerBtn startBtn">Start</button>`
+                : `<p class="alreadyRegisteredMsg">You have already registered</p>`
+              )
+              : `<button class="registerBtn">Register</button>`
           }
         `;
 
-        if (!already) {
+        if (!closed && !already) {
           card.querySelector(".registerBtn").addEventListener("click", () => {
             registerForEvent(ev);
 
@@ -218,9 +232,13 @@
           });
         }
 
-        if (already && live) {
+        if (!closed && already && live) {
           card.querySelector(".startBtn").addEventListener("click", () => {
-            window.location.href = "startsession.html";
+            localStorage.setItem("currentEventTitle", ev.title);
+            localStorage.setItem("currentEventStart", ev.startTime);
+            localStorage.setItem("currentEventFinish", ev.finishTime);
+
+            window.location.href = "Startsession.html";
           });
         }
 

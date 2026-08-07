@@ -18,8 +18,10 @@
     </div>
     <div id="rankValue" class="tinyText"></div>
   </div>
+
   <!-- Top-right help button -->
   <div id="helpButton">❓</div>
+
   <h1>Practice MCQs</h1>
 
   <div id="mcqArea">
@@ -50,21 +52,26 @@
       <option value="FRCS">FRCS</option>
     </select>
 
-
     <button id="startSubmitBtn" onclick="generateMCQs()">Submit</button>
+
     <div id="mcqQuestions"></div>
     <div id="scoreDisplay"></div>
 
     <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
   </div>
 
+  <!-- Load question bank -->
   <script src="./mcqData.js"></script>
 
   <script>
 
+    /* -----------------------------------------
+       HELP BUTTON
+    ----------------------------------------- */
     document.getElementById("helpButton").addEventListener("click", () => {
       window.location.href = "help.html";
     });
+
     /* -----------------------------------------
        DAILY REWARD (+10 per day)
     ----------------------------------------- */
@@ -81,14 +88,11 @@
         alert("Daily reward: +10 points!");
       }
     }
-
     giveDailyReward();
 
-
     /* -----------------------------------------
-       Points + Rank Display (same as index.html)
+       POINTS + RANK DISPLAY
     ----------------------------------------- */
-
     function getScalpelPoints() {
       return parseInt(localStorage.getItem("scalpelPoints")) || 0;
     }
@@ -118,21 +122,12 @@
 
     let previousRank = localStorage.getItem("previousRank") || null;
 
-    function showRankUpAnimation(newRank) {
-      const banner = document.getElementById("rankUpBanner");
-      if (!banner) return; // mcqcore doesn't show banner
-    }
-
     function updatePointsDisplay() {
       const pts = getScalpelPoints();
       const newRank = getRank(pts);
 
       document.getElementById("pointsNumber").textContent = pts;
       document.getElementById("rankValue").textContent = newRank;
-
-      if (previousRank && rankIndex(newRank) > rankIndex(previousRank)) {
-        showRankUpAnimation(newRank);
-      }
 
       previousRank = newRank;
       localStorage.setItem("previousRank", newRank);
@@ -141,15 +136,17 @@
     updatePointsDisplay();
     window.addEventListener("focus", updatePointsDisplay);
 
-
     /* -----------------------------------------
-       Auto-select specialty based on index.html
+       AUTO-SELECT SPECIALTY
     ----------------------------------------- */
     const savedSpecialty = localStorage.getItem("userSpecialty");
     if (savedSpecialty) {
       document.getElementById("mcqAreas").value = savedSpecialty;
     }
 
+    /* -----------------------------------------
+       SELECT OPTION
+    ----------------------------------------- */
     function selectOption(qIndex, optIndex, element) {
       const allOptions = document.querySelectorAll(`label.optionLabel[data-q="${qIndex}"]`);
       allOptions.forEach(opt => opt.classList.remove("selected"));
@@ -159,6 +156,9 @@
       radio.checked = true;
     }
 
+    /* -----------------------------------------
+       STORE SCORE
+    ----------------------------------------- */
     function storeScore(score, total, topic, level) {
       const now = new Date();
       const timestamp =
@@ -168,7 +168,7 @@
         String(now.getHours()).padStart(2, "0") + ":" +
         String(now.getMinutes()).padStart(2, "0");
 
-      const entry = {score, total, topic, level, timestamp};
+      const entry = { score, total, topic, level, timestamp };
 
       let stored = localStorage.getItem("scores");
       let scores = stored ? JSON.parse(stored) : [];
@@ -178,16 +178,19 @@
       localStorage.setItem("scores", JSON.stringify(scores));
     }
 
+    /* -----------------------------------------
+       MCQ GENERATOR (FILTER + SHUFFLE)
+    ----------------------------------------- */
     window.copilot = {
-      generateMCQs: async ({count, topic, level}) => {
+      generateMCQs: async ({ count, topic, level }) => {
         let filtered = demoPool;
 
         if (topic !== "all") {
-          filtered = filtered.filter(q => q.topic.toLowerCase() === topic.toLowerCase());
+          filtered = filtered.filter(q => q.topic.toLowerCase().includes(topic.toLowerCase()));
         }
 
         if (level !== "all") {
-          filtered = filtered.filter(q => q.level.toLowerCase() === level.toLowerCase());
+          filtered = filtered.filter(q => q.level.toLowerCase().includes(level.toLowerCase()));
         }
 
         for (let i = filtered.length - 1; i > 0; i--) {
@@ -199,6 +202,29 @@
       }
     };
 
+    /* -----------------------------------------
+       FLAG QUESTION (hide button after click)
+    ----------------------------------------- */
+    function flagQuestion(qIndex, buttonElement) {
+      const q = demoPool[qIndex];
+      if (!q) return;
+
+      q.flaggedSet = (q.flaggedSet || 0) + 1;
+
+      alert(`Question flagged (${q.flaggedSet}/5)`);
+
+      // Hide button so user cannot flag twice
+      buttonElement.style.display = "none";
+
+      if (q.flaggedSet >= 5) {
+        demoPool.splice(qIndex, 1);
+        alert("This question has been removed due to repeated flags.");
+      }
+    }
+
+    /* -----------------------------------------
+       GENERATE MCQs
+    ----------------------------------------- */
     async function generateMCQs() {
       const count = parseInt(document.getElementById("mcqCount").value);
       const topic = document.getElementById("mcqAreas").value;
@@ -209,11 +235,11 @@
         return;
       }
 
-
       const container = document.getElementById("mcqQuestions");
       container.innerHTML = "";
       document.getElementById("scoreDisplay").innerHTML = "";
-      // Hide the input controls once questions are shown
+
+      // Hide controls
       document.getElementById("mcqCount").style.display = "none";
       document.getElementById("mcqAreas").style.display = "none";
       document.getElementById("mcqLevel").style.display = "none";
@@ -222,8 +248,7 @@
       document.querySelector("label[for='mcqAreas']").style.display = "none";
       document.querySelector("label[for='mcqLevel']").style.display = "none";
 
-
-      let questions = await window.copilot.generateMCQs({count, topic, level});
+      let questions = await window.copilot.generateMCQs({ count, topic, level });
 
       if (!questions || questions.length === 0) {
         alert("No questions available for that topic/level.");
@@ -253,12 +278,9 @@
       const submitBtn = document.createElement("button");
       submitBtn.textContent = "Submit";
 
-
       submitBtn.onclick = () => {
-        // Remove the submit button immediately
         submitBtn.remove();
         scoresBtn.style.display = "inline-block";
-
 
         let score = 0;
         let scalpelDelta = 0;
@@ -296,6 +318,13 @@
             explanationDiv.innerHTML = `<strong>Explanation:</strong> ${explanation}`;
             block.appendChild(explanationDiv);
           }
+
+          /* Add flag button (only after submission) */
+          const flagBtn = document.createElement("button");
+          flagBtn.textContent = "Flag Question";
+          flagBtn.className = "flagBtn";
+          flagBtn.onclick = () => flagQuestion(index, flagBtn);
+          block.appendChild(flagBtn);
         });
 
         document.getElementById("scoreDisplay").innerHTML = "";
@@ -313,7 +342,7 @@
 
       const scoresBtn = document.createElement("button");
       scoresBtn.textContent = "Progress";
-      scoresBtn.style.display = "none";   // hide initially
+      scoresBtn.style.display = "none";
       scoresBtn.onclick = () => window.location.href = "scores.html";
 
       container.appendChild(scoresBtn);
@@ -321,3 +350,5 @@
   </script>
 
 </body>
+
+</html>

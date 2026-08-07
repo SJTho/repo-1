@@ -1,10 +1,10 @@
 const TestDates = [
   {
-    title: "Formative Annual Examination",
+    title: "Formative Annual Exam",
     date: "2026-08-07",
     specialty: "Neurosurgery",
     startTime: "07:00",
-    finishTime: "12:00"
+    finishTime: "20:00"
   },
   {
     title: "Formative Annual Examination",

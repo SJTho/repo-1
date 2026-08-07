@@ -1,8 +1,6 @@
 /* --- MOBILE OPTIMISATION --- */
 
-
-
-/* Top-right info pinned properly */
+/* Top-left info pinned properly */
 #topLeftInfo {
   position: fixed;
   top: 8px;
@@ -58,16 +56,11 @@ h1 {
 #mcqContainer {
   display: flex;
   justify-content: center;
-  /* ✔ correct spelling */
   align-items: center;
-  /* ✔ vertically centres items within the row */
   margin: 0 auto;
-  /* ✔ centres the container itself */
   gap: 20px;
-  /* optional: smaller gap for mobile */
   flex-wrap: wrap;
   max-width: 600px;
-  /* optional: prevents stretching too wide */
 }
 
 .mcqCardButtons {
@@ -82,7 +75,6 @@ h1 {
   width: 85%;
   max-width: 300px;
 }
-
 
 body {
   font-family: Arial, sans-serif;
@@ -104,11 +96,8 @@ body {
 
 #mcqCount {
   padding: 12px;
-  /* same padding as other inputs */
   font-size: 1rem;
-  /* same text size */
   width: 100%;
-  /* full width like the selects */
   box-sizing: border-box;
 }
 
@@ -165,6 +154,7 @@ select {
   display: none;
 }
 
+/* GLOBAL BUTTON STYLE (we override this later) */
 button {
   margin-top: 20px;
   padding: 14px 20px;
@@ -181,12 +171,12 @@ button:hover {
   background: #3b5ca3;
 }
 
+/* Back button (old style overridden later) */
 #closeBtn {
   background: #8a2a2a;
   margin-top: 30px;
   margin: 30px auto;
   width: 150px;
-  /* reduced width */
   display: block;
 }
 
@@ -223,9 +213,6 @@ button:hover {
   }
 }
 
-
-
-
 .card {
   background: #1f3b6f;
   padding: 20px;
@@ -252,19 +239,15 @@ a {
   margin-bottom: 20px;
   background: #14233d;
   padding: 8px 12px;
-  /* smaller box */
   border-radius: 8px;
   display: inline-block;
 }
 
 #specialtySelect select {
   padding: 6px 8px;
-  /* smaller dropdown */
   border-radius: 6px;
   font-size: 14px;
-  /* smaller text */
   width: 180px;
-  /* narrower box */
 }
 
 .iconGrid {
@@ -333,12 +316,10 @@ a {
   top: 4px;
   right: 4px;
   font-size: 10px;
-  /* smaller */
   cursor: pointer;
   color: #fff;
   background: rgba(0, 0, 0, 0.35);
   padding: 1px 3px;
-  /* smaller */
   border-radius: 3px;
   z-index: 10;
 }
@@ -347,7 +328,6 @@ a {
   font-size: 26px;
   line-height: 32px;
   margin-top: 14px;
-  /* lowers the icon to match ISCP/JCIE/eLogbook */
 }
 
 .pointsBox {
@@ -406,7 +386,6 @@ a {
   }
 }
 
-
 .scalpelIcon {
   width: 14px;
   height: 14px;
@@ -431,8 +410,6 @@ a {
   background: #1f3b6f;
 }
 
-
-
 #specialtyDisplay {
   font-size: 18px;
   margin-bottom: 20px;
@@ -446,13 +423,11 @@ a {
   border-radius: 6px;
   background: #f9f9f9;
   color: #000;
-  /* override mcqcore dark theme */
 }
 
 .eventCard h3 {
   margin-top: 0;
 }
-
 
 .registerBtn {
   margin-top: 12px;
@@ -478,3 +453,72 @@ a {
   font-weight: bold;
   color: #2a4c8a;
   text-align: center;
+}
+
+/* ================================
+   Startsession.html — Combined H1
+   ================================ */
+#combinedHeading {
+  margin-bottom: 0.5em;
+}
+
+/* ================================
+   Instructions list formatting
+   ================================ */
+.instructionsList {
+  margin-left: 1.2em;
+  line-height: 1.6;
+  padding-left: 0.5em;
+  text-align: left;
+}
+
+/* Final alignment fix — make both buttons identical */
+.actionBtn {
+  padding: 12px 22px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  color: white;
+  min-width: 140px;
+  text-align: center;
+
+  /* override global button rules */
+  width: auto !important;
+  display: inline-block !important;
+  margin: 0 !important;
+  /* identical margin */
+  vertical-align: middle;
+  /* ensures perfect alignment */
+}
+
+/* Red Start button */
+#startNowBtn {
+  background-color: rgb(103, 8, 8);
+}
+
+/* Blue Back button */
+#closeBtn {
+  background-color: #1f3b6f;
+}
+
+/* Centre both buttons next to each other */
+#buttonRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* vertical alignment */
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Fix the certificate name box size + centring */
+#participantName {
+  width: 70% !important;
+  /* smaller box */
+  max-width: 250px !important;
+  /* prevents huge width */
+  margin: 10px auto !important;
+  /* centres inside the card */
+  display: block !important;
+  /* ensures centring works */
+}
