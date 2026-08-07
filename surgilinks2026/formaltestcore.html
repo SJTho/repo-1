@@ -6,7 +6,6 @@
   <meta-name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upcoming Events</title>
 
-    <!-- Link to your main stylesheet -->
     <link rel="stylesheet" href="mcqcore.css">
 </head>
 
@@ -29,7 +28,6 @@
 
   <div id="eventsContainer"></div>
 
-  <!-- Load your JS data file -->
   <script src="TestDates.js"></script>
 
   <script>
@@ -76,17 +74,6 @@
       return "Independent Practice";
     }
 
-    function rankIndex(rank) {
-      const ranks = [
-        "Observer",
-        "Assistant",
-        "Supervised Scrubbed",
-        "Supervised Unscrubbed",
-        "Independent Practice"
-      ];
-      return ranks.indexOf(rank);
-    }
-
     let previousRank = localStorage.getItem("previousRank") || null;
 
     function updatePointsDisplay() {
@@ -105,7 +92,7 @@
 
 
     /* -----------------------------------------
-       USER TOKEN (anonymous identity)
+       USER TOKEN
     ----------------------------------------- */
     if (!localStorage.getItem("userToken")) {
       const token = crypto.randomUUID();
@@ -159,6 +146,17 @@
 
 
     /* -----------------------------------------
+       CHECK IF EVENT IS LIVE
+    ----------------------------------------- */
+    function isEventLive(ev) {
+      const now = new Date();
+      const start = new Date(ev.date + "T" + ev.startTime);
+      const end = new Date(ev.date + "T" + ev.finishTime);
+      return now >= start && now <= end;
+    }
+
+
+    /* -----------------------------------------
        SPECIALTY + EVENT DISPLAY
     ----------------------------------------- */
 
@@ -196,13 +194,17 @@
         card.className = "eventCard";
 
         const already = isRegistered(ev);
+        const live = isEventLive(ev);
 
         card.innerHTML = `
           <h3>${ev.title}</h3>
           <p><strong>Date:</strong> ${ukDate}</p>
           <p><strong>Start time:</strong> Available between ${ev.startTime} and ${ev.finishTime}</p>
+
           ${already
-            ? `<p class="alreadyRegisteredMsg">You have already registered</p>`
+            ? live
+              ? `<button class="registerBtn startBtn">Start</button>`
+              : `<p class="alreadyRegisteredMsg">You have already registered</p>`
             : `<button class="registerBtn">Register</button>`
           }
         `;
@@ -216,6 +218,12 @@
           });
         }
 
+        if (already && live) {
+          card.querySelector(".startBtn").addEventListener("click", () => {
+            window.location.href = "startsession.html";
+          });
+        }
+
         container.appendChild(card);
       });
     }
@@ -223,5 +231,3 @@
   </script>
 
 </body>
-
-</html>

@@ -251,7 +251,7 @@
 
             card.innerHTML = `
                 <div class="icon">🧠</div>
-                <p>Test MCQs</p>
+                <p>Test yourself</p>
             `;
 
             return card;
@@ -267,55 +267,13 @@
             });
 
             card.innerHTML = `
-                <div class="icon">🧠</div>
+                <div class="icon">💯</div>
                 <p>Examination</p>
             `;
 
             return card;
         }
 
-        function createSpendPointsCard() {
-            const card = document.createElement("div");
-            card.className = "iconCard";
-
-            card.addEventListener("click", () => {
-                let pts = getScalpelPoints();
-                if (pts < 50) {
-                    alert("Not enough points!");
-                    return;
-                }
-                setScalpelPoints(pts - 50);
-                updatePointsDisplay();
-                alert("You spent 50 points!");
-            });
-
-            card.innerHTML = `
-                <div class="icon">💉</div>
-                <p class="iconLabel">Spend 50 Points</p>
-            `;
-
-            return card;
-        }
-
-        function createAdd20PointsCard() {
-            const card = document.createElement("div");
-            card.className = "iconCard";
-
-            card.addEventListener("click", () => {
-                let pts = getScalpelPoints();
-                pts += 20;
-                setScalpelPoints(pts);
-                updatePointsDisplay();
-                alert("+20 points added!");
-            });
-
-            card.innerHTML = `
-                <div class="icon">➕</div>
-                <p class="iconLabel">Add 20 Points</p>
-            `;
-
-            return card;
-        }
 
         function loadCustomButtons() {
             const saved = JSON.parse(localStorage.getItem("customButtons") || "[]");
