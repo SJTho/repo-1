@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuroreg</title>
+
+    <link rel="stylesheet" href="./mcqcore.css">
+</head>
+
+<body>
+
+    <!-- Top-left points + rank -->
+    <div id="topLeftInfo">
+        <div id="pointsValue" class="tinyText">
+            🧑‍⚕️ <span id="pointsNumber"></span>
+        </div>
+        <div id="rankValue" class="tinyText"></div>
+    </div>
+
+    <!-- Top-right help button -->
+    <div id="helpButton">❓</div>
+
+    <h1>NeuroReg App</h1>
+
+    <!-- Rank-Up Celebration Banner -->
+    <div id="rankUpBanner"></div>
+
+    <!-- Icon Grid -->
+    <div id="linksContainer" class="iconGrid"></div>
+
+    <!-- MCQ + Spend/Add Points -->
+    <div id="mcqContainer"></div>
+
+    <!-- Delete Popup -->
+    <div id="deletePopup" style="
+        display:none;
+        position:fixed;
+        top:0; left:0;
+        width:100%; height:100%;
+        background:rgba(0,0,0,0.7);
+        justify-content:center;
+        align-items:center;
+    ">
+        <div style="
+            background:#14233d;
+            padding:20px;
+            border-radius:10px;
+            width:300px;
+            text-align:center;
+        ">
+            <p style="margin-bottom:20px;">Delete this custom link?</p>
+            <button id="confirmDelete" style="background:#8a2a2a; margin-bottom:10px;">Delete</button>
+            <button id="cancelDelete">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("helpButton").addEventListener("click", () => {
+            window.location.href = "help.html";
+        });
+        /* -----------------------------------------
+           DAILY REWARD (+10 per day)
+        ----------------------------------------- */
+        function giveDailyReward() {
+            const today = new Date().toISOString().split("T")[0];
+            const last = localStorage.getItem("lastDailyReward");
+
+            if (last !== today) {
+                let pts = parseInt(localStorage.getItem("scalpelPoints")) || 0;
+                pts += 10;
+                localStorage.setItem("scalpelPoints", String(pts));
+                localStorage.setItem("lastDailyReward", today);
+
+                alert("Daily reward: +10 points!");
+            }
+        }
+
+        giveDailyReward();
+
+
+        /* -----------------------------------------
+           Points System
+        ----------------------------------------- */
+        if (!localStorage.getItem("scalpelPoints")) {
+            localStorage.setItem("scalpelPoints", "200");
+        }
+
+        function getScalpelPoints() {
+            return parseInt(localStorage.getItem("scalpelPoints")) || 0;
+        }
+
+        function setScalpelPoints(amount) {
+            localStorage.setItem("scalpelPoints", String(amount));
+        }
+
+
+        /* -----------------------------------------
+           Rank System
+        ----------------------------------------- */
+        function getRank(points) {
+            if (points <= 300) return "Observer";
+            if (points <= 600) return "Assistant";
+            if (points <= 900) return "Supervised Scrubbed";
+            if (points <= 1200) return "Supervised Unscrubbed";
+            return "Independent Practice";
+        }
+
+        function rankIndex(rank) {
+            const ranks = [
+                "Observer",
+                "Assistant",
+                "Supervised Scrubbed",
+                "Supervised Unscrubbed",
+                "Independent Practice"
+            ];
+            return ranks.indexOf(rank);
+        }
+
+        let previousRank = localStorage.getItem("previousRank") || null;
+
+        function showRankUpAnimation(newRank) {
+            const banner = document.getElementById("rankUpBanner");
+            banner.textContent = `🎉 Rank Up! You are now: ${newRank}`;
+            banner.style.display = "block";
+
+            for (let i = 0; i < 30; i++) {
+                const conf = document.createElement("div");
+                conf.className = "confetti";
+                conf.style.left = Math.random() * window.innerWidth + "px";
+                conf.style.background = ["gold", "white", "#4CAF50", "#2196F3"][Math.floor(Math.random() * 4)];
+                document.body.appendChild(conf);
+
+                setTimeout(() => conf.remove(), 1200);
+            }
+
+            setTimeout(() => {
+                banner.style.display = "none";
+            }, 3000);
+        }
+
+        function updatePointsDisplay() {
+            const pts = getScalpelPoints();
+            const newRank = getRank(pts);
+
+            document.getElementById("pointsNumber").textContent = pts;
+            document.getElementById("rankValue").textContent = newRank;
+
+            if (previousRank && rankIndex(newRank) > rankIndex(previousRank)) {
+                showRankUpAnimation(newRank);
+            }
+
+            previousRank = newRank;
+            localStorage.setItem("previousRank", newRank);
+        }
+
+        updatePointsDisplay();
+        window.addEventListener("focus", updatePointsDisplay);
+
+        /* -----------------------------------------
+              Page content
+           ----------------------------------------- */
+
+        const linksContainer = document.getElementById("linksContainer");
+        const mcqContainer = document.getElementById("mcqContainer");
+        const deletePopup = document.getElementById("deletePopup");
+        const confirmDelete = document.getElementById("confirmDelete");
+        const cancelDelete = document.getElementById("cancelDelete");
+
+        let deleteIndex = null;
+
+        function createIconCard(icon, label, url) {
+            const card = document.createElement("div");
+            card.className = "iconCard";
+            card.style.position = "relative";
+
+            card.addEventListener("click", () => {
+                window.open(url, "_blank");
+            });
+
+            card.innerHTML = `
+                <div class="icon">${icon}</div>
+                <p class="iconLabel">${label}</p>
+            `;
+
+            return card;
+        }
+
+        function createMCQCard() {
+            const card = document.createElement("div");
+            card.className = "mcqCard";
+
+            card.addEventListener("click", () => {
+                window.location.href = "mcqcore.html";
+            });
+
+            card.innerHTML = `
+                <div class="icon">🧠</div>
+                <p>Test yourself</p>
+            `;
+
+            return card;
+        }
+
+
+        function createFormalTestCard() {
+            const card = document.createElement("div");
+            card.className = "mcqCard";
+
+            card.addEventListener("click", () => {
+                window.location.href = "formaltestcore.html";
+            });
+
+            card.innerHTML = `
+                <div class="icon">💯</div>
+                <p>Examination</p>
+            `;
+
+            return card;
+        }
+
+
+        function loadCustomButtons() {
+            const saved = JSON.parse(localStorage.getItem("customButtons") || "[]");
+            return saved.slice(0, 3);
+        }
+
+        function saveCustomButtons(buttons) {
+            localStorage.setItem("customButtons", JSON.stringify(buttons));
+        }
+
+        function renderCustomButtons() {
+            const buttons = loadCustomButtons();
+            const fragment = document.createDocumentFragment();
+
+            buttons.forEach((btn, index) => {
+                const card = document.createElement("div");
+                card.className = "iconCard";
+
+                card.addEventListener("click", () => {
+                    window.open(btn.url, "_blank");
+                });
+
+                const iconHTML = btn.image
+                    ? `<img src="${btn.image}" class="customIcon">`
+                    : `<div class="icon smallIcon">🔗</div>`;
+
+                card.innerHTML = `
+                    ${iconHTML}
+                    <p class="iconLabel">${btn.name}</p>
+                    <div class="customDeleteBtn">❌</div>
+                `;
+
+                card.querySelector(".customDeleteBtn").addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    deleteIndex = index;
+                    deletePopup.style.display = "flex";
+                });
+
+                fragment.appendChild(card);
+            });
+
+            return fragment;
+        }
+
+        confirmDelete.addEventListener("click", () => {
+            const buttons = loadCustomButtons();
+            buttons.splice(deleteIndex, 1);
+            saveCustomButtons(buttons);
+            deletePopup.style.display = "none";
+            renderLinks();
+        });
+
+        cancelDelete.addEventListener("click", () => {
+            deletePopup.style.display = "none";
+        });
+
+        function createAddLinkButton() {
+            const card = document.createElement("div");
+            card.className = "iconCard";
+
+            card.addEventListener("click", () => {
+                window.location.href = "custom_button.html";
+            });
+
+            card.innerHTML = `
+                <div class="icon smallIcon">🔗</div>
+                <p class="iconLabel">Add Link</p>
+            `;
+
+            return card;
+        }
+
+        function renderLinks() {
+            linksContainer.innerHTML = "";
+            mcqContainer.innerHTML = "";
+
+            // Built‑in links
+            linksContainer.appendChild(createIconCard("📘", "ISCP", "https://www.iscp.ac.uk"));
+            linksContainer.appendChild(createIconCard("📊", "eLogbook", "https://client.elogbook.org/"));
+            linksContainer.appendChild(createIconCard("📝", "MRCS", "https://www.intercollegiatemrcsexams.org.uk/"));
+            linksContainer.appendChild(createIconCard("🎓", "JCIE", "https://www.jcie.org.uk"));
+            linksContainer.appendChild(createIconCard("🏛️", "JCST", "https://www.jcst.org"));
+            linksContainer.appendChild(createIconCard("📒", "Gold Guide", "https://www.copmed.org.uk/publications/gold-guide"));
+            linksContainer.appendChild(createIconCard("🧑‍🤝‍🧑", "SBNS", "https://www.sbns.org.uk"));
+            linksContainer.appendChild(createIconCard("🩺", "BNTA", "https://www.e1v1m1.com"));
+
+
+            // Custom buttons
+            linksContainer.appendChild(renderCustomButtons());
+
+            // Add link button (max 3)
+            if (loadCustomButtons().length < 3) {
+                linksContainer.appendChild(createAddLinkButton());
+            }
+
+            // MCQ + Formal Test
+            mcqContainer.appendChild(createMCQCard());
+            mcqContainer.appendChild(createFormalTestCard());
+        }
+
+        renderLinks();
+    </script>
+
+</body>
+
+</html>
