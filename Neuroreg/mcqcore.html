@@ -13,16 +13,19 @@
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 
     /* -----------------------------------------
-       SUPABASE CONNECTION
+       SUPABASE CONNECTION (GLOBAL)
     ----------------------------------------- */
 
     const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
 
+    /* MAKE KEY GLOBAL */
     window.supabaseKeyy = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";
+
+    /* MAKE CLIENT GLOBAL */
     window.supabase = createClient(supabaseUrl, window.supabaseKeyy);
 
     /* -----------------------------------------
-       FETCH QUESTIONS FROM SUPABASE (MCQQuestions)
+       FETCH QUESTIONS FROM SUPABASE
     ----------------------------------------- */
     window.fetchQuestionsFromDB = async () => {
       const {data, error} = await window.supabase
@@ -35,10 +38,8 @@
         return [];
       }
 
-      return data
-
+      return data;
     };
-
   </script>
 </head>
 
@@ -92,315 +93,312 @@
   </div>
 
   <script>
-    /* -----------------------------------------
-       HELP BUTTON
-    ----------------------------------------- */
-    document.getElementById("helpButton").addEventListener("click", () => {
-      window.location.href = "help.html";
-    });
+    window.addEventListener("DOMContentLoaded", () => {
 
-    /* -----------------------------------------
-       DAILY REWARD (+10 per day)
-    ----------------------------------------- */
-    function giveDailyReward() {
-      const today = new Date().toISOString().split("T")[0];
-      const last = localStorage.getItem("lastDailyReward");
-
-      if (last !== today) {
-        let pts = parseInt(localStorage.getItem("scalpelPoints")) || 0;
-        pts += 10;
-        localStorage.setItem("scalpelPoints", String(pts));
-        localStorage.setItem("lastDailyReward", today);
-
-        alert("Daily reward: +10 points!");
-      }
-    }
-    giveDailyReward();
-
-    /* -----------------------------------------
-       POINTS + RANK DISPLAY
-    ----------------------------------------- */
-    function getScalpelPoints() {
-      return parseInt(localStorage.getItem("scalpelPoints")) || 0;
-    }
-
-    function setScalpelPoints(amount) {
-      localStorage.setItem("scalpelPoints", String(amount));
-    }
-
-    function getRank(points) {
-      if (points <= 300) return "Observer";
-      if (points <= 600) return "Assistant";
-      if (points <= 900) return "Supervised Scrubbed";
-      if (points <= 1200) return "Supervised Unscrubbed";
-      return "Independent Practice";
-    }
-
-    let previousRank = localStorage.getItem("previousRank") || null;
-
-    function updatePointsDisplay() {
-      const pts = getScalpelPoints();
-      const newRank = getRank(pts);
-
-      document.getElementById("pointsNumber").textContent = pts;
-      document.getElementById("rankValue").textContent = newRank;
-
-      previousRank = newRank;
-      localStorage.setItem("previousRank", newRank);
-    }
-
-    updatePointsDisplay();
-    window.addEventListener("focus", updatePointsDisplay);
-
-    /* -----------------------------------------
-       SELECT OPTION
-    ----------------------------------------- */
-    function selectOption(qIndex, optIndex, element) {
-      const allOptions = document.querySelectorAll(`label.optionLabel[data-q="${qIndex}"]`);
-      allOptions.forEach(opt => opt.classList.remove("selected"));
-      element.classList.add("selected");
-
-      const radio = element.querySelector("input[type='radio']");
-      radio.checked = true;
-    }
-
-    /* -----------------------------------------
-       STORE SCORE
-    ----------------------------------------- */
-    function storeScore(score, total, topic, level) {
-      const now = new Date();
-      const timestamp =
-        now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, "0") + "-" +
-        String(now.getDate()).padStart(2, "0") + " " +
-        String(now.getHours()).padStart(2, "0") + ":" +
-        String(now.getMinutes()).padStart(2, "0");
-
-      const entry = {score, total, topic, level, timestamp};
-
-      let stored = localStorage.getItem("scores");
-      let scores = stored ? JSON.parse(stored) : [];
-
-      scores.push(entry);
-
-      localStorage.setItem("scores", JSON.stringify(scores));
-    }
-
-    /* -----------------------------------------
-       MCQ GENERATOR (FILTER + SHUFFLE)
-    ----------------------------------------- */
-    window.copilot = {
-      generateMCQs: async ({count, topic, level}) => {
-        let pool = await window.fetchQuestionsFromDB();
-
-        /* Build options array from option1–4 */
-        pool = pool.map(q => {
-          const options = [
-            {text: q.option1, correct: true},
-            {text: q.option2, correct: false},
-            {text: q.option3, correct: false},
-            {text: q.option4, correct: false}
-          ];
-
-          /* Fisher–Yates shuffle */
-          for (let i = options.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [options[i], options[j]] = [options[j], options[i]];
-          }
-
-          return {
-            id: q.id,
-            stem: q.stem,
-            topic: q.topic,
-            level: q.level,
-            explanation: q.explanation,
-            options: options.map(o => o.text),
-            correctIndex: options.findIndex(o => o.correct)
-          };
-        });
-
-        /* Filters */
-        if (topic !== "all") {
-          pool = pool.filter(q => q.topic.toLowerCase().includes(topic.toLowerCase()));
-        }
-
-        if (level !== "all") {
-          pool = pool.filter(q => q.level.toLowerCase().includes(level.toLowerCase()));
-        }
-
-        /* Shuffle questions */
-        for (let i = pool.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [pool[i], pool[j]] = [pool[j], pool[i]];
-        }
-
-        return pool.slice(0, count);
-      }
-    };
-
-    /* -----------------------------------------
-       FLAG QUESTION (Supabase increment flaggedSet)
-    ----------------------------------------- */
-    async function flagQuestion(questionId, buttonElement) {
-      // Fetch current flaggedSet value
-      const {data, error} = await window.supabase
-        .from("MCQQuestions")
-        .select("flaggedSet")
-        .eq("id", questionId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching flaggedSet:", error);
-        alert("Could not flag question.");
-        return;
-      }
-
-      const current = data.flaggedSet || 0;
-      const updated = current + 1;
-
-      // Update flaggedSet in Supabase
-      const {error: updateError} = await window.supabase
-        .from("MCQQuestions")
-        .update({flaggedSet: updated})
-        .eq("id", questionId);
-
-      if (updateError) {
-        console.error("Error updating flaggedSet:", updateError);
-        alert("Could not update flag count.");
-        return;
-      }
-
-      alert(`Question flagged (${updated})`);
-
-      // Hide button so user cannot flag twice
-      buttonElement.style.display = "none";
-    }
-
-    /* -----------------------------------------
-       GENERATE MCQs
-    ----------------------------------------- */
-    async function generateMCQs() {
-      const count = parseInt(document.getElementById("mcqCount").value);
-      const topic = document.getElementById("mcqAreas").value;
-      const level = document.getElementById("mcqLevel").value;
-
-      if (!count || count < 1) {
-        alert("Please enter a valid number of questions.");
-        return;
-      }
-
-      const container = document.getElementById("mcqQuestions");
-      container.innerHTML = "";
-      document.getElementById("scoreDisplay").innerHTML = "";
-
-      /* Hide controls */
-      document.getElementById("mcqCount").style.display = "none";
-      document.getElementById("mcqAreas").style.display = "none";
-      document.getElementById("mcqLevel").style.display = "none";
-      document.getElementById("startSubmitBtn").style.display = "none";
-      document.querySelector("label[for='mcqCount']").style.display = "none";
-      document.querySelector("label[for='mcqAreas']").style.display = "none";
-      document.querySelector("label[for='mcqLevel']").style.display = "none";
-
-      let questions = await window.copilot.generateMCQs({count, topic, level});
-
-      if (!questions || questions.length === 0) {
-        alert("No questions available for that topic/level.");
-        return;
-      }
-
-      questions.forEach((q, index) => {
-        const block = document.createElement("div");
-        block.className = "questionBlock";
-
-        block.innerHTML = `
-          <p><strong>Q${index + 1} (${q.level}):</strong> ${q.stem}</p>
-          ${q.options.map((opt, j) => `
-            <label class="optionLabel" data-q="${index}" onclick="selectOption(${index}, ${j}, this)">
-              <input type="radio" name="q${index}" value="${j}">
-              ${opt}
-            </label>
-          `).join("")}
-        `;
-
-        block.dataset.correct = q.correctIndex;
-        block.dataset.explanation = q.explanation;
-        block.dataset.id = q.id;
-
-        container.appendChild(block);
+      /* -----------------------------------------
+         HELP BUTTON
+      ----------------------------------------- */
+      document.getElementById("helpButton").addEventListener("click", () => {
+        window.location.href = "help.html";
       });
 
-      const submitBtn = document.createElement("button");
-      submitBtn.textContent = "Submit";
+      /* -----------------------------------------
+         DAILY REWARD
+      ----------------------------------------- */
+      function giveDailyReward() {
+        const today = new Date().toISOString().split("T")[0];
+        const last = localStorage.getItem("lastDailyReward");
 
-      submitBtn.onclick = () => {
-        submitBtn.remove();
-        scoresBtn.style.display = "inline-block";
+        if (last !== today) {
+          let pts = parseInt(localStorage.getItem("scalpelPoints")) || 0;
+          pts += 10;
+          localStorage.setItem("scalpelPoints", String(pts));
+          localStorage.setItem("lastDailyReward", today);
 
-        let score = 0;
-        let scalpelDelta = 0;
+          alert("Daily reward: +10 points!");
+        }
+      }
+      giveDailyReward();
 
-        const blocks = document.querySelectorAll(".questionBlock");
+      /* -----------------------------------------
+         POINTS + RANK
+      ----------------------------------------- */
+      function getScalpelPoints() {
+        return parseInt(localStorage.getItem("scalpelPoints")) || 0;
+      }
 
-        blocks.forEach((block, index) => {
-          const selected = document.querySelector(`input[name="q${index}"]:checked`);
-          const correct = block.dataset.correct;
-          const explanation = block.dataset.explanation;
+      function setScalpelPoints(amount) {
+        localStorage.setItem("scalpelPoints", String(amount));
+      }
 
-          const isCorrect = selected && selected.value === correct;
+      function getRank(points) {
+        if (points <= 300) return "Observer";
+        if (points <= 600) return "Assistant";
+        if (points <= 900) return "Supervised Scrubbed";
+        if (points <= 1200) return "Supervised Unscrubbed";
+        return "Independent Practice";
+      }
 
-          if (isCorrect) {
-            score++;
-            scalpelDelta += 2;
+      let previousRank = localStorage.getItem("previousRank") || null;
 
-            block.style.border = "2px solid #4CAF50";
-            block.insertAdjacentHTML("beforeend",
-              `<p class="resultTag" style="color:#4CAF50;"><strong>Correct (+2)</strong></p>`
-            );
+      function updatePointsDisplay() {
+        const pts = getScalpelPoints();
+        const newRank = getRank(pts);
 
-          } else {
-            scalpelDelta -= 1;
+        document.getElementById("pointsNumber").textContent = pts;
+        document.getElementById("rankValue").textContent = newRank;
 
-            block.style.border = "2px solid #b30000";
-            block.insertAdjacentHTML("beforeend",
-              `<p class="resultTag" style="color:#b30000;"><strong>Wrong (-1)</strong></p>`
-            );
-          }
+        previousRank = newRank;
+        localStorage.setItem("previousRank", newRank);
+      }
 
-          if (!block.querySelector(".explanation")) {
-            const explanationDiv = document.createElement("div");
-            explanationDiv.className = "explanation";
-            explanationDiv.innerHTML = `<strong>Explanation:</strong> ${explanation}`;
-            block.appendChild(explanationDiv);
-          }
+      updatePointsDisplay();
+      window.addEventListener("focus", updatePointsDisplay);
 
-          const flagBtn = document.createElement("button");
-          flagBtn.textContent = "Flag Question";
-          flagBtn.className = "flagBtn";
-          flagBtn.onclick = () => flagQuestion(block.dataset.id, flagBtn);
-          block.appendChild(flagBtn);
-        });
+      /* -----------------------------------------
+         SELECT OPTION
+      ----------------------------------------- */
+      window.selectOption = function (qIndex, optIndex, element) {
+        const allOptions = document.querySelectorAll(`label.optionLabel[data-q="${qIndex}"]`);
+        allOptions.forEach(opt => opt.classList.remove("selected"));
+        element.classList.add("selected");
 
-        document.getElementById("scoreDisplay").innerHTML = "";
-
-        let currentPoints = parseInt(localStorage.getItem("scalpelPoints")) || 0;
-        let newPoints = currentPoints + scalpelDelta;
-        localStorage.setItem("scalpelPoints", String(newPoints));
-
-        updatePointsDisplay();
-
-        storeScore(score, questions.length, topic, level);
+        const radio = element.querySelector("input[type='radio']");
+        radio.checked = true;
       };
 
-      container.appendChild(submitBtn);
+      /* -----------------------------------------
+         STORE SCORE
+      ----------------------------------------- */
+      function storeScore(score, total, topic, level) {
+        const now = new Date();
+        const timestamp =
+          now.getFullYear() + "-" +
+          String(now.getMonth() + 1).padStart(2, "0") + "-" +
+          String(now.getDate()).padStart(2, "0") + " " +
+          String(now.getHours()).padStart(2, "0") + ":" +
+          String(now.getMinutes()).padStart(2, "0");
 
-      const scoresBtn = document.createElement("button");
-      scoresBtn.textContent = "Progress";
-      scoresBtn.style.display = "none";
-      scoresBtn.onclick = () => window.location.href = "scores.html";
+        const entry = {score, total, topic, level, timestamp};
 
-      container.appendChild(scoresBtn);
-    }
+        let stored = localStorage.getItem("scores");
+        let scores = stored ? JSON.parse(stored) : [];
+
+        scores.push(entry);
+
+        localStorage.setItem("scores", JSON.stringify(scores));
+      }
+
+      /* -----------------------------------------
+         MCQ GENERATOR (FILTER + SHUFFLE)
+      ----------------------------------------- */
+      window.copilot = {
+        generateMCQs: async ({count, topic, level}) => {
+          let pool = await window.fetchQuestionsFromDB();
+
+          pool = pool.map(q => {
+            const options = [
+              {text: q.option1, correct: true},
+              {text: q.option2, correct: false},
+              {text: q.option3, correct: false},
+              {text: q.option4, correct: false}
+            ];
+
+            for (let i = options.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [options[i], options[j]] = [options[j], options[i]];
+            }
+
+            return {
+              id: q.id,
+              stem: q.stem,
+              topic: q.topic,
+              level: q.level,
+              explanation: q.explanation,
+              options: options.map(o => o.text),
+              correctIndex: options.findIndex(o => o.correct)
+            };
+          });
+
+          if (topic !== "all") {
+            pool = pool.filter(q => q.topic.toLowerCase().includes(topic.toLowerCase()));
+          }
+
+          if (level !== "all") {
+            pool = pool.filter(q => q.level.toLowerCase().includes(level.toLowerCase()));
+          }
+
+          for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+          }
+
+          return pool.slice(0, count);
+        }
+      };
+
+      /* -----------------------------------------
+         FLAG QUESTION
+      ----------------------------------------- */
+      window.flagQuestion = async function (questionId, buttonElement) {
+        const {data, error} = await window.supabase
+          .from("MCQQuestions")
+          .select("flaggedSet")
+          .eq("id", questionId)
+          .single();
+
+        if (error) {
+          console.error("Error fetching flaggedSet:", error);
+          alert("Could not flag question.");
+          return;
+        }
+
+        const current = data.flaggedSet || 0;
+        const updated = current + 1;
+
+        const {error: updateError} = await window.supabase
+          .from("MCQQuestions")
+          .update({flaggedSet: updated})
+          .eq("id", questionId);
+
+        if (updateError) {
+          console.error("Error updating flaggedSet:", updateError);
+          alert("Could not update flag count.");
+          return;
+        }
+
+        alert(`Question flagged (${updated})`);
+        buttonElement.style.display = "none";
+      };
+
+      /* -----------------------------------------
+         GENERATE MCQs
+      ----------------------------------------- */
+      window.generateMCQs = async function () {
+        const count = parseInt(document.getElementById("mcqCount").value);
+        const topic = document.getElementById("mcqAreas").value;
+        const level = document.getElementById("mcqLevel").value;
+
+        if (!count || count < 1) {
+          alert("Please enter a valid number of questions.");
+          return;
+        }
+
+        const container = document.getElementById("mcqQuestions");
+        container.innerHTML = "";
+        document.getElementById("scoreDisplay").innerHTML = "";
+
+        document.getElementById("mcqCount").style.display = "none";
+        document.getElementById("mcqAreas").style.display = "none";
+        document.getElementById("mcqLevel").style.display = "none";
+        document.getElementById("startSubmitBtn").style.display = "none";
+        document.querySelector("label[for='mcqCount']").style.display = "none";
+        document.querySelector("label[for='mcqAreas']").style.display = "none";
+        document.querySelector("label[for='mcqLevel']").style.display = "none";
+
+        let questions = await window.copilot.generateMCQs({count, topic, level});
+
+        if (!questions || questions.length === 0) {
+          alert("No questions available for that topic/level.");
+          return;
+        }
+
+        questions.forEach((q, index) => {
+          const block = document.createElement("div");
+          block.className = "questionBlock";
+
+          block.innerHTML = `
+            <p><strong>Q${index + 1} (${q.level}):</strong> ${q.stem}</p>
+            ${q.options.map((opt, j) => `
+              <label class="optionLabel" data-q="${index}" onclick="selectOption(${index}, ${j}, this)">
+                <input type="radio" name="q${index}" value="${j}">
+                ${opt}
+              </label>
+            `).join("")}
+          `;
+
+          block.dataset.correct = q.correctIndex;
+          block.dataset.explanation = q.explanation;
+          block.dataset.id = q.id;
+
+          container.appendChild(block);
+        });
+
+        const submitBtn = document.createElement("button");
+        submitBtn.textContent = "Submit";
+
+        submitBtn.onclick = () => {
+          submitBtn.remove();
+          scoresBtn.style.display = "inline-block";
+
+          let score = 0;
+          let scalpelDelta = 0;
+
+          const blocks = document.querySelectorAll(".questionBlock");
+
+          blocks.forEach((block, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const correct = block.dataset.correct;
+            const explanation = block.dataset.explanation;
+
+            const isCorrect = selected && selected.value === correct;
+
+            if (isCorrect) {
+              score++;
+              scalpelDelta += 2;
+
+              block.style.border = "2px solid #4CAF50";
+              block.insertAdjacentHTML("beforeend",
+                `<p class="resultTag" style="color:#4CAF50;"><strong>Correct (+2)</strong></p>`
+              );
+
+            } else {
+              scalpelDelta -= 1;
+
+              block.style.border = "2px solid #b30000";
+              block.insertAdjacentHTML("beforeend",
+                `<p class="resultTag" style="color:#b30000;"><strong>Wrong (-1)</strong></p>`
+              );
+            }
+
+            if (!block.querySelector(".explanation")) {
+              const explanationDiv = document.createElement("div");
+              explanationDiv.className = "explanation";
+              explanationDiv.innerHTML = `<strong>Explanation:</strong> ${explanation}`;
+              block.appendChild(explanationDiv);
+            }
+
+            const flagBtn = document.createElement("button");
+            flagBtn.textContent = "Flag Question";
+            flagBtn.className = "flagBtn";
+            flagBtn.onclick = () => flagQuestion(block.dataset.id, flagBtn);
+            block.appendChild(flagBtn);
+          });
+
+          let currentPoints = parseInt(localStorage.getItem("scalpelPoints")) || 0;
+          let newPoints = currentPoints + scalpelDelta;
+          localStorage.setItem("scalpelPoints", String(newPoints));
+
+          updatePointsDisplay();
+
+          document.getElementById("scoreDisplay").innerHTML =
+            `<p><strong>Score:</strong> ${score}/${questions.length}</p>
+             <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>
+             <p><strong>New total:</strong> ${newPoints}</p>`;
+
+          storeScore(score, questions.length, topic, level);
+        };
+
+        container.appendChild(submitBtn);
+
+        const scoresBtn = document.createElement("button");
+        scoresBtn.textContent = "Progress";
+        scoresBtn.style.display = "none";
+        scoresBtn.onclick = () => window.location.href = "scores.html";
+
+        container.appendChild(scoresBtn);
+      };
+    });
   </script>
 
 </body>
