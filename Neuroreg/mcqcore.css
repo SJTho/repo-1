@@ -297,6 +297,25 @@ a {
   font-size: 1rem;
 }
 
+/* Make MCQ + Examination cards smaller on mobile */
+@media (max-width: 480px) {
+  .mcqCard {
+    width: 90px;
+    padding: 14px;
+    border-radius: 6px;
+    transform: scale(0.9);
+  }
+
+  .mcqCard .icon {
+    font-size: 28px;
+  }
+
+  .mcqCard p {
+    font-size: 0.8rem;
+    margin-top: 6px;
+  }
+}
+
 .iconLabel {
   margin-top: 6px;
   font-size: 0.9rem;
