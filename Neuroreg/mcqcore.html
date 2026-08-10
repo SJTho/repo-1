@@ -17,11 +17,10 @@
     ----------------------------------------- */
 
     const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
-    const supabaseKeyy = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";   /* ← INSERT YOUR ANON KEY */
 
-    window.supabase = createClient(supabaseUrl, supabaseKeyy);
+    window.supabaseKeyy = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";
+    window.supabase = createClient(supabaseUrl, window.supabaseKeyy);
 
-    console.log(supabaseKeyy);
     /* -----------------------------------------
        FETCH QUESTIONS FROM SUPABASE (MCQQuestions)
     ----------------------------------------- */
@@ -29,7 +28,7 @@
       const {data, error} = await window.supabase
         .from("MCQQuestions")
         .select("*");
-      console.log(supabaseKeyy);
+
       if (error) {
         console.error("Supabase fetch error:", error);
         alert("Error loading questions from database.");
@@ -39,6 +38,7 @@
       return data
 
     };
+
   </script>
 </head>
 
@@ -306,7 +306,6 @@
 
       if (!questions || questions.length === 0) {
         alert("No questions available for that topic/level.");
-        console.log(supabaseKeyy);
         return;
       }
 
