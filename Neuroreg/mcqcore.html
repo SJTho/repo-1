@@ -7,6 +7,37 @@
   <title>Practice MCQs</title>
 
   <link rel="stylesheet" href="./mcqcore.css">
+
+  <!-- Supabase client -->
+  <script type="module">
+    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+
+    /* -----------------------------------------
+       SUPABASE CONNECTION
+    ----------------------------------------- */
+
+    const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";   /* Insert manually */
+
+    window.supabase = createClient(supabaseUrl, supabaseKey);
+
+    /* -----------------------------------------
+       FETCH QUESTIONS FROM SUPABASE
+    ----------------------------------------- */
+    window.fetchQuestionsFromDB = async () => {
+      const {data, error} = await window.supabase
+        .from("MCQQuestions")
+        .select("*");
+
+      if (error) {
+        console.error("Supabase fetch error:", error);
+        alert("Error loading questions from database.");
+        return [];
+      }
+
+      return data;
+    };
+  </script>
 </head>
 
 <body>
@@ -55,15 +86,10 @@
     <div id="mcqQuestions"></div>
     <div id="scoreDisplay"></div>
 
-
     <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
   </div>
 
-  <!-- Load question bank -->
-  <script src="./mcqData.js"></script>
-
   <script>
-
     /* -----------------------------------------
        HELP BUTTON
     ----------------------------------------- */
@@ -108,17 +134,6 @@
       return "Independent Practice";
     }
 
-    function rankIndex(rank) {
-      const ranks = [
-        "Observer",
-        "Assistant",
-        "Supervised Scrubbed",
-        "Supervised Unscrubbed",
-        "Independent Practice"
-      ];
-      return ranks.indexOf(rank);
-    }
-
     let previousRank = localStorage.getItem("previousRank") || null;
 
     function updatePointsDisplay() {
@@ -159,7 +174,7 @@
         String(now.getHours()).padStart(2, "0") + ":" +
         String(now.getMinutes()).padStart(2, "0");
 
-      const entry = { score, total, topic, level, timestamp };
+      const entry = {score, total, topic, level, timestamp};
 
       let stored = localStorage.getItem("scores");
       let scores = stored ? JSON.parse(stored) : [];
@@ -173,44 +188,63 @@
        MCQ GENERATOR (FILTER + SHUFFLE)
     ----------------------------------------- */
     window.copilot = {
-      generateMCQs: async ({ count, topic, level }) => {
-        let filtered = demoPool;
+      generateMCQs: async ({count, topic, level}) => {
+        let pool = await window.fetchQuestionsFromDB();
 
+        /* Build options array from option1–4 */
+        pool = pool.map(q => {
+          const options = [
+            {text: q.option1, correct: true},
+            {text: q.option2, correct: false},
+            {text: q.option3, correct: false},
+            {text: q.option4, correct: false}
+          ];
+
+          /* Shuffle options */
+          for (let i = options.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [options[i], options[j]] = [options[j], options[i]];
+          }
+
+          const shuffledTexts = options.map(o => o.text);
+          const correctIndex = options.findIndex(o => o.correct);
+
+          return {
+            id: q.id,
+            stem: q.stem,
+            topic: q.topic,
+            level: q.level,
+            explanation: q.explanation,
+            options: shuffledTexts,
+            correctIndex: correctIndex
+          };
+        });
+
+        /* Filters */
         if (topic !== "all") {
-          filtered = filtered.filter(q => q.topic.toLowerCase().includes(topic.toLowerCase()));
+          pool = pool.filter(q => q.topic.toLowerCase().includes(topic.toLowerCase()));
         }
 
         if (level !== "all") {
-          filtered = filtered.filter(q => q.level.toLowerCase().includes(level.toLowerCase()));
+          pool = pool.filter(q => q.level.toLowerCase().includes(level.toLowerCase()));
         }
 
-        for (let i = filtered.length - 1; i > 0; i--) {
+        /* Shuffle questions */
+        for (let i = pool.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
-          [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+          [pool[i], pool[j]] = [pool[j], pool[i]];
         }
 
-        return filtered.slice(0, count);
+        return pool.slice(0, count);
       }
     };
 
     /* -----------------------------------------
-       FLAG QUESTION (hide button after click)
+       FLAG QUESTION
     ----------------------------------------- */
-    function flagQuestion(qIndex, buttonElement) {
-      const q = demoPool[qIndex];
-      if (!q) return;
-
-      q.flaggedSet = (q.flaggedSet || 0) + 1;
-
-      alert(`Question flagged (${q.flaggedSet}/5)`);
-
-      // Hide button so user cannot flag twice
+    function flagQuestion(questionId, buttonElement) {
+      alert("Question flagged. (Server-side flagging not yet implemented)");
       buttonElement.style.display = "none";
-
-      if (q.flaggedSet >= 5) {
-        demoPool.splice(qIndex, 1);
-        alert("This question has been removed due to repeated flags.");
-      }
     }
 
     /* -----------------------------------------
@@ -230,7 +264,7 @@
       container.innerHTML = "";
       document.getElementById("scoreDisplay").innerHTML = "";
 
-      // Hide controls
+      /* Hide controls */
       document.getElementById("mcqCount").style.display = "none";
       document.getElementById("mcqAreas").style.display = "none";
       document.getElementById("mcqLevel").style.display = "none";
@@ -239,7 +273,7 @@
       document.querySelector("label[for='mcqAreas']").style.display = "none";
       document.querySelector("label[for='mcqLevel']").style.display = "none";
 
-      let questions = await window.copilot.generateMCQs({ count, topic, level });
+      let questions = await window.copilot.generateMCQs({count, topic, level});
 
       if (!questions || questions.length === 0) {
         alert("No questions available for that topic/level.");
@@ -262,6 +296,7 @@
 
         block.dataset.correct = q.correctIndex;
         block.dataset.explanation = q.explanation;
+        block.dataset.id = q.id;
 
         container.appendChild(block);
       });
@@ -310,11 +345,10 @@
             block.appendChild(explanationDiv);
           }
 
-          /* Add flag button (only after submission) */
           const flagBtn = document.createElement("button");
           flagBtn.textContent = "Flag Question";
           flagBtn.className = "flagBtn";
-          flagBtn.onclick = () => flagQuestion(index, flagBtn);
+          flagBtn.onclick = () => flagQuestion(block.dataset.id, flagBtn);
           block.appendChild(flagBtn);
         });
 
