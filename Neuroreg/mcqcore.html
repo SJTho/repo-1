@@ -17,16 +17,16 @@
     ----------------------------------------- */
 
     const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";   /* Insert manually */
+    const supabaseKey = "[YOUR-ANON-KEY]";   /* Insert manually */
 
     window.supabase = createClient(supabaseUrl, supabaseKey);
 
     /* -----------------------------------------
-       FETCH QUESTIONS FROM SUPABASE
+       FETCH QUESTIONS FROM SUPABASE (MCQQuestions)
     ----------------------------------------- */
     window.fetchQuestionsFromDB = async () => {
       const {data, error} = await window.supabase
-        .from("MCQQuestions")
+        .from("MCQQuestions")   /* ← UPDATED TABLE NAME */
         .select("*");
 
       if (error) {
@@ -200,14 +200,11 @@
             {text: q.option4, correct: false}
           ];
 
-          /* Shuffle options */
+          /* Fisher–Yates shuffle */
           for (let i = options.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [options[i], options[j]] = [options[j], options[i]];
           }
-
-          const shuffledTexts = options.map(o => o.text);
-          const correctIndex = options.findIndex(o => o.correct);
 
           return {
             id: q.id,
@@ -215,8 +212,8 @@
             topic: q.topic,
             level: q.level,
             explanation: q.explanation,
-            options: shuffledTexts,
-            correctIndex: correctIndex
+            options: options.map(o => o.text),
+            correctIndex: options.findIndex(o => o.correct)
           };
         });
 
@@ -375,5 +372,3 @@
   </script>
 
 </body>
-
-</html>
