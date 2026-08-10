@@ -29,7 +29,7 @@
     ----------------------------------------- */
     window.fetchQuestionsFromDB = async () => {
       const {data, error} = await window.supabase
-        .from("MCQQuestions")
+        .from("mcqQuestions")
         .select("*");
 
       if (error) {
@@ -245,7 +245,7 @@
       ----------------------------------------- */
       window.flagQuestion = async function (questionId, buttonElement) {
         const {data, error} = await window.supabase
-          .from("MCQQuestions")
+          .from("mcqQuestions")
           .select("flaggedSet")
           .eq("id", questionId)
           .single();
@@ -260,7 +260,7 @@
         const updated = current + 1;
 
         const {error: updateError} = await window.supabase
-          .from("MCQQuestions")
+          .from("mcqQuestions")
           .update({flaggedSet: updated})
           .eq("id", questionId);
 
