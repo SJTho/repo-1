@@ -26,7 +26,7 @@
     ----------------------------------------- */
     window.fetchQuestionsFromDB = async () => {
       const {data, error} = await window.supabase
-        .from("MCQQuestions")   /* ← UPDATED TABLE NAME */
+        .from("MCQQuestions")
         .select("*");
 
       if (error) {
@@ -237,10 +237,40 @@
     };
 
     /* -----------------------------------------
-       FLAG QUESTION
+       FLAG QUESTION (Supabase increment flaggedSet)
     ----------------------------------------- */
-    function flagQuestion(questionId, buttonElement) {
-      alert("Question flagged. (Server-side flagging not yet implemented)");
+    async function flagQuestion(questionId, buttonElement) {
+      // Fetch current flaggedSet value
+      const {data, error} = await window.supabase
+        .from("MCQQuestions")
+        .select("flaggedSet")
+        .eq("id", questionId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching flaggedSet:", error);
+        alert("Could not flag question.");
+        return;
+      }
+
+      const current = data.flaggedSet || 0;
+      const updated = current + 1;
+
+      // Update flaggedSet in Supabase
+      const {error: updateError} = await window.supabase
+        .from("MCQQuestions")
+        .update({flaggedSet: updated})
+        .eq("id", questionId);
+
+      if (updateError) {
+        console.error("Error updating flaggedSet:", updateError);
+        alert("Could not update flag count.");
+        return;
+      }
+
+      alert(`Question flagged (${updated})`);
+
+      // Hide button so user cannot flag twice
       buttonElement.style.display = "none";
     }
 
