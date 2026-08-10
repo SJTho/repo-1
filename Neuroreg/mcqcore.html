@@ -29,15 +29,15 @@
       const {data, error} = await window.supabase
         .from("MCQQuestions")
         .select("*");
-
+      console.log(supabaseKeyy);
       if (error) {
         console.error("Supabase fetch error:", error);
         alert("Error loading questions from database.");
         return [];
       }
 
-      return data;
-      console.log(supabaseKeyy);
+      return data
+
     };
   </script>
 </head>
