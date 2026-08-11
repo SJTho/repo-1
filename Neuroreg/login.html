@@ -79,13 +79,28 @@
             const nickname = document.getElementById("signupNickname").value.trim();
             const password = document.getElementById("signupPassword").value.trim();
 
+            // 1️⃣ Create Supabase Auth user
+            const email = `${nickname}@local.fake`;
+
+            const {data: authUser, error: authError} = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (authError) {
+                alert("Auth signup failed: " + authError.message);
+                console.error(authError);
+                return;
+            }
+
+            // 2️⃣ Create your custom user in public.users
             const {data, error} = await supabase.rpc("signup", {
                 nickname_input: nickname,
                 password_input: password
             });
 
             if (error) {
-                alert("Signup failed.");
+                alert("Database signup failed.");
                 console.error(error);
                 return;
             }
@@ -93,7 +108,6 @@
             alert("Signup successful. You can now log in.");
             showLogin();
         }
-
         /* ----------------------------------------------------
            Login RPC
         ---------------------------------------------------- */
