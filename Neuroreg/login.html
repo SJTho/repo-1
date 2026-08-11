@@ -51,8 +51,6 @@
     </style>
 
     <script type="module">
-        window.login = login;
-
         import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 
         const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
@@ -73,7 +71,7 @@
         }
 
         /* ----------------------------------------------------
-           Signup RPC
+           Signup RPC (custom auth only)
         ---------------------------------------------------- */
         async function signup() {
             const nickname = document.getElementById("signupNickname").value.trim();
@@ -93,9 +91,9 @@
             alert("Signup successful. You can now log in.");
             showLogin();
         }
-        }
+
         /* ----------------------------------------------------
-           Login RPC
+           Login RPC (returns JWT)
         ---------------------------------------------------- */
         async function login() {
             const nickname = document.getElementById("loginNickname").value.trim();
@@ -112,11 +110,14 @@
                 return;
             }
 
+            // Store JWT token
             localStorage.setItem("sessionToken", token);
             localStorage.setItem("nickname", nickname);
 
+            // Redirect to profile page
             window.location.href = "profile.html";
         }
+
         /* ----------------------------------------------------
            Expose functions globally for onclick=""
         ---------------------------------------------------- */
@@ -176,3 +177,5 @@
     </div>
 
 </body>
+
+</html>
