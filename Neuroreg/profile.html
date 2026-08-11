@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+
+    <link rel="stylesheet" href="./mcqcore.css">
+    <link rel="stylesheet" href="./profile.css">
+
+    <script type="module">
+        import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+
+        const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";   // <-- you will insert this
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+
+        /* -----------------------------------------
+           Load user profile from Supabase
+        ----------------------------------------- */
+        async function loadProfile() {
+            const {data, error} = await supabase
+                .from("users")
+                .select("*")
+                .limit(1);
+
+            if (error) {
+                console.error("Error loading profile:", error);
+                return;
+            }
+
+            if (data.length === 0) {
+                console.warn("No user profile found in Supabase.");
+                return;
+            }
+
+            const user = data[0];
+
+            document.getElementById("nickname").value = user.nickname || "";
+            document.getElementById("password").value = user.password || "";
+            document.getElementById("scalpelPoints").value = user.scalpelpoints || "";
+        }
+
+        /* -----------------------------------------
+           Save profile to Supabase
+        ----------------------------------------- */
+        async function saveProfile() {
+            const nickname = document.getElementById("nickname").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const scalpelPoints = parseInt(document.getElementById("scalpelPoints").value.trim());
+
+            const {error} = await supabase
+                .from("users")
+                .update({
+                    nickname,
+                    password,
+                    scalpelpoints: scalpelPoints
+                })
+                .eq("id", 1);   // assuming single user with id=1
+
+            if (error) {
+                alert("Error saving profile.");
+                console.error(error);
+            } else {
+                alert("Profile saved.");
+                updatePointsDisplay();
+            }
+        }
+
+        /* -----------------------------------------
+           Rank System
+        ----------------------------------------- */
+        function getRank(points) {
+            if (points <= 300) return "Observer";
+            if (points <= 600) return "Assistant";
+            if (points <= 900) return "Supervised Scrubbed";
+            if (points <= 1200) return "Supervised Unscrubbed";
+            return "Independent Practice";
+        }
+
+        function updatePointsDisplay() {
+            const pts = parseInt(document.getElementById("scalpelPoints").value) || 0;
+            const rank = getRank(pts);
+
+            document.getElementById("pointsNumber").textContent = pts;
+            document.getElementById("rankValue").textContent = rank;
+        }
+
+        /* -----------------------------------------
+           Init
+        ----------------------------------------- */
+        window.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("helpButton").addEventListener("click", () => {
+                window.location.href = "help.html";
+            });
+
+            loadProfile().then(updatePointsDisplay);
+
+            document.getElementById("saveProfileBtn").addEventListener("click", saveProfile);
+        });
+    </script>
+</head>
+
+<body>
+
+    <!-- Top-left points + rank -->
+    <div id="topLeftInfo">
+        <div id="pointsValue" class="tinyText">
+            🧑‍⚕️ <span id="pointsNumber"></span>
+        </div>
+        <div id="rankValue" class="tinyText"></div>
+    </div>
+
+    <!-- Top-right help button -->
+    <div id="helpButton">❓</div>
+
+    <h1>My profile</h1>
+
+    <div id="profileContainer">
+
+        <div class="profileRow">
+            <label>Nickname:</label>
+            <input id="nickname" type="text">
+        </div>
+
+        <div class="profileRow">
+            <label>Password:</label>
+            <input id="password" type="password">
+        </div>
+
+        <div class="profileRow">
+            <label>Scalpel points:</label>
+            <input id="scalpelPoints" type="number">
+        </div>
+
+        <div class="profileRow">
+            <label>Rank:</label>
+            <div id="rankDisplay"></div>
+        </div>
+
+        <button id="saveProfileBtn" class="closeBtn">Save</button>
+
+    </div>
+
+</body>
+
+</html>

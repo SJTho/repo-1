@@ -1,0 +1,46 @@
+#profileContainer {
+    width: 80%;
+    max-width: 700px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profileSectionTitle {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 10px;
+    /* reduced from 30px */
+    margin-bottom: 10px;
+}
+
+.profileRow {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    column-gap: 10px;
+    margin-bottom: 14px;
+}
+
+.profileRow label {
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px;
+    align-self: center;
+}
+
+.profileRow input {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 16px;
+    border: none;
+    background: #fafafa;
+    border-radius: 6px;
+    outline: none;
+}
+
+/* Ensure profile labels are visible */
+#profileContainer label {
+    color: #000 !important;
+}
