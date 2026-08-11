@@ -245,26 +245,26 @@
       window.flagQuestion = async function (questionId, buttonElement) {
         const {data, error} = await window.supabase
           .from("questions")
-          .select("flaggedSet")
+          .select("flaggedset")
           .eq("id", questionId)
           .single();
 
         if (error) {
-          console.error("Error fetching flaggedSet:", error);
+          console.error("Error fetching flaggedset:", error);
           alert("Could not flag question.");
           return;
         }
 
-        const current = data.flaggedSet || 0;
+        const current = data.flaggedset || 0;
         const updated = current + 1;
 
         const {error: updateError} = await window.supabase
           .from("mcqquestions")
-          .update({flaggedSet: updated})
+          .update({flaggedset: updated})
           .eq("id", questionId);
 
         if (updateError) {
-          console.error("Error updating flaggedSet:", updateError);
+          console.error("Error updating flaggedset:", updateError);
           alert("Could not update flag count.");
           return;
         }
