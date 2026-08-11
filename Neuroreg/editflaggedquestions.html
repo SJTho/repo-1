@@ -109,51 +109,68 @@
           div.className = "flaggedItem";
 
           div.innerHTML = `
-            <h3>Question ID: ${q.id}</h3>
+            <div class="collapsibleHeader">
+              <h3>Question ID: ${q.id}</h3>
+            </div>
 
-            <label>Stem:</label>
-            <textarea class="editStem" required>${q.stem || ""}</textarea>
+            <div class="collapsibleContent">
 
-            <label>Topic:</label>
-            <select class="editTopic" required>
-              <option value="">Select topic</option>
-              <option value="Vascular" ${q.topic === "Vascular" ? "selected" : ""}>Vascular</option>
-              <option value="Oncology" ${q.topic === "Oncology" ? "selected" : ""}>Oncology</option>
-              <option value="Skull Base" ${q.topic === "Skull Base" ? "selected" : ""}>Skull base</option>
-              <option value="Trauma" ${q.topic === "Trauma" ? "selected" : ""}>Trauma</option>
-              <option value="CSF" ${q.topic === "CSF" ? "selected" : ""}>CSF</option>
-              <option value="Spine" ${q.topic === "Spine" ? "selected" : ""}>Spine</option>
-              <option value="Paediatrics" ${q.topic === "Paediatrics" ? "selected" : ""}>Paediatrics</option>
-              <option value="Peripheral Nerve" ${q.topic === "Peripheral Nerve" ? "selected" : ""}>Peripheral Nerve</option>
-              <option value="Functional" ${q.topic === "Functional" ? "selected" : ""}>Functional & Pain</option>
-              <option value="Epilepsy" ${q.topic === "Epilepsy" ? "selected" : ""}>Epilepsy</option>
-            </select>
+              <label for="stem_${q.id}">Stem:</label>
+              <textarea id="stem_${q.id}" class="editStem" required>${q.stem || ""}</textarea>
 
-            <label>Level:</label>
-            <select class="editLevel" required>
-              <option value="">Select level</option>
-              <option value="MRCS" ${q.level === "MRCS" ? "selected" : ""}>MRCS</option>
-              <option value="FRCS" ${q.level === "FRCS" ? "selected" : ""}>FRCS</option>
-            </select>
+              <label for="topic_${q.id}">Topic:</label>
+              <select id="topic_${q.id}" class="editTopic" required>
+                <option value="">Select topic</option>
+                <option value="Vascular" ${q.topic === "Vascular" ? "selected" : ""}>Vascular</option>
+                <option value="Oncology" ${q.topic === "Oncology" ? "selected" : ""}>Oncology</option>
+                <option value="Skull Base" ${q.topic === "Skull Base" ? "selected" : ""}>Skull base</option>
+                <option value="Trauma" ${q.topic === "Trauma" ? "selected" : ""}>Trauma</option>
+                <option value="CSF" ${q.topic === "CSF" ? "selected" : ""}>CSF</option>
+                <option value="Spine" ${q.topic === "Spine" ? "selected" : ""}>Spine</option>
+                <option value="Paediatrics" ${q.topic === "Paediatrics" ? "selected" : ""}>Paediatrics</option>
+                <option value="Peripheral Nerve" ${q.topic === "Peripheral Nerve" ? "selected" : ""}>Peripheral Nerve</option>
+                <option value="Functional" ${q.topic === "Functional" ? "selected" : ""}>Functional & Pain</option>
+                <option value="Epilepsy" ${q.topic === "Epilepsy" ? "selected" : ""}>Epilepsy</option>
+              </select>
 
-            <label>Explanation:</label>
-            <textarea class="editExplanation" required>${q.explanation || ""}</textarea>
+              <label for="level_${q.id}">Level:</label>
+              <select id="level_${q.id}" class="editLevel" required>
+                <option value="">Select level</option>
+                <option value="MRCS" ${q.level === "MRCS" ? "selected" : ""}>MRCS</option>
+                <option value="FRCS" ${q.level === "FRCS" ? "selected" : ""}>FRCS</option>
+              </select>
 
-            <label>Option 1:</label>
-            <input class="editOption1" required value="${q.option1 || ""}">
+              <label for="explanation_${q.id}">Explanation:</label>
+              <textarea id="explanation_${q.id}" class="editExplanation" required>${q.explanation || ""}</textarea>
 
-            <label>Option 2:</label>
-            <input class="editOption2" required value="${q.option2 || ""}">
+              <label for="option1_${q.id}">Option 1:</label>
+              <input id="option1_${q.id}" class="editOption1" required value="${q.option1 || ""}">
 
-            <label>Option 3:</label>
-            <input class="editOption3" required value="${q.option3 || ""}">
+              <label for="option2_${q.id}">Option 2:</label>
+              <input id="option2_${q.id}" class="editOption2" required value="${q.option2 || ""}">
 
-            <label>Option 4:</label>
-            <input class="editOption4" required value="${q.option4 || ""}">
+              <label for="option3_${q.id}">Option 3:</label>
+              <input id="option3_${q.id}" class="editOption3" required value="${q.option3 || ""}">
 
-            <button class="saveBtn">Save Changes</button>
+              <label for="option4_${q.id}">Option 4:</label>
+              <input id="option4_${q.id}" class="editOption4" required value="${q.option4 || ""}">
+
+              <button class="saveBtn">Save Changes</button>
+
+            </div>
           `;
 
+          /* COLLAPSIBLE LOGIC */
+          const header = div.querySelector(".collapsibleHeader");
+          const content = div.querySelector(".collapsibleContent");
+          content.style.display = "none";
+
+          header.addEventListener("click", () => {
+            const isOpen = content.style.display === "block";
+            content.style.display = isOpen ? "none" : "block";
+          });
+
+          /* SAVE BUTTON */
           div.querySelector(".saveBtn").addEventListener("click", async () => {
 
             const stem = div.querySelector(".editStem").value.trim();

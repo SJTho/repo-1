@@ -1,4 +1,4 @@
-/* Scope everything so mcqcore.css cannot override it */
+/* Container */
 #flaggedContainer {
   margin-top: 20px;
   display: flex;
@@ -13,8 +13,7 @@
   border-radius: 10px;
   background: #fafafa;
 
-  /* Compact height */
-  max-height: 25vh;
+  max-height: 28vh;
   overflow-y: auto;
 
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
@@ -26,48 +25,81 @@
 
 /* Labels */
 #flaggedContainer .flaggedItem label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   margin-top: 4px;
 }
 
-/* Textareas */
-#flaggedContainer .flaggedItem textarea {
-  width: 100% !important;
-  /* override mcqcore */
-  height: 55px !important;
-  /* override mcqcore */
-  resize: vertical;
-  font-size: 14px;
-  padding: 6px;
+/* STEM — move to top */
+#flaggedContainer .flaggedItem label[for="stem"] {
+  margin-top: -4px !important;
+  /* pulls label up */
 }
 
-/* Inputs and selects */
-#flaggedContainer .flaggedItem input,
-#flaggedContainer .flaggedItem select {
+#flaggedContainer .flaggedItem textarea.editStem {
   width: 100% !important;
-  /* override mcqcore */
+  height: 60px !important;
   font-size: 14px;
   padding: 6px;
+  resize: vertical;
+
+  margin-top: -6px !important;
+  /* pulls textarea up */
+}
+
+/* EXPLANATION */
+#flaggedContainer .flaggedItem textarea.editExplanation {
+  width: 100% !important;
+  height: 60px !important;
+  font-size: 14px;
+  padding: 6px;
+  resize: vertical;
+}
+
+/* TOPIC */
+#flaggedContainer .flaggedItem select.editTopic {
+  width: 180px !important;
   height: 32px !important;
-  /* override mcqcore */
+  font-size: 14px;
+  padding: 4px;
+}
+
+/* LEVEL */
+#flaggedContainer .flaggedItem select.editLevel {
+  width: 90px !important;
+  height: 32px !important;
+  font-size: 14px;
+  padding: 4px;
+}
+
+/* OPTIONS */
+#flaggedContainer .flaggedItem input.editOption1,
+#flaggedContainer .flaggedItem input.editOption2,
+#flaggedContainer .flaggedItem input.editOption3,
+#flaggedContainer .flaggedItem input.editOption4 {
+  width: 260px !important;
+  height: 32px !important;
+  font-size: 14px;
+  padding: 4px;
 }
 
 /* Save button */
-#flaggedContainer .flaggedItem button {
-  margin-top: 10px;
+#flaggedContainer .flaggedItem button.saveBtn {
   padding: 8px 12px;
   font-size: 14px;
   align-self: flex-start;
 }
 
-/* Close button */
+/* Close button uses mcqcore.css */
 #closeBtn {
   margin-top: 40px;
-  width: 100%;
-  padding: 14px;
-  font-size: 18px;
-  background: #e8e8e8;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+}
+
+/* FORCE LABELS TO SHOW EVEN IF mcqcore.css HIDES THEM */
+#flaggedContainer .flaggedItem label {
+  display: block !important;
+  color: #000 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  margin-top: 4px !important;
 }
