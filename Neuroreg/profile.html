@@ -10,6 +10,16 @@
     <link rel="stylesheet" href="./profile.css">
 
     <script type="module">
+        function logout() {
+            localStorage.removeItem("sessionToken");
+            localStorage.removeItem("nickname");
+            localStorage.removeItem("userId");
+
+            window.location.href = "auth.html";
+        }
+
+        window.logout = logout;
+
         import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 
         const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
@@ -140,6 +150,7 @@
         </div>
 
         <button id="saveProfileBtn" class="closeBtn">Save</button>
+        <button class="closeBtn" onclick="logout()">Logout</button>
 
     </div>
 
