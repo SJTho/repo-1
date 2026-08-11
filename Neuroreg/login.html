@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="./mcqcore.css">
 
     <style>
-        /* Minimal layout only */
         #authContainer {
             width: 80%;
             max-width: 450px;
@@ -121,6 +120,14 @@
             window.location.href = "profile.html";
         }
 
+        /* ----------------------------------------------------
+           Expose functions globally for onclick=""
+        ---------------------------------------------------- */
+        window.login = login;
+        window.signup = signup;
+        window.showLogin = showLogin;
+        window.showSignup = showSignup;
+
         window.addEventListener("DOMContentLoaded", () => {
             showLogin(); // default view
         });
@@ -172,5 +179,3 @@
     </div>
 
 </body>
-
-</html>
