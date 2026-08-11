@@ -13,7 +13,7 @@
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 
     const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
-    window.supabaseKeyy = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";
+    window.supabaseKeyy = "YOUR_REAL_KEY_HERE";
     window.supabase = createClient(supabaseUrl, window.supabaseKeyy);
 
     window.fetchFlaggedQuestions = async () => {
@@ -109,10 +109,6 @@
           div.className = "flaggedItem";
 
           div.innerHTML = `
-            <div class="collapsibleHeader">
-              <h3>Question ID: ${q.id}</h3>
-            </div>
-
             <div class="collapsibleContent">
 
               <label for="stem_${q.id}">Stem:</label>
@@ -160,12 +156,12 @@
             </div>
           `;
 
-          /* COLLAPSIBLE LOGIC */
-          const header = div.querySelector(".collapsibleHeader");
+          /* COLLAPSIBLE LOGIC — click whole box */
           const content = div.querySelector(".collapsibleContent");
           content.style.display = "none";
 
-          header.addEventListener("click", () => {
+          div.addEventListener("click", (e) => {
+            if (["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(e.target.tagName)) return;
             const isOpen = content.style.display === "block";
             content.style.display = isOpen ? "none" : "block";
           });

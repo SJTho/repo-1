@@ -1,4 +1,4 @@
-/* Container */
+/* Container holding all flagged items */
 #flaggedContainer {
   margin-top: 20px;
   display: flex;
@@ -6,100 +6,95 @@
   gap: 20px;
 }
 
-/* Each question block */
+/* Each flagged question box */
 #flaggedContainer .flaggedItem {
+  width: 80% !important;
+  margin-left: auto;
+  margin-right: auto;
   border: 1px solid #bbb;
   padding: 16px;
   border-radius: 10px;
   background: #fafafa;
-
-  max-height: 28vh;
-  overflow-y: auto;
-
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
-/* Labels */
-#flaggedContainer .flaggedItem label {
-  font-size: 13px;
-  font-weight: 600;
-  margin-top: 4px;
+/* Collapsible header */
+.collapsibleHeader {
+  background: #e8e8e8;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 10px;
 }
 
-/* STEM — move to top */
-#flaggedContainer .flaggedItem label[for="stem"] {
-  margin-top: -4px !important;
-  /* pulls label up */
+/* Collapsible content grid layout */
+.collapsibleContent {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  row-gap: 12px;
+  column-gap: 10px;
+  overflow: hidden;
+  transition: all 0.25s ease-in-out;
 }
 
-#flaggedContainer .flaggedItem textarea.editStem {
-  width: 100% !important;
-  height: 60px !important;
-  font-size: 14px;
-  padding: 6px;
-  resize: vertical;
-
-  margin-top: -6px !important;
-  /* pulls textarea up */
-}
-
-/* EXPLANATION */
-#flaggedContainer .flaggedItem textarea.editExplanation {
-  width: 100% !important;
-  height: 60px !important;
-  font-size: 14px;
-  padding: 6px;
-  resize: vertical;
-}
-
-/* TOPIC */
-#flaggedContainer .flaggedItem select.editTopic {
-  width: 180px !important;
-  height: 32px !important;
-  font-size: 14px;
-  padding: 4px;
-}
-
-/* LEVEL */
-#flaggedContainer .flaggedItem select.editLevel {
-  width: 90px !important;
-  height: 32px !important;
-  font-size: 14px;
-  padding: 4px;
-}
-
-/* OPTIONS */
-#flaggedContainer .flaggedItem input.editOption1,
-#flaggedContainer .flaggedItem input.editOption2,
-#flaggedContainer .flaggedItem input.editOption3,
-#flaggedContainer .flaggedItem input.editOption4 {
-  width: 260px !important;
-  height: 32px !important;
-  font-size: 14px;
-  padding: 4px;
-}
-
-/* Save button */
-#flaggedContainer .flaggedItem button.saveBtn {
-  padding: 8px 12px;
-  font-size: 14px;
-  align-self: flex-start;
-}
-
-/* Close button uses mcqcore.css */
-#closeBtn {
-  margin-top: 40px;
-}
-
-/* FORCE LABELS TO SHOW EVEN IF mcqcore.css HIDES THEM */
+/* Labels on the left */
 #flaggedContainer .flaggedItem label {
   display: block !important;
   color: #000 !important;
   font-size: 13px !important;
   font-weight: 600 !important;
-  margin-top: 4px !important;
+  text-align: right;
+  padding-right: 10px;
+  align-self: center;
+}
+
+/* Fields on the right */
+#flaggedContainer .flaggedItem textarea,
+#flaggedContainer .flaggedItem input,
+#flaggedContainer .flaggedItem select {
+  width: 100% !important;
+  font-size: 14px;
+  padding: 6px;
+}
+
+/* Field sizing rules */
+.editStem {
+  height: 60px !important;
+}
+
+.editExplanation {
+  height: 60px !important;
+}
+
+.editTopic {
+  width: 180px !important;
+  height: 32px !important;
+}
+
+.editLevel {
+  width: 90px !important;
+  height: 32px !important;
+}
+
+.editOption1,
+.editOption2,
+.editOption3,
+.editOption4 {
+  height: 32px !important;
+  width: 260px !important;
+}
+
+/* Save button spans full width */
+.saveBtn {
+  grid-column: 1 / span 2;
+  padding: 8px 12px;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Force Option 3 onto its own line */
+label[for^="option3_"],
+input.editOption3 {
+  grid-column: 1 / span 2 !important;
 }
