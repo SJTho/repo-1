@@ -222,6 +222,9 @@
             };
           });
 
+          // Remove questions that have been flagged too many times
+          pool = pool.filter(q => (q.flaggedset || 0) < 5);
+
           if (topic !== "all") {
             pool = pool.filter(q => q.topic.toLowerCase().includes(topic.toLowerCase()));
           }
@@ -238,6 +241,8 @@
           return pool.slice(0, count);
         }
       };
+
+
 
       /* -----------------------------------------
          FLAG QUESTION
@@ -270,7 +275,7 @@
           return;
         }
 
-        alert(`Question flagged (${updated})`);
+        alert(`Question flagged (${updated}/5)`);
         buttonElement.style.display = "none";
       };
 
@@ -303,7 +308,6 @@
 
         if (!questions || questions.length === 0) {
           alert("No questions available for that topic/level.");
-          console.log(supabaseKeyy)
           return;
         }
 
