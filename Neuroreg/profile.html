@@ -8,8 +8,42 @@
 
     <link rel="stylesheet" href="./mcqcore.css">
     <link rel="stylesheet" href="./profile.css">
-
+    window.addEventListener("DOMContentLoaded", loadProfile);
     <script type="module">
+        async function loadProfile() {
+            const token = localStorage.getItem("sessionToken");
+
+            if (!token) {
+                window.location.href = "auth.html";
+                return;
+            }
+
+            // Decode JWT payload (middle part)
+            const payload = JSON.parse(atob(token.split('.')[1]));
+
+            const userId = payload.user_id;
+
+            // Fetch user data from Supabase
+            const {data, error} = await supabase
+                .from("users")
+                .select("nickname, password_hash, scalpel_points")
+                .eq("id", userId)
+                .single();
+
+            if (error) {
+                console.error(error);
+                alert("Failed to load profile.");
+                return;
+            }
+
+            // Populate the page
+            document.getElementById("nicknameDisplay").innerText = data.nickname;
+            document.getElementById("passwordDisplay").innerText = data.password_hash;
+            document.getElementById("pointsDisplay").innerText = data.scalpel_points;
+        }
+
+        window.loadProfile = loadProfile;
+
         function logout() {
             localStorage.removeItem("sessionToken");
             localStorage.removeItem("nickname");
@@ -148,7 +182,19 @@
             <label>Rank:</label>
             <div id="rankDisplay"></div>
         </div>
+        <div class="profileRow">
+            <strong>Nickname:</strong> <span id="nicknameDisplay"></span>
+        </div>
 
+        <div class="profileRow">
+            <strong>Password Hash:</strong> <span id="passwordDisplay"></span>
+        </div>
+
+        <div class="profileRow">
+            <strong>Scalpel Points:</strong> <span id="pointsDisplay"></span>
+        </div>
+
+        <button class="closeBtn" onclick="logout()">Logout</button>
         <button id="saveProfileBtn" class="closeBtn">Save</button>
         <button class="closeBtn" onclick="logout()">Logout</button>
 
