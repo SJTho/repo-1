@@ -60,12 +60,13 @@
                 window.location.href = "auth.html";
                 return;
             }
-
-            // Decode JWT payload (middle part)
+            // Decode JWT payload
             const payload = JSON.parse(atob(token.split('.')[1]));
-            const userId = payload.user_id;
 
-            // Fetch user data from Supabase
+            // Use the correct claim
+            const userId = payload.sub;
+
+            // Fetch user data
             const {data, error} = await supabase
                 .from("users")
                 .select("nickname, password_hash, scalpel_points")
