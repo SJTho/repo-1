@@ -27,7 +27,8 @@
       margin-bottom: 10px;
     }
 
-    .flaggedItem input {
+    .flaggedItem input,
+    .flaggedItem select {
       width: 100%;
       margin-bottom: 8px;
     }
@@ -36,16 +37,22 @@
       margin-top: 10px;
       margin-right: 10px;
     }
+
+    #closeBtn {
+      margin-top: 40px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+    }
   </style>
 
   <script type="module">
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 
     const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
-    window.supabaseKeyy = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";   /* IMPORTANT */
+    window.supabaseKeyy = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";
     window.supabase = createClient(supabaseUrl, window.supabaseKeyy);
 
-    /* Fetch only questions where flaggedset >= 5 */
     window.fetchFlaggedQuestions = async () => {
       const {data, error} = await window.supabase
         .from("mcqquestions")
@@ -58,7 +65,6 @@
         return [];
       }
 
-      console.log("Fetched rows:", data);
       return data;
     };
   </script>
@@ -75,11 +81,11 @@
 
   <div id="helpButton">❓</div>
 
-  <h1>Flagged Questions (flaggedset ≥ 5)</h1>
-
-  <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
+  <h1>Flagged Questions</h1>
 
   <div id="flaggedContainer"></div>
+
+  <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
 
   <script>
     window.addEventListener("DOMContentLoaded", () => {
@@ -129,7 +135,7 @@
         const container = document.getElementById("flaggedContainer");
 
         if (!flagged.length) {
-          container.innerHTML = "<p>No flagged questions (flaggedset ≥ 5).</p>";
+          container.innerHTML = "<p>No flagged questions.</p>";
           return;
         }
 
@@ -143,42 +149,73 @@
             <h3>Question ID: ${q.id}</h3>
 
             <label>Stem:</label>
-            <textarea class="editStem">${q.stem || ""}</textarea>
+            <textarea class="editStem" required>${q.stem || ""}</textarea>
 
             <label>Topic:</label>
-            <input class="editTopic" value="${q.topic || ""}">
+            <select class="editTopic" required>
+              <option value="">Select topic</option>
+              <option value="Vascular" ${q.topic === "Vascular" ? "selected" : ""}>Vascular</option>
+              <option value="Oncology" ${q.topic === "Oncology" ? "selected" : ""}>Oncology</option>
+              <option value="Skull Base" ${q.topic === "Skull Base" ? "selected" : ""}>Skull base</option>
+              <option value="Trauma" ${q.topic === "Trauma" ? "selected" : ""}>Trauma</option>
+              <option value="CSF" ${q.topic === "CSF" ? "selected" : ""}>CSF</option>
+              <option value="Spine" ${q.topic === "Spine" ? "selected" : ""}>Spine</option>
+              <option value="Paediatrics" ${q.topic === "Paediatrics" ? "selected" : ""}>Paediatrics</option>
+              <option value="Peripheral Nerve" ${q.topic === "Peripheral Nerve" ? "selected" : ""}>Peripheral Nerve</option>
+              <option value="Functional" ${q.topic === "Functional" ? "selected" : ""}>Functional & Pain</option>
+              <option value="Epilepsy" ${q.topic === "Epilepsy" ? "selected" : ""}>Epilepsy</option>
+            </select>
 
             <label>Level:</label>
-            <input class="editLevel" value="${q.level || ""}">
+            <select class="editLevel" required>
+              <option value="">Select level</option>
+              <option value="MRCS" ${q.level === "MRCS" ? "selected" : ""}>MRCS</option>
+              <option value="FRCS" ${q.level === "FRCS" ? "selected" : ""}>FRCS</option>
+            </select>
 
             <label>Explanation:</label>
-            <textarea class="editExplanation">${q.explanation || ""}</textarea>
+            <textarea class="editExplanation" required>${q.explanation || ""}</textarea>
 
             <label>Option 1:</label>
-            <input class="editOption1" value="${q.option1 || ""}">
+            <input class="editOption1" required value="${q.option1 || ""}">
 
             <label>Option 2:</label>
-            <input class="editOption2" value="${q.option2 || ""}">
+            <input class="editOption2" required value="${q.option2 || ""}">
 
             <label>Option 3:</label>
-            <input class="editOption3" value="${q.option3 || ""}">
+            <input class="editOption3" required value="${q.option3 || ""}">
 
             <label>Option 4:</label>
-            <input class="editOption4" value="${q.option4 || ""}">
+            <input class="editOption4" required value="${q.option4 || ""}">
 
             <button class="saveBtn">Save Changes</button>
           `;
 
           div.querySelector(".saveBtn").addEventListener("click", async () => {
+
+            const stem = div.querySelector(".editStem").value.trim();
+            const topic = div.querySelector(".editTopic").value.trim();
+            const level = div.querySelector(".editLevel").value.trim();
+            const explanation = div.querySelector(".editExplanation").value.trim();
+            const option1 = div.querySelector(".editOption1").value.trim();
+            const option2 = div.querySelector(".editOption2").value.trim();
+            const option3 = div.querySelector(".editOption3").value.trim();
+            const option4 = div.querySelector(".editOption4").value.trim();
+
+            if (!stem || !topic || !level || !explanation || !option1 || !option2 || !option3 || !option4) {
+              alert("All fields are mandatory.");
+              return;
+            }
+
             const updated = {
-              stem: div.querySelector(".editStem").value,
-              topic: div.querySelector(".editTopic").value,
-              level: div.querySelector(".editLevel").value,
-              explanation: div.querySelector(".editExplanation").value,
-              option1: div.querySelector(".editOption1").value,
-              option2: div.querySelector(".editOption2").value,
-              option3: div.querySelector(".editOption3").value,
-              option4: div.querySelector(".editOption4").value,
+              stem,
+              topic,
+              level,
+              explanation,
+              option1,
+              option2,
+              option3,
+              option4,
               flaggedset: 0
             };
 
