@@ -29,7 +29,7 @@
     ----------------------------------------- */
     window.fetchQuestionsFromDB = async () => {
       const {data, error} = await window.supabase
-        .from("mcqQuestions")
+        .from("mcqquestions")
         .select("*");
 
       if (error) {
@@ -40,8 +40,6 @@
 
       return data;
     };
-
-    console.log("RAW DB:", await window.fetchQuestionsFromDB());
 
 
   </script>
@@ -90,7 +88,7 @@
 
     <button id="startSubmitBtn" onclick="generateMCQs()">Submit</button>
 
-    <div id="mcqQuestions"></div>
+    <div id="mcqquestions"></div>
     <div id="scoreDisplay"></div>
 
     <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
@@ -246,7 +244,7 @@
       ----------------------------------------- */
       window.flagQuestion = async function (questionId, buttonElement) {
         const {data, error} = await window.supabase
-          .from("mcqQuestions")
+          .from("questions")
           .select("flaggedSet")
           .eq("id", questionId)
           .single();
@@ -261,7 +259,7 @@
         const updated = current + 1;
 
         const {error: updateError} = await window.supabase
-          .from("mcqQuestions")
+          .from("mcqquestions")
           .update({flaggedSet: updated})
           .eq("id", questionId);
 
@@ -288,7 +286,7 @@
           return;
         }
 
-        const container = document.getElementById("mcqQuestions");
+        const container = document.getElementById("mcqquestions");
         container.innerHTML = "";
         document.getElementById("scoreDisplay").innerHTML = "";
 
