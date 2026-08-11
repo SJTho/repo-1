@@ -106,13 +106,16 @@
 
         flagged.forEach(q => {
           const div = document.createElement("div");
-          div.className = "flaggedItem";
+          <div class="flaggedItem">
 
-          div.innerHTML = `
-            <div class="collapsibleContent">
-
+  <!-- STEM stays visible even when collapsed -->
+            <div class="stemRow">
               <label for="stem_${q.id}">Stem:</label>
               <textarea id="stem_${q.id}" class="editStem" required>${q.stem || ""}</textarea>
+            </div>
+
+  <!-- Everything else collapses -->
+            <div class="collapsibleContent">
 
               <label for="topic_${q.id}">Topic:</label>
               <select id="topic_${q.id}" class="editTopic" required>
@@ -154,7 +157,7 @@
               <button class="saveBtn">Save Changes</button>
 
             </div>
-          `;
+          </div>
 
           /* COLLAPSIBLE LOGIC — click whole box */
           const content = div.querySelector(".collapsibleContent");

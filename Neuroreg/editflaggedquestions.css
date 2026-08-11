@@ -98,3 +98,18 @@ label[for^="option3_"],
 input.editOption3 {
   grid-column: 1 / span 2 !important;
 }
+
+/* Stem row stays visible */
+.stemRow {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  column-gap: 10px;
+  row-gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Make stem textarea match your layout */
+.stemRow textarea {
+  width: 100% !important;
+  height: 60px !important;
+}
