@@ -1,4 +1,4 @@
-/* Container spacing */
+/* Scope everything so mcqcore.css cannot override it */
 #flaggedContainer {
   margin-top: 20px;
   display: flex;
@@ -7,7 +7,7 @@
 }
 
 /* Each question block */
-.flaggedItem {
+#flaggedContainer .flaggedItem {
   border: 1px solid #bbb;
   padding: 16px;
   border-radius: 10px;
@@ -15,52 +15,53 @@
 
   /* Compact height */
   max-height: 25vh;
-  /* ~¼ of screen height */
   overflow-y: auto;
-  /* scroll inside the box */
+
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 
-  /* Slight spacing */
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
 /* Labels */
-.flaggedItem label {
+#flaggedContainer .flaggedItem label {
   font-size: 14px;
   font-weight: 600;
   margin-top: 4px;
 }
 
-/* Inputs and textareas */
-.flaggedItem textarea {
-  width: 100%;
-  height: 55px;
-  /* smaller */
+/* Textareas */
+#flaggedContainer .flaggedItem textarea {
+  width: 100% !important;
+  /* override mcqcore */
+  height: 55px !important;
+  /* override mcqcore */
   resize: vertical;
   font-size: 14px;
   padding: 6px;
 }
 
-.flaggedItem input,
-.flaggedItem select {
-  width: 100%;
+/* Inputs and selects */
+#flaggedContainer .flaggedItem input,
+#flaggedContainer .flaggedItem select {
+  width: 100% !important;
+  /* override mcqcore */
   font-size: 14px;
   padding: 6px;
-  height: 32px;
-  /* compact */
+  height: 32px !important;
+  /* override mcqcore */
 }
 
 /* Save button */
-.flaggedItem button {
+#flaggedContainer .flaggedItem button {
   margin-top: 10px;
   padding: 8px 12px;
   font-size: 14px;
   align-self: flex-start;
 }
 
-/* Close button at bottom */
+/* Close button */
 #closeBtn {
   margin-top: 40px;
   width: 100%;
