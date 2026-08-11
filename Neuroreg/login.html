@@ -79,8 +79,8 @@
             const nickname = document.getElementById("signupNickname").value.trim();
             const password = document.getElementById("signupPassword").value.trim();
 
-            // 1️⃣ Create Supabase Auth user
-            const email = `${nickname}@local.fake`;
+            // 1️⃣ Create Supabase Auth user with a valid synthetic email
+            const email = `${nickname}@user.localhost`;
 
             const {data: authUser, error: authError} = await supabase.auth.signUp({
                 email: email,
@@ -115,7 +115,7 @@
             const nickname = document.getElementById("loginNickname").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
 
-            // 1️⃣ First call your custom RPC login
+            // 1️⃣ Verify nickname + password via your RPC
             const {data: userId, error} = await supabase.rpc("login", {
                 nickname_input: nickname,
                 password_input: password
@@ -127,8 +127,8 @@
                 return;
             }
 
-            // 2️⃣ Now sign in using Supabase Auth with a synthetic email
-            const email = `${nickname}@local.fake`;
+            // 2️⃣ Log in using Supabase Auth with synthetic email
+            const email = `${nickname}@user.localhost`;
 
             const {data: sessionData, error: authError} = await supabase.auth.signInWithPassword({
                 email: email,
@@ -141,16 +141,15 @@
                 return;
             }
 
-            // 3️⃣ Store the JWT token
+            // 3️⃣ Store JWT
             const token = sessionData.session.access_token;
             localStorage.setItem("sessionToken", token);
             localStorage.setItem("nickname", nickname);
             localStorage.setItem("userId", userId);
 
-            // 4️⃣ Redirect to profile page
+            // 4️⃣ Redirect
             window.location.href = "profile.html";
         }
-
         /* ----------------------------------------------------
            Expose functions globally for onclick=""
         ---------------------------------------------------- */
