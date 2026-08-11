@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="./mcqcore.css">
 
   <style>
-    /* Minimal styling for flagged question editor */
     #flaggedContainer {
       margin-top: 20px;
     }
@@ -39,12 +38,11 @@
     }
   </style>
 
-  <!-- Supabase client -->
   <script type="module">
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 
     const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
-    window.supabaseKeyy = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";
+    window.supabaseKeyy = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";   /* IMPORTANT */
     window.supabase = createClient(supabaseUrl, window.supabaseKeyy);
 
     /* Fetch only questions where flaggedset >= 5 */
@@ -56,10 +54,11 @@
 
       if (error) {
         console.error("Supabase fetch error:", error);
-        alert("Error loading flagged questions.");
+        alert("Error loading flagged questions. Check console.");
         return [];
       }
 
+      console.log("Fetched rows:", data);
       return data;
     };
   </script>
@@ -67,7 +66,6 @@
 
 <body>
 
-  <!-- Top-left points + rank -->
   <div id="topLeftInfo">
     <div id="pointsValue" class="tinyText">
       🧑‍⚕️ <span id="pointsNumber"></span>
@@ -75,41 +73,34 @@
     <div id="rankValue" class="tinyText"></div>
   </div>
 
-  <!-- Top-right help button -->
   <div id="helpButton">❓</div>
 
   <h1>Flagged Questions (flaggedset ≥ 5)</h1>
 
   <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
 
-  <!-- Container for flagged questions -->
   <div id="flaggedContainer"></div>
 
   <script>
     window.addEventListener("DOMContentLoaded", () => {
 
-      /* HELP BUTTON */
       document.getElementById("helpButton").addEventListener("click", () => {
         window.location.href = "help.html";
       });
 
-      /* DAILY REWARD */
       function giveDailyReward() {
         const today = new Date().toISOString().split("T")[0];
         const last = localStorage.getItem("lastDailyReward");
-
         if (last !== today) {
           let pts = parseInt(localStorage.getItem("scalpelPoints")) || 0;
           pts += 10;
           localStorage.setItem("scalpelPoints", String(pts));
           localStorage.setItem("lastDailyReward", today);
-
           alert("Daily reward: +10 points!");
         }
       }
       giveDailyReward();
 
-      /* POINTS + RANK */
       function getScalpelPoints() {
         return parseInt(localStorage.getItem("scalpelPoints")) || 0;
       }
@@ -125,19 +116,14 @@
       function updatePointsDisplay() {
         const pts = getScalpelPoints();
         const newRank = getRank(pts);
-
         document.getElementById("pointsNumber").textContent = pts;
         document.getElementById("rankValue").textContent = newRank;
-
         localStorage.setItem("previousRank", newRank);
       }
 
       updatePointsDisplay();
       window.addEventListener("focus", updatePointsDisplay);
 
-      /* -----------------------------------------
-         LOAD FLAGGED QUESTIONS
-      ----------------------------------------- */
       async function loadFlaggedQuestions() {
         const flagged = await window.fetchFlaggedQuestions();
         const container = document.getElementById("flaggedContainer");
@@ -156,37 +142,44 @@
           div.innerHTML = `
             <h3>Question ID: ${q.id}</h3>
 
-            <label>Question:</label>
-            <textarea class="editQuestion">${q.question}</textarea>
+            <label>Stem:</label>
+            <textarea class="editStem">${q.stem || ""}</textarea>
 
-            <label>Correct Answer:</label>
-            <input class="editCorrect" value="${q.correctanswer}">
+            <label>Topic:</label>
+            <input class="editTopic" value="${q.topic || ""}">
 
-            <label>Option A:</label>
-            <input class="editA" value="${q.optiona}">
+            <label>Level:</label>
+            <input class="editLevel" value="${q.level || ""}">
 
-            <label>Option B:</label>
-            <input class="editB" value="${q.optionb}">
+            <label>Explanation:</label>
+            <textarea class="editExplanation">${q.explanation || ""}</textarea>
 
-            <label>Option C:</label>
-            <input class="editC" value="${q.optionc}">
+            <label>Option 1:</label>
+            <input class="editOption1" value="${q.option1 || ""}">
 
-            <label>Option D:</label>
-            <input class="editD" value="${q.optiond}">
+            <label>Option 2:</label>
+            <input class="editOption2" value="${q.option2 || ""}">
+
+            <label>Option 3:</label>
+            <input class="editOption3" value="${q.option3 || ""}">
+
+            <label>Option 4:</label>
+            <input class="editOption4" value="${q.option4 || ""}">
 
             <button class="saveBtn">Save Changes</button>
           `;
 
-          /* SAVE BUTTON */
           div.querySelector(".saveBtn").addEventListener("click", async () => {
             const updated = {
-              question: div.querySelector(".editQuestion").value,
-              correctanswer: div.querySelector(".editCorrect").value,
-              optiona: div.querySelector(".editA").value,
-              optionb: div.querySelector(".editB").value,
-              optionc: div.querySelector(".editC").value,
-              optiond: div.querySelector(".editD").value,
-              flaggedset: 0   // reset after editing
+              stem: div.querySelector(".editStem").value,
+              topic: div.querySelector(".editTopic").value,
+              level: div.querySelector(".editLevel").value,
+              explanation: div.querySelector(".editExplanation").value,
+              option1: div.querySelector(".editOption1").value,
+              option2: div.querySelector(".editOption2").value,
+              option3: div.querySelector(".editOption3").value,
+              option4: div.querySelector(".editOption4").value,
+              flaggedset: 0
             };
 
             const {error} = await window.supabase
@@ -199,7 +192,7 @@
               console.error(error);
             } else {
               alert("Saved. flaggedset reset to 0.");
-              loadFlaggedQuestions(); // refresh list
+              loadFlaggedQuestions();
             }
           });
 
