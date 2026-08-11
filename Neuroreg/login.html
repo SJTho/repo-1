@@ -79,34 +79,20 @@
             const nickname = document.getElementById("signupNickname").value.trim();
             const password = document.getElementById("signupPassword").value.trim();
 
-            // 1️⃣ Create Supabase Auth user with a valid synthetic email
-            const email = `${nickname}@user.localhost`;
-
-            const {data: authUser, error: authError} = await supabase.auth.signUp({
-                email: email,
-                password: password
-            });
-
-            if (authError) {
-                alert("Auth signup failed: " + authError.message);
-                console.error(authError);
-                return;
-            }
-
-            // 2️⃣ Create your custom user in public.users
             const {data, error} = await supabase.rpc("signup", {
                 nickname_input: nickname,
                 password_input: password
             });
 
             if (error) {
-                alert("Database signup failed.");
+                alert("Signup failed: " + error.message);
                 console.error(error);
                 return;
             }
 
             alert("Signup successful. You can now log in.");
             showLogin();
+        }
         }
         /* ----------------------------------------------------
            Login RPC
@@ -115,8 +101,7 @@
             const nickname = document.getElementById("loginNickname").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
 
-            // 1️⃣ Verify nickname + password via your RPC
-            const {data: userId, error} = await supabase.rpc("login", {
+            const {data: token, error} = await supabase.rpc("login", {
                 nickname_input: nickname,
                 password_input: password
             });
@@ -127,27 +112,9 @@
                 return;
             }
 
-            // 2️⃣ Log in using Supabase Auth with synthetic email
-            const email = `${nickname}@user.localhost`;
-
-            const {data: sessionData, error: authError} = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-
-            if (authError) {
-                alert("Auth failed: " + authError.message);
-                console.error(authError);
-                return;
-            }
-
-            // 3️⃣ Store JWT
-            const token = sessionData.session.access_token;
             localStorage.setItem("sessionToken", token);
             localStorage.setItem("nickname", nickname);
-            localStorage.setItem("userId", userId);
 
-            // 4️⃣ Redirect
             window.location.href = "profile.html";
         }
         /* ----------------------------------------------------
