@@ -106,58 +106,70 @@
 
         flagged.forEach(q => {
           const div = document.createElement("div");
-          <div class="flaggedItem">
+          div.className = "flaggedItem";
 
-  <!-- STEM stays visible even when collapsed -->
+          div.innerHTML = `
+            <!-- ROW 1: STEM -->
             <div class="stemRow">
               <label for="stem_${q.id}">Stem:</label>
-              <textarea id="stem_${q.id}" class="editStem" required>${q.stem || ""}</textarea>
+              <input id="stem_${q.id}" class="editStem" required value="${q.stem || ""}">
             </div>
 
-  <!-- Everything else collapses -->
             <div class="collapsibleContent">
 
-              <label for="topic_${q.id}">Topic:</label>
-              <select id="topic_${q.id}" class="editTopic" required>
-                <option value="">Select topic</option>
-                <option value="Vascular" ${q.topic === "Vascular" ? "selected" : ""}>Vascular</option>
-                <option value="Oncology" ${q.topic === "Oncology" ? "selected" : ""}>Oncology</option>
-                <option value="Skull Base" ${q.topic === "Skull Base" ? "selected" : ""}>Skull base</option>
-                <option value="Trauma" ${q.topic === "Trauma" ? "selected" : ""}>Trauma</option>
-                <option value="CSF" ${q.topic === "CSF" ? "selected" : ""}>CSF</option>
-                <option value="Spine" ${q.topic === "Spine" ? "selected" : ""}>Spine</option>
-                <option value="Paediatrics" ${q.topic === "Paediatrics" ? "selected" : ""}>Paediatrics</option>
-                <option value="Peripheral Nerve" ${q.topic === "Peripheral Nerve" ? "selected" : ""}>Peripheral Nerve</option>
-                <option value="Functional" ${q.topic === "Functional" ? "selected" : ""}>Functional & Pain</option>
-                <option value="Epilepsy" ${q.topic === "Epilepsy" ? "selected" : ""}>Epilepsy</option>
-              </select>
+              <!-- ROW 2: TOPIC + LEVEL -->
+              <div class="topicLevelRow">
+                <label for="topic_${q.id}">Topic:</label>
+                <select id="topic_${q.id}" class="editTopic" required>
+                  <option value="">Select topic</option>
+                  <option value="Vascular" ${q.topic === "Vascular" ? "selected" : ""}>Vascular</option>
+                  <option value="Oncology" ${q.topic === "Oncology" ? "selected" : ""}>Oncology</option>
+                  <option value="Skull Base" ${q.topic === "Skull Base" ? "selected" : ""}>Skull base</option>
+                  <option value="Trauma" ${q.topic === "Trauma" ? "selected" : ""}>Trauma</option>
+                  <option value="CSF" ${q.topic === "CSF" ? "selected" : ""}>CSF</option>
+                  <option value="Spine" ${q.topic === "Spine" ? "selected" : ""}>Spine</option>
+                  <option value="Paediatrics" ${q.topic === "Paediatrics" ? "selected" : ""}>Paediatrics</option>
+                  <option value="Peripheral Nerve" ${q.topic === "Peripheral Nerve" ? "selected" : ""}>Peripheral Nerve</option>
+                  <option value="Functional" ${q.topic === "Functional" ? "selected" : ""}>Functional & Pain</option>
+                  <option value="Epilepsy" ${q.topic === "Epilepsy" ? "selected" : ""}>Epilepsy</option>
+                </select>
 
-              <label for="level_${q.id}">Level:</label>
-              <select id="level_${q.id}" class="editLevel" required>
-                <option value="">Select level</option>
-                <option value="MRCS" ${q.level === "MRCS" ? "selected" : ""}>MRCS</option>
-                <option value="FRCS" ${q.level === "FRCS" ? "selected" : ""}>FRCS</option>
-              </select>
+                <label for="level_${q.id}">Level:</label>
+                <select id="level_${q.id}" class="editLevel" required>
+                  <option value="">Select level</option>
+                  <option value="MRCS" ${q.level === "MRCS" ? "selected" : ""}>MRCS</option>
+                  <option value="FRCS" ${q.level === "FRCS" ? "selected" : ""}>FRCS</option>
+                </select>
+              </div>
 
-              <label for="explanation_${q.id}">Explanation:</label>
-              <textarea id="explanation_${q.id}" class="editExplanation" required>${q.explanation || ""}</textarea>
+              <!-- ROW 3: EXPLANATION -->
+              <div class="explanationRow">
+                <label for="explanation_${q.id}">Explanation:</label>
+                <input id="explanation_${q.id}" class="editExplanation" required value="${q.explanation || ""}">
+              </div>
 
-              <label for="option1_${q.id}">Option 1:</label>
-              <input id="option1_${q.id}" class="editOption1" required value="${q.option1 || ""}">
+              <!-- ROW 4: OPTION 1 + OPTION 2 -->
+              <div class="optionRow12">
+                <label for="option1_${q.id}">Correct:</label>
+                <input id="option1_${q.id}" class="editOption1" required value="${q.option1 || ""}">
 
-              <label for="option2_${q.id}">Option 2:</label>
-              <input id="option2_${q.id}" class="editOption2" required value="${q.option2 || ""}">
+                <label for="option2_${q.id}">Incorrect:</label>
+                <input id="option2_${q.id}" class="editOption2" required value="${q.option2 || ""}">
+              </div>
 
-              <label for="option3_${q.id}">Option 3:</label>
-              <input id="option3_${q.id}" class="editOption3" required value="${q.option3 || ""}">
+              <!-- ROW 5: OPTION 3 + OPTION 4 -->
+              <div class="optionRow34">
+                <label for="option3_${q.id}">Incorrect:</label>
+                <input id="option3_${q.id}" class="editOption3" required value="${q.option3 || ""}">
 
-              <label for="option4_${q.id}">Option 4:</label>
-              <input id="option4_${q.id}" class="editOption4" required value="${q.option4 || ""}">
+                <label for="option4_${q.id}">Incorrect:</label>
+                <input id="option4_${q.id}" class="editOption4" required value="${q.option4 || ""}">
+              </div>
 
               <button class="saveBtn">Save Changes</button>
 
             </div>
-          </div>
+          `;
 
           /* COLLAPSIBLE LOGIC — click whole box */
           const content = div.querySelector(".collapsibleContent");
