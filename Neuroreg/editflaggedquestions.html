@@ -12,9 +12,11 @@
   <script type="module">
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 
+    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+
     const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
-    window.supabaseKeyy = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";
-    window.supabase = createClient(supabaseUrl, window.supabaseKeyy);
+    window.supabase = createClient(SUPABASE_URL, window.SUPABASE_KEY);
+
 
     window.fetchFlaggedQuestions = async () => {
       const {data, error} = await window.supabase
