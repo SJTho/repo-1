@@ -138,6 +138,9 @@
             // ✅ Store userId directly (your RPC returns it)
             localStorage.setItem("userId", user.id);
 
+            console.log(user.user_id);
+            return;
+
             window.location.href = "index.html";
         }
 
