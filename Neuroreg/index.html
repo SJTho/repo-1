@@ -59,7 +59,7 @@
     <script type="module">
 
         /* ----------------------------------------------------
-           Supabase Connection
+           Supabase Connection (only used for updates)
         ---------------------------------------------------- */
         import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
         import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
@@ -122,24 +122,10 @@
         }
 
         /* ----------------------------------------------------
-           Load Profile Info from Supabase
+           Load Profile Info from LocalStorage
         ---------------------------------------------------- */
-        async function loadProfileInfo() {
-            const nickname = localStorage.getItem("nickname");
-            if (!nickname) return;
-
-            const {data, error} = await supabase
-                .from("users")
-                .select("scalpel_points")
-                .eq("nickname", nickname)
-                .single();
-
-            if (error) {
-                console.error("Failed to load user profile:", error);
-                return;
-            }
-
-            const points = data.scalpel_points;
+        function loadLocalProfile() {
+            const points = parseInt(localStorage.getItem("scalpel_points")) || 0;
             const rank = getRank(points);
 
             document.getElementById("pointsNumber").textContent = points;
@@ -153,8 +139,47 @@
             localStorage.setItem("previousRank", rank);
         }
 
-        loadProfileInfo();
+        loadLocalProfile();
 
+        /* ----------------------------------------------------
+           Update Supabase when points change
+        ---------------------------------------------------- */
+        async function updateSupabasePoints(newPoints) {
+            const nickname = localStorage.getItem("nickname");
+            if (!nickname) return;
+
+            const {error} = await supabase
+                .from("users")
+                .update({scalpel_points: newPoints})
+                .eq("nickname", nickname);
+
+            if (error) {
+                console.error("Failed to update points:", error);
+            }
+        }
+
+        /* ----------------------------------------------------
+           Daily Reward (+10 per day)
+        ---------------------------------------------------- */
+        function giveDailyReward() {
+            const today = new Date().toISOString().split("T")[0];
+            const last = localStorage.getItem("lastDailyReward");
+
+            if (last !== today) {
+                let pts = parseInt(localStorage.getItem("scalpel_points")) || 0;
+                pts += 10;
+
+                localStorage.setItem("scalpel_points", pts);
+                localStorage.setItem("lastDailyReward", today);
+
+                updateSupabasePoints(pts);
+                loadLocalProfile();
+
+                alert("Daily reward: +10 points!");
+            }
+        }
+
+        giveDailyReward();
 
         /* ----------------------------------------------------
            Page content
@@ -320,3 +345,5 @@
     </script>
 
 </body>
+
+</html>
