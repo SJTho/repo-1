@@ -139,6 +139,11 @@
             // Store userId (your updated SQL now returns this)
             localStorage.setItem("userId", user.id);
 
+            console.log(user.id);
+            console.log("LOGIN RPC RAW DATA:", data);
+            console.log("USER OBJECT:", user);
+            return;
+
             window.location.href = "index.html";
         }
 
