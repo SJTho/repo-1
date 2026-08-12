@@ -117,14 +117,11 @@
                 return;
             }
 
-            // Handle all Supabase RPC shapes
             let user;
 
             if (Array.isArray(data)) {
-                // Case: Supabase wraps JSON inside a row
                 user = data[0]?.login || data[0];
             } else {
-                // Case: Supabase returns plain JSON
                 user = data;
             }
 
@@ -133,12 +130,16 @@
                 return;
             }
 
+            // Store session data
             localStorage.setItem("sessionToken", user.token);
             localStorage.setItem("nickname", user.nickname);
             localStorage.setItem("scalpel_points", user.scalpel_points);
 
-            window.location.href = "index.html";
+            // ✅ Store userId extracted from JWT
+            const payload = JSON.parse(atob(user.token.split('.')[1]));
+            localStorage.setItem("userId", payload.sub);
 
+            window.location.href = "index.html";
         }
 
         /* ----------------------------------------------------
