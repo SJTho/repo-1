@@ -20,8 +20,15 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        #profileContainer h2 {
+            color: #000;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
         .profileRow {
-            margin-bottom: 16px;
+            margin-bottom: 24px;
+            /* increased spacing */
             font-size: 18px;
             color: #000;
             display: flex;
@@ -30,7 +37,7 @@
         }
 
         .profileRow strong {
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .editBtn,
@@ -57,12 +64,6 @@
             padding: 6px;
             width: 100%;
             box-sizing: border-box;
-        }
-
-        #profileContainer h2 {
-            color: #000;
-            text-align: center;
-            margin-bottom: 20px;
         }
     </style>
 
@@ -99,19 +100,24 @@
             return input;
         }
 
-        async function saveField(inputEl, fieldName, supabaseColumn) {
+        async function saveField(inputEl, localStorageKey, supabaseColumn) {
             const newValue = inputEl.value.trim();
-
-            // Save to localStorage
-            localStorage.setItem(fieldName, newValue);
-
-            // Save to Supabase
             const userId = localStorage.getItem("userId");
 
-            await supabase
+            // Save locally
+            localStorage.setItem(localStorageKey, newValue);
+
+            // Save to Supabase
+            const {error} = await supabase
                 .from("users")
                 .update({[supabaseColumn]: newValue})
                 .eq("id", userId);
+
+            if (error) {
+                console.error(error);
+                alert("Failed to save to Supabase.");
+                return;
+            }
 
             // Refresh page
             window.location.reload();
@@ -138,23 +144,22 @@
         window.loadProfile = loadProfile;
         window.addEventListener("DOMContentLoaded", loadProfile);
 
-        // Editing logic bindings
+        // Nickname editing
         window.startEditNickname = () => {
             const input = enableEdit("nicknameDisplay", "editNicknameBtn", "saveNicknameBtn");
-            window.saveNicknameInput = input;
+            window.nicknameInput = input;
         };
-
         window.saveNickname = () => {
-            saveField(window.saveNicknameInput, "nickname", "nickname");
+            saveField(window.nicknameInput, "nickname", "nickname");
         };
 
+        // Password editing
         window.startEditPassword = () => {
             const input = enableEdit("passwordDisplay", "editPasswordBtn", "savePasswordBtn");
-            window.savePasswordInput = input;
+            window.passwordInput = input;
         };
-
         window.savePassword = () => {
-            saveField(window.savePasswordInput, "password_hash", "password_hash");
+            saveField(window.passwordInput, "password_hash", "password_hash");
         };
     </script>
 </head>
