@@ -10,19 +10,22 @@
 
   <!-- Supabase client -->
   <script type="module">
+
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
     /* -----------------------------------------
        SUPABASE CONNECTION (GLOBAL)
     ----------------------------------------- */
 
-    const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
+    // Make URL global
+    window.supabaseUrl = SUPABASE_URL;
 
-    /* MAKE KEY GLOBAL */
-    window.supabaseKeyy = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";
+    // Make KEY global
+    window.supabaseKey = SUPABASE_KEY;
 
-    /* MAKE CLIENT GLOBAL */
-    window.supabase = createClient(supabaseUrl, window.supabaseKeyy);
+    // Make CLIENT global
+    window.supabase = createClient(window.supabaseUrl, window.supabaseKey);
 
     /* -----------------------------------------
        FETCH QUESTIONS FROM SUPABASE
