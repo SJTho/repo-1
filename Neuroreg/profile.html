@@ -24,18 +24,17 @@
             margin-bottom: 16px;
             font-size: 18px;
             color: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .profileRow strong {
-            display: inline-block;
-            width: 160px;
+            margin-bottom: 4px;
         }
     </style>
 
     <script type="module">
-        /* ----------------------------------------------------
-           Logout
-        ---------------------------------------------------- */
         function logout() {
             localStorage.removeItem("sessionToken");
             localStorage.removeItem("nickname");
@@ -47,9 +46,6 @@
         }
         window.logout = logout;
 
-        /* ----------------------------------------------------
-           Load Profile Data (localStorage only)
-        ---------------------------------------------------- */
         function loadProfile() {
             const token = localStorage.getItem("sessionToken");
 
@@ -58,17 +54,13 @@
                 return;
             }
 
-            // Read values from localStorage
             const nickname = localStorage.getItem("nickname");
             const scalpelPoints = localStorage.getItem("scalpel_points");
             const rank = localStorage.getItem("rank");
 
-            // Populate the page
             document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
             document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
             document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
-
-            // Hide password hash for security
             document.getElementById("passwordDisplay").innerText = "********";
         }
 
@@ -84,19 +76,23 @@
         <h2>My Profile</h2>
 
         <div class="profileRow">
-            <strong>Nickname:</strong> <span id="nicknameDisplay"></span>
+            <strong>Nickname</strong>
+            <span id="nicknameDisplay"></span>
         </div>
 
         <div class="profileRow">
-            <strong>Password Hash:</strong> <span id="passwordDisplay"></span>
+            <strong>Password</strong>
+            <span id="passwordDisplay"></span>
         </div>
 
         <div class="profileRow">
-            <strong>Scalpel Points:</strong> <span id="pointsDisplay"></span>
+            <strong>Scalpel Points</strong>
+            <span id="pointsDisplay"></span>
         </div>
 
         <div class="profileRow">
-            <strong>Rank:</strong> <span id="rankDisplay"></span>
+            <strong>Rank</strong>
+            <span id="rankDisplay"></span>
         </div>
 
         <button class="closeBtn" onclick="logout()">Logout</button>
