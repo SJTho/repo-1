@@ -135,16 +135,8 @@
             localStorage.setItem("nickname", user.nickname);
             localStorage.setItem("scalpel_points", user.scalpel_points);
 
-            // ✅ Safely extract userId from JWT only if token is valid
-            if (typeof user.token === "string" && user.token.split('.').length === 3) {
-                const payload = JSON.parse(atob(user.token.split('.')[1]));
-                localStorage.setItem("userId", payload.sub);
-            } else {
-                console.warn("Login RPC did not return a JWT. Using fallback userId.");
-                localStorage.setItem("userId", user.user_id || user.id);
-            }
-            console.log(user.user_id);
-            return;
+            // ✅ Store userId directly (your RPC returns it)
+            localStorage.setItem("userId", user.id);
 
             window.location.href = "index.html";
         }
