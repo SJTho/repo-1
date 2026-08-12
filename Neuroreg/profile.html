@@ -32,9 +32,40 @@
         .profileRow strong {
             margin-bottom: 4px;
         }
+
+        .editBtn,
+        .saveBtn {
+            margin-top: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .editBtn {
+            background: #007bff;
+            color: white;
+        }
+
+        .saveBtn {
+            background: #28a745;
+            color: white;
+        }
+
+        input.editField {
+            font-size: 18px;
+            padding: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 
     <script type="module">
+        import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+        import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
         function logout() {
             localStorage.removeItem("sessionToken");
             localStorage.removeItem("nickname");
@@ -45,6 +76,40 @@
             window.location.href = "login.html";
         }
         window.logout = logout;
+
+        function enableEdit(fieldId, btnId, saveBtnId) {
+            const span = document.getElementById(fieldId);
+            const currentValue = span.innerText;
+
+            const input = document.createElement("input");
+            input.className = "editField";
+            input.value = currentValue;
+
+            span.replaceWith(input);
+
+            document.getElementById(btnId).style.display = "none";
+            document.getElementById(saveBtnId).style.display = "inline-block";
+
+            return input;
+        }
+
+        async function saveField(inputEl, fieldName, supabaseColumn) {
+            const newValue = inputEl.value.trim();
+
+            // Save to localStorage
+            localStorage.setItem(fieldName, newValue);
+
+            // Save to Supabase
+            const userId = localStorage.getItem("userId");
+
+            await supabase
+                .from("users")
+                .update({[supabaseColumn]: newValue})
+                .eq("id", userId);
+
+            // Refresh page
+            window.location.reload();
+        }
 
         function loadProfile() {
             const token = localStorage.getItem("sessionToken");
@@ -66,6 +131,25 @@
 
         window.loadProfile = loadProfile;
         window.addEventListener("DOMContentLoaded", loadProfile);
+
+        // Editing logic bindings
+        window.startEditNickname = () => {
+            const input = enableEdit("nicknameDisplay", "editNicknameBtn", "saveNicknameBtn");
+            window.saveNicknameInput = input;
+        };
+
+        window.saveNickname = () => {
+            saveField(window.saveNicknameInput, "nickname", "nickname");
+        };
+
+        window.startEditPassword = () => {
+            const input = enableEdit("passwordDisplay", "editPasswordBtn", "savePasswordBtn");
+            window.savePasswordInput = input;
+        };
+
+        window.savePassword = () => {
+            saveField(window.savePasswordInput, "password_hash", "password_hash");
+        };
     </script>
 </head>
 
@@ -78,11 +162,15 @@
         <div class="profileRow">
             <strong>Nickname</strong>
             <span id="nicknameDisplay"></span>
+            <button id="editNicknameBtn" class="editBtn" onclick="startEditNickname()">Edit</button>
+            <button id="saveNicknameBtn" class="saveBtn" onclick="saveNickname()" style="display:none;">Save</button>
         </div>
 
         <div class="profileRow">
             <strong>Password</strong>
             <span id="passwordDisplay"></span>
+            <button id="editPasswordBtn" class="editBtn" onclick="startEditPassword()">Edit</button>
+            <button id="savePasswordBtn" class="saveBtn" onclick="savePassword()" style="display:none;">Save</button>
         </div>
 
         <div class="profileRow">
