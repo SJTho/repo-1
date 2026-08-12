@@ -96,7 +96,7 @@
         }
 
         /* ----------------------------------------------------
-           Login RPC (returns JSON: token, nickname, scalpel_points)
+           Login RPC (returns JSON: id, token, nickname, scalpel_points)
         ---------------------------------------------------- */
         async function login() {
             const nickname = document.getElementById("loginNickname").value.trim();
@@ -119,6 +119,7 @@
 
             let user;
 
+            // Handle both array and object RPC return shapes
             if (Array.isArray(data)) {
                 user = data[0]?.login || data[0];
             } else {
@@ -135,13 +136,8 @@
             localStorage.setItem("nickname", user.nickname);
             localStorage.setItem("scalpel_points", user.scalpel_points);
 
-            // ✅ Store userId directly (your RPC returns it)
+            // Store userId (your updated SQL now returns this)
             localStorage.setItem("userId", user.id);
-
-            console.log(user.id);
-            console.log("LOGIN RPC RAW DATA:", data);
-            console.log("USER OBJECT:", user);
-            return;
 
             window.location.href = "index.html";
         }
