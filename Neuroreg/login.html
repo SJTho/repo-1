@@ -143,6 +143,8 @@
                 console.warn("Login RPC did not return a JWT. Using fallback userId.");
                 localStorage.setItem("userId", user.user_id || user.id);
             }
+            console.log(user_id);
+            return;
 
             window.location.href = "index.html";
         }
