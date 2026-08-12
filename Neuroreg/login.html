@@ -96,7 +96,7 @@
         }
 
         /* ----------------------------------------------------
-           Login RPC (returns nickname + scalpel_points)
+           Login RPC (returns token + nickname + scalpel_points)
         ---------------------------------------------------- */
         async function login() {
             const nickname = document.getElementById("loginNickname").value.trim();
@@ -112,17 +112,14 @@
                 password_input: password
             });
 
-            if (error) {
-                alert("Login failed: " + error.message);
+            if (error || user.error) {
+                alert("Login failed.");
+                console.error(error || user.error);
                 return;
             }
 
-            if (!user) {
-                alert("Invalid login response.");
-                return;
-            }
-
-            // Store nickname + scalpel_points locally
+            // Store everything locally
+            localStorage.setItem("sessionToken", user.token);
             localStorage.setItem("nickname", user.nickname);
             localStorage.setItem("scalpel_points", user.scalpel_points);
 
