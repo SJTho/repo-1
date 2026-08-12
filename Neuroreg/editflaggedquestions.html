@@ -11,10 +11,18 @@
 
   <script type="module">
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-
     import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
-    window.supabase = createClient(SUPABASE_URL, window.SUPABASE_KEY);
+
+    // Make URL global
+    window.supabaseUrl = SUPABASE_URL;
+
+    // Make KEY global
+    window.supabaseKey = SUPABASE_KEY;
+
+    // Make CLIENT global
+    window.supabase = createClient(window.supabaseUrl, window.supabaseKey);
+
 
 
     window.fetchFlaggedQuestions = async () => {
