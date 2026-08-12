@@ -107,14 +107,10 @@
                 return;
             }
 
-            console.log("Sending nickname:", nickname);
-            console.log("Sending password:", password);
-
             const {data, error} = await supabase.rpc("login", {
                 nickname_input: nickname,
                 password_input: password
             });
-            console.log("RAW RPC data:", data);
 
             if (error) {
                 alert("Login failed: " + error.message);
@@ -140,9 +136,6 @@
             localStorage.setItem("sessionToken", user.token);
             localStorage.setItem("nickname", user.nickname);
             localStorage.setItem("scalpel_points", user.scalpel_points);
-
-            console.log(user.scalpel_points)
-            return;
 
             window.location.href = "index.html";
 
