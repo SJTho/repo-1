@@ -52,10 +52,9 @@
 
     <script type="module">
         import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+        import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
-        const supabaseUrl = "https://jzdvtqkssamxndgrttct.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6ZHZ0cWtzc2FteG5kZ3J0dGN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNDQ1NzAsImV4cCI6MjEwMTkyMDU3MH0.CHKV56rf8ZSwwKIN0fuzEBuPoxn8qwSW0YzW_1DFcgM";   // insert your anon key
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
         /* ----------------------------------------------------
            Switch between Login and Signup views
@@ -71,11 +70,16 @@
         }
 
         /* ----------------------------------------------------
-           Signup RPC (custom auth only)
+           Signup RPC
         ---------------------------------------------------- */
         async function signup() {
             const nickname = document.getElementById("signupNickname").value.trim();
             const password = document.getElementById("signupPassword").value.trim();
+
+            if (!nickname || !password) {
+                alert("Please fill in all fields.");
+                return;
+            }
 
             const {data, error} = await supabase.rpc("signup", {
                 nickname_input: nickname,
@@ -84,7 +88,6 @@
 
             if (error) {
                 alert("Signup failed: " + error.message);
-                console.error(error);
                 return;
             }
 
@@ -99,6 +102,11 @@
             const nickname = document.getElementById("loginNickname").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
 
+            if (!nickname || !password) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
             const {data: token, error} = await supabase.rpc("login", {
                 nickname_input: nickname,
                 password_input: password
@@ -106,20 +114,22 @@
 
             if (error) {
                 alert("Login failed: " + error.message);
-                console.error(error);
                 return;
             }
 
-            // Store JWT token
+            if (!token) {
+                alert("Invalid login response.");
+                return;
+            }
+
             localStorage.setItem("sessionToken", token);
             localStorage.setItem("nickname", nickname);
 
-            // Redirect to profile page
             window.location.href = "profile.html";
         }
 
         /* ----------------------------------------------------
-           Expose functions globally for onclick=""
+           Expose functions globally
         ---------------------------------------------------- */
         window.login = login;
         window.signup = signup;
@@ -127,7 +137,7 @@
         window.showSignup = showSignup;
 
         window.addEventListener("DOMContentLoaded", () => {
-            showLogin(); // default view
+            showLogin();
         });
     </script>
 </head>
