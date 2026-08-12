@@ -138,7 +138,9 @@
             // ✅ Store userId directly (your RPC returns it)
             localStorage.setItem("userId", user.id);
 
-            console.log(user.user_id);
+            console.log(user.id);
+            console.log("LOGIN RPC RAW DATA:", data);
+            console.log("USER OBJECT:", user);
             return;
 
             window.location.href = "index.html";
