@@ -106,7 +106,6 @@
                 alert("Please fill in all fields.");
                 return;
             }
-
             const {data, error} = await supabase.rpc("login", {
                 nickname_input: nickname,
                 password_input: password
@@ -114,27 +113,30 @@
 
             if (error) {
                 alert("Login failed: " + error.message);
-                console.error(error);
                 return;
             }
 
-            // Handle both possible Supabase return shapes
-            const user = Array.isArray(data) ? data[0] : data;
+            // Handle all Supabase RPC shapes
+            let user;
+
+            if (Array.isArray(data)) {
+                // Case: Supabase wraps JSON inside a row
+                user = data[0]?.login || data[0];
+            } else {
+                // Case: Supabase returns plain JSON
+                user = data;
+            }
 
             if (!user || user.error) {
                 alert("Invalid nickname or password");
-                console.error("RPC returned:", user);
                 return;
             }
 
-            // Store session info
             localStorage.setItem("sessionToken", user.token);
             localStorage.setItem("nickname", user.nickname);
             localStorage.setItem("scalpel_points", user.scalpel_points);
 
-            // Redirect
             window.location.href = "index.html";
-
 
         }
 
