@@ -33,17 +33,14 @@
     </style>
 
     <script type="module">
-        import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-        import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
-
-        const supabase = createClient(supabaseUrl, supabaseKey);
-
         /* ----------------------------------------------------
            Logout
         ---------------------------------------------------- */
         function logout() {
             localStorage.removeItem("sessionToken");
             localStorage.removeItem("nickname");
+            localStorage.removeItem("scalpel_points");
+            localStorage.removeItem("rank");
             localStorage.removeItem("userId");
 
             window.location.href = "login.html";
@@ -51,42 +48,31 @@
         window.logout = logout;
 
         /* ----------------------------------------------------
-           Load Profile Data
+           Load Profile Data (localStorage only)
         ---------------------------------------------------- */
-        async function loadProfile() {
+        function loadProfile() {
             const token = localStorage.getItem("sessionToken");
 
             if (!token) {
                 window.location.href = "login.html";
                 return;
             }
-            // Decode JWT payload
-            const payload = JSON.parse(atob(token.split('.')[1]));
 
-            // Use the correct claim
-            const userId = payload.sub;
-
-            // Fetch user data
-            const {data, error} = await supabase
-                .from("users")
-                .select("nickname, password_hash, scalpel_points")
-                .eq("id", userId)
-                .single();
-
-            if (error) {
-                console.error(error);
-                alert("Failed to load profile.");
-                return;
-            }
+            // Read values from localStorage
+            const nickname = localStorage.getItem("nickname");
+            const scalpelPoints = localStorage.getItem("scalpel_points");
+            const rank = localStorage.getItem("rank");
 
             // Populate the page
-            document.getElementById("nicknameDisplay").innerText = data.nickname;
-            document.getElementById("passwordDisplay").innerText = data.password_hash;
-            document.getElementById("pointsDisplay").innerText = data.scalpel_points;
+            document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
+            document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
+            document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
+
+            // Hide password hash for security
+            document.getElementById("passwordDisplay").innerText = "********";
         }
 
         window.loadProfile = loadProfile;
-
         window.addEventListener("DOMContentLoaded", loadProfile);
     </script>
 </head>
@@ -107,6 +93,10 @@
 
         <div class="profileRow">
             <strong>Scalpel Points:</strong> <span id="pointsDisplay"></span>
+        </div>
+
+        <div class="profileRow">
+            <strong>Rank:</strong> <span id="rankDisplay"></span>
         </div>
 
         <button class="closeBtn" onclick="logout()">Logout</button>
