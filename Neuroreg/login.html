@@ -70,7 +70,7 @@
         }
 
         /* ----------------------------------------------------
-           Signup RPC
+           Signup RPC (password_hash)
         ---------------------------------------------------- */
         async function signup() {
             const nickname = document.getElementById("signupNickname").value.trim();
@@ -96,7 +96,7 @@
         }
 
         /* ----------------------------------------------------
-           Login RPC (returns token + nickname + scalpel_points)
+           Login RPC (returns JSON: token, nickname, scalpel_points)
         ---------------------------------------------------- */
         async function login() {
             const nickname = document.getElementById("loginNickname").value.trim();
@@ -107,23 +107,32 @@
                 return;
             }
 
-            const {data: user, error} = await supabase.rpc("login", {
+            const {data, error} = await supabase.rpc("login", {
                 nickname_input: nickname,
                 password_input: password
             });
 
-            if (error || user.error) {
-                alert("Login failed.");
-                console.error(error || user.error);
+            if (error) {
+                alert("Login failed: " + error.message);
+                console.error(error);
                 return;
             }
 
-            // Store everything locally
+            // Handle both possible Supabase return shapes
+            const user = Array.isArray(data) ? data[0] : data;
+
+            if (!user || user.error) {
+                alert("Invalid nickname or password");
+                console.error("RPC returned:", user);
+                return;
+            }
+
+            // Store session info
             localStorage.setItem("sessionToken", user.token);
             localStorage.setItem("nickname", user.nickname);
             localStorage.setItem("scalpel_points", user.scalpel_points);
 
-            // Redirect to index
+            // Redirect
             window.location.href = "index.html";
         }
 
