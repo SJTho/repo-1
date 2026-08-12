@@ -15,9 +15,9 @@
     <div id="topLeftInfo" style="cursor:pointer;">
         <div id="pointsValue" class="tinyText">
             🧑‍⚕️ <span id="pointsNumber"></span>
+            <span id="nicknameDisplay"></span>
         </div>
         <div id="rankValue" class="tinyText"></div>
-        <div id="nicknameValue" class="tinyText"></div>
     </div>
 
     <!-- Top-right help button -->
@@ -128,10 +128,12 @@
         function loadLocalProfile() {
             const points = parseInt(localStorage.getItem("scalpel_points")) || 0;
             const rank = getRank(points);
+            const nickname = localStorage.getItem("nickname");
+
 
             document.getElementById("pointsNumber").textContent = points;
             document.getElementById("rankValue").textContent = rank;
-            document.getElementById("nicknameValue").textContent = nickname;
+            document.getElementById("nicknameDisplay").textContent = nickname;
 
             if (previousRank && rankIndex(rank) > rankIndex(previousRank)) {
                 showRankUpAnimation(rank);
