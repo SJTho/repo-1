@@ -17,6 +17,7 @@
             🧑‍⚕️ <span id="pointsNumber"></span>
         </div>
         <div id="rankValue" class="tinyText"></div>
+        <div id="nicknameValue" class="tinyText"></div>
     </div>
 
     <!-- Top-right help button -->
@@ -130,6 +131,7 @@
 
             document.getElementById("pointsNumber").textContent = points;
             document.getElementById("rankValue").textContent = rank;
+            document.getElementById("nicknameValue").textContent = nickname;
 
             if (previousRank && rankIndex(rank) > rankIndex(previousRank)) {
                 showRankUpAnimation(rank);
