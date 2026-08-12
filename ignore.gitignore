@@ -1,0 +1,10 @@
+# Ignore API key files
+apikey.txt
+config.env
+secrets.json
+
+# Ignore environment variable files
+.env
+.env.local
+.env.development
+.env.production
