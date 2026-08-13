@@ -110,7 +110,6 @@
             dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
         });
 
-
         document.addEventListener("click", (event) => {
             if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
                 dropdown.style.display = "none";
@@ -132,81 +131,56 @@
         window.logout = logout;
 
         /* ----------------------------------------------------
-           Rank System
+           Rank System (Supabase-driven)
         ---------------------------------------------------- */
-        function getRank(points) {
-            if (points <= 300) return "Observer";
-            if (points <= 600) return "Assistant";
-            if (points <= 900) return "Supervised Scrubbed";
-            if (points <= 1200) return "Supervised Unscrubbed";
-            return "Independent Practice";
-        }
 
-        function rankIndex(rank) {
-            const ranks = [
-                "Observer",
-                "Assistant",
-                "Supervised Scrubbed",
-                "Supervised Unscrubbed",
-                "Independent Practice"
-            ];
-            return ranks.indexOf(rank);
-        }
+        async function fetchRankForPoints(points) {
+            const {data, error} = await supabase
+                .from("rank")
+                .select("*")
+                .lte("minimum_score", points)
+                .gte("maximum_score", points)
+                .single();
 
-        let previousRank = localStorage.getItem("previousRank") || null;
-
-        function showRankUpAnimation(newRank) {
-            const banner = document.getElementById("rankUpBanner");
-            banner.textContent = `🎉 Rank Up! You are now: ${newRank}`;
-            banner.style.display = "block";
-
-            for (let i = 0; i < 30; i++) {
-                const conf = document.createElement("div");
-                conf.className = "confetti";
-                conf.style.left = Math.random() * window.innerWidth + "px";
-                conf.style.background = ["gold", "white", "#4CAF50", "#2196F3"][Math.floor(Math.random() * 4)];
-                document.body.appendChild(conf);
-
-                setTimeout(() => conf.remove(), 1200);
+            if (error || !data) {
+                console.error("Rank lookup failed:", error);
+                return null;
             }
 
-            setTimeout(() => {
-                banner.style.display = "none";
-            }, 3000);
+            return data.rank;
         }
 
-        /* ----------------------------------------------------
-           Load Profile Info
-        ---------------------------------------------------- */
-        function loadLocalProfile() {
-            const points = parseInt(localStorage.getItem("scalpel_points")) || 0;
-            const rank = getRank(points);
+        async function updateRank(points) {
+            const newRank = await fetchRankForPoints(points);
+            if (!newRank) return;
 
-            if (previousRank && rankIndex(rank) > rankIndex(previousRank)) {
-                showRankUpAnimation(rank);
+            const oldRank = localStorage.getItem("rank");
+
+            if (oldRank && newRank !== oldRank) {
+                showRankUpAnimation(newRank);
             }
 
-            previousRank = rank;
-            localStorage.setItem("previousRank", rank);
+            localStorage.setItem("rank", newRank);
         }
-
-        loadLocalProfile();
 
         /* ----------------------------------------------------
            Update Supabase when points change
         ---------------------------------------------------- */
         async function updateSupabasePoints(newPoints) {
-            const nickname = localStorage.getItem("nickname");
-            if (!nickname) return;
+            const userId = localStorage.getItem("userId");
+            if (!userId) return;
 
             const {error} = await supabase
                 .from("users")
                 .update({scalpel_points: newPoints})
-                .eq("nickname", nickname);
+                .eq("id", userId);
 
             if (error) {
                 console.error("Failed to update points:", error);
+                return;
             }
+
+            updateRank(newPoints);
         }
 
         /* ----------------------------------------------------
@@ -224,7 +198,6 @@
                 localStorage.setItem("lastDailyReward", today);
 
                 updateSupabasePoints(pts);
-                loadLocalProfile();
 
                 alert("Daily reward: +10 points!");
             }
@@ -366,7 +339,6 @@
         function renderLinks() {
             linksContainer.innerHTML = "";
 
-            // Built‑in links
             linksContainer.appendChild(createIconCard("📘", "ISCP", "https://www.iscp.ac.uk"));
             linksContainer.appendChild(createIconCard("📊", "eLogbook", "https://client.elogbook.org/"));
             linksContainer.appendChild(createIconCard("📝", "MRCS", "https://www.intercollegiatemrcsexams.org.uk/"));
@@ -376,14 +348,11 @@
             linksContainer.appendChild(createIconCard("🧑‍🤝‍🧑", "SBNS", "https://www.sbns.org.uk"));
             linksContainer.appendChild(createIconCard("🩺", "BNTA", "https://www.e1v1m1.com"));
 
-            // Custom buttons
             linksContainer.appendChild(renderCustomButtons());
 
-            // Add link button (max 3)
             if (loadCustomButtons().length < 3) {
                 linksContainer.appendChild(createAddLinkButton());
             }
-
         }
 
         renderLinks();
