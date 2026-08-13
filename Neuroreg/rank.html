@@ -82,14 +82,14 @@
                 return;
             }
 
-            const userRank = localStorage.getItem("rank");
-            document.getElementById("rankHeading").innerText = userRank ?? "Rank";
+            const userRank = (localStorage.getItem("rank") || "").trim();
+            console.log("Rank from localStorage:", userRank);
 
             // 1. Get minimum_score and maximum_score for this rank
             const {data: rankData, error: rankError} = await supabase
                 .from("rank")
                 .select("minimum_score, maximum_score")
-                .eq("rank", userRank)
+                .ilike("rank", userRank)   // case-insensitive match
                 .single();
 
             if (rankError || !rankData) {
