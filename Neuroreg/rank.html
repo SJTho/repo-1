@@ -88,7 +88,7 @@
                 const userPoints = Number(localStorage.getItem("scalpel_points"));
 
                 /* Update heading */
-                document.getElementById("rankHeading").innerText = `${userRank} — Top Ten`;
+                document.getElementById("rankHeading").innerText = `${userRank} top ten`;
 
                 /* 1. Get rank range */
                 const {data: rankRows} = await supabase
