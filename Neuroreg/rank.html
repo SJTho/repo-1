@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+
+    <link rel="stylesheet" href="./mcqcore.css">
+    <link rel="stylesheet" href="./rank.css">
+
+    <style>
+        #profileContainer {
+            width: 80%;
+            max-width: 500px;
+            margin: 120px auto 60px auto;
+            /* moved down to clear header */
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #profileContainer h2 {
+            color: #000;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .profileRow {
+            margin-bottom: 24px;
+            font-size: 18px;
+            color: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .profileRow strong {
+            margin-bottom: 6px;
+        }
+
+        .editBtn,
+        .saveBtn,
+        .closeBtn {
+            margin-top: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .editBtn {
+            background: #007bff;
+            color: white;
+        }
+
+        .saveBtn {
+            background: #28a745;
+            color: white;
+        }
+
+        .closeBtn {
+            background: #14233d;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        input.editField {
+            font-size: 18px;
+            padding: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+
+    <script type="module">
+        import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+        import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        /* ----------------------------------------------------
+           Load Profile
+        ---------------------------------------------------- */
+        function loadProfile() {
+            const token = localStorage.getItem("sessionToken");
+
+            if (!token) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const nickname = localStorage.getItem("nickname");
+            const scalpelPoints = localStorage.getItem("scalpel_points");
+            const rank = localStorage.getItem("rank");
+
+            document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
+            document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
+            document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
+            document.getElementById("passwordDisplay").innerText = "********";
+        }
+
+        window.addEventListener("DOMContentLoaded", loadProfile);
+
+    </script>
+</head>
+
+<body>
+
+    <!-- Top-left hamburger -->
+    <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+
+    <!-- Dropdown Menu -->
+    <div id="hamburgerMenuDropdown" class="dropdownMenu">
+        <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
+        <div class="dropdownItem" onclick="window.location.href='formaltestcore.html'">💯 Examination</div>
+
+        <div class="dropdownSeparator"></div>
+
+        <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
+        <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
+
+        <div class="dropdownSeparator"></div>
+
+        <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
+    </div>
+
+    <!-- Top-right icons -->
+    <div id="topRightIcons">
+        <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
+        <div id="profileIcon" class="topRightIcon" onclick="window.location.href='profile.html'">🧑‍⚕️</div>
+        <div id="helpButton" class="topRightIcon" onclick="window.location.href='help.html'">❔</div>
+    </div>
+
+    <script>
+        /* Dropdown toggle */
+        const hamburger = document.getElementById("hamburgerMenu");
+        const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+        hamburger.addEventListener("click", () => {
+            dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+    </script>
+
+    <div id="profileContainer">
+
+        <h2>Rank</h2>
+
+
+
+        <!-- Back button replaces logout -->
+        <button class="closeBtn" onclick="window.location.href='index.html'">Back</button>
+
+    </div>
+
+</body>
+
+</html>
