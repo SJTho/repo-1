@@ -593,16 +593,18 @@ a {
 /* Dropdown menu container */
 .dropdownMenu {
   position: absolute;
-  top: 50px;
+  top: 45px;
+  /* directly under hamburger */
   left: 10px;
+
   background: #14233d;
   border: 1px solid #1f3b6f;
   border-radius: 8px;
-  padding: 10px 0;
-  width: 180px;
+
+  width: 200px;
 
   display: none;
-  /* hidden by default */
+  /* CRITICAL: hide by default */
   flex-direction: column;
 
   z-index: 2000;
