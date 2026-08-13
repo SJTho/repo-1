@@ -38,19 +38,6 @@
 
     <h1>NeuroReg App</h1>
 
-    <!-- TEMPORARY +50 POINTS BUTTON -->
-    <button id="add50Btn" style="
-        margin: 20px;
-        padding: 10px 20px;
-        background:#4CAF50;
-        color:white;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-    ">
-        +50 Points (Temporary)
-    </button>
-
     <!-- Rank-Up Celebration Banner -->
     <div id="rankUpBanner"></div>
 
@@ -234,19 +221,6 @@
                 banner.style.display = "none";
             }, 4000);
         }
-        /* ----------------------------------------------------
-           Temporary +50 Points Button
-        ---------------------------------------------------- */
-        document.getElementById("add50Btn").addEventListener("click", () => {
-            let pts = parseInt(localStorage.getItem("scalpel_points")) || 0;
-            pts += 50;
-
-            localStorage.setItem("scalpel_points", pts);
-
-            updateSupabasePoints(pts);
-
-            alert("+50 points added!");
-        });
 
         /* ----------------------------------------------------
            Page content
