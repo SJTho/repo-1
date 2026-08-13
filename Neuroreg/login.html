@@ -48,6 +48,17 @@
             color: #0077cc;
             font-weight: 600;
         }
+
+        /* Narrow Back button override */
+        button.closeBtn.backBtn {
+            width: 120px;
+            margin: 20px auto 0;
+            display: block;
+            padding: 8px 12px;
+            font-size: 16px;
+            background: #14233d;
+            color: white;
+        }
     </style>
 
     <script type="module">
@@ -70,7 +81,7 @@
         }
 
         /* ----------------------------------------------------
-           Signup RPC (password_hash)
+           Signup RPC
         ---------------------------------------------------- */
         async function signup() {
             const nickname = document.getElementById("signupNickname").value.trim();
@@ -96,7 +107,7 @@
         }
 
         /* ----------------------------------------------------
-           Login RPC (returns JSON: id, token, nickname, scalpel_points)
+           Login RPC + Rank Lookup
         ---------------------------------------------------- */
         async function login() {
             const nickname = document.getElementById("loginNickname").value.trim();
@@ -119,7 +130,6 @@
 
             let user;
 
-            // Handle both array and object RPC return shapes
             if (Array.isArray(data)) {
                 user = data[0]?.login || data[0];
             } else {
@@ -131,14 +141,32 @@
                 return;
             }
 
-            // Store session data
+            /* Store session data */
             localStorage.setItem("sessionToken", user.token);
             localStorage.setItem("nickname", user.nickname);
             localStorage.setItem("scalpel_points", user.scalpel_points);
-
-            // Store userId (your updated SQL now returns this)
             localStorage.setItem("userId", user.id);
 
+            /* ----------------------------------------------------
+               NEW: Fetch rank based on scalpel_points
+            ---------------------------------------------------- */
+            const points = user.scalpel_points;
+
+            const {data: rankData, error: rankError} = await supabase
+                .from("rank")
+                .select("rank")
+                .lte("minimum_score", points)
+                .gte("maximum_score", points)
+                .maybeSingle();
+
+            if (rankError) {
+                console.error("Rank lookup failed:", rankError);
+                localStorage.setItem("rank", "Unranked");
+            } else {
+                localStorage.setItem("rank", rankData?.rank || "Unranked");
+            }
+
+            /* Redirect after storing rank */
             window.location.href = "index.html";
         }
 
@@ -197,6 +225,9 @@
 
             <div class="switchLink" onclick="showLogin()">Already have an account?</div>
         </div>
+
+        <!-- Back button -->
+        <button class="closeBtn backBtn" onclick="window.location.href='index.html'">Back</button>
 
     </div>
 
