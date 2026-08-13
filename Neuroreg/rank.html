@@ -85,10 +85,10 @@
             const userRank = localStorage.getItem("rank");
             document.getElementById("rankHeading").innerText = userRank ?? "Rank";
 
-            // 1. Get min/max score for this rank
+            // 1. Get minimum_score and maximum_score for this rank
             const {data: rankData, error: rankError} = await supabase
                 .from("rank")
-                .select("min_points, max_points")
+                .select("minimum_score, maximum_score")
                 .eq("rank_name", userRank)
                 .single();
 
@@ -97,14 +97,14 @@
                 return;
             }
 
-            const {min_points, max_points} = rankData;
+            const {minimum_score, maximum_score} = rankData;
 
             // 2. Get all users in this rank range
             const {data: users, error: usersError} = await supabase
                 .from("users")
                 .select("nickname, scalpel_points")
-                .gte("scalpel_points", min_points)
-                .lte("scalpel_points", max_points);
+                .gte("scalpel_points", minimum_score)
+                .lte("scalpel_points", maximum_score);
 
             if (usersError) {
                 console.error("User fetch failed:", usersError);
