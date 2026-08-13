@@ -52,17 +52,6 @@ h1 {
   object-fit: contain;
 }
 
-/* Buttons inside MCQ container */
-#mcqContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto;
-  gap: 20px;
-  flex-wrap: wrap;
-  max-width: 600px;
-}
-
 .mcqCardButtons {
   display: flex;
   justify-content: center;

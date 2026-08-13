@@ -44,9 +44,6 @@
     <!-- Icon Grid -->
     <div id="linksContainer" class="iconGrid"></div>
 
-    <!-- MCQ + Spend/Add Points -->
-    <div id="mcqContainer"></div>
-
     <!-- Delete Popup -->
     <div id="deletePopup" style="
         display:none;
@@ -240,7 +237,6 @@
         ---------------------------------------------------- */
 
         const linksContainer = document.getElementById("linksContainer");
-        const mcqContainer = document.getElementById("mcqContainer");
         const deletePopup = document.getElementById("deletePopup");
         const confirmDelete = document.getElementById("confirmDelete");
         const cancelDelete = document.getElementById("cancelDelete");
@@ -369,7 +365,6 @@
 
         function renderLinks() {
             linksContainer.innerHTML = "";
-            mcqContainer.innerHTML = "";
 
             // Built‑in links
             linksContainer.appendChild(createIconCard("📘", "ISCP", "https://www.iscp.ac.uk"));
@@ -389,9 +384,6 @@
                 linksContainer.appendChild(createAddLinkButton());
             }
 
-            // MCQ + Formal Test
-            mcqContainer.appendChild(createMCQCard());
-            mcqContainer.appendChild(createFormalTestCard());
         }
 
         renderLinks();
