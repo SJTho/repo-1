@@ -537,12 +537,14 @@ a {
 /* ------------------------------
    Header Icons (Corrected Layout)
 ------------------------------ */
+
 /* Hamburger menu — fixed top-left */
 .hamburgerIcon {
   position: absolute;
   top: 10px;
   left: 10px;
-  font-size: 28px;
+  font-size: 24px;
+  /* MATCH index.html */
   cursor: pointer;
   user-select: none;
   z-index: 1000;
@@ -557,7 +559,6 @@ a {
   display: flex;
   flex-direction: row;
   align-items: center;
-  /* ensures perfect vertical alignment */
   gap: 15px;
 
   z-index: 1000;
@@ -565,9 +566,9 @@ a {
 
 /* Individual icons */
 .topRightIcon {
-  font-size: 26px;
+  font-size: 22px;
+  /* MATCH index.html */
   line-height: 1;
-  /* prevents vertical drift */
   cursor: pointer;
   user-select: none;
   transition: transform 0.15s ease;
@@ -583,7 +584,6 @@ a {
 .dropdownMenu {
   position: absolute;
   top: 45px;
-  /* directly under hamburger */
   left: 10px;
 
   background: #14233d;
@@ -593,7 +593,6 @@ a {
   width: 200px;
 
   display: none;
-  /* CRITICAL: hide by default */
   flex-direction: column;
 
   z-index: 2000;
@@ -603,19 +602,16 @@ a {
 .dropdownItem {
   padding: 10px 15px;
   font-size: 16px;
+  /* MATCH index.html */
   color: white;
 
   text-align: left;
-  /* left align text */
   width: 100%;
-  /* full width clickable */
   cursor: pointer;
   user-select: none;
 
   display: flex;
-  /* align icon + text */
   gap: 10px;
-  /* spacing between icon and text */
   align-items: center;
 }
 
@@ -628,4 +624,21 @@ a {
   height: 1px;
   background: #2a3f66;
   margin: 8px 0;
+}
+
+@media (max-width: 600px) {
+  .hamburgerIcon {
+    font-size: 28px;
+    padding: 10px;
+  }
+
+  .topRightIcon {
+    font-size: 26px;
+    padding: 8px;
+  }
+
+  .dropdownItem {
+    font-size: 18px;
+    padding: 12px 14px;
+  }
 }
