@@ -20,12 +20,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        #profileContainer h2 {
-            color: #000;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
         #rankList {
             margin-top: 20px;
             width: 100%;
@@ -72,9 +66,6 @@
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        /* ----------------------------------------------------
-           Load Rank Page
-        ---------------------------------------------------- */
         async function loadRankPage() {
             const token = localStorage.getItem("sessionToken");
             if (!token) {
@@ -82,49 +73,36 @@
                 return;
             }
 
-            const userRank = (localStorage.getItem("rank") || "").trim();
-            const userPoints = Number(localStorage.getItem("scalpel_points") || 0);
+            const userRank = localStorage.getItem("rank");
+            const userPoints = Number(localStorage.getItem("scalpel_points"));
 
             document.getElementById("rankHeading").innerText = userRank;
 
-            console.log("Rank:", userRank);
-            console.log("User points:", userPoints);
-
-            // 1. Find the rank row whose score range contains the user's points
-            const {data: rankRows, error: rankError} = await supabase
+            /* 1. Get rank range */
+            const {data: rankRows} = await supabase
                 .from("rank")
-                .select("minimum_score, maximum_score, rank")
-                .lte("minimum_score", userPoints)
-                .gte("maximum_score", userPoints)
+                .select("minimum_score, maximum_score")
+                .eq("rank", userRank)
                 .limit(1);
 
             const rankData = rankRows?.[0];
+            if (!rankData) return;
 
-            console.log("Rank row found:", rankData);
+            const min = rankData.minimum_score;
+            const max = rankData.maximum_score;
 
-            if (!rankData) {
-                console.error("No rank row matches the user's score.");
+            /* 2. Fetch users via RPC (RLS-safe) */
+            const {data: users, error} = await supabase.rpc(
+                "get_users_in_rank_range",
+                {min_score: min, max_score: max}
+            );
+
+            if (error) {
+                console.error("RPC error:", error);
                 return;
             }
 
-            const {minimum_score, maximum_score} = rankData;
-
-            // 2. Get all users in this rank range
-            const {data: users, error: usersError} = await supabase
-                .from("users")
-                .select("nickname, scalpel_points")
-                .gte("scalpel_points", minimum_score)
-                .lte("scalpel_points", maximum_score);
-
-            if (usersError) {
-                console.error("User fetch failed:", usersError);
-                return;
-            }
-
-            // 3. Sort descending by points
-            users.sort((a, b) => b.scalpel_points - a.scalpel_points);
-
-            // 4. Render table
+            /* 3. Render */
             const container = document.getElementById("rankList");
             container.innerHTML = "";
 
@@ -146,10 +124,8 @@
 
 <body>
 
-    <!-- Top-left hamburger -->
     <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
 
-    <!-- Dropdown Menu -->
     <div id="hamburgerMenuDropdown" class="dropdownMenu">
         <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
         <div class="dropdownItem" onclick="window.location.href='formaltestcore.html'">💯 Examination</div>
@@ -164,7 +140,6 @@
         <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
     </div>
 
-    <!-- Top-right icons -->
     <div id="topRightIcons">
         <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
         <div id="profileIcon" class="topRightIcon" onclick="window.location.href='profile.html'">🧑‍⚕️</div>
@@ -172,7 +147,6 @@
     </div>
 
     <script>
-        /* Dropdown toggle */
         const hamburger = document.getElementById("hamburgerMenu");
         const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -188,13 +162,9 @@
     </script>
 
     <div id="profileContainer">
-
         <h2 id="rankHeading">Rank</h2>
-
         <div id="rankList"></div>
-
         <button class="closeBtn" onclick="window.location.href='index.html'">Back</button>
-
     </div>
 
 </body>
