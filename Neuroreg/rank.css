@@ -94,15 +94,3 @@ button.closeBtn.backBtn {
     font-weight: bold;
     color: #007bff;
 }
-
-.rankNickname {
-    color: #000 !important;
-}
-
-.rankPoints {
-    color: #007bff !important;
-}
-
-#rankHeading {
-    color: #000 !important;
-}
