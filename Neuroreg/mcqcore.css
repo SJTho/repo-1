@@ -642,3 +642,7 @@ a {
     padding: 12px 14px;
   }
 }
+
+#topLeftInfo .tinyText {
+  cursor: pointer;
+}
