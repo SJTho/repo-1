@@ -20,12 +20,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        #rankHeading {
-            color: #000 !important;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
         #rankList {
             margin-top: 20px;
             width: 100%;
@@ -39,24 +33,19 @@
             font-size: 18px;
         }
 
-        .rankRow div {
-            color: #000 !important;
-        }
-
         .rankPosition {
             font-weight: bold;
-            color: #14233d !important;
+            color: #14233d;
         }
 
         .rankNickname {
             font-weight: 500;
-            color: #000 !important;
         }
 
         .rankPoints {
             text-align: right;
             font-weight: bold;
-            color: #007bff !important;
+            color: #007bff;
         }
 
         .closeBtn {
@@ -70,6 +59,67 @@
             cursor: pointer;
         }
     </style>
+
+    <script type="module">
+        import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+        import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadRankPage() {
+            const token = localStorage.getItem("sessionToken");
+            if (!token) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const userRank = localStorage.getItem("rank");
+            const userPoints = Number(localStorage.getItem("scalpel_points"));
+
+            document.getElementById("rankHeading").innerText = userRank;
+
+            /* 1. Get rank range */
+            const {data: rankRows} = await supabase
+                .from("rank")
+                .select("minimum_score, maximum_score")
+                .eq("rank", userRank)
+                .limit(1);
+
+            const rankData = rankRows?.[0];
+            if (!rankData) return;
+
+            const min = rankData.minimum_score;
+            const max = rankData.maximum_score;
+
+            /* 2. Fetch users via RPC (RLS-safe) */
+            const {data: users, error} = await supabase.rpc(
+                "get_users_in_rank_range",
+                {min_score: min, max_score: max}
+            );
+
+            if (error) {
+                console.error("RPC error:", error);
+                return;
+            }
+
+            /* 3. Render */
+            const container = document.getElementById("rankList");
+            container.innerHTML = "";
+
+            users.forEach((u, index) => {
+                const row = document.createElement("div");
+                row.className = "rankRow";
+                row.innerHTML = `
+                    <div class="rankPosition">${index + 1}</div>
+                    <div class="rankNickname">${u.nickname}</div>
+                    <div class="rankPoints">${u.scalpel_points}</div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        window.addEventListener("DOMContentLoaded", loadRankPage);
+    </script>
 </head>
 
 <body>
