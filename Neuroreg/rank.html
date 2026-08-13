@@ -83,17 +83,27 @@
             }
 
             const userRank = (localStorage.getItem("rank") || "").trim();
-            console.log("Rank from localStorage:", userRank);
+            const userPoints = Number(localStorage.getItem("scalpel_points") || 0);
 
-            // 1. Get minimum_score and maximum_score for this rank
-            const {data: rankData, error: rankError} = await supabase
+            document.getElementById("rankHeading").innerText = userRank;
+
+            console.log("Rank:", userRank);
+            console.log("User points:", userPoints);
+
+            // 1. Find the rank row whose score range contains the user's points
+            const {data: rankRows, error: rankError} = await supabase
                 .from("rank")
-                .select("minimum_score, maximum_score")
-                .ilike("rank", userRank)   // case-insensitive match
-                .single();
+                .select("minimum_score, maximum_score, rank")
+                .lte("minimum_score", userPoints)
+                .gte("maximum_score", userPoints)
+                .limit(1);
 
-            if (rankError || !rankData) {
-                console.error("Rank lookup failed:", rankError);
+            const rankData = rankRows?.[0];
+
+            console.log("Rank row found:", rankData);
+
+            if (!rankData) {
+                console.error("No rank row matches the user's score.");
                 return;
             }
 
