@@ -144,23 +144,20 @@
         window.logout = logout;
 
         /* ----------------------------------------------------
-           Rank System (Supabase-driven)
+           Rank System (RPC-driven)
         ---------------------------------------------------- */
 
         async function fetchRankForPoints(points) {
-            const {data, error} = await supabase
-                .from("rank")
-                .select("*")
-                .lte("minimum_score", points)
-                .gte("maximum_score", points)
-                .single();
+            const {data, error} = await supabase.rpc("get_rank_for_points", {
+                points: points
+            });
 
-            if (error || !data) {
-                console.error("Rank lookup failed:", error);
+            if (error) {
+                console.error("Rank lookup RPC failed:", error);
                 return null;
             }
 
-            return data.rank;
+            return data; // rank text
         }
 
         async function updateRank(points) {
@@ -177,13 +174,13 @@
         }
 
         /* ----------------------------------------------------
-           Update Supabase when points change
+           Update Supabase when points change (RPC)
         ---------------------------------------------------- */
         async function updateSupabasePoints(newPoints) {
             let userId = parseInt(localStorage.getItem("userId"));
             if (!userId) return;
 
-            const {data, error} = await supabase.rpc("update_points", {
+            const {error} = await supabase.rpc("update_points", {
                 user_id: userId,
                 new_points: newPoints
             });
@@ -387,3 +384,5 @@
     </script>
 
 </body>
+
+</html>
