@@ -89,7 +89,7 @@
             const {data: rankData, error: rankError} = await supabase
                 .from("rank")
                 .select("minimum_score, maximum_score")
-                .eq("rank_name", userRank)
+                .eq("rank", userRank)
                 .single();
 
             if (rankError || !rankData) {
