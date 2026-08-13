@@ -411,22 +411,23 @@ a {
   vertical-align: middle;
 }
 
-/* Help button (top-right corner) */
+/* Help icon (top-right corner) */
 #helpButton {
-  position: fixed;
-  top: 8px;
-  right: 10px;
-  font-size: 1rem;
-  background: #14233d;
-  padding: 4px 8px;
-  border-radius: 6px;
+  position: static;
+  /* remove fixed positioning */
+  font-size: 26px;
+  /* match other icons */
+  background: none;
+  /* remove button background */
+  padding: 0;
+  /* remove button padding */
+  border-radius: 0;
+  /* remove rounded button shape */
   cursor: pointer;
-  z-index: 9999;
-  transition: 0.2s;
-}
-
-#helpButton:hover {
-  background: #1f3b6f;
+  user-select: none;
+  line-height: 1;
+  /* keeps emoji aligned */
+  transition: transform 0.15s ease;
 }
 
 #specialtyDisplay {
@@ -545,39 +546,45 @@ a {
 }
 
 /* ------------------------------
-   Header Icons (Top Left + Top Right)
+   Header Icons (Corrected Layout)
 ------------------------------ */
-
-/* Hamburger menu (top-left) */
+/* Hamburger menu — fixed top-left */
 .hamburgerIcon {
-  font-size: 28px;
-  cursor: pointer;
   position: absolute;
   top: 10px;
   left: 10px;
+  font-size: 28px;
+  cursor: pointer;
   user-select: none;
   z-index: 1000;
 }
 
-/* Container for right-side icons */
+/* Right-side icon row */
 #topRightIcons {
   position: absolute;
   top: 10px;
   right: 10px;
+
   display: flex;
+  flex-direction: row;
+  align-items: center;
+  /* ensures perfect vertical alignment */
   gap: 15px;
+
   z-index: 1000;
 }
 
 /* Individual icons */
 .topRightIcon {
   font-size: 26px;
+  line-height: 1;
+  /* prevents vertical drift */
   cursor: pointer;
   user-select: none;
   transition: transform 0.15s ease;
 }
 
-/* Small hover animation */
+/* Hover animation */
 .topRightIcon:hover,
 .hamburgerIcon:hover {
   transform: scale(1.15);
