@@ -125,7 +125,7 @@
 
         async function saveField(inputEl, localStorageKey, supabaseColumn) {
             const newValue = inputEl.value.trim();
-            const userId = localStorage.getItem("userId");
+            const userId = parseInt(localStorage.getItem("userId"));  // 🔥 FIXED
 
             localStorage.setItem(localStorageKey, newValue);
 
