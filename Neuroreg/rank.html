@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile</title>
+    <title>Rank</title>
 
     <link rel="stylesheet" href="./mcqcore.css">
     <link rel="stylesheet" href="./rank.css">
@@ -12,9 +12,8 @@
     <style>
         #profileContainer {
             width: 80%;
-            max-width: 500px;
+            max-width: 600px;
             margin: 120px auto 60px auto;
-            /* moved down to clear header */
             background: #ffffff;
             padding: 24px;
             border-radius: 12px;
@@ -27,37 +26,32 @@
             margin-bottom: 24px;
         }
 
-        .profileRow {
-            margin-bottom: 24px;
+        #rankList {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .rankRow {
+            display: grid;
+            grid-template-columns: 60px 1fr 100px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
             font-size: 18px;
-            color: #000;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
         }
 
-        .profileRow strong {
-            margin-bottom: 6px;
+        .rankPosition {
+            font-weight: bold;
+            color: #14233d;
         }
 
-        .editBtn,
-        .saveBtn,
-        .closeBtn {
-            margin-top: 6px;
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
+        .rankNickname {
+            font-weight: 500;
         }
 
-        .editBtn {
-            background: #007bff;
-            color: white;
-        }
-
-        .saveBtn {
-            background: #28a745;
-            color: white;
+        .rankPoints {
+            text-align: right;
+            font-weight: bold;
+            color: #007bff;
         }
 
         .closeBtn {
@@ -65,13 +59,10 @@
             color: white;
             width: 100%;
             margin-top: 20px;
-        }
-
-        input.editField {
-            font-size: 18px;
-            padding: 6px;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
         }
     </style>
 
@@ -82,28 +73,64 @@
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
         /* ----------------------------------------------------
-           Load Profile
+           Load Rank Page
         ---------------------------------------------------- */
-        function loadProfile() {
+        async function loadRankPage() {
             const token = localStorage.getItem("sessionToken");
-
             if (!token) {
                 window.location.href = "login.html";
                 return;
             }
 
-            const nickname = localStorage.getItem("nickname");
-            const scalpelPoints = localStorage.getItem("scalpel_points");
-            const rank = localStorage.getItem("rank");
+            const userRank = localStorage.getItem("rank");
+            document.getElementById("rankHeading").innerText = userRank ?? "Rank";
 
-            document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
-            document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
-            document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
-            document.getElementById("passwordDisplay").innerText = "********";
+            // 1. Get min/max score for this rank
+            const {data: rankData, error: rankError} = await supabase
+                .from("rank")
+                .select("min_points, max_points")
+                .eq("rank_name", userRank)
+                .single();
+
+            if (rankError || !rankData) {
+                console.error("Rank lookup failed:", rankError);
+                return;
+            }
+
+            const {min_points, max_points} = rankData;
+
+            // 2. Get all users in this rank range
+            const {data: users, error: usersError} = await supabase
+                .from("users")
+                .select("nickname, scalpel_points")
+                .gte("scalpel_points", min_points)
+                .lte("scalpel_points", max_points);
+
+            if (usersError) {
+                console.error("User fetch failed:", usersError);
+                return;
+            }
+
+            // 3. Sort descending by points
+            users.sort((a, b) => b.scalpel_points - a.scalpel_points);
+
+            // 4. Render table
+            const container = document.getElementById("rankList");
+            container.innerHTML = "";
+
+            users.forEach((u, index) => {
+                const row = document.createElement("div");
+                row.className = "rankRow";
+                row.innerHTML = `
+                    <div class="rankPosition">${index + 1}</div>
+                    <div class="rankNickname">${u.nickname}</div>
+                    <div class="rankPoints">${u.scalpel_points}</div>
+                `;
+                container.appendChild(row);
+            });
         }
 
-        window.addEventListener("DOMContentLoaded", loadProfile);
-
+        window.addEventListener("DOMContentLoaded", loadRankPage);
     </script>
 </head>
 
@@ -152,11 +179,10 @@
 
     <div id="profileContainer">
 
-        <h2>Rank</h2>
+        <h2 id="rankHeading">Rank</h2>
 
+        <div id="rankList"></div>
 
-
-        <!-- Back button replaces logout -->
         <button class="closeBtn" onclick="window.location.href='index.html'">Back</button>
 
     </div>

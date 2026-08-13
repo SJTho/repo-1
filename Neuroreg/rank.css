@@ -66,3 +66,31 @@ button.closeBtn.backBtn {
     padding: 8px 12px;
     font-size: 16px;
 }
+
+#rankList {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.rankRow {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 18px;
+}
+
+.rankPosition {
+    font-weight: bold;
+    color: #14233d;
+}
+
+.rankNickname {
+    font-weight: 500;
+}
+
+.rankPoints {
+    text-align: right;
+    font-weight: bold;
+    color: #007bff;
+}
