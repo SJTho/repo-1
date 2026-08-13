@@ -70,14 +70,6 @@
     <div id="helpButton" class="topRightIcon" onclick="window.location.href='help.html'">❔</div>
   </div>
 
-  <!-- Top-left home + points + rank -->
-  <div id="topLeftInfo">
-    <div id="pointsValue" class="tinyText" onclick="window.location.href='index.html'">
-      🏠 <span id="pointsNumber"></span>
-    </div>
-    <div id="rankValue" class="tinyText"></div>
-  </div>
-
   <h1>Practice MCQs</h1>
 
   <div id="mcqArea">
@@ -141,41 +133,6 @@
           dropdown.style.display = "none";
         }
       });
-
-      /* -----------------------------------------
-         POINTS + RANK
-      ----------------------------------------- */
-      function getScalpelPoints() {
-        return parseInt(localStorage.getItem("scalpelPoints")) || 0;
-      }
-
-      function setScalpelPoints(amount) {
-        localStorage.setItem("scalpelPoints", String(amount));
-      }
-
-      function getRank(points) {
-        if (points <= 300) return "Observer";
-        if (points <= 600) return "Assistant";
-        if (points <= 900) return "Supervised Scrubbed";
-        if (points <= 1200) return "Supervised Unscrubbed";
-        return "Independent Practice";
-      }
-
-      let previousRank = localStorage.getItem("previousRank") || null;
-
-      function updatePointsDisplay() {
-        const pts = getScalpelPoints();
-        const newRank = getRank(pts);
-
-        document.getElementById("pointsNumber").textContent = pts;
-        document.getElementById("rankValue").textContent = newRank;
-
-        previousRank = newRank;
-        localStorage.setItem("previousRank", newRank);
-      }
-
-      updatePointsDisplay();
-      window.addEventListener("focus", updatePointsDisplay);
 
       /* -----------------------------------------
          SELECT OPTION
@@ -405,8 +362,6 @@
           let newPoints = currentPoints + scalpelDelta;
           localStorage.setItem("scalpelPoints", String(newPoints));
 
-          updatePointsDisplay();
-
           document.getElementById("scoreDisplay").innerHTML =
             `<p><strong>Score:</strong> ${score}/${questions.length}</p>
              <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>
@@ -428,3 +383,5 @@
   </script>
 
 </body>
+
+</html>
