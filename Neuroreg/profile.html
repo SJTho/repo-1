@@ -13,7 +13,8 @@
         #profileContainer {
             width: 80%;
             max-width: 500px;
-            margin: 60px auto;
+            margin: 120px auto 60px auto;
+            /* moved down to clear header */
             background: #ffffff;
             padding: 24px;
             border-radius: 12px;
@@ -28,7 +29,6 @@
 
         .profileRow {
             margin-bottom: 24px;
-            /* increased spacing */
             font-size: 18px;
             color: #000;
             display: flex;
@@ -41,7 +41,8 @@
         }
 
         .editBtn,
-        .saveBtn {
+        .saveBtn,
+        .closeBtn {
             margin-top: 6px;
             padding: 6px 12px;
             border-radius: 6px;
@@ -59,6 +60,13 @@
             color: white;
         }
 
+        .closeBtn {
+            background: #14233d;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
         input.editField {
             font-size: 18px;
             padding: 6px;
@@ -73,17 +81,32 @@
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function logout() {
-            localStorage.removeItem("sessionToken");
-            localStorage.removeItem("nickname");
-            localStorage.removeItem("scalpel_points");
-            localStorage.removeItem("rank");
-            localStorage.removeItem("userId");
+        /* ----------------------------------------------------
+           Load Profile
+        ---------------------------------------------------- */
+        function loadProfile() {
+            const token = localStorage.getItem("sessionToken");
 
-            window.location.href = "login.html";
+            if (!token) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const nickname = localStorage.getItem("nickname");
+            const scalpelPoints = localStorage.getItem("scalpel_points");
+            const rank = localStorage.getItem("rank");
+
+            document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
+            document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
+            document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
+            document.getElementById("passwordDisplay").innerText = "********";
         }
-        window.logout = logout;
 
+        window.addEventListener("DOMContentLoaded", loadProfile);
+
+        /* ----------------------------------------------------
+           Editing Logic
+        ---------------------------------------------------- */
         function enableEdit(fieldId, btnId, saveBtnId) {
             const span = document.getElementById(fieldId);
             const currentValue = span.innerText;
@@ -104,10 +127,8 @@
             const newValue = inputEl.value.trim();
             const userId = localStorage.getItem("userId");
 
-            // Save locally
             localStorage.setItem(localStorageKey, newValue);
 
-            // Save to Supabase
             const {error} = await supabase
                 .from("users")
                 .update({[supabaseColumn]: newValue})
@@ -119,44 +140,18 @@
                 return;
             }
 
-            // Refresh page
             window.location.reload();
         }
 
-        function loadProfile() {
-            const token = localStorage.getItem("sessionToken");
-
-            if (!token) {
-                window.location.href = "login.html";
-                return;
-            }
-
-            const nickname = localStorage.getItem("nickname");
-            const scalpelPoints = localStorage.getItem("scalpel_points");
-            const rank = localStorage.getItem("rank");
-
-            document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
-            document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
-            document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
-            document.getElementById("passwordDisplay").innerText = "********";
-        }
-
-        window.loadProfile = loadProfile;
-        window.addEventListener("DOMContentLoaded", loadProfile);
-
-        // Nickname editing
         window.startEditNickname = () => {
-            const input = enableEdit("nicknameDisplay", "editNicknameBtn", "saveNicknameBtn");
-            window.nicknameInput = input;
+            window.nicknameInput = enableEdit("nicknameDisplay", "editNicknameBtn", "saveNicknameBtn");
         };
         window.saveNickname = () => {
             saveField(window.nicknameInput, "nickname", "nickname");
         };
 
-        // Password editing
         window.startEditPassword = () => {
-            const input = enableEdit("passwordDisplay", "editPasswordBtn", "savePasswordBtn");
-            window.passwordInput = input;
+            window.passwordInput = enableEdit("passwordDisplay", "editPasswordBtn", "savePasswordBtn");
         };
         window.savePassword = () => {
             saveField(window.passwordInput, "password_hash", "password_hash");
@@ -165,6 +160,47 @@
 </head>
 
 <body>
+
+    <!-- Top-left hamburger -->
+    <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+
+    <!-- Dropdown Menu -->
+    <div id="hamburgerMenuDropdown" class="dropdownMenu">
+        <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
+        <div class="dropdownItem" onclick="window.location.href='formaltestcore.html'">💯 Examination</div>
+
+        <div class="dropdownSeparator"></div>
+
+        <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
+        <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
+
+        <div class="dropdownSeparator"></div>
+
+        <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
+    </div>
+
+    <!-- Top-right icons -->
+    <div id="topRightIcons">
+        <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
+        <div id="profileIcon" class="topRightIcon" onclick="window.location.href='profile.html'">🧑‍⚕️</div>
+        <div id="helpButton" class="topRightIcon" onclick="window.location.href='help.html'">❔</div>
+    </div>
+
+    <script>
+        /* Dropdown toggle */
+        const hamburger = document.getElementById("hamburgerMenu");
+        const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+        hamburger.addEventListener("click", () => {
+            dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+    </script>
 
     <div id="profileContainer">
 
@@ -194,7 +230,8 @@
             <span id="rankDisplay"></span>
         </div>
 
-        <button class="closeBtn" onclick="logout()">Logout</button>
+        <!-- Back button replaces logout -->
+        <button class="closeBtn" onclick="window.location.href='index.html'">Back</button>
 
     </div>
 

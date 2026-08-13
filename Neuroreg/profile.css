@@ -44,3 +44,25 @@
 #profileContainer label {
     color: #000 !important;
 }
+
+.backBtn {
+    background: #14233d;
+    color: white;
+    width: 120px;
+    /* narrower button */
+    margin: 20px auto 0;
+    /* centered */
+    display: block;
+    /* ensures centering works */
+    padding: 8px 12px;
+    font-size: 16px;
+}
+
+/* Override closeBtn width for the Back button */
+button.closeBtn.backBtn {
+    width: 120px;
+    margin: 20px auto 0;
+    display: block;
+    padding: 8px 12px;
+    font-size: 16px;
+}
