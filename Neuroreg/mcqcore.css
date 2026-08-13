@@ -589,3 +589,41 @@ a {
 .hamburgerIcon:hover {
   transform: scale(1.15);
 }
+
+/* Dropdown menu container */
+.dropdownMenu {
+  position: absolute;
+  top: 50px;
+  left: 10px;
+  background: #14233d;
+  border: 1px solid #1f3b6f;
+  border-radius: 8px;
+  padding: 10px 0;
+  width: 180px;
+
+  display: none;
+  /* hidden by default */
+  flex-direction: column;
+
+  z-index: 2000;
+}
+
+/* Dropdown items */
+.dropdownItem {
+  padding: 10px 15px;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dropdownItem:hover {
+  background: #1f3b6f;
+}
+
+/* Separator line */
+.dropdownSeparator {
+  height: 1px;
+  background: #2a3f66;
+  margin: 8px 0;
+}

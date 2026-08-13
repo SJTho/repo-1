@@ -14,6 +14,21 @@
     <!-- Top-left hamburger -->
     <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
 
+    <!-- Hamburger Dropdown Menu -->
+    <div id="hamburgerMenuDropdown" class="dropdownMenu">
+        <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
+        <div class="dropdownItem" onclick="window.location.href='formaltestcore.html'">💯 Examination</div>
+
+        <div class="dropdownSeparator"></div>
+
+        <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
+        <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
+
+        <div class="dropdownSeparator"></div>
+
+        <div class="dropdownItem" onclick="logout()">🚪 Logout</div>
+    </div>
+
     <!-- Top-right icons -->
     <div id="topRightIcons">
         <div id="rankIcon" class="topRightIcon">🏅</div>
@@ -76,10 +91,6 @@
         /* ----------------------------------------------------
            Navigation
         ---------------------------------------------------- */
-        document.getElementById("hamburgerMenu").addEventListener("click", () => {
-            window.location.href = "profile.html";
-        });
-
         document.getElementById("helpButton").addEventListener("click", () => {
             window.location.href = "help.html";
         });
@@ -91,6 +102,36 @@
         document.getElementById("rankIcon").addEventListener("click", () => {
             window.location.href = "rank.html";
         });
+
+        /* ----------------------------------------------------
+           Hamburger Dropdown Toggle
+        ---------------------------------------------------- */
+        const hamburger = document.getElementById("hamburgerMenu");
+        const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+        hamburger.addEventListener("click", () => {
+            dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+
+        /* ----------------------------------------------------
+           Logout
+        ---------------------------------------------------- */
+        function logout() {
+            localStorage.removeItem("sessionToken");
+            localStorage.removeItem("nickname");
+            localStorage.removeItem("scalpel_points");
+            localStorage.removeItem("rank");
+            localStorage.removeItem("userId");
+
+            window.location.reload();
+        }
+        window.logout = logout;
 
         /* ----------------------------------------------------
            Rank System
