@@ -180,8 +180,10 @@
            Update Supabase when points change
         ---------------------------------------------------- */
         async function updateSupabasePoints(newPoints) {
-            const userId = localStorage.getItem("userId");
+            let userId = localStorage.getItem("userId");
             if (!userId) return;
+
+            userId = parseInt(userId);   // 🔥 CRITICAL FIX
 
             const {error} = await supabase
                 .from("users")
@@ -192,6 +194,7 @@
                 console.error("Failed to update points:", error);
                 return;
             }
+            console.log(typeof userId, userId);
 
             updateRank(newPoints);
         }
