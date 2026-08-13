@@ -180,21 +180,18 @@
            Update Supabase when points change
         ---------------------------------------------------- */
         async function updateSupabasePoints(newPoints) {
-            let userId = localStorage.getItem("userId");
+            let userId = parseInt(localStorage.getItem("userId"));
             if (!userId) return;
 
-            userId = parseInt(userId);   // 🔥 CRITICAL FIX
-
-            const {error} = await supabase
-                .from("users")
-                .update({scalpel_points: newPoints})
-                .eq("id", userId);
+            const {data, error} = await supabase.rpc("update_points", {
+                user_id: userId,
+                new_points: newPoints
+            });
 
             if (error) {
-                console.error("Failed to update points:", error);
+                console.error("RPC update failed:", error);
                 return;
             }
-            console.log(typeof userId, userId);
 
             updateRank(newPoints);
         }
