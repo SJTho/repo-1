@@ -11,21 +11,15 @@
 
 <body>
 
-    <!-- Top-left points + rank -->
-    <div id="topLeftInfo" style="cursor:pointer;">
-        <div id="nicknameDisplay" class="tinyText">
-        </div>
+    <!-- Top-left hamburger -->
+    <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
 
-        <div id="pointsValue" class="tinyText">
-            🧑‍⚕️ <span id="pointsNumber"></span>
-        </div>
-
-        <div id="rankValue" class="tinyText">
-        </div>
+    <!-- Top-right icons -->
+    <div id="topRightIcons">
+        <div id="rankIcon" class="topRightIcon">🏅</div>
+        <div id="profileIcon" class="topRightIcon">🧑‍⚕️</div>
+        <div id="helpButton" class="topRightIcon">❓</div>
     </div>
-
-    <!-- Top-right help button -->
-    <div id="helpButton">❓</div>
 
     <h1>NeuroReg App</h1>
 
@@ -64,7 +58,7 @@
     <script type="module">
 
         /* ----------------------------------------------------
-           Supabase Connection (only used for updates)
+           Supabase Connection
         ---------------------------------------------------- */
         import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
         import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
@@ -72,14 +66,30 @@
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
         /* ----------------------------------------------------
+           Redirect if not logged in
+        ---------------------------------------------------- */
+        const nickname = localStorage.getItem("nickname");
+        if (!nickname) {
+            window.location.href = "login.html";
+        }
+
+        /* ----------------------------------------------------
            Navigation
         ---------------------------------------------------- */
+        document.getElementById("hamburgerMenu").addEventListener("click", () => {
+            window.location.href = "profile.html";
+        });
+
         document.getElementById("helpButton").addEventListener("click", () => {
             window.location.href = "help.html";
         });
 
-        document.getElementById("topLeftInfo").addEventListener("click", () => {
+        document.getElementById("profileIcon").addEventListener("click", () => {
             window.location.href = "profile.html";
+        });
+
+        document.getElementById("rankIcon").addEventListener("click", () => {
+            window.location.href = "rank.html";
         });
 
         /* ----------------------------------------------------
@@ -127,17 +137,11 @@
         }
 
         /* ----------------------------------------------------
-           Load Profile Info from LocalStorage
+           Load Profile Info
         ---------------------------------------------------- */
         function loadLocalProfile() {
             const points = parseInt(localStorage.getItem("scalpel_points")) || 0;
             const rank = getRank(points);
-            const nickname = localStorage.getItem("nickname");
-
-
-            document.getElementById("pointsNumber").textContent = points;
-            document.getElementById("rankValue").textContent = rank;
-            document.getElementById("nicknameDisplay").textContent = nickname;
 
             if (previousRank && rankIndex(rank) > rankIndex(previousRank)) {
                 showRankUpAnimation(rank);
@@ -170,7 +174,7 @@
            Daily Reward (+10 per day)
         ---------------------------------------------------- */
         function giveDailyReward() {
-            const today = new Date().toISOString().split("T")[0];
+            const today = new Date().toLocaleDateString("en-CA");
             const last = localStorage.getItem("lastDailyReward");
 
             if (last !== today) {
