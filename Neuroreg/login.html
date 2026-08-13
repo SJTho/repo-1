@@ -49,15 +49,8 @@
             font-weight: 600;
         }
 
-        /* Narrow Back button override */
-        button.closeBtn.backBtn {
-            width: 120px;
-            margin: 20px auto 0;
-            display: block;
-            padding: 8px 12px;
-            font-size: 16px;
-            background: #14233d;
-            color: white;
+        #authContainer h2 {
+            color: #000 !important;
         }
     </style>
 
@@ -107,7 +100,7 @@
         }
 
         /* ----------------------------------------------------
-           Login RPC + Rank Lookup
+           Login RPC + Rank Lookup RPC
         ---------------------------------------------------- */
         async function login() {
             const nickname = document.getElementById("loginNickname").value.trim();
@@ -148,27 +141,19 @@
             localStorage.setItem("userId", user.id);
 
             /* ----------------------------------------------------
-               NEW: Fetch rank based on scalpel_points
+               NEW: Fetch rank using your RPC
             ---------------------------------------------------- */
-            const points = user.scalpel_points;
-
-            const {data: rankData, error: rankError} = await supabase
-                .from("rank")
-                .select("rank")
-                .lte("minimum_score", points)
-                .gte("maximum_score", points)
-                .maybeSingle();
+            const {data: rankData, error: rankError} = await supabase.rpc(
+                "get_rank_for_points",
+                {points: user.scalpel_points}
+            );
 
             if (rankError) {
                 console.error("Rank lookup failed:", rankError);
                 localStorage.setItem("rank", "Unranked");
             } else {
-                localStorage.setItem("rank", rankData?.rank || "Unranked");
+                localStorage.setItem("rank", rankData || "Unranked");
             }
-
-            console.log(rankData?.rank);
-            return;
-
 
             /* Redirect after storing rank */
             window.location.href = "index.html";
@@ -229,9 +214,6 @@
 
             <div class="switchLink" onclick="showLogin()">Already have an account?</div>
         </div>
-
-        <!-- Back button -->
-        <button class="closeBtn backBtn" onclick="window.location.href='index.html'">Back</button>
 
     </div>
 
