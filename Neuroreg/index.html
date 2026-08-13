@@ -113,6 +113,7 @@
             dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
         });
 
+
         document.addEventListener("click", (event) => {
             if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
                 dropdown.style.display = "none";

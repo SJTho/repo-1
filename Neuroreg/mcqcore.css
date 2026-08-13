@@ -615,8 +615,19 @@ a {
   padding: 10px 15px;
   font-size: 16px;
   color: white;
+
+  text-align: left;
+  /* left align text */
+  width: 100%;
+  /* full width clickable */
   cursor: pointer;
   user-select: none;
+
+  display: flex;
+  /* align icon + text */
+  gap: 10px;
+  /* spacing between icon and text */
+  align-items: center;
 }
 
 .dropdownItem:hover {
