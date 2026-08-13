@@ -170,17 +170,6 @@
         window.addEventListener("DOMContentLoaded", loadProfile);
 
         /* ----------------------------------------------------
-           SHA‑256 Password Hashing
-        ---------------------------------------------------- */
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password);
-            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-        }
-
-        /* ----------------------------------------------------
            Editing Logic
         ---------------------------------------------------- */
         function enableEdit(fieldId, btnId, saveBtnId) {
@@ -245,7 +234,7 @@
         };
 
         /* ----------------------------------------------------
-           Password Editing (with hashing)
+           Password Editing (raw → RPC hashes server-side)
         ---------------------------------------------------- */
         window.startEditPassword = () => {
             window.passwordInput = enableEdit("passwordDisplay", "editPasswordBtn", "savePasswordBtn");
@@ -253,9 +242,7 @@
 
         window.savePassword = async () => {
             const rawPassword = window.passwordInput.value.trim();
-            const hashed = await hashPassword(rawPassword);
-
-            saveField({value: hashed}, "password_hash", "password_hash");
+            saveField({value: rawPassword}, "password_hash", "password_hash");
         };
     </script>
 </head>
