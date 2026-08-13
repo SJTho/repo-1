@@ -214,7 +214,26 @@
         }
 
         giveDailyReward();
+        /* ----------------------------------------------------
+           Rank-Up Celebration Animation
+        ---------------------------------------------------- */
+        function showRankUpAnimation(newRank) {
+            const banner = document.getElementById("rankUpBanner");
+            if (!banner) return;
 
+            banner.textContent = `🎉 Rank Up! You are now: ${newRank}`;
+            banner.style.display = "block";
+            banner.style.background = "#4CAF50";
+            banner.style.color = "#fff";
+            banner.style.padding = "12px";
+            banner.style.margin = "10px auto";
+            banner.style.borderRadius = "8px";
+            banner.style.textAlign = "center";
+
+            setTimeout(() => {
+                banner.style.display = "none";
+            }, 4000);
+        }
         /* ----------------------------------------------------
            Temporary +50 Points Button
         ---------------------------------------------------- */
