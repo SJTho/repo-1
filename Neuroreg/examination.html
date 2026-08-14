@@ -74,7 +74,8 @@
       const allowed = await checkAccess();
       if (!allowed) return;
 
-      // ⭐ Lock exam 20 seconds after full page load
+      // ⭐ Use the SAME update code that worked in formaltestinstructions
+      // but trigger it 20 seconds after the exam page fully loads
       window.addEventListener("load", () => {
         setTimeout(() => {
           lockExam();
