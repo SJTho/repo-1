@@ -32,50 +32,74 @@
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
     import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
+    console.log("🔵 examination.html: Initialising Supabase client…");
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const sessionToken = localStorage.getItem("sessionToken");
     const userId = parseInt(localStorage.getItem("userId"));
     const eventId = parseInt(localStorage.getItem("currentEventId"));
 
+    console.log("🔵 examination.html: sessionToken =", sessionToken);
+    console.log("🔵 examination.html: userId =", userId);
+    console.log("🔵 examination.html: eventId =", eventId);
+
     // Must be logged in
     if (!sessionToken) {
+      console.log("🔴 No session token — redirecting to login.html");
       window.location.href = "login.html";
     }
 
-    // Server-side enforcement:
-    // examstarted === true  -> BLOCK access
-    // examstarted === false -> ALLOW access
     async function checkServerLock() {
+      console.log("🔵 Checking eventregistration.examstarted…");
+
       const {data, error} = await supabase
         .from("eventregistration")
-        .select("examstarted")
+        .select("*")
         .eq("userid", userId)
         .eq("eventid", eventId)
         .maybeSingle();
 
-      // Block if:
-      // - error
-      // - no row
-      // - examstarted is true (already used this exam)
-      if (error || !data || data.examstarted === true) {
+      console.log("🔵 Supabase SELECT result:", {data, error});
+
+      if (error) {
+        console.log("🔴 SELECT error — redirecting:", error);
         window.location.href = "formaltestinstructions.html";
         return;
       }
 
-      // If examstarted === false, user is allowed in.
-      // Now immediately mark examstarted = true to lock future access.
+      if (!data) {
+        console.log("🔴 No eventregistration row found — redirecting");
+        window.location.href = "formaltestinstructions.html";
+        return;
+      }
+
+      if (data.examstarted === true) {
+        console.log("🔴 examstarted === true — user already used exam — redirecting");
+        window.location.href = "formaltestinstructions.html";
+        return;
+      }
+
+      console.log("🟢 examstarted === false — user allowed to enter exam");
+
+      console.log("🔵 Attempting to UPDATE examstarted → true…");
+
       const {error: updateError} = await supabase
         .from("eventregistration")
         .update({examstarted: true})
         .eq("userid", userId)
         .eq("eventid", eventId);
 
+      console.log("🔵 UPDATE result:", updateError ? updateError : "Success");
+
       if (updateError) {
-        console.error("Failed to update examstarted:", updateError);
+        console.log("🔴 UPDATE failed:", updateError);
+      } else {
+        console.log("🟢 UPDATE succeeded — examstarted is now TRUE");
       }
     }
 
+    console.log("🔵 Running checkServerLock()…");
     checkServerLock();
   </script>
 
