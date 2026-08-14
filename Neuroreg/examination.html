@@ -27,9 +27,9 @@
 <body>
 
   <!-- LOGIN + SERVER-SIDE EXAM ACCESS CHECK -->
-  <<script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+  <script type="module">
+    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
     console.log("🔵 examination.html: Initialising Supabase client…");
 
@@ -44,165 +44,172 @@
     console.log("🔵 eventId =", eventId);
 
     if (!sessionToken) {
-    console.log("🔴 No session token — redirecting to login.html");
-    window.location.href = "login.html";
+      console.log("🔴 No session token — redirecting to login.html");
+      window.location.href = "login.html";
     }
 
     async function checkAccess() {
-    console.log("🔵 Checking examstarted status…");
+      console.log("🔵 Checking examstarted status…");
 
-    const { data, error } = await supabase
-    .from("eventregistration")
-    .select("*")
-    .eq("userid", userId)
-    .eq("eventid", eventId)
-    .maybeSingle();
+      const {data, error} = await supabase
+        .from("eventregistration")
+        .select("*")
+        .eq("userid", userId)
+        .eq("eventid", eventId)
+        .maybeSingle();
 
-    console.log("🔵 SELECT result:", { data, error });
+      console.log("🔵 SELECT result:", {data, error});
 
-    if (error || !data) {
-    console.log("🔴 SELECT error or no row — blocking access");
-    window.location.href = "formaltestinstructions.html";
-    return false;
-    }
+      if (error || !data) {
+        console.log("🔴 SELECT error or no row — blocking access");
+        window.location.href = "formaltestinstructions.html";
+        return false;
+      }
 
-    if (data.examstarted === true) {
-    console.log("🔴 examstarted === true — blocking access");
-    window.location.href = "formaltestinstructions.html";
-    return false;
-    }
+      if (data.examstarted === true) {
+        console.log("🔴 examstarted === true — blocking access");
+        window.location.href = "formaltestinstructions.html";
+        return false;
+      }
 
-    console.log("🟢 examstarted === false — access allowed");
-    return true;
+      console.log("🟢 examstarted === false — access allowed");
+      return true;
     }
 
     async function lockExam() {
-    console.log("🔵 Attempting to UPDATE examstarted → true…");
+      console.log("🔵 Attempting to UPDATE examstarted → true…");
 
-    const { data, error, count } = await supabase
-    .from("eventregistration")
-    .update({ examstarted: true })
-    .eq("userid", userId)
-    .eq("eventid", eventId)
-    .select("*", { count: "exact" });
+      const {data, error, count} = await supabase
+        .from("eventregistration")
+        .update({examstarted: true})
+        .eq("userid", userId)
+        .eq("eventid", eventId)
+        .select("*", {count: "exact"});
 
-    console.log("🔵 UPDATE response:", { data, error, count });
+      console.log("🔵 UPDATE response:", {data, error, count});
 
-    if (error) {
-    console.log("🔴 UPDATE failed:", error);
-    } else if (count === 0) {
-    console.log("🔴 UPDATE succeeded BUT 0 ROWS UPDATED — RLS or WHERE clause mismatch");
-    } else {
-    console.log("🟢 UPDATE succeeded — examstarted is now TRUE");
-    }
+      if (error) {
+        console.log("🔴 UPDATE failed:", error);
+      } else if (count === 0) {
+        console.log("🔴 UPDATE succeeded BUT 0 ROWS UPDATED — RLS or WHERE clause mismatch");
+      } else {
+        console.log("🟢 UPDATE succeeded — examstarted is now TRUE");
+      }
     }
 
     (async () => {
-    console.log("🔵 Running checkAccess()…");
+      console.log("🔵 Running checkAccess()…");
 
-    const allowed = await checkAccess();
-    if (!allowed) return;
+      const allowed = await checkAccess();
+      if (!allowed) return;
 
-    console.log("🟢 Access granted — waiting for page load…");
+      console.log("🟢 Access granted — waiting for DOMContentLoaded…");
 
-    window.addEventListener("load", () => {
-    console.log("🟢 Page fully loaded — starting 20-second timer…");
+      // ⭐ Reliable event
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("🟢 DOMContentLoaded fired — starting 20-second timer…");
 
-    setTimeout(() => {
-    console.log("🟢 20 seconds elapsed — calling lockExam()…");
-    lockExam();
-    }, 20000);
-    });
+        setTimeout(() => {
+          console.log("🟢 20 seconds elapsed — calling lockExam()…");
+          lockExam();
+        }, 20000);
+      });
+
+      // ⭐ Backup timer (fires even if DOMContentLoaded fails)
+      setTimeout(() => {
+        console.log("🟡 Backup timer fired — calling lockExam()…");
+        lockExam();
+      }, 25000);
     })();
-    </script>
+  </script>
 
-    <!-- Top-left hamburger -->
-    <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+  <!-- Top-left hamburger -->
+  <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
 
-    <!-- Dropdown Menu -->
-    <div id="hamburgerMenuDropdown" class="dropdownMenu">
-      <div class="dropdownItem" data-target="mcqcore.html">🧠 Test yourself</div>
+  <!-- Dropdown Menu -->
+  <div id="hamburgerMenuDropdown" class="dropdownMenu">
+    <div class="dropdownItem" data-target="mcqcore.html">🧠 Test yourself</div>
 
-      <div class="dropdownSeparator"></div>
+    <div class="dropdownSeparator"></div>
 
-      <div class="dropdownItem" data-target="index.html">🏠 Home</div>
-      <div class="dropdownItem" data-target="profile.html">🧑‍⚕️ Profile</div>
-      <div class="dropdownItem" data-target="rank.html">🏅 Rank</div>
+    <div class="dropdownItem" data-target="index.html">🏠 Home</div>
+    <div class="dropdownItem" data-target="profile.html">🧑‍⚕️ Profile</div>
+    <div class="dropdownItem" data-target="rank.html">🏅 Rank</div>
 
-      <div class="dropdownSeparator"></div>
+    <div class="dropdownSeparator"></div>
 
-      <div class="dropdownItem" data-target="login.html">🚪 Logout</div>
-    </div>
+    <div class="dropdownItem" data-target="login.html">🚪 Logout</div>
+  </div>
 
-    <!-- Top-right countdown clock -->
-    <div id="topRightClock">03:00:00</div>
+  <!-- Top-right countdown clock -->
+  <div id="topRightClock">03:00:00</div>
 
-    <script>
-      const hamburger = document.getElementById("hamburgerMenu");
-      const dropdown = document.getElementById("hamburgerMenuDropdown");
+  <script>
+    const hamburger = document.getElementById("hamburgerMenu");
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
 
-      hamburger.addEventListener("click", () => {
-        dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
-      });
+    hamburger.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    });
 
-      document.addEventListener("click", (event) => {
-        if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
-          dropdown.style.display = "none";
-        }
-      });
-
-      function confirmExitExam() {
-        return confirm(
-          "If you leave this page you will NOT be allowed back into the examination.\n\nDo you want to continue?"
-        );
+    document.addEventListener("click", (event) => {
+      if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = "none";
       }
+    });
 
-      document.querySelectorAll("#hamburgerMenuDropdown .dropdownItem")
-        .forEach(item => {
-          item.addEventListener("click", () => {
-            const target = item.dataset.target;
-            if (confirmExitExam()) {
-              window.location.href = target;
-            }
-          });
+    function confirmExitExam() {
+      return confirm(
+        "If you leave this page you will NOT be allowed back into the examination.\n\nDo you want to continue?"
+      );
+    }
+
+    document.querySelectorAll("#hamburgerMenuDropdown .dropdownItem")
+      .forEach(item => {
+        item.addEventListener("click", () => {
+          const target = item.dataset.target;
+          if (confirmExitExam()) {
+            window.location.href = target;
+          }
         });
-    </script>
-
-    <h1 id="combinedHeading"></h1>
-
-    <div class="card">
-      <h2>Page under development</h2>
-    </div>
-
-    <div id="buttonRow">
-      <button id="closeBtn" class="actionBtn">Back</button>
-    </div>
-
-    <script>
-      const storedTitle = localStorage.getItem("currentEventTitle");
-      document.getElementById("combinedHeading").textContent = storedTitle;
-
-      let remainingSeconds = 3 * 60 * 60;
-
-      function updateClock() {
-        const hours = String(Math.floor(remainingSeconds / 3600)).padStart(2, "0");
-        const minutes = String(Math.floor((remainingSeconds % 3600) / 60)).padStart(2, "0");
-        const seconds = String(remainingSeconds % 60).padStart(2, "0");
-
-        document.getElementById("topRightClock").textContent = `${hours}:${minutes}:${seconds}`;
-
-        if (remainingSeconds > 0) remainingSeconds--;
-      }
-
-      updateClock();
-      setInterval(updateClock, 1000);
-
-      document.getElementById("closeBtn").addEventListener("click", () => {
-        if (confirmExitExam()) {
-          window.history.back();
-        }
       });
-    </script>
+  </script>
+
+  <h1 id="combinedHeading"></h1>
+
+  <div class="card">
+    <h2>Page under development</h2>
+  </div>
+
+  <div id="buttonRow">
+    <button id="closeBtn" class="actionBtn">Back</button>
+  </div>
+
+  <script>
+    const storedTitle = localStorage.getItem("currentEventTitle");
+    document.getElementById("combinedHeading").textContent = storedTitle;
+
+    let remainingSeconds = 3 * 60 * 60;
+
+    function updateClock() {
+      const hours = String(Math.floor(remainingSeconds / 3600)).padStart(2, "0");
+      const minutes = String(Math.floor((remainingSeconds % 3600) / 60)).padStart(2, "0");
+      const seconds = String(remainingSeconds % 60).padStart(2, "0");
+
+      document.getElementById("topRightClock").textContent = `${hours}:${minutes}:${seconds}`;
+
+      if (remainingSeconds > 0) remainingSeconds--;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    document.getElementById("closeBtn").addEventListener("click", () => {
+      if (confirmExitExam()) {
+        window.history.back();
+      }
+    });
+  </script>
 
 </body>
 
