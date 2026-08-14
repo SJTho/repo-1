@@ -4,20 +4,196 @@
 <head>
   <meta charset="UTF-8">
   <meta-name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upcoming Events</title>
+    <title>Events</title>
 
     <link rel="stylesheet" href="mcqcore.css">
+
+    <style>
+      .closedMsg {
+        color: red;
+        font-weight: bold;
+      }
+    </style>
+
+    <script type="module">
+      import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+      import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      /* ----------------------------------------------------
+         LOGIN REDIRECT
+      ---------------------------------------------------- */
+      const sessionToken = localStorage.getItem("sessionToken");
+      if (!sessionToken) {
+        window.location.href = "login.html";
+      }
+
+      const userId = parseInt(localStorage.getItem("userId"));
+
+      /* ----------------------------------------------------
+         TIME FORMATTER (HH:MM)
+      ---------------------------------------------------- */
+      function formatTime(timeString) {
+        return timeString.slice(0, 5); // "09:00"
+      }
+
+      /* ----------------------------------------------------
+         CHECK REGISTRATION (Supabase)
+      ---------------------------------------------------- */
+      async function isRegistered(ev) {
+        if (!userId) return false;
+
+        const {data, error} = await supabase
+          .from("eventregistration")
+          .select("*")
+          .eq("userid", userId)
+          .eq("eventid", ev.eventid);
+
+        if (error) {
+          console.error(error);
+          return false;
+        }
+
+        return data && data.length > 0;
+      }
+
+      /* ----------------------------------------------------
+         REGISTER FOR EVENT (Supabase)
+      ---------------------------------------------------- */
+      async function registerForEvent(ev) {
+        if (!userId) {
+          alert("You must be logged in to register.");
+          return;
+        }
+
+        const {data: existing, error: checkError} = await supabase
+          .from("eventregistration")
+          .select("*")
+          .eq("userid", userId)
+          .eq("eventid", ev.eventid);
+
+        if (checkError) {
+          console.error(checkError);
+          alert("Failed to check registration.");
+          return;
+        }
+
+        if (existing && existing.length > 0) {
+          alert("You are already registered for this event.");
+          return;
+        }
+
+        const {error: insertError} = await supabase
+          .from("eventregistration")
+          .insert({
+            userid: userId,
+            eventid: ev.eventid
+          });
+
+        if (insertError) {
+          console.error(insertError);
+          alert("Failed to register for event.");
+          return;
+        }
+
+        // 🔥 No confirmation box — just refresh
+        location.reload();
+      }
+
+      /* ----------------------------------------------------
+         LIVE CHECK
+      ---------------------------------------------------- */
+      function isEventLive(ev) {
+        const now = new Date();
+        const start = new Date(ev.eventdate + "T" + formatTime(ev.eventstarttime));
+        const end = new Date(ev.eventdate + "T" + formatTime(ev.eventendtime));
+        return now >= start && now <= end;
+      }
+
+      /* ----------------------------------------------------
+         LOAD EVENTS FROM SUPABASE
+      ---------------------------------------------------- */
+      async function loadEvents() {
+        const container = document.getElementById("eventsContainer");
+
+        const {data: events, error} = await supabase
+          .from("events")
+          .select("eventid, eventtitle, eventdate, eventstarttime, eventendtime")
+          .order("eventdate", {ascending: true});
+
+        if (error) {
+          console.error(error);
+          container.innerHTML = "<p>Failed to load events.</p>";
+          return;
+        }
+
+        if (!events || events.length === 0) {
+          container.innerHTML = "<p>No upcoming events.</p>";
+          return;
+        }
+
+        for (const ev of events) {
+          const ukDate = new Date(ev.eventdate).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+          });
+
+          const already = await isRegistered(ev);
+          const live = isEventLive(ev);
+
+          const now = new Date();
+          const eventEnd = new Date(ev.eventdate + "T" + formatTime(ev.eventendtime));
+          const closed = now > eventEnd;
+
+          const card = document.createElement("div");
+          card.className = "eventCard";
+
+          card.innerHTML = `
+                    <h3>${ev.eventtitle}</h3>
+                    <p><strong>Date:</strong> ${ukDate}</p>
+                    <p><strong>Start time:</strong> Available between ${formatTime(ev.eventstarttime)} and ${formatTime(ev.eventendtime)}</p>
+
+                    ${closed
+              ? `<p class="closedMsg">Closed</p>`
+              : already
+                ? (live
+                  ? `<button class="registerBtn startBtn">Start</button>`
+                  : `<p class="alreadyRegisteredMsg">You have already registered</p>`
+                )
+                : `<button class="registerBtn">Register</button>`
+            }
+                `;
+
+          if (!closed && !already) {
+            card.querySelector(".registerBtn").addEventListener("click", async () => {
+              await registerForEvent(ev);
+            });
+          }
+
+          if (!closed && already && live) {
+            card.querySelector(".startBtn").addEventListener("click", () => {
+
+              // ⭐ Store event details for formaltestinstructions.html
+              localStorage.setItem("currentEventId", ev.eventid);
+              localStorage.setItem("currentEventTitle", ev.eventtitle);
+              localStorage.setItem("currentEventStart", formatTime(ev.eventstarttime));
+              localStorage.setItem("currentEventFinish", formatTime(ev.eventendtime));
+
+              window.location.href = "formaltestinstructions.html";
+            });
+          }
+
+          container.appendChild(card);
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", loadEvents);
+    </script>
 </head>
 
 <body>
-
-  <!-- LOGIN REDIRECT -->
-  <script>
-    const sessionToken = localStorage.getItem("sessionToken");
-    if (!sessionToken) {
-      window.location.href = "login.html";
-    }
-  </script>
 
   <!-- Top-left hamburger -->
   <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
@@ -42,7 +218,7 @@
     <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
     <div id="homeIcon" class="topRightIcon" onclick="window.location.href='index.html'">🏠</div>
     <div id="profileIcon" class="topRightIcon" onclick="window.location.href='profile.html'">🧑‍⚕️</div>
-    <div id="helpButton" class="topRightIcon">❔</div>
+    <div id="helpButton" class="topRightIcon" onclick="window.location.href='help.html'">❔</div>
   </div>
 
   <script>
@@ -61,80 +237,10 @@
     });
   </script>
 
-  <!-- Event Title Heading -->
-  <h1 id="combinedHeading"></h1>
+  <h1>Events</h1>
 
-  <div class="card">
-    <h2>Instructions</h2>
-
-    <ol class="instructionsList">
-      <li>You may only complete this examination once.</li>
-      <li id="timeWindowText">You must begin your attempt between the event’s start and end time.</li>
-      <li>You will have three hours from the moment you click start now to submit your attempt.</li>
-      <li>Peer comparitors and question‑level feedback will become available here the day after the examination.</li>
-    </ol>
-  </div>
-
-  <div class="card">
-    <h2>Formative v Summative</h2>
-
-    <p>
-      This examination is informal and designed to provide peer averages as a form of self-assessment.
-      It is not invigilated and should not be used as proof of competence.
-    </p>
-
-    <p>
-      All your data including your name are stored locally on your device, not within the app.
-      If you would like a PDF certificate of participation, please enter your name in the space provided below.
-    </p>
-
-    <label for="participantName">Name for certificate (optional):</label><br>
-    <input type="text" id="participantName" name="participantName" placeholder="Enter your name">
-  </div>
-
-  <!-- Buttons -->
-  <div id="buttonRow">
-    <button id="startNowBtn" class="actionBtn">Start Now</button>
-    <button id="closeBtn" class="actionBtn">Back</button>
-  </div>
-
-  <script>
-    /* HELP BUTTON */
-    document.getElementById("helpButton").addEventListener("click", () => {
-      window.location.href = "help.html";
-    });
-
-    /* EVENT TITLE HEADING */
-    const storedTitle = localStorage.getItem("currentEventTitle") || "Event";
-    document.getElementById("combinedHeading").textContent = storedTitle;
-
-    /* EVENT TIME WINDOW */
-    const start = localStorage.getItem("currentEventStart");
-    const finish = localStorage.getItem("currentEventFinish");
-
-    if (start && finish) {
-      document.getElementById("timeWindowText").textContent =
-        `You must begin your attempt between ${start} and ${finish}.`;
-    }
-
-    /* PARTICIPANT NAME */
-    const nameInput = document.getElementById("participantName");
-    const storedName = localStorage.getItem("participantName");
-    if (storedName) nameInput.value = storedName;
-
-    nameInput.addEventListener("input", () => {
-      localStorage.setItem("participantName", nameInput.value);
-    });
-
-    /* START NOW → formaltestcore.html */
-    document.getElementById("startNowBtn").addEventListener("click", () => {
-      window.location.href = "formaltestcore.html";
-    });
-
-    /* BACK BUTTON */
-    document.getElementById("closeBtn").addEventListener("click", () => {
-      window.history.back();
-    });
-  </script>
+  <div id="eventsContainer"></div>
 
 </body>
+
+</html>
