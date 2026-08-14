@@ -84,8 +84,8 @@
     </p>
 
     <p>
-      All your data including your name are stored locally on your device, not within the app.
-      If you would like a PDF certificate of participation, please enter your name in the space provided below.
+      Your name is stored locally on this device so,
+      if you would like a PDF certificate of participation, please check or enter your name in the space provided below.
     </p>
 
     <label for="participantName">Name for certificate (optional):</label><br>
@@ -106,6 +106,7 @@
 
     /* EVENT TITLE HEADING */
     const storedTitle = localStorage.getItem("currentEventTitle");
+    document.getElementById("combinedHeading").textContent = storedTitle;
 
     /* EVENT TIME WINDOW */
     const start = localStorage.getItem("currentEventStart");
