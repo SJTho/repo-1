@@ -39,10 +39,10 @@
 
   <!-- Top-right icons -->
   <div id="topRightIcons">
-    <div id="rankIcon" class="topRightIcon" data-target="rank.html">🏅</div>
-    <div id="homeIcon" class="topRightIcon" data-target="index.html">🏠</div>
-    <div id="profileIcon" class="topRightIcon" data-target="profile.html">🧑‍⚕️</div>
-    <div id="helpButton" class="topRightIcon" data-target="help.html">❔</div>
+    <div class="topRightIcon" data-target="rank.html">🏅</div>
+    <div class="topRightIcon" data-target="index.html">🏠</div>
+    <div class="topRightIcon" data-target="profile.html">🧑‍⚕️</div>
+    <div class="topRightIcon" data-target="help.html">❔</div>
   </div>
 
   <script>
@@ -127,6 +127,7 @@
     <button id="closeBtn" class="actionBtn">Back</button>
   </div>
 
+  <!-- MAIN LOGIC -->
   <script type="module">
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
     import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
@@ -165,11 +166,17 @@
       const userId = parseInt(localStorage.getItem("userId"));
       const eventId = parseInt(localStorage.getItem("currentEventId"));
 
-      await supabase
+      const {error} = await supabase
         .from("eventregistration")
         .update({examstarted: true})
         .eq("userid", userId)
         .eq("eventid", eventId);
+
+      if (error) {
+        alert("Failed to lock exam start in Supabase.");
+        console.error(error);
+        return;
+      }
 
       // Go to exam
       window.location.href = "examination.html";
