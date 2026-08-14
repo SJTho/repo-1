@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="mcqcore.css">
 
     <style>
+      /* Top-right countdown clock */
       #topRightClock {
         position: fixed;
         top: 10px;
@@ -16,7 +17,9 @@
         font-size: 1.6rem;
         font-weight: bold;
         background: transparent;
+        /* match page background */
         padding: 0;
+        /* no box */
         border-radius: 0;
         box-shadow: none;
         z-index: 999;
@@ -101,9 +104,10 @@
       if (remainingSeconds > 0) {
         remainingSeconds--;
       }
+      // When it hits zero, do nothing (for now)
     }
 
-    updateClock(); // initial draw
+    updateClock();            // initial draw
     setInterval(updateClock, 1000); // update every second
 
     /* BACK BUTTON */
