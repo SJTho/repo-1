@@ -105,8 +105,7 @@
     });
 
     /* EVENT TITLE HEADING */
-    const storedTitle = localStorage.getItem("currentEventTitle") || "Event";
-    document.getElementById("combinedHeading").textContent = storedTitle;
+    const storedTitle = localStorage.getItem("currentEventTitle");
 
     /* EVENT TIME WINDOW */
     const start = localStorage.getItem("currentEventStart");
