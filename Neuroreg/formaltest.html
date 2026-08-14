@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta-name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events</title>
+
+    <link rel="stylesheet" href="mcqcore.css">
+
+    <style>
+      .closedMsg {
+        color: red;
+        font-weight: bold;
+      }
+    </style>
+</head>
+
+<body>
+
+  <!-- Top-left hamburger -->
+  <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+
+  <!-- Dropdown Menu -->
+  <div id="hamburgerMenuDropdown" class="dropdownMenu">
+    <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
+
+    <div class="dropdownSeparator"></div>
+
+    <div class="dropdownItem" onclick="window.location.href='index.html'">🏠 Home</div>
+    <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
+    <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
+
+    <div class="dropdownSeparator"></div>
+
+    <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
+  </div>
+
+  <!-- Top-right icons -->
+  <div id="topRightIcons">
+    <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
+    <div id="homeIcon" class="topRightIcon" onclick="window.location.href='index.html'">🏠</div>
+    <div id="profileIcon" class="topRightIcon" onclick="window.location.href='profile.html'">🧑‍⚕️</div>
+    <div id="helpButton" class="topRightIcon" onclick="window.location.href='help.html'">❔</div>
+  </div>
+
+  <script>
+    /* Dropdown toggle */
+    const hamburger = document.getElementById("hamburgerMenu");
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+    hamburger.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+  </script>
+
+  <h1>Events</h1>
+
+  <div id="eventsContainer"></div>
+
+  <script src="TestDates.js"></script>
+
+  <script>
+    /* -----------------------------------------
+       LOGIN REDIRECT
+    ----------------------------------------- */
+    const sessionToken = localStorage.getItem("sessionToken");
+    if (!sessionToken) {
+      window.location.href = "login.html";
+    }
+
+    /* -----------------------------------------
+       HELP BUTTON
+    ----------------------------------------- */
+    document.getElementById("helpButton").addEventListener("click", () => {
+      window.location.href = "help.html";
+    });
+
+    /* -----------------------------------------
+       USER TOKEN (for event registration)
+    ----------------------------------------- */
+    if (!localStorage.getItem("userToken")) {
+      const token = crypto.randomUUID();
+      localStorage.setItem("userToken", token);
+    }
+
+    /* -----------------------------------------
+       EVENT REGISTRATION SYSTEM
+    ----------------------------------------- */
+    function registerForEvent(ev) {
+      const token = localStorage.getItem("userToken");
+      const registrations = JSON.parse(localStorage.getItem("registrations") || "[]");
+
+      const alreadyRegistered = registrations.some(r =>
+        r.token === token &&
+        r.eventTitle === ev.title &&
+        r.eventDate === ev.date
+      );
+
+      if (alreadyRegistered) {
+        alert("You are already registered for this event.");
+        return;
+      }
+
+      registrations.push({
+        token,
+        eventTitle: ev.title,
+        eventDate: ev.date,
+        startTime: ev.startTime,
+        finishTime: ev.finishTime,
+        registeredAt: new Date().toISOString()
+      });
+
+      localStorage.setItem("registrations", JSON.stringify(registrations));
+
+      alert("Registration successful!");
+    }
+
+    function isRegistered(ev) {
+      const token = localStorage.getItem("userToken");
+      const registrations = JSON.parse(localStorage.getItem("registrations") || "[]");
+
+      return registrations.some(r =>
+        r.token === token &&
+        r.eventTitle === ev.title &&
+        r.eventDate === ev.date
+      );
+    }
+
+    /* -----------------------------------------
+       CHECK IF EVENT IS LIVE
+    ----------------------------------------- */
+    function isEventLive(ev) {
+      const now = new Date();
+      const start = new Date(ev.date + "T" + ev.startTime);
+      const end = new Date(ev.date + "T" + ev.finishTime);
+      return now >= start && now <= end;
+    }
+
+    /* -----------------------------------------
+       LOAD EVENTS
+    ----------------------------------------- */
+    const allEvents = window.TestDates || [];
+    const container = document.getElementById("eventsContainer");
+    const filtered = allEvents;
+
+    /* -----------------------------------------
+       RENDER EVENTS
+    ----------------------------------------- */
+    if (filtered.length === 0) {
+      container.innerHTML = `<p>No upcoming events.</p>`;
+    } else {
+      filtered.forEach(ev => {
+
+        const ukDate = new Date(ev.date).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        });
+
+        const card = document.createElement("div");
+        card.className = "eventCard";
+
+        const already = isRegistered(ev);
+        const live = isEventLive(ev);
+
+        const now = new Date();
+        const eventEnd = new Date(ev.date + "T" + ev.finishTime);
+        const closed = now > eventEnd;
+
+        card.innerHTML = `
+                    <h3>${ev.title}</h3>
+                    <p><strong>Date:</strong> ${ukDate}</p>
+                    <p><strong>Start time:</strong> Available between ${ev.startTime} and ${ev.finishTime}</p>
+
+                    ${closed
+            ? `<p class="closedMsg">Closed</p>`
+            : already
+              ? (live
+                ? `<button class="registerBtn startBtn">Start</button>`
+                : `<p class="alreadyRegisteredMsg">You have already registered</p>`
+              )
+              : `<button class="registerBtn">Register</button>`
+          }
+                `;
+
+        if (!closed && !already) {
+          card.querySelector(".registerBtn").addEventListener("click", () => {
+            registerForEvent(ev);
+
+            card.querySelector(".registerBtn").outerHTML =
+              `<p class="alreadyRegisteredMsg">You have already registered</p>`;
+          });
+        }
+
+        if (!closed && already && live) {
+          card.querySelector(".startBtn").addEventListener("click", () => {
+            localStorage.setItem("currentEventTitle", ev.title);
+            localStorage.setItem("currentEventStart", ev.startTime);
+            localStorage.setItem("currentEventFinish", ev.finishTime);
+
+            window.location.href = "Startsession.html";
+          });
+        }
+
+        container.appendChild(card);
+      });
+    }
+  </script>
+
+</body>
