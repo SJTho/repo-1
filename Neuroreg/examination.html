@@ -70,17 +70,15 @@
         .eq("eventid", eventId);
     }
 
-    // ⭐ Correct sequence:
-    // 1. Check access
-    // 2. Allow page to load normally
-    // 3. THEN lock examstarted = true
     (async () => {
       const allowed = await checkAccess();
       if (!allowed) return;
 
-      // Delay locking until after page load
+      // ⭐ Lock exam 20 seconds after full page load
       window.addEventListener("load", () => {
-        lockExam();
+        setTimeout(() => {
+          lockExam();
+        }, 20000); // 20 seconds
       });
     })();
   </script>
