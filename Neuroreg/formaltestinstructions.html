@@ -166,18 +166,6 @@
       const userId = parseInt(localStorage.getItem("userId"));
       const eventId = parseInt(localStorage.getItem("currentEventId"));
 
-      const {error} = await supabase
-        .from("eventregistration")
-        .update({examstarted: true})
-        .eq("userid", userId)
-        .eq("eventid", eventId);
-
-      if (error) {
-        alert("Failed to lock exam start in Supabase.");
-        console.error(error);
-        return;
-      }
-
       // Go to exam
       window.location.href = "examination.html";
     });
