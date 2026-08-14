@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta-name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Events</title>
+
+    <link rel="stylesheet" href="mcqcore.css">
+
+</head>
+
+<body>
+
+  <!-- Top-left points + rank -->
+  <div id="topLeftInfo">
+    <div id="pointsValue" class="tinyText">
+      🧑‍⚕️ <span id="pointsNumber"></span>
+    </div>
+    <div id="rankValue" class="tinyText"></div>
+  </div>
+
+  <!-- Top-right help button -->
+  <div id="helpButton">❓</div>
+
+  <!-- Combined H1 heading -->
+  <h1 id="combinedHeading"></h1>
+
+  <div class="card">
+    <h2>Instructions</h2>
+
+    <ol class="instructionsList">
+      <li>You may only complete this examination once.</li>
+      <li id="timeWindowText">You must begin your attempt between the event’s start and end time.</li>
+      <li>You will have three hours from the moment you click start now to submit your attempt.</li>
+      <li>Peer comparitors and question‑level feedback will become available here the day after the examination.
+      </li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Formative v Summative</h2>
+
+    <p>
+      This examination is informal and designed to provide peer averages as a form of self-assessment.
+      It is not invigilated and should not be used as proof of competence.
+    </p>
+
+    <p>
+      All your data including your name are stored locally on your device, not within the app.
+      If you would like a PDF certificate of participation, please enter your name in the space provided below.
+    </p>
+
+    <label for="participantName">Name for certificate (optional):</label><br>
+    <input type="text" id="participantName" name="participantName" placeholder="Enter your name">
+  </div>
+
+  <!-- Buttons -->
+  <div id="buttonRow">
+    <button id="startNowBtn" class="actionBtn">Start Now</button>
+    <button id="closeBtn" class="actionBtn">Back</button>
+  </div>
+
+  <script>
+    /* -----------------------------------------
+       HELP BUTTON
+    ----------------------------------------- */
+    document.getElementById("helpButton").addEventListener("click", () => {
+      window.location.href = "help.html";
+    });
+
+    /* -----------------------------------------
+       DAILY REWARD (+10 per day)
+    ----------------------------------------- */
+    function giveDailyReward() {
+      const today = new Date().toISOString().split("T")[0];
+      const last = localStorage.getItem("lastDailyReward");
+
+      if (last !== today) {
+        let pts = parseInt(localStorage.getItem("scalpelPoints")) || 0;
+        pts += 10;
+        localStorage.setItem("scalpelPoints", String(pts));
+        localStorage.setItem("lastDailyReward", today);
+
+        alert("Daily reward: +10 points!");
+      }
+    }
+
+    giveDailyReward();
+
+
+    /* -----------------------------------------
+       POINTS + RANK DISPLAY
+    ----------------------------------------- */
+
+    function getScalpelPoints() {
+      return parseInt(localStorage.getItem("scalpelPoints")) || 0;
+    }
+
+    function getRank(points) {
+      if (points <= 300) return "Observer";
+      if (points <= 600) return "Assistant";
+      if (points <= 900) return "Supervised Scrubbed";
+      if (points <= 1200) return "Supervised Unscrubbed";
+      return "Independent Practice";
+    }
+
+    let previousRank = localStorage.getItem("previousRank") || null;
+
+    function updatePointsDisplay() {
+      const pts = getScalpelPoints();
+      const newRank = getRank(pts);
+
+      document.getElementById("pointsNumber").textContent = pts;
+      document.getElementById("rankValue").textContent = newRank;
+
+      previousRank = newRank;
+      localStorage.setItem("previousRank", newRank);
+    }
+
+    updatePointsDisplay();
+    window.addEventListener("focus", updatePointsDisplay);
+
+
+    /* -----------------------------------------
+       COMBINED H1 HEADING (title + specialty)
+    ----------------------------------------- */
+    const storedTitle = localStorage.getItem("currentEventTitle") || "";
+    const storedSpecialty = localStorage.getItem("userSpecialty") || "";
+
+    const combined = storedSpecialty
+      ? `${storedTitle} (${storedSpecialty})`
+      : storedTitle;
+
+    document.getElementById("combinedHeading").textContent = combined;
+
+
+    /* -----------------------------------------
+       SET EVENT TIME WINDOW (start + finish)
+    ----------------------------------------- */
+    const start = localStorage.getItem("currentEventStart");
+    const finish = localStorage.getItem("currentEventFinish");
+
+    if (start && finish) {
+      document.getElementById("timeWindowText").textContent =
+        `You must begin your attempt between ${start} and ${finish}.`;
+    }
+
+
+    /* -----------------------------------------
+       LOAD/SAVE PARTICIPANT NAME LOCALLY
+    ----------------------------------------- */
+    const nameInput = document.getElementById("participantName");
+    const storedName = localStorage.getItem("participantName");
+    if (storedName) {
+      nameInput.value = storedName;
+    }
+
+    nameInput.addEventListener("input", () => {
+      localStorage.setItem("participantName", nameInput.value);
+    });
+
+
+    /* -----------------------------------------
+       START NOW BUTTON (no logic yet)
+    ----------------------------------------- */
+    document.getElementById("startNowBtn").addEventListener("click", () => {
+      alert("Start logic not yet implemented.");
+    });
+
+
+    /* back button */
+    document.getElementById("closeBtn").addEventListener("click", () => {
+      window.history.back();
+    });
+
+  </script>
+
+</body>
