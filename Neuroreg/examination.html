@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="mcqcore.css">
 
     <style>
-      /* Top-right countdown clock */
       #topRightClock {
         position: fixed;
         top: 10px;
@@ -32,75 +31,51 @@
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
     import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
-    console.log("🔵 examination.html: Initialising Supabase client…");
-
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const sessionToken = localStorage.getItem("sessionToken");
     const userId = parseInt(localStorage.getItem("userId"));
     const eventId = parseInt(localStorage.getItem("currentEventId"));
 
-    console.log("🔵 examination.html: sessionToken =", sessionToken);
-    console.log("🔵 examination.html: userId =", userId);
-    console.log("🔵 examination.html: eventId =", eventId);
-
-    // Must be logged in
     if (!sessionToken) {
-      console.log("🔴 No session token — redirecting to login.html");
       window.location.href = "login.html";
     }
 
-    async function checkServerLock() {
-      console.log("🔵 Checking eventregistration.examstarted…");
-
+    async function checkAccess() {
       const {data, error} = await supabase
         .from("eventregistration")
-        .select("*")
+        .select("examstarted")
         .eq("userid", userId)
         .eq("eventid", eventId)
         .maybeSingle();
 
-      console.log("🔵 Supabase SELECT result:", {data, error});
-
-      if (error) {
-        console.log("🔴 SELECT error — redirecting:", error);
+      if (error || !data) {
         window.location.href = "formaltestinstructions.html";
-        return;
-      }
-
-      if (!data) {
-        console.log("🔴 No eventregistration row found — redirecting");
-        window.location.href = "formaltestinstructions.html";
-        return;
+        return false;
       }
 
       if (data.examstarted === true) {
-        console.log("🔴 examstarted === true — user already used exam — redirecting");
         window.location.href = "formaltestinstructions.html";
-        return;
+        return false;
       }
 
-      console.log("🟢 examstarted === false — user allowed to enter exam");
+      return true;
+    }
 
-      console.log("🔵 Attempting to UPDATE examstarted → true…");
-
-      const {error: updateError} = await supabase
+    async function lockExam() {
+      await supabase
         .from("eventregistration")
         .update({examstarted: true})
         .eq("userid", userId)
         .eq("eventid", eventId);
-
-      console.log("🔵 UPDATE result:", updateError ? updateError : "Success");
-
-      if (updateError) {
-        console.log("🔴 UPDATE failed:", updateError);
-      } else {
-        console.log("🟢 UPDATE succeeded — examstarted is now TRUE");
-      }
     }
 
-    console.log("🔵 Running checkServerLock()…");
-    checkServerLock();
+    (async () => {
+      const allowed = await checkAccess();
+      if (allowed) {
+        await lockExam();
+      }
+    })();
   </script>
 
   <!-- Top-left hamburger -->
@@ -125,7 +100,6 @@
   <div id="topRightClock">03:00:00</div>
 
   <script>
-    /* Dropdown toggle */
     const hamburger = document.getElementById("hamburgerMenu");
     const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -139,14 +113,12 @@
       }
     });
 
-    /* Exit warning */
     function confirmExitExam() {
       return confirm(
         "If you leave this page you will NOT be allowed back into the examination.\n\nDo you want to continue?"
       );
     }
 
-    /* Apply exit warning to hamburger links */
     document.querySelectorAll("#hamburgerMenuDropdown .dropdownItem")
       .forEach(item => {
         item.addEventListener("click", () => {
@@ -158,25 +130,21 @@
       });
   </script>
 
-  <!-- Event Title Heading -->
   <h1 id="combinedHeading"></h1>
 
   <div class="card">
     <h2>Page under development</h2>
   </div>
 
-  <!-- Buttons -->
   <div id="buttonRow">
     <button id="closeBtn" class="actionBtn">Back</button>
   </div>
 
   <script>
-    /* EVENT TITLE HEADING */
     const storedTitle = localStorage.getItem("currentEventTitle");
     document.getElementById("combinedHeading").textContent = storedTitle;
 
-    /* COUNTDOWN CLOCK (3 hours) */
-    let remainingSeconds = 3 * 60 * 60; // 3 hours
+    let remainingSeconds = 3 * 60 * 60;
 
     function updateClock() {
       const hours = String(Math.floor(remainingSeconds / 3600)).padStart(2, "0");
@@ -185,16 +153,12 @@
 
       document.getElementById("topRightClock").textContent = `${hours}:${minutes}:${seconds}`;
 
-      if (remainingSeconds > 0) {
-        remainingSeconds--;
-      }
-      // When it hits zero, do nothing (for now)
+      if (remainingSeconds > 0) remainingSeconds--;
     }
 
-    updateClock();                 // initial draw
-    setInterval(updateClock, 1000); // update every second
+    updateClock();
+    setInterval(updateClock, 1000);
 
-    /* BACK BUTTON with exit warning */
     document.getElementById("closeBtn").addEventListener("click", () => {
       if (confirmExitExam()) {
         window.history.back();
