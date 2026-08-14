@@ -24,25 +24,25 @@
 
   <!-- Dropdown Menu -->
   <div id="hamburgerMenuDropdown" class="dropdownMenu">
-    <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
+    <div class="dropdownItem" data-target="mcqcore.html">🧠 Test yourself</div>
 
     <div class="dropdownSeparator"></div>
 
-    <div class="dropdownItem" onclick="window.location.href='index.html'">🏠 Home</div>
-    <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
-    <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
+    <div class="dropdownItem" data-target="index.html">🏠 Home</div>
+    <div class="dropdownItem" data-target="profile.html">🧑‍⚕️ Profile</div>
+    <div class="dropdownItem" data-target="rank.html">🏅 Rank</div>
 
     <div class="dropdownSeparator"></div>
 
-    <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
+    <div class="dropdownItem" data-target="login.html">🚪 Logout</div>
   </div>
 
   <!-- Top-right icons -->
   <div id="topRightIcons">
-    <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
-    <div id="homeIcon" class="topRightIcon" onclick="window.location.href='index.html'">🏠</div>
-    <div id="profileIcon" class="topRightIcon" onclick="window.location.href='profile.html'">🧑‍⚕️</div>
-    <div id="helpButton" class="topRightIcon">❔</div>
+    <div id="rankIcon" class="topRightIcon" data-target="rank.html">🏅</div>
+    <div id="homeIcon" class="topRightIcon" data-target="index.html">🏠</div>
+    <div id="profileIcon" class="topRightIcon" data-target="profile.html">🧑‍⚕️</div>
+    <div id="helpButton" class="topRightIcon" data-target="help.html">❔</div>
   </div>
 
   <script>
@@ -59,6 +59,35 @@
         dropdown.style.display = "none";
       }
     });
+
+    /* Exit warning */
+    function confirmExitExam() {
+      return confirm(
+        "If you leave this page you may not be allowed back into the examination.\n\nDo you want to continue?"
+      );
+    }
+
+    /* Apply exit warning to hamburger links */
+    document.querySelectorAll("#hamburgerMenuDropdown .dropdownItem")
+      .forEach(item => {
+        item.addEventListener("click", () => {
+          const target = item.dataset.target;
+          if (confirmExitExam()) {
+            window.location.href = target;
+          }
+        });
+      });
+
+    /* Apply exit warning to top-right icons */
+    document.querySelectorAll("#topRightIcons .topRightIcon")
+      .forEach(icon => {
+        icon.addEventListener("click", () => {
+          const target = icon.dataset.target;
+          if (confirmExitExam()) {
+            window.location.href = target;
+          }
+        });
+      });
   </script>
 
   <!-- Event Title Heading -->
@@ -84,7 +113,7 @@
     </p>
 
     <p>
-      Your name is stored locally on this device so
+      Your name is stored locally on this device so,
       if you would like a PDF certificate of participation, please check or enter your name in the space provided below.
     </p>
 
@@ -98,11 +127,11 @@
     <button id="closeBtn" class="actionBtn">Back</button>
   </div>
 
-  <script>
-    /* HELP BUTTON */
-    document.getElementById("helpButton").addEventListener("click", () => {
-      window.location.href = "help.html";
-    });
+  <script type="module">
+    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     /* EVENT TITLE HEADING */
     const storedTitle = localStorage.getItem("currentEventTitle");
@@ -127,14 +156,33 @@
     });
 
     /* START NOW → examination.html */
-    document.getElementById("startNowBtn").addEventListener("click", () => {
+    document.getElementById("startNowBtn").addEventListener("click", async () => {
+
+      // Local lock
+      localStorage.setItem("examLocked", "true");
+
+      // Supabase lock
+      const userId = parseInt(localStorage.getItem("userId"));
+      const eventId = parseInt(localStorage.getItem("currentEventId"));
+
+      await supabase
+        .from("eventregistration")
+        .update({examstarted: true})
+        .eq("userid", userId)
+        .eq("eventid", eventId);
+
+      // Go to exam
       window.location.href = "examination.html";
     });
 
-    /* BACK BUTTON */
+    /* BACK BUTTON with exit warning */
     document.getElementById("closeBtn").addEventListener("click", () => {
-      window.history.back();
+      if (confirmExitExam()) {
+        window.history.back();
+      }
     });
   </script>
 
 </body>
+
+</html>

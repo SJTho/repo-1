@@ -17,9 +17,7 @@
         font-size: 1.6rem;
         font-weight: bold;
         background: transparent;
-        /* match page background */
         padding: 0;
-        /* no box */
         border-radius: 0;
         box-shadow: none;
         z-index: 999;
@@ -29,12 +27,43 @@
 
 <body>
 
-  <!-- LOGIN REDIRECT -->
-  <script>
+  <!-- LOGIN + EXAM LOCK REDIRECT -->
+  <script type="module">
+    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
     const sessionToken = localStorage.getItem("sessionToken");
+    const examLocked = localStorage.getItem("examLocked");
+    const userId = parseInt(localStorage.getItem("userId"));
+    const eventId = parseInt(localStorage.getItem("currentEventId"));
+
+    // Must be logged in
     if (!sessionToken) {
       window.location.href = "login.html";
     }
+
+    // Must have started exam properly
+    if (examLocked !== "true") {
+      window.location.href = "formaltestinstructions.html";
+    }
+
+    // Server-side enforcement: examstarted must be true
+    async function checkServerLock() {
+      const {data, error} = await supabase
+        .from("eventregistration")
+        .select("examstarted")
+        .eq("userid", userId)
+        .eq("eventid", eventId)
+        .maybeSingle();
+
+      if (error || !data || data.examstarted !== true) {
+        window.location.href = "formaltestinstructions.html";
+      }
+    }
+
+    checkServerLock();
   </script>
 
   <!-- Top-left hamburger -->
@@ -42,17 +71,17 @@
 
   <!-- Dropdown Menu -->
   <div id="hamburgerMenuDropdown" class="dropdownMenu">
-    <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
+    <div class="dropdownItem" data-target="mcqcore.html">🧠 Test yourself</div>
 
     <div class="dropdownSeparator"></div>
 
-    <div class="dropdownItem" onclick="window.location.href='index.html'">🏠 Home</div>
-    <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
-    <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
+    <div class="dropdownItem" data-target="index.html">🏠 Home</div>
+    <div class="dropdownItem" data-target="profile.html">🧑‍⚕️ Profile</div>
+    <div class="dropdownItem" data-target="rank.html">🏅 Rank</div>
 
     <div class="dropdownSeparator"></div>
 
-    <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
+    <div class="dropdownItem" data-target="login.html">🚪 Logout</div>
   </div>
 
   <!-- Top-right countdown clock -->
@@ -72,6 +101,24 @@
         dropdown.style.display = "none";
       }
     });
+
+    /* Exit warning */
+    function confirmExitExam() {
+      return confirm(
+        "If you leave this page you will NOT be allowed back into the examination.\n\nDo you want to continue?"
+      );
+    }
+
+    /* Apply exit warning to hamburger links */
+    document.querySelectorAll("#hamburgerMenuDropdown .dropdownItem")
+      .forEach(item => {
+        item.addEventListener("click", () => {
+          const target = item.dataset.target;
+          if (confirmExitExam()) {
+            window.location.href = target;
+          }
+        });
+      });
   </script>
 
   <!-- Event Title Heading -->
@@ -110,9 +157,11 @@
     updateClock();            // initial draw
     setInterval(updateClock, 1000); // update every second
 
-    /* BACK BUTTON */
+    /* BACK BUTTON with exit warning */
     document.getElementById("closeBtn").addEventListener("click", () => {
-      window.history.back();
+      if (confirmExitExam()) {
+        window.history.back();
+      }
     });
   </script>
 
