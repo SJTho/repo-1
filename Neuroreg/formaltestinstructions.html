@@ -4,17 +4,15 @@
 <head>
   <meta charset="UTF-8">
   <meta-name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upcoming Events</title>
+    <title>Event Instructions</title>
 
     <link rel="stylesheet" href="mcqcore.css">
 </head>
 
 <body>
 
+  <!-- LOGIN REDIRECT -->
   <script>
-    /* ----------------------------------------------------
-       LOGIN REDIRECT (same as formaltest.html)
-    ---------------------------------------------------- */
     const sessionToken = localStorage.getItem("sessionToken");
     if (!sessionToken) {
       window.location.href = "login.html";
@@ -39,7 +37,7 @@
     <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
   </div>
 
-  <!-- Top-right icons (matching formaltest.html) -->
+  <!-- Top-right icons -->
   <div id="topRightIcons">
     <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
     <div id="homeIcon" class="topRightIcon" onclick="window.location.href='index.html'">🏠</div>
@@ -48,7 +46,7 @@
   </div>
 
   <script>
-    /* Dropdown toggle (same as formaltest.html) */
+    /* Dropdown toggle */
     const hamburger = document.getElementById("hamburgerMenu");
     const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -63,7 +61,7 @@
     });
   </script>
 
-  <!-- Combined H1 heading -->
+  <!-- Event Title Heading -->
   <h1 id="combinedHeading"></h1>
 
   <div class="card">
@@ -101,29 +99,16 @@
   </div>
 
   <script>
-    /* -----------------------------------------
-       HELP BUTTON
-    ----------------------------------------- */
+    /* HELP BUTTON */
     document.getElementById("helpButton").addEventListener("click", () => {
       window.location.href = "help.html";
     });
 
-    /* -----------------------------------------
-       COMBINED H1 HEADING (title + specialty)
-    ----------------------------------------- */
-    const storedTitle = localStorage.getItem("currentEventTitle") || "";
-    const storedSpecialty = localStorage.getItem("userSpecialty") || "";
+    /* EVENT TITLE HEADING */
+    const storedTitle = localStorage.getItem("currentEventTitle") || "Event";
+    document.getElementById("combinedHeading").textContent = storedTitle;
 
-    const combined = storedSpecialty
-      ? `${storedTitle} (${storedSpecialty})`
-      : storedTitle;
-
-    document.getElementById("combinedHeading").textContent = combined;
-
-
-    /* -----------------------------------------
-       SET EVENT TIME WINDOW (start + finish)
-    ----------------------------------------- */
+    /* EVENT TIME WINDOW */
     const start = localStorage.getItem("currentEventStart");
     const finish = localStorage.getItem("currentEventFinish");
 
@@ -132,35 +117,24 @@
         `You must begin your attempt between ${start} and ${finish}.`;
     }
 
-
-    /* -----------------------------------------
-       LOAD/SAVE PARTICIPANT NAME LOCALLY
-    ----------------------------------------- */
+    /* PARTICIPANT NAME */
     const nameInput = document.getElementById("participantName");
     const storedName = localStorage.getItem("participantName");
-    if (storedName) {
-      nameInput.value = storedName;
-    }
+    if (storedName) nameInput.value = storedName;
 
     nameInput.addEventListener("input", () => {
       localStorage.setItem("participantName", nameInput.value);
     });
 
-
-    /* -----------------------------------------
-       START NOW BUTTON → GO TO formaltestcore.html
-    ----------------------------------------- */
+    /* START NOW → formaltestcore.html */
     document.getElementById("startNowBtn").addEventListener("click", () => {
       window.location.href = "formaltestcore.html";
     });
 
-    /* -----------------------------------------
-       BACK BUTTON
-    ----------------------------------------- */
+    /* BACK BUTTON */
     document.getElementById("closeBtn").addEventListener("click", () => {
       window.history.back();
     });
-
   </script>
 
 </body>
