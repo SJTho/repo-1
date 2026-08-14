@@ -126,11 +126,6 @@
     <button id="startNowBtn" class="actionBtn">Start Now</button>
     <button id="closeBtn" class="actionBtn">Back</button>
 
-    <!-- TEMPORARY RESET BUTTON -->
-    <button id="resetExamBtn" class="actionBtn" style="background:#b30000; color:white;">
-      Reset examstarted (TEMP)
-    </button>
-
   </div>
 
   <!-- MAIN LOGIC -->
@@ -184,24 +179,4 @@
     });
   </script>
 
-  <script type="module">
-    // Uses the existing Supabase client already created earlier in the page
-
-    const userId = parseInt(localStorage.getItem("userId"));
-    const eventId = parseInt(localStorage.getItem("currentEventId"));
-
-    document.getElementById("resetExamBtn").addEventListener("click", async () => {
-      const {error} = await supabase
-        .from("eventregistration")
-        .update({examstarted: false})
-        .eq("userid", userId)
-        .eq("eventid", eventId);
-
-      if (error) {
-        alert("Reset failed.");
-      } else {
-        alert("examstarted has been reset to FALSE");
-      }
-    });
-  </script>
 </body>
