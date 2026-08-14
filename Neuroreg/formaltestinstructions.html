@@ -125,6 +125,11 @@
   <div id="buttonRow">
     <button id="startNowBtn" class="actionBtn">Start Now</button>
     <button id="closeBtn" class="actionBtn">Back</button>
+
+    <!-- TEMPORARY RESET BUTTON -->
+    <button id="resetExamBtn" class="actionBtn" style="background:#b30000; color:white;">
+      Reset examstarted (TEMP)
+    </button>
   </div>
 
   <!-- MAIN LOGIC -->
@@ -178,4 +183,32 @@
     });
   </script>
 
+  <script type="module">
+    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const userId = parseInt(localStorage.getItem("userId"));
+    const eventId = parseInt(localStorage.getItem("currentEventId"));
+
+    document.getElementById("resetExamBtn").addEventListener("click", async () => {
+      console.log("🔵 Reset button clicked — updating examstarted → false");
+
+      const {data, error} = await supabase
+        .from("eventregistration")
+        .update({examstarted: false})
+        .eq("userid", userId)
+        .eq("eventid", eventId)
+        .select();
+
+      console.log("🔵 RESET UPDATE RESULT:", {data, error});
+
+      if (error) {
+        alert("Reset failed — check console");
+      } else {
+        alert("examstarted has been reset to FALSE");
+      }
+    });
+  </script>
 </body>
