@@ -98,6 +98,7 @@
         }
 
         alert("Registration successful!");
+        location.reload();   // 🔥 Refresh page after successful registration
       }
 
       /* ----------------------------------------------------
@@ -168,9 +169,6 @@
           if (!closed && !already) {
             card.querySelector(".registerBtn").addEventListener("click", async () => {
               await registerForEvent(ev);
-
-              card.querySelector(".registerBtn").outerHTML =
-                `<p class="alreadyRegisteredMsg">You have already registered</p>`;
             });
           }
 
@@ -241,5 +239,3 @@
   <div id="eventsContainer"></div>
 
 </body>
-
-</html>
