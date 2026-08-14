@@ -42,18 +42,14 @@
     }
 
     async function checkAccess() {
-
       const {data, error} = await supabase
         .from("eventregistration")
-        .select("*")
+        .select("examstarted")
         .eq("userid", userId)
         .eq("eventid", eventId)
         .maybeSingle();
 
-      console.log("🔵 SELECT result:", {data, error});
-
       if (error || !data) {
-
         window.location.href = "formaltestinstructions.html";
         return false;
       }
@@ -62,38 +58,33 @@
         window.location.href = "formaltestinstructions.html";
         return false;
       }
+
       return true;
     }
 
     async function lockExam() {
-
-      const {data, error, count} = await supabase
+      await supabase
         .from("eventregistration")
         .update({examstarted: true})
         .eq("userid", userId)
-        .eq("eventid", eventId)
-        .select("*", {count: "exact"});
-
-      if (error) {
-        console.log("UPDATE failed:", error);
-      } else if (count === 0) {
-      } else {
-      }
+        .eq("eventid", eventId);
     }
 
     (async () => {
-
       const allowed = await checkAccess();
       if (!allowed) return;
 
+      // Trigger exam lock 5 seconds after DOM is ready
       document.addEventListener("DOMContentLoaded", () => {
-
         setTimeout(() => {
           lockExam();
-        }, 5000);
+        }, 5000); // 5 seconds
       });
 
-
+      // Backup trigger at 7 seconds
+      setTimeout(() => {
+        lockExam();
+      }, 7000);
     })();
   </script>
 
