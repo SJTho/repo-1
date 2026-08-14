@@ -27,7 +27,7 @@
 
 <body>
 
-  <!-- LOGIN + EXAM LOCK REDIRECT -->
+  <!-- LOGIN + SERVER-SIDE EXAM ACCESS CHECK -->
   <script type="module">
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
     import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
@@ -35,7 +35,6 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const sessionToken = localStorage.getItem("sessionToken");
-    const examLocked = localStorage.getItem("examLocked");
     const userId = parseInt(localStorage.getItem("userId"));
     const eventId = parseInt(localStorage.getItem("currentEventId"));
 
@@ -44,12 +43,9 @@
       window.location.href = "login.html";
     }
 
-    // Must have started exam properly
-    if (examLocked !== "true") {
-      window.location.href = "formaltestinstructions.html";
-    }
-
-    // Server-side enforcement: examstarted must be true
+    // Server-side enforcement:
+    // ✅ examstarted === true  -> BLOCK access
+    // ✅ examstarted === false -> ALLOW access
     async function checkServerLock() {
       const {data, error} = await supabase
         .from("eventregistration")
@@ -58,9 +54,14 @@
         .eq("eventid", eventId)
         .maybeSingle();
 
-      if (error || !data || data.examstarted !== true) {
+      // Block if:
+      // - error
+      // - no row
+      // - examstarted is true (already used this exam)
+      if (error || !data || data.examstarted === true) {
         window.location.href = "formaltestinstructions.html";
       }
+      // If examstarted === false, user stays on examination.html
     }
 
     checkServerLock();
@@ -154,7 +155,7 @@
       // When it hits zero, do nothing (for now)
     }
 
-    updateClock();            // initial draw
+    updateClock();                 // initial draw
     setInterval(updateClock, 1000); // update every second
 
     /* BACK BUTTON with exit warning */
@@ -166,5 +167,3 @@
   </script>
 
 </body>
-
-</html>
