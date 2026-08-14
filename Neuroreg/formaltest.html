@@ -29,11 +29,85 @@
         window.location.href = "login.html";
       }
 
+      const userId = parseInt(localStorage.getItem("userId"));
+
       /* ----------------------------------------------------
          TIME FORMATTER (HH:MM)
       ---------------------------------------------------- */
       function formatTime(timeString) {
         return timeString.slice(0, 5); // "09:00"
+      }
+
+      /* ----------------------------------------------------
+         CHECK REGISTRATION (Supabase)
+      ---------------------------------------------------- */
+      async function isRegistered(ev) {
+        if (!userId) return false;
+
+        const {data, error} = await supabase
+          .from("eventregistration")
+          .select("*")
+          .eq("userid", userId)
+          .eq("eventid", ev.eventid);
+
+        if (error) {
+          console.error(error);
+          return false;
+        }
+
+        return data && data.length > 0;
+      }
+
+      /* ----------------------------------------------------
+         REGISTER FOR EVENT (Supabase)
+      ---------------------------------------------------- */
+      async function registerForEvent(ev) {
+        if (!userId) {
+          alert("You must be logged in to register.");
+          return;
+        }
+
+        const {data: existing, error: checkError} = await supabase
+          .from("eventregistration")
+          .select("*")
+          .eq("userid", userId)
+          .eq("eventid", ev.eventid);
+
+        if (checkError) {
+          console.error(checkError);
+          alert("Failed to check registration.");
+          return;
+        }
+
+        if (existing && existing.length > 0) {
+          alert("You are already registered for this event.");
+          return;
+        }
+
+        const {error: insertError} = await supabase
+          .from("eventregistration")
+          .insert({
+            userid: userId,
+            eventid: ev.eventid
+          });
+
+        if (insertError) {
+          console.error(insertError);
+          alert("Failed to register for event.");
+          return;
+        }
+
+        alert("Registration successful!");
+      }
+
+      /* ----------------------------------------------------
+         LIVE CHECK
+      ---------------------------------------------------- */
+      function isEventLive(ev) {
+        const now = new Date();
+        const start = new Date(ev.eventdate + "T" + formatTime(ev.eventstarttime));
+        const end = new Date(ev.eventdate + "T" + formatTime(ev.eventendtime));
+        return now >= start && now <= end;
       }
 
       /* ----------------------------------------------------
@@ -58,22 +132,22 @@
           return;
         }
 
-        events.forEach(ev => {
+        for (const ev of events) {
           const ukDate = new Date(ev.eventdate).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "2-digit",
             year: "numeric"
           });
 
-          const card = document.createElement("div");
-          card.className = "eventCard";
-
-          const already = isRegistered(ev);
+          const already = await isRegistered(ev);
           const live = isEventLive(ev);
 
           const now = new Date();
           const eventEnd = new Date(ev.eventdate + "T" + formatTime(ev.eventendtime));
           const closed = now > eventEnd;
+
+          const card = document.createElement("div");
+          card.className = "eventCard";
 
           card.innerHTML = `
                     <h3>${ev.eventtitle}</h3>
@@ -92,8 +166,8 @@
                 `;
 
           if (!closed && !already) {
-            card.querySelector(".registerBtn").addEventListener("click", () => {
-              registerForEvent(ev);
+            card.querySelector(".registerBtn").addEventListener("click", async () => {
+              await registerForEvent(ev);
 
               card.querySelector(".registerBtn").outerHTML =
                 `<p class="alreadyRegisteredMsg">You have already registered</p>`;
@@ -111,64 +185,7 @@
           }
 
           container.appendChild(card);
-        });
-      }
-
-      /* ----------------------------------------------------
-         REGISTRATION SYSTEM (LOCALSTORAGE)
-      ---------------------------------------------------- */
-      if (!localStorage.getItem("userToken")) {
-        const token = crypto.randomUUID();
-        localStorage.setItem("userToken", token);
-      }
-
-      function registerForEvent(ev) {
-        const token = localStorage.getItem("userToken");
-        const registrations = JSON.parse(localStorage.getItem("registrations") || "[]");
-
-        const alreadyRegistered = registrations.some(r =>
-          r.token === token &&
-          r.eventId === ev.eventid
-        );
-
-        if (alreadyRegistered) {
-          alert("You are already registered for this event.");
-          return;
         }
-
-        registrations.push({
-          token,
-          eventId: ev.eventid,
-          eventTitle: ev.eventtitle,
-          eventDate: ev.eventdate,
-          startTime: formatTime(ev.eventstarttime),
-          finishTime: formatTime(ev.eventendtime),
-          registeredAt: new Date().toISOString()
-        });
-
-        localStorage.setItem("registrations", JSON.stringify(registrations));
-
-        alert("Registration successful!");
-      }
-
-      function isRegistered(ev) {
-        const token = localStorage.getItem("userToken");
-        const registrations = JSON.parse(localStorage.getItem("registrations") || "[]");
-
-        return registrations.some(r =>
-          r.token === token &&
-          r.eventId === ev.eventid
-        );
-      }
-
-      /* ----------------------------------------------------
-         LIVE CHECK
-      ---------------------------------------------------- */
-      function isEventLive(ev) {
-        const now = new Date();
-        const start = new Date(ev.eventdate + "T" + formatTime(ev.eventstarttime));
-        const end = new Date(ev.eventdate + "T" + formatTime(ev.eventendtime));
-        return now >= start && now <= end;
       }
 
       window.addEventListener("DOMContentLoaded", loadEvents);
@@ -224,3 +241,5 @@
   <div id="eventsContainer"></div>
 
 </body>
+
+</html>
