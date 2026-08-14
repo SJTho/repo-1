@@ -27,9 +27,11 @@
 <body>
 
   <!-- LOGIN + SERVER-SIDE EXAM ACCESS CHECK -->
-  <script type="module">
-    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+  <<script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+
+    console.log("🔵 examination.html: Initialising Supabase client…");
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -37,140 +39,170 @@
     const userId = parseInt(localStorage.getItem("userId"));
     const eventId = parseInt(localStorage.getItem("currentEventId"));
 
+    console.log("🔵 sessionToken =", sessionToken);
+    console.log("🔵 userId =", userId);
+    console.log("🔵 eventId =", eventId);
+
     if (!sessionToken) {
-      window.location.href = "login.html";
+    console.log("🔴 No session token — redirecting to login.html");
+    window.location.href = "login.html";
     }
 
     async function checkAccess() {
-      const {data, error} = await supabase
-        .from("eventregistration")
-        .select("examstarted")
-        .eq("userid", userId)
-        .eq("eventid", eventId)
-        .maybeSingle();
+    console.log("🔵 Checking examstarted status…");
 
-      if (error || !data) {
-        window.location.href = "formaltestinstructions.html";
-        return false;
-      }
+    const { data, error } = await supabase
+    .from("eventregistration")
+    .select("*")
+    .eq("userid", userId)
+    .eq("eventid", eventId)
+    .maybeSingle();
 
-      if (data.examstarted === true) {
-        window.location.href = "formaltestinstructions.html";
-        return false;
-      }
+    console.log("🔵 SELECT result:", { data, error });
 
-      return true;
+    if (error || !data) {
+    console.log("🔴 SELECT error or no row — blocking access");
+    window.location.href = "formaltestinstructions.html";
+    return false;
+    }
+
+    if (data.examstarted === true) {
+    console.log("🔴 examstarted === true — blocking access");
+    window.location.href = "formaltestinstructions.html";
+    return false;
+    }
+
+    console.log("🟢 examstarted === false — access allowed");
+    return true;
     }
 
     async function lockExam() {
-      await supabase
-        .from("eventregistration")
-        .update({examstarted: true})
-        .eq("userid", userId)
-        .eq("eventid", eventId);
+    console.log("🔵 Attempting to UPDATE examstarted → true…");
+
+    const { data, error, count } = await supabase
+    .from("eventregistration")
+    .update({ examstarted: true })
+    .eq("userid", userId)
+    .eq("eventid", eventId)
+    .select("*", { count: "exact" });
+
+    console.log("🔵 UPDATE response:", { data, error, count });
+
+    if (error) {
+    console.log("🔴 UPDATE failed:", error);
+    } else if (count === 0) {
+    console.log("🔴 UPDATE succeeded BUT 0 ROWS UPDATED — RLS or WHERE clause mismatch");
+    } else {
+    console.log("🟢 UPDATE succeeded — examstarted is now TRUE");
+    }
     }
 
     (async () => {
-      const allowed = await checkAccess();
-      if (!allowed) return;
+    console.log("🔵 Running checkAccess()…");
 
-      // ⭐ Use the SAME update code that worked in formaltestinstructions
-      // but trigger it 20 seconds after the exam page fully loads
-      window.addEventListener("load", () => {
-        setTimeout(() => {
-          lockExam();
-        }, 20000); // 20 seconds
-      });
+    const allowed = await checkAccess();
+    if (!allowed) return;
+
+    console.log("🟢 Access granted — waiting for page load…");
+
+    window.addEventListener("load", () => {
+    console.log("🟢 Page fully loaded — starting 20-second timer…");
+
+    setTimeout(() => {
+    console.log("🟢 20 seconds elapsed — calling lockExam()…");
+    lockExam();
+    }, 20000);
+    });
     })();
-  </script>
+    </script>
 
-  <!-- Top-left hamburger -->
-  <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+    <!-- Top-left hamburger -->
+    <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
 
-  <!-- Dropdown Menu -->
-  <div id="hamburgerMenuDropdown" class="dropdownMenu">
-    <div class="dropdownItem" data-target="mcqcore.html">🧠 Test yourself</div>
+    <!-- Dropdown Menu -->
+    <div id="hamburgerMenuDropdown" class="dropdownMenu">
+      <div class="dropdownItem" data-target="mcqcore.html">🧠 Test yourself</div>
 
-    <div class="dropdownSeparator"></div>
+      <div class="dropdownSeparator"></div>
 
-    <div class="dropdownItem" data-target="index.html">🏠 Home</div>
-    <div class="dropdownItem" data-target="profile.html">🧑‍⚕️ Profile</div>
-    <div class="dropdownItem" data-target="rank.html">🏅 Rank</div>
+      <div class="dropdownItem" data-target="index.html">🏠 Home</div>
+      <div class="dropdownItem" data-target="profile.html">🧑‍⚕️ Profile</div>
+      <div class="dropdownItem" data-target="rank.html">🏅 Rank</div>
 
-    <div class="dropdownSeparator"></div>
+      <div class="dropdownSeparator"></div>
 
-    <div class="dropdownItem" data-target="login.html">🚪 Logout</div>
-  </div>
+      <div class="dropdownItem" data-target="login.html">🚪 Logout</div>
+    </div>
 
-  <!-- Top-right countdown clock -->
-  <div id="topRightClock">03:00:00</div>
+    <!-- Top-right countdown clock -->
+    <div id="topRightClock">03:00:00</div>
 
-  <script>
-    const hamburger = document.getElementById("hamburgerMenu");
-    const dropdown = document.getElementById("hamburgerMenuDropdown");
+    <script>
+      const hamburger = document.getElementById("hamburgerMenu");
+      const dropdown = document.getElementById("hamburgerMenuDropdown");
 
-    hamburger.addEventListener("click", () => {
-      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
-    });
-
-    document.addEventListener("click", (event) => {
-      if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.style.display = "none";
-      }
-    });
-
-    function confirmExitExam() {
-      return confirm(
-        "If you leave this page you will NOT be allowed back into the examination.\n\nDo you want to continue?"
-      );
-    }
-
-    document.querySelectorAll("#hamburgerMenuDropdown .dropdownItem")
-      .forEach(item => {
-        item.addEventListener("click", () => {
-          const target = item.dataset.target;
-          if (confirmExitExam()) {
-            window.location.href = target;
-          }
-        });
+      hamburger.addEventListener("click", () => {
+        dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
       });
-  </script>
 
-  <h1 id="combinedHeading"></h1>
+      document.addEventListener("click", (event) => {
+        if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+          dropdown.style.display = "none";
+        }
+      });
 
-  <div class="card">
-    <h2>Page under development</h2>
-  </div>
-
-  <div id="buttonRow">
-    <button id="closeBtn" class="actionBtn">Back</button>
-  </div>
-
-  <script>
-    const storedTitle = localStorage.getItem("currentEventTitle");
-    document.getElementById("combinedHeading").textContent = storedTitle;
-
-    let remainingSeconds = 3 * 60 * 60;
-
-    function updateClock() {
-      const hours = String(Math.floor(remainingSeconds / 3600)).padStart(2, "0");
-      const minutes = String(Math.floor((remainingSeconds % 3600) / 60)).padStart(2, "0");
-      const seconds = String(remainingSeconds % 60).padStart(2, "0");
-
-      document.getElementById("topRightClock").textContent = `${hours}:${minutes}:${seconds}`;
-
-      if (remainingSeconds > 0) remainingSeconds--;
-    }
-
-    updateClock();
-    setInterval(updateClock, 1000);
-
-    document.getElementById("closeBtn").addEventListener("click", () => {
-      if (confirmExitExam()) {
-        window.history.back();
+      function confirmExitExam() {
+        return confirm(
+          "If you leave this page you will NOT be allowed back into the examination.\n\nDo you want to continue?"
+        );
       }
-    });
-  </script>
+
+      document.querySelectorAll("#hamburgerMenuDropdown .dropdownItem")
+        .forEach(item => {
+          item.addEventListener("click", () => {
+            const target = item.dataset.target;
+            if (confirmExitExam()) {
+              window.location.href = target;
+            }
+          });
+        });
+    </script>
+
+    <h1 id="combinedHeading"></h1>
+
+    <div class="card">
+      <h2>Page under development</h2>
+    </div>
+
+    <div id="buttonRow">
+      <button id="closeBtn" class="actionBtn">Back</button>
+    </div>
+
+    <script>
+      const storedTitle = localStorage.getItem("currentEventTitle");
+      document.getElementById("combinedHeading").textContent = storedTitle;
+
+      let remainingSeconds = 3 * 60 * 60;
+
+      function updateClock() {
+        const hours = String(Math.floor(remainingSeconds / 3600)).padStart(2, "0");
+        const minutes = String(Math.floor((remainingSeconds % 3600) / 60)).padStart(2, "0");
+        const seconds = String(remainingSeconds % 60).padStart(2, "0");
+
+        document.getElementById("topRightClock").textContent = `${hours}:${minutes}:${seconds}`;
+
+        if (remainingSeconds > 0) remainingSeconds--;
+      }
+
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      document.getElementById("closeBtn").addEventListener("click", () => {
+        if (confirmExitExam()) {
+          window.history.back();
+        }
+      });
+    </script>
 
 </body>
 
