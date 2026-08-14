@@ -70,11 +70,18 @@
         .eq("eventid", eventId);
     }
 
+    // ⭐ Correct sequence:
+    // 1. Check access
+    // 2. Allow page to load normally
+    // 3. THEN lock examstarted = true
     (async () => {
       const allowed = await checkAccess();
-      if (allowed) {
-        await lockExam();
-      }
+      if (!allowed) return;
+
+      // Delay locking until after page load
+      window.addEventListener("load", () => {
+        lockExam();
+      });
     })();
   </script>
 
