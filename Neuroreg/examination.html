@@ -44,8 +44,8 @@
     }
 
     // Server-side enforcement:
-    // ✅ examstarted === true  -> BLOCK access
-    // ✅ examstarted === false -> ALLOW access
+    // examstarted === true  -> BLOCK access
+    // examstarted === false -> ALLOW access
     async function checkServerLock() {
       const {data, error} = await supabase
         .from("eventregistration")
@@ -60,8 +60,20 @@
       // - examstarted is true (already used this exam)
       if (error || !data || data.examstarted === true) {
         window.location.href = "formaltestinstructions.html";
+        return;
       }
-      // If examstarted === false, user stays on examination.html
+
+      // If examstarted === false, user is allowed in.
+      // Now immediately mark examstarted = true to lock future access.
+      const {error: updateError} = await supabase
+        .from("eventregistration")
+        .update({examstarted: true})
+        .eq("userid", userId)
+        .eq("eventid", eventId);
+
+      if (updateError) {
+        console.error("Failed to update examstarted:", updateError);
+      }
     }
 
     checkServerLock();
@@ -167,3 +179,5 @@
   </script>
 
 </body>
+
+</html>
