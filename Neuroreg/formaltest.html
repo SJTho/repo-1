@@ -30,6 +30,13 @@
       }
 
       /* ----------------------------------------------------
+         TIME FORMATTER (HH:MM)
+      ---------------------------------------------------- */
+      function formatTime(timeString) {
+        return timeString.slice(0, 5); // "09:00"
+      }
+
+      /* ----------------------------------------------------
          LOAD EVENTS FROM SUPABASE
       ---------------------------------------------------- */
       async function loadEvents() {
@@ -37,8 +44,8 @@
 
         const {data: events, error} = await supabase
           .from("events")
-          .select("*")
-          .order("event_date", {ascending: true});
+          .select("eventid, eventtitle, eventdate, eventstarttime, eventendtime")
+          .order("eventdate", {ascending: true});
 
         if (error) {
           console.error(error);
@@ -52,7 +59,7 @@
         }
 
         events.forEach(ev => {
-          const ukDate = new Date(ev.event_date).toLocaleDateString("en-GB", {
+          const ukDate = new Date(ev.eventdate).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "2-digit",
             year: "numeric"
@@ -65,13 +72,13 @@
           const live = isEventLive(ev);
 
           const now = new Date();
-          const eventEnd = new Date(ev.event_date + "T" + ev.event_endtime);
+          const eventEnd = new Date(ev.eventdate + "T" + formatTime(ev.eventendtime));
           const closed = now > eventEnd;
 
           card.innerHTML = `
-                    <h3>${ev.event_title}</h3>
+                    <h3>${ev.eventtitle}</h3>
                     <p><strong>Date:</strong> ${ukDate}</p>
-                    <p><strong>Start time:</strong> Available between ${ev.event_starttime} and ${ev.event_endtime}</p>
+                    <p><strong>Start time:</strong> Available between ${formatTime(ev.eventstarttime)} and ${formatTime(ev.eventendtime)}</p>
 
                     ${closed
               ? `<p class="closedMsg">Closed</p>`
@@ -95,9 +102,9 @@
 
           if (!closed && already && live) {
             card.querySelector(".startBtn").addEventListener("click", () => {
-              localStorage.setItem("currentEventTitle", ev.event_title);
-              localStorage.setItem("currentEventStart", ev.event_starttime);
-              localStorage.setItem("currentEventFinish", ev.event_endtime);
+              localStorage.setItem("currentEventTitle", ev.eventtitle);
+              localStorage.setItem("currentEventStart", formatTime(ev.eventstarttime));
+              localStorage.setItem("currentEventFinish", formatTime(ev.eventendtime));
 
               window.location.href = "Startsession.html";
             });
@@ -121,7 +128,7 @@
 
         const alreadyRegistered = registrations.some(r =>
           r.token === token &&
-          r.eventId === ev.event_id
+          r.eventId === ev.eventid
         );
 
         if (alreadyRegistered) {
@@ -131,11 +138,11 @@
 
         registrations.push({
           token,
-          eventId: ev.event_id,
-          eventTitle: ev.event_title,
-          eventDate: ev.event_date,
-          startTime: ev.event_starttime,
-          finishTime: ev.event_endtime,
+          eventId: ev.eventid,
+          eventTitle: ev.eventtitle,
+          eventDate: ev.eventdate,
+          startTime: formatTime(ev.eventstarttime),
+          finishTime: formatTime(ev.eventendtime),
           registeredAt: new Date().toISOString()
         });
 
@@ -150,7 +157,7 @@
 
         return registrations.some(r =>
           r.token === token &&
-          r.eventId === ev.event_id
+          r.eventId === ev.eventid
         );
       }
 
@@ -159,8 +166,8 @@
       ---------------------------------------------------- */
       function isEventLive(ev) {
         const now = new Date();
-        const start = new Date(ev.event_date + "T" + ev.event_starttime);
-        const end = new Date(ev.event_date + "T" + ev.event_endtime);
+        const start = new Date(ev.eventdate + "T" + formatTime(ev.eventstarttime));
+        const end = new Date(ev.eventdate + "T" + formatTime(ev.eventendtime));
         return now >= start && now <= end;
       }
 
@@ -217,5 +224,3 @@
   <div id="eventsContainer"></div>
 
 </body>
-
-</html>
