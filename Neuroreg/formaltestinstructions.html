@@ -7,21 +7,61 @@
     <title>Upcoming Events</title>
 
     <link rel="stylesheet" href="mcqcore.css">
-
 </head>
 
 <body>
 
-  <!-- Top-left points + rank -->
-  <div id="topLeftInfo">
-    <div id="pointsValue" class="tinyText">
-      🧑‍⚕️ <span id="pointsNumber"></span>
-    </div>
-    <div id="rankValue" class="tinyText"></div>
+  <script>
+    /* ----------------------------------------------------
+       LOGIN REDIRECT (same as formaltest.html)
+    ---------------------------------------------------- */
+    const sessionToken = localStorage.getItem("sessionToken");
+    if (!sessionToken) {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <!-- Top-left hamburger -->
+  <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+
+  <!-- Dropdown Menu -->
+  <div id="hamburgerMenuDropdown" class="dropdownMenu">
+    <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
+
+    <div class="dropdownSeparator"></div>
+
+    <div class="dropdownItem" onclick="window.location.href='index.html'">🏠 Home</div>
+    <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
+    <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
+
+    <div class="dropdownSeparator"></div>
+
+    <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
   </div>
 
-  <!-- Top-right help button -->
-  <div id="helpButton">❓</div>
+  <!-- Top-right icons (matching formaltest.html) -->
+  <div id="topRightIcons">
+    <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
+    <div id="homeIcon" class="topRightIcon" onclick="window.location.href='index.html'">🏠</div>
+    <div id="profileIcon" class="topRightIcon" onclick="window.location.href='profile.html'">🧑‍⚕️</div>
+    <div id="helpButton" class="topRightIcon">❔</div>
+  </div>
+
+  <script>
+    /* Dropdown toggle (same as formaltest.html) */
+    const hamburger = document.getElementById("hamburgerMenu");
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+    hamburger.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+  </script>
 
   <!-- Combined H1 heading -->
   <h1 id="combinedHeading"></h1>
@@ -33,8 +73,7 @@
       <li>You may only complete this examination once.</li>
       <li id="timeWindowText">You must begin your attempt between the event’s start and end time.</li>
       <li>You will have three hours from the moment you click start now to submit your attempt.</li>
-      <li>Peer comparitors and question‑level feedback will become available here the day after the examination.
-      </li>
+      <li>Peer comparitors and question‑level feedback will become available here the day after the examination.</li>
     </ol>
   </div>
 
@@ -68,59 +107,6 @@
     document.getElementById("helpButton").addEventListener("click", () => {
       window.location.href = "help.html";
     });
-
-    /* -----------------------------------------
-       DAILY REWARD (+10 per day)
-    ----------------------------------------- */
-    function giveDailyReward() {
-      const today = new Date().toISOString().split("T")[0];
-      const last = localStorage.getItem("lastDailyReward");
-
-      if (last !== today) {
-        let pts = parseInt(localStorage.getItem("scalpelPoints")) || 0;
-        pts += 10;
-        localStorage.setItem("scalpelPoints", String(pts));
-        localStorage.setItem("lastDailyReward", today);
-
-        alert("Daily reward: +10 points!");
-      }
-    }
-
-    giveDailyReward();
-
-
-    /* -----------------------------------------
-       POINTS + RANK DISPLAY
-    ----------------------------------------- */
-
-    function getScalpelPoints() {
-      return parseInt(localStorage.getItem("scalpelPoints")) || 0;
-    }
-
-    function getRank(points) {
-      if (points <= 300) return "Observer";
-      if (points <= 600) return "Assistant";
-      if (points <= 900) return "Supervised Scrubbed";
-      if (points <= 1200) return "Supervised Unscrubbed";
-      return "Independent Practice";
-    }
-
-    let previousRank = localStorage.getItem("previousRank") || null;
-
-    function updatePointsDisplay() {
-      const pts = getScalpelPoints();
-      const newRank = getRank(pts);
-
-      document.getElementById("pointsNumber").textContent = pts;
-      document.getElementById("rankValue").textContent = newRank;
-
-      previousRank = newRank;
-      localStorage.setItem("previousRank", newRank);
-    }
-
-    updatePointsDisplay();
-    window.addEventListener("focus", updatePointsDisplay);
-
 
     /* -----------------------------------------
        COMBINED H1 HEADING (title + specialty)
@@ -162,14 +148,15 @@
 
 
     /* -----------------------------------------
-       START NOW BUTTON (no logic yet)
+       START NOW BUTTON → GO TO formaltestcore.html
     ----------------------------------------- */
     document.getElementById("startNowBtn").addEventListener("click", () => {
-      alert("Start logic not yet implemented.");
+      window.location.href = "formaltestcore.html";
     });
 
-
-    /* back button */
+    /* -----------------------------------------
+       BACK BUTTON
+    ----------------------------------------- */
     document.getElementById("closeBtn").addEventListener("click", () => {
       window.history.back();
     });
