@@ -31,25 +31,17 @@
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
     import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
-    console.log("🔵 examination.html: Initialising Supabase client…");
-
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const sessionToken = localStorage.getItem("sessionToken");
     const userId = parseInt(localStorage.getItem("userId"));
     const eventId = parseInt(localStorage.getItem("currentEventId"));
 
-    console.log("🔵 sessionToken =", sessionToken);
-    console.log("🔵 userId =", userId);
-    console.log("🔵 eventId =", eventId);
-
     if (!sessionToken) {
-      console.log("🔴 No session token — redirecting to login.html");
       window.location.href = "login.html";
     }
 
     async function checkAccess() {
-      console.log("🔵 Checking examstarted status…");
 
       const {data, error} = await supabase
         .from("eventregistration")
@@ -61,23 +53,19 @@
       console.log("🔵 SELECT result:", {data, error});
 
       if (error || !data) {
-        console.log("🔴 SELECT error or no row — blocking access");
+
         window.location.href = "formaltestinstructions.html";
         return false;
       }
 
       if (data.examstarted === true) {
-        console.log("🔴 examstarted === true — blocking access");
         window.location.href = "formaltestinstructions.html";
         return false;
       }
-
-      console.log("🟢 examstarted === false — access allowed");
       return true;
     }
 
     async function lockExam() {
-      console.log("🔵 Attempting to UPDATE examstarted → true…");
 
       const {data, error, count} = await supabase
         .from("eventregistration")
@@ -86,40 +74,26 @@
         .eq("eventid", eventId)
         .select("*", {count: "exact"});
 
-      console.log("🔵 UPDATE response:", {data, error, count});
-
       if (error) {
-        console.log("🔴 UPDATE failed:", error);
+        console.log("UPDATE failed:", error);
       } else if (count === 0) {
-        console.log("🔴 UPDATE succeeded BUT 0 ROWS UPDATED — RLS or WHERE clause mismatch");
       } else {
-        console.log("🟢 UPDATE succeeded — examstarted is now TRUE");
       }
     }
 
     (async () => {
-      console.log("🔵 Running checkAccess()…");
 
       const allowed = await checkAccess();
       if (!allowed) return;
 
-      console.log("🟢 Access granted — waiting for DOMContentLoaded…");
-
-      // ⭐ Reliable event
       document.addEventListener("DOMContentLoaded", () => {
-        console.log("🟢 DOMContentLoaded fired — starting 20-second timer…");
 
         setTimeout(() => {
-          console.log("🟢 20 seconds elapsed — calling lockExam()…");
           lockExam();
-        }, 20000);
+        }, 5000);
       });
 
-      // ⭐ Backup timer (fires even if DOMContentLoaded fails)
-      setTimeout(() => {
-        console.log("🟡 Backup timer fired — calling lockExam()…");
-        lockExam();
-      }, 25000);
+
     })();
   </script>
 
