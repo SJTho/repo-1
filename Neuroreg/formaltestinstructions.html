@@ -193,7 +193,6 @@
     const eventId = parseInt(localStorage.getItem("currentEventId"));
 
     document.getElementById("resetExamBtn").addEventListener("click", async () => {
-      console.log("🔵 Reset button clicked — updating examstarted → false");
 
       const {data, error} = await supabase
         .from("eventregistration")
@@ -202,10 +201,8 @@
         .eq("eventid", eventId)
         .select();
 
-      console.log("🔵 RESET UPDATE RESULT:", {data, error});
-
       if (error) {
-        alert("Reset failed — check console");
+        alert("Reset failed);
       } else {
         alert("examstarted has been reset to FALSE");
       }
