@@ -150,12 +150,13 @@
         }
     </style>
 
-    <!-- GLOBAL LOGOUT IMPORT -->
+    <!-- MUST BE FIRST: GLOBAL LOGOUT IMPORT -->
     <script type="module">
         import {logout} from "/scripts/logout.js";
         window.logout = logout;
     </script>
 
+    <!-- Supabase + menu logic -->
     <script type="module">
         import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
         import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
@@ -249,7 +250,7 @@
         };
 
         /* ----------------------------------------------------
-           Load Hamburger Menu (admin filtering included)
+           Load Hamburger Menu (admin filtering)
         ---------------------------------------------------- */
         async function loadHamburgerMenu() {
             const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -310,7 +311,7 @@
         window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
 
         /* ----------------------------------------------------
-           Load Top-Right Icons (admin filtering included)
+           Load Top-Right Icons (admin filtering)
         ---------------------------------------------------- */
         async function loadTopRightIcons() {
             const container = document.getElementById("topRightIcons");
@@ -415,3 +416,5 @@
     </div>
 
 </body>
+
+</html>
