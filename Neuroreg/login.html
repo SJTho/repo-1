@@ -100,7 +100,7 @@
         }
 
         /* ----------------------------------------------------
-           Login RPC + Rank Lookup RPC
+           Login RPC + Rank Lookup + Admin Lookup
         ---------------------------------------------------- */
         async function login() {
             const nickname = document.getElementById("loginNickname").value.trim();
@@ -141,7 +141,23 @@
             localStorage.setItem("userId", user.id);
 
             /* ----------------------------------------------------
-               NEW: Fetch rank using your RPC
+               NEW: Fetch isAdmin from public.users
+            ---------------------------------------------------- */
+            const {data: adminData, error: adminError} = await supabase
+                .from("users")
+                .select("isadmin")
+                .eq("id", user.id)
+                .single();
+
+            if (adminError) {
+                console.error("Admin lookup failed:", adminError);
+                localStorage.setItem("isAdmin", "false");
+            } else {
+                localStorage.setItem("isAdmin", adminData?.isadmin ? "true" : "false");
+            }
+
+            /* ----------------------------------------------------
+               Fetch rank using your RPC
             ---------------------------------------------------- */
             const {data: rankData, error: rankError} = await supabase.rpc(
                 "get_rank_for_points",
@@ -155,7 +171,7 @@
                 localStorage.setItem("rank", rankData || "Unranked");
             }
 
-            /* Redirect after storing rank */
+            /* Redirect after storing rank + admin */
             window.location.href = "index.html";
         }
 

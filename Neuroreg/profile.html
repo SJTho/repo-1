@@ -152,7 +152,7 @@
 
     <!-- GLOBAL LOGOUT IMPORT -->
     <script type="module">
-        import {logout} from "./scripts/logout.js";
+        import {logout} from "/scripts/logout.js";
         window.logout = logout;
     </script>
 
@@ -249,7 +249,7 @@
         };
 
         /* ----------------------------------------------------
-           Load Hamburger Menu
+           Load Hamburger Menu (admin filtering included)
         ---------------------------------------------------- */
         async function loadHamburgerMenu() {
             const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -273,9 +273,14 @@
             let currentSection = null;
 
             data.forEach(item => {
-                if (item.admin && !isAdmin) return;
+
+                /* ADMIN FILTER */
+                if (item.isadmin && !isAdmin) return;
+
+                /* Exclude current page */
                 if (item.url === currentPage) return;
 
+                /* Section separator */
                 if (currentSection !== null && item.hamburgersection !== currentSection) {
                     const separator = document.createElement("div");
                     separator.className = "dropdownSeparator";
@@ -305,7 +310,7 @@
         window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
 
         /* ----------------------------------------------------
-           Load Top-Right Icons
+           Load Top-Right Icons (admin filtering included)
         ---------------------------------------------------- */
         async function loadTopRightIcons() {
             const container = document.getElementById("topRightIcons");
@@ -327,7 +332,11 @@
             container.innerHTML = "";
 
             data.forEach(item => {
-                if (item.admin && !isAdmin) return;
+
+                /* ADMIN FILTER */
+                if (item.isadmin && !isAdmin) return;
+
+                /* Exclude current page */
                 if (item.url === currentPage) return;
 
                 const icon = document.createElement("div");
