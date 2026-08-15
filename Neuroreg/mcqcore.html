@@ -46,24 +46,126 @@
 
   <!-- Hamburger -->
   <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
-
-  <!-- Dropdown Menu -->
-  <div id="hamburgerMenuDropdown" class="dropdownMenu">
-    <div class="dropdownItem" onclick="window.location.href='formaltest.html'">💯 Examination</div>
-    <div class="dropdownSeparator"></div>
-    <div class="dropdownItem" onclick="window.location.href='index.html'">🏠 Home</div>
-    <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
-    <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
-    <div class="dropdownSeparator"></div>
-    <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
-  </div>
+  <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
   <!-- Top-right icons -->
-  <div id="topRightIcons">
-    <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
-    <div id="homeIcon" class="topRightIcon" onclick="window.location.href='index.html'">🏠</div>
-    <div id="helpButton" class="topRightIcon" onclick="window.location.href='help.html'">❔</div>
-  </div>
+  <div id="topRightIcons"></div>
+
+  <!-- Dynamic Menu Loader -->
+  <script type="module">
+    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+    import {logout} from "./scripts/logout.js";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.logout = logout;
+
+    /* -----------------------------------------
+       Load Hamburger Menu
+    ----------------------------------------- */
+    async function loadHamburgerMenu() {
+      const dropdown = document.getElementById("hamburgerMenuDropdown");
+      const isAdmin = localStorage.getItem("isAdmin") === "true";
+      const currentPage = window.location.pathname.split("/").pop();
+
+      const {data, error} = await supabase
+        .from("menuitems")
+        .select("*")
+        .eq("hamburger", true)
+        .order("hamburgersection", {ascending: true})
+        .order("hamburgerorder", {ascending: true});
+
+      if (error) {
+        console.error("Menu load error:", error);
+        dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+        return;
+      }
+
+      let currentSection = null;
+
+      data.forEach(item => {
+        if (item.isadmin && !isAdmin) return;
+        if (item.url === currentPage) return;
+
+        if (currentSection !== null && item.hamburgersection !== currentSection) {
+          const separator = document.createElement("div");
+          separator.className = "dropdownSeparator";
+          dropdown.appendChild(separator);
+        }
+
+        currentSection = item.hamburgersection;
+
+        const div = document.createElement("div");
+        div.className = "dropdownItem";
+        div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
+
+        div.onclick = () => {
+          if (item.url === "logout") logout();
+          else window.location.href = item.url;
+        };
+
+        dropdown.appendChild(div);
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
+
+    /* -----------------------------------------
+       Load Top-Right Icons
+    ----------------------------------------- */
+    async function loadTopRightIcons() {
+      const container = document.getElementById("topRightIcons");
+      const isAdmin = localStorage.getItem("isAdmin") === "true";
+      const currentPage = window.location.pathname.split("/").pop();
+
+      const {data, error} = await supabase
+        .from("menuitems")
+        .select("*")
+        .eq("topright", true)
+        .order("toprightorder", {ascending: true});
+
+      if (error) {
+        console.error("Top-right load error:", error);
+        return;
+      }
+
+      container.innerHTML = "";
+
+      data.forEach(item => {
+        if (item.isadmin && !isAdmin) return;
+        if (item.url === currentPage) return;
+
+        const icon = document.createElement("div");
+        icon.className = "topRightIcon";
+        icon.innerText = item.emoji;
+
+        icon.onclick = () => {
+          if (item.url === "logout") logout();
+          else window.location.href = item.url;
+        };
+
+        container.appendChild(icon);
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", loadTopRightIcons);
+  </script>
+
+  <!-- Hamburger toggle -->
+  <script>
+    const hamburger = document.getElementById("hamburgerMenu");
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+    hamburger.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+  </script>
 
   <h1>Practice MCQs</h1>
 
@@ -114,22 +216,6 @@
       }
 
       /* -----------------------------------------
-         HAMBURGER MENU TOGGLE
-      ----------------------------------------- */
-      const hamburger = document.getElementById("hamburgerMenu");
-      const dropdown = document.getElementById("hamburgerMenuDropdown");
-
-      hamburger.addEventListener("click", () => {
-        dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
-      });
-
-      document.addEventListener("click", (event) => {
-        if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
-          dropdown.style.display = "none";
-        }
-      });
-
-      /* -----------------------------------------
          SELECT OPTION
       ----------------------------------------- */
       window.selectOption = function (qIndex, optIndex, element) {
@@ -142,26 +228,29 @@
       };
 
       /* -----------------------------------------
-         STORE SCORE
+         STORE SCORE → SUPABASE
       ----------------------------------------- */
-      function storeScore(score, total, topic, level) {
-        const now = new Date();
-        const timestamp =
-          now.getFullYear() + "-" +
-          String(now.getMonth() + 1).padStart(2, "0") + "-" +
-          String(now.getDate()).padStart(2, "0") + " " +
-          String(now.getHours()).padStart(2, "0") + ":" +
-          String(now.getMinutes()).padStart(2, "0");
+      window.storeScore = async function (score, numberOfQuestions, topic, level) {
 
-        const entry = {score, total, topic, level, timestamp};
+        const userId = parseInt(localStorage.getItem("userId"));
+        if (!userId) {
+          console.error("No userId found in localStorage.");
+          return;
+        }
 
-        let stored = localStorage.getItem("scores");
-        let scores = stored ? JSON.parse(stored) : [];
+        const {error} = await window.supabase
+          .from("userpracticemcqscores")
+          .insert({
+            userid: userId,
+            score: score,
+            numberofquestions: numberOfQuestions
+          });
 
-        scores.push(entry);
-
-        localStorage.setItem("scores", JSON.stringify(scores));
-      }
+        if (error) {
+          console.error("Error saving score:", error);
+          alert("Failed to save score.");
+        }
+      };
 
       /* -----------------------------------------
          MCQ GENERATOR (FILTER + SHUFFLE)
