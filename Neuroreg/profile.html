@@ -242,16 +242,20 @@
         };
 
         /* ----------------------------------------------------
-           Load Hamburger Menu from Supabase
+           Load Hamburger Menu (filtered)
         ---------------------------------------------------- */
         async function loadHamburgerMenu() {
             const dropdown = document.getElementById("hamburgerMenuDropdown");
 
             const isAdmin = localStorage.getItem("isAdmin") === "true";
 
+            // Determine current page filename
+            const currentPage = window.location.pathname.split("/").pop();
+
             const {data, error} = await supabase
                 .from("menuitems")
                 .select("*")
+                .eq("hamburger", true)
                 .order("section", {ascending: true})
                 .order("order", {ascending: true});
 
@@ -265,6 +269,9 @@
 
             data.forEach(item => {
                 if (item.admin && !isAdmin) return;
+
+                // Exclude current page
+                if (item.url === currentPage) return;
 
                 if (currentSection !== null && item.section !== currentSection) {
                     const separator = document.createElement("div");
