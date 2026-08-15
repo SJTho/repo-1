@@ -68,13 +68,11 @@
     }
   </style>
 
-  <!-- MUST BE FIRST: GLOBAL LOGOUT IMPORT -->
   <script type="module">
     import {logout} from "./scripts/logout.js";
     window.logout = logout;
   </script>
 
-  <!-- Supabase + menu logic -->
   <script type="module">
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
     import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
@@ -94,7 +92,7 @@
         .order("hamburgerorder", {ascending: true});
 
       if (error) {
-        console.error("Menu load error:", error);
+        console.error(error);
         dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
         return;
       }
@@ -106,18 +104,16 @@
         if (item.url === currentPage) return;
 
         if (currentSection !== null && item.hamburgersection !== currentSection) {
-          const separator = document.createElement("div");
-          separator.className = "dropdownSeparator";
-          dropdown.appendChild(separator);
+          const sep = document.createElement("div");
+          sep.className = "dropdownSeparator";
+          dropdown.appendChild(sep);
         }
 
         currentSection = item.hamburgersection;
 
         const div = document.createElement("div");
         div.className = "dropdownItem";
-
-        const emoji = item.emoji ? item.emoji + " " : "";
-        div.innerText = emoji + item.displayname;
+        div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
 
         div.onclick = () => {
           if (item.url === "logout") logout();
@@ -142,7 +138,7 @@
         .order("toprightorder", {ascending: true});
 
       if (error) {
-        console.error("Top-right load error:", error);
+        console.error(error);
         return;
       }
 
@@ -172,11 +168,9 @@
 
 <body>
 
-  <!-- Hamburger -->
   <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
   <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
-  <!-- Top-right icons -->
   <div id="topRightIcons"></div>
 
   <script>
@@ -197,6 +191,11 @@
   <h1>My Scores</h1>
 
   <div id="mcqArea">
+
+    <!-- ⭐ RESTORED HEADING -->
+    <p style="text-align:center; font-size:1.1rem; margin-bottom:20px;">
+      Performance over time
+    </p>
 
     <canvas id="scoreChart" style="width:100%; max-width:600px;"></canvas>
 
@@ -224,7 +223,6 @@
     import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
     const userId = parseInt(localStorage.getItem("userId"));
 
     function formatTimestamp(ts) {
@@ -245,7 +243,7 @@
         .order("created_at", {ascending: true});
 
       if (error) {
-        console.error("Error loading scores:", error);
+        console.error(error);
         return;
       }
 
@@ -255,7 +253,6 @@
         const percent = Math.round((entry.score / entry.numberofquestions) * 100);
 
         const row = document.createElement("tr");
-
         row.innerHTML = `
           <td>${formatTimestamp(entry.created_at)}</td>
           <td>${entry.numberofquestions}</td>
@@ -263,7 +260,6 @@
           <td>${percent}%</td>
           <td><button class="deleteBtn" onclick="deleteScore(${entry.id})">Delete</button></td>
         `;
-
         tableBody.appendChild(row);
       });
 
