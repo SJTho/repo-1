@@ -134,6 +134,7 @@
         .topRightIcon {
             font-size: 28px;
             padding: 10px;
+            cursor: pointer;
         }
 
         .dropdownItem {
@@ -248,7 +249,6 @@
             const dropdown = document.getElementById("hamburgerMenuDropdown");
 
             const isAdmin = localStorage.getItem("isAdmin") === "true";
-
             const currentPage = window.location.pathname.split("/").pop();
 
             const {data, error} = await supabase
@@ -268,7 +268,6 @@
 
             data.forEach(item => {
                 if (item.admin && !isAdmin) return;
-
                 if (item.url === currentPage) return;
 
                 if (currentSection !== null && item.section !== currentSection) {
@@ -283,8 +282,8 @@
                 div.className = "dropdownItem";
 
                 const emoji = item.emoji ? item.emoji + " " : "";
-
                 div.innerText = emoji + item.displayname;
+
                 div.onclick = () => window.location.href = item.url;
 
                 dropdown.appendChild(div);
@@ -292,6 +291,43 @@
         }
 
         window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
+
+        /* ----------------------------------------------------
+           Load Top-Right Icons (emoji + filters)
+        ---------------------------------------------------- */
+        async function loadTopRightIcons() {
+            const container = document.getElementById("topRightIcons");
+
+            const isAdmin = localStorage.getItem("isAdmin") === "true";
+            const currentPage = window.location.pathname.split("/").pop();
+
+            const {data, error} = await supabase
+                .from("menuitems")
+                .select("*")
+                .eq("topright", true)
+                .order("order", {ascending: true});
+
+            if (error) {
+                console.error("Top-right load error:", error);
+                return;
+            }
+
+            container.innerHTML = ""; // Clear existing icons
+
+            data.forEach(item => {
+                if (item.admin && !isAdmin) return;
+                if (item.url === currentPage) return;
+
+                const icon = document.createElement("div");
+                icon.className = "topRightIcon";
+                icon.innerText = item.emoji;
+                icon.onclick = () => window.location.href = item.url;
+
+                container.appendChild(icon);
+            });
+        }
+
+        window.addEventListener("DOMContentLoaded", loadTopRightIcons);
     </script>
 </head>
 
@@ -301,11 +337,7 @@
 
     <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
-    <div id="topRightIcons">
-        <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
-        <div id="homeIcon" class="topRightIcon" onclick="window.location.href='index.html'">🏠</div>
-        <div id="helpButton" class="topRightIcon" onclick="window.location.href='help.html'">❔</div>
-    </div>
+    <div id="topRightIcons"></div>
 
     <script>
         const hamburger = document.getElementById("hamburgerMenu");
@@ -355,3 +387,5 @@
     </div>
 
 </body>
+
+</html>
