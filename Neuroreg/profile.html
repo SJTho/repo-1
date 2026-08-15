@@ -72,17 +72,12 @@
             width: 100%;
             box-sizing: border-box;
             background: #e0e0e0;
-            /* darker grey */
             border: 1px solid #b5b5b5;
             border-radius: 6px;
             color: #000;
         }
 
-        /* ----------------------------------------------------
-           MOBILE ONLY — Larger text, bigger tap targets
-        ---------------------------------------------------- */
         @media (max-width: 600px) {
-
             #profileContainer {
                 width: 95%;
                 padding: 28px;
@@ -113,7 +108,6 @@
                 font-size: 20px;
                 padding: 12px 14px;
                 background: #d6d6d6;
-                /* slightly darker on mobile */
                 border: 1px solid #a8a8a8;
             }
         }
@@ -146,6 +140,12 @@
             font-size: 20px;
             padding: 14px;
         }
+
+        .dropdownSeparator {
+            width: 100%;
+            height: 1px;
+            background: #ccc;
+            margin: 6px 0;
         }
     </style>
 
@@ -199,7 +199,7 @@
 
         async function saveField(inputEl, localStorageKey, supabaseColumn) {
             const newValue = inputEl.value.trim();
-            const userId = parseInt(localStorage.getItem("userId"));
+            const userId = localStorage.getItem("userId");
 
             localStorage.setItem(localStorageKey, newValue);
 
@@ -208,32 +208,23 @@
 
             if (supabaseColumn === "nickname") {
                 rpcName = "update_nickname";
-                rpcArgs = {
-                    user_id: userId,
-                    new_nickname: newValue
-                };
+                rpcArgs = {user_id: userId, new_nickname: newValue};
             } else if (supabaseColumn === "password_hash") {
                 rpcName = "update_password";
-                rpcArgs = {
-                    user_id: userId,
-                    new_password: newValue
-                };
+                rpcArgs = {user_id: userId, new_password: newValue};
             }
 
             const {error} = await supabase.rpc(rpcName, rpcArgs);
 
             if (error) {
                 console.error(error);
-                alert("Failed to save to Supabase.");
+                alert("Failed to save to Supabase: " + error.message);
                 return;
             }
 
             window.location.reload();
         }
 
-        /* ----------------------------------------------------
-           Nickname Editing
-        ---------------------------------------------------- */
         window.startEditNickname = () => {
             window.nicknameInput = enableEdit("nicknameDisplay", "editNicknameBtn", "saveNicknameBtn");
         };
@@ -242,17 +233,57 @@
             saveField(window.nicknameInput, "nickname", "nickname");
         };
 
-        /* ----------------------------------------------------
-           Password Editing (raw → RPC hashes server-side)
-        ---------------------------------------------------- */
         window.startEditPassword = () => {
             window.passwordInput = enableEdit("passwordDisplay", "editPasswordBtn", "savePasswordBtn");
         };
 
-        window.savePassword = async () => {
-            const rawPassword = window.passwordInput.value.trim();
-            saveField({value: rawPassword}, "password_hash", "password_hash");
+        window.savePassword = () => {
+            saveField(window.passwordInput, "password_hash", "password_hash");
         };
+
+        /* ----------------------------------------------------
+           Load Hamburger Menu from Supabase
+        ---------------------------------------------------- */
+        async function loadHamburgerMenu() {
+            const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+            const isAdmin = localStorage.getItem("isAdmin") === "true";
+
+            const {data, error} = await supabase
+                .from("menuitems")
+                .select("*")
+                .order("section", {ascending: true})
+                .order("order", {ascending: true});
+
+            if (error) {
+                console.error("Menu load error:", error);
+                dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+                return;
+            }
+
+            let currentSection = null;
+
+            data.forEach(item => {
+                if (item.admin && !isAdmin) return;
+
+                if (currentSection !== null && item.section !== currentSection) {
+                    const separator = document.createElement("div");
+                    separator.className = "dropdownSeparator";
+                    dropdown.appendChild(separator);
+                }
+
+                currentSection = item.section;
+
+                const div = document.createElement("div");
+                div.className = "dropdownItem";
+                div.innerText = item.displayname;
+                div.onclick = () => window.location.href = item.url;
+
+                dropdown.appendChild(div);
+            });
+        }
+
+        window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
     </script>
 </head>
 
@@ -262,19 +293,7 @@
     <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
 
     <!-- Dropdown Menu -->
-    <div id="hamburgerMenuDropdown" class="dropdownMenu">
-        <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
-        <div class="dropdownItem" onclick="window.location.href='formaltest.html'">💯 Examination</div>
-
-        <div class="dropdownSeparator"></div>
-
-        <div class="dropdownItem" onclick="window.location.href='index.html'">🏠 Home</div>
-        <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
-
-        <div class="dropdownSeparator"></div>
-
-        <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
-    </div>
+    <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
     <!-- Top-right icons -->
     <div id="topRightIcons">
@@ -284,7 +303,6 @@
     </div>
 
     <script>
-        /* Dropdown toggle */
         const hamburger = document.getElementById("hamburgerMenu");
         const dropdown = document.getElementById("hamburgerMenuDropdown");
 
