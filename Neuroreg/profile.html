@@ -243,7 +243,7 @@
         };
 
         /* ----------------------------------------------------
-           Load Hamburger Menu (emoji + filters)
+           Load Hamburger Menu (emoji + filters + new column names)
         ---------------------------------------------------- */
         async function loadHamburgerMenu() {
             const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -255,8 +255,8 @@
                 .from("menuitems")
                 .select("*")
                 .eq("hamburger", true)
-                .order("section", {ascending: true})
-                .order("order", {ascending: true});
+                .order("hamburgersection", {ascending: true})
+                .order("hamburgerorder", {ascending: true});
 
             if (error) {
                 console.error("Menu load error:", error);
@@ -270,13 +270,13 @@
                 if (item.admin && !isAdmin) return;
                 if (item.url === currentPage) return;
 
-                if (currentSection !== null && item.section !== currentSection) {
+                if (currentSection !== null && item.hamburgersection !== currentSection) {
                     const separator = document.createElement("div");
                     separator.className = "dropdownSeparator";
                     dropdown.appendChild(separator);
                 }
 
-                currentSection = item.section;
+                currentSection = item.hamburgersection;
 
                 const div = document.createElement("div");
                 div.className = "dropdownItem";
@@ -293,7 +293,7 @@
         window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
 
         /* ----------------------------------------------------
-           Load Top-Right Icons (emoji + filters)
+           Load Top-Right Icons (emoji + filters + toprightorder)
         ---------------------------------------------------- */
         async function loadTopRightIcons() {
             const container = document.getElementById("topRightIcons");
@@ -305,14 +305,14 @@
                 .from("menuitems")
                 .select("*")
                 .eq("topright", true)
-                .order("order", {ascending: true});
+                .order("toprightorder", {ascending: true});
 
             if (error) {
                 console.error("Top-right load error:", error);
                 return;
             }
 
-            container.innerHTML = ""; // Clear existing icons
+            container.innerHTML = "";
 
             data.forEach(item => {
                 if (item.admin && !isAdmin) return;
