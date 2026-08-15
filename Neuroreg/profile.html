@@ -150,6 +150,12 @@
         }
     </style>
 
+    <!-- GLOBAL LOGOUT IMPORT -->
+    <script type="module">
+        import {logout} from "./scripts/logout.js";
+        window.logout = logout;
+    </script>
+
     <script type="module">
         import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
         import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
@@ -243,7 +249,7 @@
         };
 
         /* ----------------------------------------------------
-           Load Hamburger Menu (emoji + filters + new column names)
+           Load Hamburger Menu
         ---------------------------------------------------- */
         async function loadHamburgerMenu() {
             const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -284,7 +290,13 @@
                 const emoji = item.emoji ? item.emoji + " " : "";
                 div.innerText = emoji + item.displayname;
 
-                div.onclick = () => window.location.href = item.url;
+                div.onclick = () => {
+                    if (item.url === "logout") {
+                        logout();
+                    } else {
+                        window.location.href = item.url;
+                    }
+                };
 
                 dropdown.appendChild(div);
             });
@@ -293,7 +305,7 @@
         window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
 
         /* ----------------------------------------------------
-           Load Top-Right Icons (emoji + filters + toprightorder)
+           Load Top-Right Icons
         ---------------------------------------------------- */
         async function loadTopRightIcons() {
             const container = document.getElementById("topRightIcons");
@@ -321,7 +333,14 @@
                 const icon = document.createElement("div");
                 icon.className = "topRightIcon";
                 icon.innerText = item.emoji;
-                icon.onclick = () => window.location.href = item.url;
+
+                icon.onclick = () => {
+                    if (item.url === "logout") {
+                        logout();
+                    } else {
+                        window.location.href = item.url;
+                    }
+                };
 
                 container.appendChild(icon);
             });
@@ -387,5 +406,3 @@
     </div>
 
 </body>
-
-</html>
