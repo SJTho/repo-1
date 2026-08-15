@@ -192,7 +192,6 @@
 
   <div id="mcqArea">
 
-    <!-- ⭐ RESTORED HEADING -->
     <p style="text-align:center; font-size:1.1rem; margin-bottom:20px;">
       Performance over time
     </p>
@@ -282,6 +281,9 @@
       location.reload();
     }
 
+    // expose deleteScore to inline onclick
+    window.deleteScore = deleteScore;
+
     function buildChart(scores) {
       const labels = scores.map(s => formatTimestamp(s.created_at));
       const percentages = scores.map(s => Math.round((s.score / s.numberofquestions) * 100));
@@ -327,5 +329,3 @@
   </script>
 
 </body>
-
-</html>
