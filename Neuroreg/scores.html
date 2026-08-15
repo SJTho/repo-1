@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scores</title>
+  <title>My Scores</title>
 
   <link rel="stylesheet" href="./mcqcore.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -107,13 +107,9 @@
 
       data.forEach(item => {
 
-        /* ADMIN FILTER */
         if (item.isadmin && !isAdmin) return;
-
-        /* Exclude current page */
         if (item.url === currentPage) return;
 
-        /* Section separator */
         if (currentSection !== null && item.hamburgersection !== currentSection) {
           const separator = document.createElement("div");
           separator.className = "dropdownSeparator";
@@ -166,10 +162,7 @@
 
       data.forEach(item => {
 
-        /* ADMIN FILTER */
         if (item.isadmin && !isAdmin) return;
-
-        /* Exclude current page */
         if (item.url === currentPage) return;
 
         const icon = document.createElement("div");
@@ -217,7 +210,7 @@
     });
   </script>
 
-  <h1>Your Scores</h1>
+  <h1>My Scores</h1>
 
   <div id="mcqArea">
 
@@ -246,78 +239,105 @@
 
   </div>
 
-  <script>
-    // Load stored scores
-    let stored = localStorage.getItem("scores");
-    let scores = stored ? JSON.parse(stored) : [];
+  <script type="module">
+    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
-    const tableBody = document.querySelector("#scoreTable tbody");
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Populate table
-    scores.forEach((entry, index) => {
-      const percent = Math.round((entry.score / entry.total) * 100);
+    const userId = parseInt(localStorage.getItem("userId"));
 
-      const row = document.createElement("tr");
+    async function loadScores() {
+      const {data: scores, error} = await supabase
+        .from("userpracticemcqscores")
+        .select("*")
+        .eq("userid", userId)
+        .order("created_at", {ascending: true});
 
-      row.innerHTML = `
-        <td>${entry.timestamp}</td>
-        <td>${entry.total}</td>
-        <td>${entry.score}</td>
-        <td>${percent}%</td>
-        <td><button class="deleteBtn" onclick="deleteScore(${index})">Delete</button></td>
-      `;
-
-      tableBody.appendChild(row);
-    });
-
-    // Delete score
-    function deleteScore(index) {
-      if (confirm("Are you sure you want to delete this score?")) {
-        scores.splice(index, 1);
-        localStorage.setItem("scores", JSON.stringify(scores));
-        location.reload();
+      if (error) {
+        console.error("Error loading scores:", error);
+        return;
       }
+
+      const tableBody = document.querySelector("#scoreTable tbody");
+
+      scores.forEach(entry => {
+        const percent = Math.round((entry.score / entry.total) * 100);
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${entry.created_at}</td>
+          <td>${entry.total}</td>
+          <td>${entry.score}</td>
+          <td>${percent}%</td>
+          <td><button class="deleteBtn" onclick="deleteScore(${entry.id})">Delete</button></td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+
+      buildChart(scores);
     }
 
-    // Build graph from remaining scores
-    const labels = scores.map(s => s.timestamp);
-    const percentages = scores.map(s => Math.round((s.score / s.total) * 100));
+    async function deleteScore(id) {
+      if (!confirm("Are you sure you want to delete this score?")) return;
 
-    const ctx = document.getElementById('scoreChart').getContext('2d');
+      const {error} = await supabase
+        .from("userpracticemcqscores")
+        .delete()
+        .eq("id", id);
 
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Score (%)',
-          data: percentages,
-          borderColor: '#6fa8ff',
-          backgroundColor: 'rgba(111,168,255,0.2)',
-          borderWidth: 3,
-          tension: 0.3,
-          pointRadius: 5,
-          pointBackgroundColor: '#2a4c8a',
-          pointBorderColor: '#6fa8ff'
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            ticks: {color: '#fff'}
-          },
-          x: {
-            ticks: {color: '#fff', maxRotation: 45, minRotation: 45}
-          }
-        },
-        plugins: {
-          legend: {labels: {color: '#fff'}}
-        }
+      if (error) {
+        alert("Failed to delete score: " + error.message);
+        return;
       }
-    });
+
+      location.reload();
+    }
+
+    function buildChart(scores) {
+      const labels = scores.map(s => s.created_at);
+      const percentages = scores.map(s => Math.round((s.score / s.total) * 100));
+
+      const ctx = document.getElementById('scoreChart').getContext('2d');
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Score (%)',
+            data: percentages,
+            borderColor: '#6fa8ff',
+            backgroundColor: 'rgba(111,168,255,0.2)',
+            borderWidth: 3,
+            tension: 0.3,
+            pointRadius: 5,
+            pointBackgroundColor: '#2a4c8a',
+            pointBorderColor: '#6fa8ff'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {color: '#fff'}
+            },
+            x: {
+              ticks: {color: '#fff', maxRotation: 45, minRotation: 45}
+            }
+          },
+          plugins: {
+            legend: {labels: {color: '#fff'}}
+          }
+        }
+      });
+    }
+
+    loadScores();
   </script>
 
 </body>
