@@ -276,7 +276,7 @@
             data.forEach(item => {
 
                 /* ADMIN FILTER */
-                if (item.isadmin && !isAdmin) return;
+                if (item.admin && !isAdmin) return;
 
                 /* Exclude current page */
                 if (item.url === currentPage) return;
@@ -335,7 +335,7 @@
             data.forEach(item => {
 
                 /* ADMIN FILTER */
-                if (item.isadmin && !isAdmin) return;
+                if (item.admin && !isAdmin) return;
 
                 /* Exclude current page */
                 if (item.url === currentPage) return;
