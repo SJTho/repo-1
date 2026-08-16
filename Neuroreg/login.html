@@ -100,7 +100,7 @@
         }
 
         /* ----------------------------------------------------
-           Login RPC + Rank Lookup + Admin Lookup
+           Login RPC + Rank Lookup
         ---------------------------------------------------- */
         async function login() {
             const nickname = document.getElementById("loginNickname").value.trim();
@@ -134,11 +134,8 @@
                 return;
             }
 
-            /* ----------------------------------------------------
-               DEBUG: Show the actual user object returned by RPC
-            ---------------------------------------------------- */
+            /* Debug: show the user object */
             console.log("LOGIN USER OBJECT:", user);
-
 
             /* Store session data */
             localStorage.setItem("sessionToken", user.token);
@@ -146,21 +143,8 @@
             localStorage.setItem("scalpel_points", user.scalpel_points);
             localStorage.setItem("userId", user.id);
 
-            /* ----------------------------------------------------
-               Fetch isAdmin from public.users
-            ---------------------------------------------------- */
-            const {data: adminData, error: adminError} = await supabase
-                .from("users")
-                .select("isadmin")
-                .eq("id", user.id)
-                .single();
-
-            if (adminError) {
-                console.error("Admin lookup failed:", adminError);
-                localStorage.setItem("isAdmin", "false");
-            } else {
-                localStorage.setItem("isAdmin", adminData?.isadmin ? "true" : "false");
-            }
+            /* Store admin flag directly from RPC */
+            localStorage.setItem("isAdmin", user.isadmin ? "true" : "false");
 
             /* ----------------------------------------------------
                Fetch rank using your RPC
@@ -175,9 +159,7 @@
                 localStorage.setItem("rank", "Unranked");
             } else {
                 localStorage.setItem("rank", rankData || "Unranked");
-                alert("Pause");
             }
-
 
             /* Redirect after storing rank + admin */
             window.location.href = "index.html";
