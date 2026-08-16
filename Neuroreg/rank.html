@@ -74,11 +74,28 @@
             margin-bottom: 20px;
         }
 
+        .toggleWrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .toggleLabelText {
+            font-size: 22px;
+            font-weight: bold;
+            color: #14233d;
+        }
+
+        .toggleLabelText.hidden {
+            visibility: hidden;
+        }
+
         .switch {
             position: relative;
             display: inline-block;
-            width: 60px;
-            height: 34px;
+            width: 70px;
+            height: 38px;
         }
 
         .switch input {
@@ -100,8 +117,8 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 26px;
-            width: 26px;
+            height: 30px;
+            width: 30px;
             left: 4px;
             bottom: 4px;
             background-color: white;
@@ -114,23 +131,7 @@
         }
 
         input:checked+.slider:before {
-            transform: translateX(26px);
-        }
-
-        .toggleLabel {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        #leagueLabel {
-            color: #14233d;
-        }
-
-        #friendsLabel {
-            color: #007bff;
+            transform: translateX(32px);
         }
 
         #friendsSection {
@@ -161,7 +162,8 @@
 
             const userRank = localStorage.getItem("rank");
 
-            document.getElementById("rankHeading").innerText = `${userRank} top ten`;
+            // REMOVE "top ten"
+            document.getElementById("rankHeading").innerText = `${userRank}`;
 
             const {data: rankRows} = await supabase
                 .from("rank")
@@ -323,12 +325,18 @@
 
         window.toggleFriendMode = function () {
             const toggle = document.getElementById("friendToggle");
+            const leagueLabel = document.getElementById("leagueLabel");
+            const friendsLabel = document.getElementById("friendsLabel");
 
             if (toggle.checked) {
                 document.getElementById("friendsSection").style.display = "block";
+                friendsLabel.classList.remove("hidden");
+                leagueLabel.classList.add("hidden");
                 renderFriendsList();
             } else {
                 document.getElementById("friendsSection").style.display = "none";
+                leagueLabel.classList.remove("hidden");
+                friendsLabel.classList.add("hidden");
                 loadRankPage();
             }
         };
@@ -457,13 +465,15 @@
     <div id="profileContainer">
 
         <div class="toggleContainer">
-            <label class="switch">
-                <input type="checkbox" id="friendToggle" onchange="toggleFriendMode()">
-                <span class="slider"></span>
-            </label>
-            <div class="toggleLabel">
-                <span id="leagueLabel">League</span>
-                <span id="friendsLabel">Friends</span>
+            <div class="toggleWrapper">
+                <span id="leagueLabel" class="toggleLabelText">League</span>
+
+                <label class="switch">
+                    <input type="checkbox" id="friendToggle" onchange="toggleFriendMode()">
+                    <span class="slider"></span>
+                </label>
+
+                <span id="friendsLabel" class="toggleLabelText hidden">Friends</span>
             </div>
         </div>
 
@@ -478,7 +488,7 @@
         <h2 id="rankHeading">Rank</h2>
         <div id="rankList"></div>
 
-        <button class="closeBtn" onclick="window.location.href='index.html'">Back</button>
+        <!-- BACK BUTTON REMOVED -->
     </div>
 
 </body>
