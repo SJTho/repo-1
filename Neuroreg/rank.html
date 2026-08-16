@@ -35,7 +35,6 @@
         .rankRow {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr 1fr;
-            /* equal spacing */
             align-items: center;
             padding: 10px 0;
             border-bottom: 1px solid #ddd;
@@ -58,15 +57,19 @@
             color: #007bff !important;
         }
 
+        /* ⭐ Delete button width reduced by 50% */
         .deleteFriendBtn {
             background: #b33a3a;
             color: #fff;
             border: none;
-            padding: 8px 12px;
+            padding: 8px 6px;
+            /* narrower */
             border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
             text-align: center;
+            width: 60px;
+            /* reduced width */
         }
 
         /* Toggle Switch */
@@ -382,3 +385,5 @@
     </div>
 
 </body>
+
+</html>
