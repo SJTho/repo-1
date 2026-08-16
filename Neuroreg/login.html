@@ -138,6 +138,8 @@
                DEBUG: Show the actual user object returned by RPC
             ---------------------------------------------------- */
             console.log("LOGIN USER OBJECT:", user);
+            return;
+
 
             /* Store session data */
             localStorage.setItem("sessionToken", user.token);
