@@ -33,7 +33,7 @@
 
             .rankRow {
                 display: grid;
-                grid-template-columns: 60px 1fr 100px;
+                grid-template-columns: 60px 1fr 100px 60px;
                 padding: 10px;
                 border-bottom: 1px solid #ddd;
                 font-size: 18px;
@@ -59,15 +59,40 @@
                 color: #007bff !important;
             }
 
-            .closeBtn {
+            .deleteFriendBtn {
+                background: #8a2a2a;
+                color: #fff;
+                border: none;
+                padding: 6px 10px;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+
+            .toggleContainer {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .toggleContainer button {
                 background: #14233d;
-                color: white;
-                width: 100%;
-                margin-top: 20px;
-                padding: 10px;
+                color: #fff;
+                padding: 10px 20px;
                 border-radius: 6px;
                 border: none;
                 cursor: pointer;
+                margin: 5px;
+            }
+
+            #friendsSection {
+                margin-top: 20px;
+                display: none;
+            }
+
+            #friendsSection select,
+            #friendsSection button {
+                margin-top: 10px;
+                padding: 10px;
+                width: 100%;
             }
         </style>
 
@@ -85,7 +110,6 @@
                 }
 
                 const userRank = localStorage.getItem("rank");
-                const userPoints = Number(localStorage.getItem("scalpel_points"));
 
                 document.getElementById("rankHeading").innerText = `${userRank} top ten`;
 
@@ -123,12 +147,127 @@
                     <div class="rankPosition">${index + 1}</div>
                     <div class="rankNickname">${u.nickname}</div>
                     <div class="rankPoints">${u.scalpel_points}</div>
+                    <div></div>
                 `;
                     container.appendChild(row);
                 });
             }
 
             window.addEventListener("DOMContentLoaded", loadRankPage);
+
+            /* -----------------------------------------
+               FRIENDS SYSTEM
+            ----------------------------------------- */
+
+            async function loadAllUsers() {
+                const {data} = await supabase
+                    .from("users")
+                    .select("id, nickname")
+                    .order("nickname", {ascending: true});
+                return data;
+            }
+
+            async function loadFriends() {
+                const userId = parseInt(localStorage.getItem("userId"));
+
+                const {data: friendRows} = await supabase
+                    .from("friends")
+                    .select("friend_id")
+                    .eq("user_id", userId);
+
+                if (!friendRows.length) return [];
+
+                const friendIds = friendRows.map(f => f.friend_id);
+
+                const {data: friends} = await supabase
+                    .from("users")
+                    .select("id, nickname, scalpel_points")
+                    .in("id", friendIds)
+                    .order("scalpel_points", {ascending: false});
+
+                return friends;
+            }
+
+            async function addFriend() {
+                const userId = parseInt(localStorage.getItem("userId"));
+                const friendId = parseInt(document.getElementById("friendSelect").value);
+
+                if (!friendId || friendId === userId) {
+                    alert("Invalid friend selection.");
+                    return;
+                }
+
+                await supabase.from("friends").insert([
+                    {user_id: userId, friend_id: friendId},
+                    {user_id: friendId, friend_id: userId}
+                ]);
+
+                alert("Friend added (reciprocal).");
+                renderFriendsList();
+            }
+
+            async function deleteFriend(friendId) {
+                const userId = parseInt(localStorage.getItem("userId"));
+
+                await supabase.from("friends")
+                    .delete()
+                    .eq("user_id", userId)
+                    .eq("friend_id", friendId);
+
+                await supabase.from("friends")
+                    .delete()
+                    .eq("user_id", friendId)
+                    .eq("friend_id", userId);
+
+                alert("Friendship removed.");
+                renderFriendsList();
+            }
+
+            async function renderFriendsList() {
+                const container = document.getElementById("rankList");
+                container.innerHTML = "";
+
+                const friends = await loadFriends();
+
+                if (!friends.length) {
+                    container.innerHTML = "<p>No friends added.</p>";
+                    return;
+                }
+
+                friends.forEach((f, index) => {
+                    const row = document.createElement("div");
+                    row.className = "rankRow";
+                    row.innerHTML = `
+                    <div class="rankPosition">${index + 1}</div>
+                    <div class="rankNickname">${f.nickname}</div>
+                    <div class="rankPoints">${f.scalpel_points}</div>
+                    <button class="deleteFriendBtn" onclick="deleteFriend(${f.id})">❌</button>
+                `;
+                    container.appendChild(row);
+                });
+            }
+
+            window.addEventListener("DOMContentLoaded", async () => {
+                const users = await loadAllUsers();
+                const select = document.getElementById("friendSelect");
+
+                users.forEach(u => {
+                    const opt = document.createElement("option");
+                    opt.value = u.id;
+                    opt.textContent = u.nickname;
+                    select.appendChild(opt);
+                });
+            });
+
+            window.showLeague = function () {
+                document.getElementById("friendsSection").style.display = "none";
+                loadRankPage();
+            };
+
+            window.showFriends = function () {
+                document.getElementById("friendsSection").style.display = "block";
+                renderFriendsList();
+            };
         </script>
 </head>
 
@@ -252,8 +391,25 @@
     </script>
 
     <div id="profileContainer">
+
+        <div class="toggleContainer">
+            <button onclick="showLeague()">League</button>
+            <button onclick="showFriends()">Friends</button>
+        </div>
+
+        <div id="friendsSection">
+            <p>Friendships are reciprocal.</p>
+
+            <select id="friendSelect">
+                <option value="">Select a friend</option>
+            </select>
+
+            <button onclick="addFriend()">Add Friend</button>
+        </div>
+
         <h2 id="rankHeading">Rank</h2>
         <div id="rankList"></div>
+
         <button class="closeBtn" onclick="window.location.href='index.html'">Back</button>
     </div>
 
