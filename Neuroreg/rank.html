@@ -68,19 +68,69 @@
             cursor: pointer;
         }
 
+        /* Toggle Switch */
         .toggleContainer {
             text-align: center;
             margin-bottom: 20px;
         }
 
-        .toggleContainer button {
-            background: #14233d;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 6px;
-            border: none;
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            display: none;
+        }
+
+        .slider {
+            position: absolute;
             cursor: pointer;
-            margin: 5px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #14233d;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #007bff;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggleLabel {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        #leagueLabel {
+            color: #14233d;
+        }
+
+        #friendsLabel {
+            color: #007bff;
         }
 
         #friendsSection {
@@ -271,14 +321,16 @@
             });
         }
 
-        window.showLeague = function () {
-            document.getElementById("friendsSection").style.display = "none";
-            loadRankPage();
-        };
+        window.toggleFriendMode = function () {
+            const toggle = document.getElementById("friendToggle");
 
-        window.showFriends = function () {
-            document.getElementById("friendsSection").style.display = "block";
-            renderFriendsList();
+            if (toggle.checked) {
+                document.getElementById("friendsSection").style.display = "block";
+                renderFriendsList();
+            } else {
+                document.getElementById("friendsSection").style.display = "none";
+                loadRankPage();
+            }
         };
     </script>
 </head>
@@ -405,8 +457,14 @@
     <div id="profileContainer">
 
         <div class="toggleContainer">
-            <button onclick="showLeague()">League</button>
-            <button onclick="showFriends()">Friends</button>
+            <label class="switch">
+                <input type="checkbox" id="friendToggle" onchange="toggleFriendMode()">
+                <span class="slider"></span>
+            </label>
+            <div class="toggleLabel">
+                <span id="leagueLabel">League</span>
+                <span id="friendsLabel">Friends</span>
+            </div>
         </div>
 
         <div id="friendsSection">
@@ -424,3 +482,5 @@
     </div>
 
 </body>
+
+</html>
