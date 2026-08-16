@@ -79,6 +79,8 @@
             justify-content: center;
             align-items: center;
             gap: 15px;
+            margin-bottom: 16px;
+            /* extra line space below toggle */
         }
 
         .toggleLabelText {
@@ -95,7 +97,8 @@
             position: relative;
             display: inline-block;
             width: 70px;
-            height: 30px;
+            height: 26px;
+            /* reduced height */
         }
 
         .switch input {
@@ -111,14 +114,14 @@
             bottom: 0;
             background-color: #14233d;
             transition: .4s;
-            border-radius: 34px;
+            border-radius: 26px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 24px;
-            width: 24px;
+            height: 20px;
+            width: 20px;
             left: 3px;
             bottom: 3px;
             background-color: white;
@@ -131,16 +134,16 @@
         }
 
         input:checked+.slider:before {
-            transform: translateX(36px);
+            transform: translateX(40px);
         }
 
         #friendsSection {
-            margin-top: 20px;
+            margin-top: 10px;
             display: none;
         }
 
         #addFriendBox {
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         #addFriendBox input,
@@ -209,10 +212,6 @@
         }
 
         window.addEventListener("DOMContentLoaded", loadRankPage);
-
-        /* -----------------------------------------
-           FRIENDS SYSTEM
-        ----------------------------------------- */
 
         async function loadFriends() {
             const userId = parseInt(localStorage.getItem("userId"));
@@ -355,14 +354,11 @@
 
 <body>
 
-    <!-- Hamburger -->
     <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
     <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
-    <!-- Top-right icons -->
     <div id="topRightIcons"></div>
 
-    <!-- Dynamic Menu Loader -->
     <script type="module">
         import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
         import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
@@ -456,7 +452,6 @@
         window.addEventListener("DOMContentLoaded", loadTopRightIcons);
     </script>
 
-    <!-- Hamburger toggle -->
     <script>
         const hamburger = document.getElementById("hamburgerMenu");
         const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -487,11 +482,9 @@
             </div>
         </div>
 
-        <!-- Shared heading + table for both modes -->
         <h2 id="rankHeading">Rank</h2>
         <div id="rankList"></div>
 
-        <!-- Friends-only add friend box below the table -->
         <div id="friendsSection">
             <div id="addFriendBox">
                 <input id="friendInput" type="text" placeholder="Enter friend's nickname">
@@ -502,5 +495,3 @@
     </div>
 
 </body>
-
-</html>
