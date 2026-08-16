@@ -71,8 +71,8 @@
         /* Toggle Switch */
         .toggleContainer {
             text-align: center;
-            margin-bottom: 30px;
-            /* extra spacing below toggle */
+            margin-bottom: 40px;
+            /* extra spacing */
         }
 
         .toggleWrapper {
@@ -98,9 +98,9 @@
             position: relative;
             display: inline-block;
             width: 50px;
-            /* reduced width by ~30% */
+            /* reduced width */
             height: 22px;
-            /* reduced height by ~20% */
+            /* reduced height */
         }
 
         .switch input {
@@ -137,7 +137,6 @@
 
         input:checked+.slider:before {
             transform: translateX(28px);
-            /* adjusted for new width */
         }
 
         #friendsSection {
@@ -237,7 +236,7 @@
             return friends;
         }
 
-        async function addFriend() {
+        window.addFriend = async function () {
             const userId = parseInt(localStorage.getItem("userId"));
             const nickname = document.getElementById("friendInput").value.trim();
 
@@ -285,9 +284,9 @@
 
             alert("Friend added (reciprocal).");
             renderFriendsList();
-        }
+        };
 
-        async function deleteFriend(friendId) {
+        window.deleteFriend = async function (friendId) {
             const userId = parseInt(localStorage.getItem("userId"));
 
             await supabase.from("friends")
@@ -302,7 +301,7 @@
 
             alert("Friendship removed.");
             renderFriendsList();
-        }
+        };
 
         async function renderFriendsList() {
             const container = document.getElementById("rankList");
