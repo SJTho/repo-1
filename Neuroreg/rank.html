@@ -239,7 +239,7 @@
         }
 
         /* ------------------------------
-           ADD FRIEND (RPC)
+           ADD FRIEND (SECURE RPC)
         ------------------------------ */
         window.addFriend = async function () {
             const userId = parseInt(localStorage.getItem("userId"));
@@ -273,12 +273,10 @@
                 return;
             }
 
-            const {error: insertError} = await supabase
-                .from("friends")
-                .insert([
-                    {user_id: userId, friend_id: friendId},
-                    {user_id: friendId, friend_id: userId}
-                ]);
+            const {error: insertError} = await supabase.rpc(
+                "add_friend_secure",
+                {uid: userId, fid: friendId}
+            );
 
             if (insertError) {
                 console.error(insertError);
@@ -376,7 +374,7 @@
     <!-- Top-right icons -->
     <div id="topRightIcons"></div>
 
-    <!-- Hamburger + icons scripts omitted for brevity (unchanged) -->
+    <!-- (Hamburger + icons scripts unchanged) -->
 
     <div id="profileContainer">
 
@@ -408,3 +406,5 @@
     </div>
 
 </body>
+
+</html>
