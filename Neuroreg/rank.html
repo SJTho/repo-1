@@ -172,11 +172,10 @@
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
         /* ----------------------------------------------------
-           Load Hamburger Menu (same as profile.html)
+           Hamburger Menu (same as profile.html)
         ---------------------------------------------------- */
         async function loadHamburgerMenu() {
             const dropdown = document.getElementById("hamburgerMenuDropdown");
-
             const isAdmin = localStorage.getItem("isAdmin") === "true";
             const currentPage = window.location.pathname.split("/").pop();
 
@@ -188,7 +187,6 @@
                 .order("hamburgerorder", {ascending: true});
 
             if (error) {
-                console.error("Menu load error:", error);
                 dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
                 return;
             }
@@ -214,11 +212,8 @@
                 div.innerText = emoji + item.displayname;
 
                 div.onclick = () => {
-                    if (item.url === "logout") {
-                        logout();
-                    } else {
-                        window.location.href = item.url;
-                    }
+                    if (item.url === "logout") logout();
+                    else window.location.href = item.url;
                 };
 
                 dropdown.appendChild(div);
@@ -226,11 +221,10 @@
         }
 
         /* ----------------------------------------------------
-           Load Top-Right Icons (same as profile.html)
+           Top-Right Icons (same as profile.html)
         ---------------------------------------------------- */
         async function loadTopRightIcons() {
             const container = document.getElementById("topRightIcons");
-
             const isAdmin = localStorage.getItem("isAdmin") === "true";
             const currentPage = window.location.pathname.split("/").pop();
 
@@ -240,10 +234,7 @@
                 .eq("topright", true)
                 .order("toprightorder", {ascending: true});
 
-            if (error) {
-                console.error("Top-right load error:", error);
-                return;
-            }
+            if (error) return;
 
             container.innerHTML = "";
 
@@ -256,11 +247,8 @@
                 icon.innerText = item.emoji;
 
                 icon.onclick = () => {
-                    if (item.url === "logout") {
-                        logout();
-                    } else {
-                        window.location.href = item.url;
-                    }
+                    if (item.url === "logout") logout();
+                    else window.location.href = item.url;
                 };
 
                 container.appendChild(icon);
@@ -268,7 +256,7 @@
         }
 
         /* ----------------------------------------------------
-           Load Rank Page (Supabase-driven)
+           Rank Page (LOCALSTORAGE, same as profile.html)
         ---------------------------------------------------- */
         async function loadRankPage() {
             const token = localStorage.getItem("sessionToken");
@@ -277,15 +265,7 @@
                 return;
             }
 
-            const userId = parseInt(localStorage.getItem("userId"));
-
-            const {data: userData} = await supabase
-                .from("users")
-                .select("rank")
-                .eq("id", userId)
-                .single();
-
-            const userRank = userData?.rank ?? "Unranked";
+            const userRank = localStorage.getItem("rank") ?? "Unranked";
             document.getElementById("rankHeading").innerText = userRank;
 
             const {data: rankRows} = await supabase
@@ -305,10 +285,7 @@
                 }
             );
 
-            if (error) {
-                console.error("RPC error:", error);
-                return;
-            }
+            if (error) return;
 
             const container = document.getElementById("rankList");
             container.innerHTML = "";
@@ -332,17 +309,12 @@
         async function loadFriends() {
             const userId = parseInt(localStorage.getItem("userId"));
 
-            const {data: friends, error} = await supabase.rpc(
+            const {data: friends} = await supabase.rpc(
                 "get_friends_secure",
                 {uid: userId}
             );
 
-            if (error) {
-                console.error("Friend RPC error:", error);
-                return [];
-            }
-
-            return friends;
+            return friends ?? [];
         }
 
         window.addFriend = async function () {
@@ -354,16 +326,10 @@
                 return;
             }
 
-            const {data: users, error} = await supabase.rpc(
+            const {data: users} = await supabase.rpc(
                 "get_user_by_nickname",
                 {nick: nickname}
             );
-
-            if (error) {
-                console.error(error);
-                alert("Error searching for user.");
-                return;
-            }
 
             if (!users || users.length === 0) {
                 alert("No user found with that nickname.");
@@ -377,17 +343,7 @@
                 return;
             }
 
-            const {data: existingFriends, error: existingError} = await supabase.rpc(
-                "get_friends_secure",
-                {uid: userId}
-            );
-
-            if (existingError) {
-                console.error(existingError);
-                alert("Error checking existing friends.");
-                return;
-            }
-
+            const existingFriends = await loadFriends();
             const alreadyFriends = existingFriends.some(f => f.id === friendId);
 
             if (alreadyFriends) {
@@ -395,16 +351,10 @@
                 return;
             }
 
-            const {error: insertError} = await supabase.rpc(
-                "add_friend_secure",
-                {uid: userId, fid: friendId}
-            );
-
-            if (insertError) {
-                console.error(insertError);
-                alert("Error adding friend.");
-                return;
-            }
+            await supabase.rpc("add_friend_secure", {
+                uid: userId,
+                fid: friendId
+            });
 
             renderFriendsList();
         };
@@ -412,16 +362,10 @@
         window.deleteFriend = async function (friendId) {
             const userId = parseInt(localStorage.getItem("userId"));
 
-            const {error} = await supabase.rpc(
-                "delete_friend_secure",
-                {uid: userId, fid: friendId}
-            );
-
-            if (error) {
-                console.error("Delete friend RPC error:", error);
-                alert("Error removing friend.");
-                return;
-            }
+            await supabase.rpc("delete_friend_secure", {
+                uid: userId,
+                fid: friendId
+            });
 
             renderFriendsList();
         };
@@ -468,6 +412,8 @@
                 document.getElementById("friendsSection").style.display = "none";
                 leagueLabel.classList.remove("hidden");
                 friendsLabel.classList.add("hidden");
+
+                heading.innerText = localStorage.getItem("rank");
 
                 loadRankPage();
             }
