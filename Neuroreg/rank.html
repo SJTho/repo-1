@@ -71,7 +71,8 @@
         /* Toggle Switch */
         .toggleContainer {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            /* extra spacing below toggle */
         }
 
         .toggleWrapper {
@@ -79,8 +80,8 @@
             justify-content: center;
             align-items: center;
             gap: 15px;
-            margin-bottom: 16px;
-            /* extra line space below toggle */
+            margin-bottom: 20px;
+            /* extra spacing */
         }
 
         .toggleLabelText {
@@ -96,9 +97,10 @@
         .switch {
             position: relative;
             display: inline-block;
-            width: 70px;
-            height: 26px;
-            /* reduced height */
+            width: 50px;
+            /* reduced width by ~30% */
+            height: 22px;
+            /* reduced height by ~20% */
         }
 
         .switch input {
@@ -114,16 +116,16 @@
             bottom: 0;
             background-color: #14233d;
             transition: .4s;
-            border-radius: 26px;
+            border-radius: 22px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 20px;
-            width: 20px;
-            left: 3px;
-            bottom: 3px;
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
             background-color: white;
             transition: .4s;
             border-radius: 50%;
@@ -134,7 +136,8 @@
         }
 
         input:checked+.slider:before {
-            transform: translateX(40px);
+            transform: translateX(28px);
+            /* adjusted for new width */
         }
 
         #friendsSection {
@@ -143,7 +146,7 @@
         }
 
         #addFriendBox {
-            margin-top: 10px;
+            margin-top: 20px;
         }
 
         #addFriendBox input,
@@ -495,3 +498,5 @@
     </div>
 
 </body>
+
+</html>
