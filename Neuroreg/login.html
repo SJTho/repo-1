@@ -134,9 +134,6 @@
                 return;
             }
 
-            /* Debug: show the user object */
-            console.log("LOGIN USER OBJECT:", user);
-
             /* Store session data */
             localStorage.setItem("sessionToken", user.token);
             localStorage.setItem("nickname", user.nickname);
