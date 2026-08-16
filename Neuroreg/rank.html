@@ -82,7 +82,7 @@
         }
 
         .toggleLabelText {
-            font-size: 22px;
+            font-size: 26px;
             font-weight: bold;
             color: #14233d;
         }
@@ -95,7 +95,8 @@
             position: relative;
             display: inline-block;
             width: 70px;
-            height: 38px;
+            height: 30px;
+            /* MATCH LABEL HEIGHT */
         }
 
         .switch input {
@@ -117,10 +118,10 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 30px;
-            width: 30px;
-            left: 4px;
-            bottom: 4px;
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
             background-color: white;
             transition: .4s;
             border-radius: 50%;
@@ -131,7 +132,7 @@
         }
 
         input:checked+.slider:before {
-            transform: translateX(32px);
+            transform: translateX(36px);
         }
 
         #friendsSection {
@@ -327,16 +328,23 @@
             const toggle = document.getElementById("friendToggle");
             const leagueLabel = document.getElementById("leagueLabel");
             const friendsLabel = document.getElementById("friendsLabel");
+            const heading = document.getElementById("rankHeading");
 
             if (toggle.checked) {
                 document.getElementById("friendsSection").style.display = "block";
                 friendsLabel.classList.remove("hidden");
                 leagueLabel.classList.add("hidden");
+
+                heading.innerText = "My Friends";   /* ⭐ NEW */
+
                 renderFriendsList();
             } else {
                 document.getElementById("friendsSection").style.display = "none";
                 leagueLabel.classList.remove("hidden");
                 friendsLabel.classList.add("hidden");
+
+                heading.innerText = localStorage.getItem("rank"); /* ⭐ RESTORE */
+
                 loadRankPage();
             }
         };
@@ -488,9 +496,7 @@
         <h2 id="rankHeading">Rank</h2>
         <div id="rankList"></div>
 
-        <!-- BACK BUTTON REMOVED -->
+        <!-- Back button removed -->
     </div>
 
 </body>
-
-</html>
