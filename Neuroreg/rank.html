@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="./rank.css">
 
     <style>
+        /* ------------------------------
+           PAGE CONTAINER
+        ------------------------------ */
         #profileContainer {
             width: 80%;
             max-width: 600px;
@@ -31,7 +34,86 @@
             width: 100%;
         }
 
-        /* ⭐ Equal column spacing */
+        /* ------------------------------
+           MODERNISED TOP LEFT MENU
+        ------------------------------ */
+        #hamburgerMenu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 1000;
+            background: #14233d;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+        }
+
+        #hamburgerMenuDropdown {
+            position: fixed;
+            top: 0;
+            left: -260px;
+            width: 240px;
+            height: 100%;
+            background: #1c2f4d;
+            padding-top: 80px;
+            transition: left 0.3s ease;
+            z-index: 999;
+            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #hamburgerMenuDropdown.open {
+            left: 0;
+        }
+
+        #hamburgerMenuDropdown a {
+            display: block;
+            padding: 16px 24px;
+            color: white;
+            font-size: 20px;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #hamburgerMenuDropdown a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* ------------------------------
+           MODERNISED TOP RIGHT ICONS
+        ------------------------------ */
+        #topRightIcons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .topRightIcon {
+            background: #14233d;
+            color: white;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            font-size: 22px;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .topRightIcon:hover {
+            background: #007bff;
+            transform: scale(1.1);
+        }
+
+        /* ------------------------------
+           FRIENDS TABLE — EQUAL COLUMNS
+        ------------------------------ */
         .rankRow {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -39,7 +121,6 @@
             padding: 10px 0;
             border-bottom: 1px solid #ddd;
             font-size: 18px;
-            text-align: left;
         }
 
         .rankPosition {
@@ -49,7 +130,6 @@
 
         .rankNickname {
             font-weight: 500;
-            color: #000 !important;
         }
 
         .rankPoints {
@@ -57,7 +137,6 @@
             color: #007bff !important;
         }
 
-        /* ⭐ Delete button width reduced + right aligned */
         .deleteFriendBtn {
             background: #b33a3a;
             color: #fff;
@@ -67,13 +146,12 @@
             cursor: pointer;
             font-size: 16px;
             width: 60px;
-            /* reduced width */
             justify-self: end;
-            /* align to right edge */
-            text-align: center;
         }
 
-        /* Toggle Switch */
+        /* ------------------------------
+           TOGGLE SWITCH
+        ------------------------------ */
         .toggleContainer {
             text-align: center;
             margin-bottom: 40px;
@@ -145,7 +223,9 @@
             display: none;
         }
 
-        /* Add Friend row */
+        /* ------------------------------
+           ADD FRIEND INPUT
+        ------------------------------ */
         #addFriendBox {
             margin-top: 20px;
             display: flex;
@@ -156,7 +236,6 @@
             flex: 1;
             padding: 10px;
             background-color: #d3d3d3;
-            /* darker background */
             border: 1px solid #999;
             border-radius: 6px;
             color: #000;
@@ -173,6 +252,39 @@
         import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        /* ------------------------------
+           MODERNISED MENUS
+        ------------------------------ */
+        function buildHamburgerMenu() {
+            const menu = document.getElementById("hamburgerMenuDropdown");
+
+            menu.innerHTML = `
+                <a href="profile.html">Profile</a>
+                <a href="leagues.html">Leagues</a>
+                <a href="scores.html">Scores</a>
+                <a href="mcqmenu.html">MCQs</a>
+            `;
+
+            document.getElementById("hamburgerMenu").onclick = () => {
+                menu.classList.toggle("open");
+            };
+
+            document.addEventListener("click", (e) => {
+                if (!menu.contains(e.target) && e.target.id !== "hamburgerMenu") {
+                    menu.classList.remove("open");
+                }
+            });
+        }
+
+        function buildTopRightIcons() {
+            const container = document.getElementById("topRightIcons");
+
+            container.innerHTML = `
+                <a href="help.html" class="topRightIcon">❓</a>
+                <a href="settings.html" class="topRightIcon">⚙️</a>
+            `;
+        }
 
         /* ------------------------------
            LEAGUE TABLE
@@ -225,12 +337,9 @@
             });
         }
 
-        window.addEventListener("DOMContentLoaded", loadRankPage);
-
         /* ------------------------------
            FRIENDS SYSTEM
         ------------------------------ */
-
         async function loadFriends() {
             const userId = parseInt(localStorage.getItem("userId"));
 
@@ -259,7 +368,6 @@
                 return;
             }
 
-            // Lookup user
             const {data: users, error} = await supabase.rpc(
                 "get_user_by_nickname",
                 {nick: nickname}
@@ -283,7 +391,6 @@
                 return;
             }
 
-            // Duplicate check
             const {data: existingFriends, error: existingError} = await supabase.rpc(
                 "get_friends_secure",
                 {uid: userId}
@@ -302,7 +409,6 @@
                 return;
             }
 
-            // Add friend
             const {error: insertError} = await supabase.rpc(
                 "add_friend_secure",
                 {uid: userId, fid: friendId}
@@ -314,11 +420,11 @@
                 return;
             }
 
-            // ⭐ No success alert — just refresh
             renderFriendsList();
         };
+
         /* ------------------------------
-           DELETE FRIEND (secure RPC)
+           DELETE FRIEND
         ------------------------------ */
         window.deleteFriend = async function (friendId) {
             const userId = parseInt(localStorage.getItem("userId"));
@@ -334,7 +440,6 @@
                 return;
             }
 
-            alert("Friendship removed.");
             renderFriendsList();
         };
 
@@ -392,13 +497,22 @@
                 loadRankPage();
             }
         };
+
+        /* ------------------------------
+           PAGE LOAD
+        ------------------------------ */
+        window.addEventListener("DOMContentLoaded", () => {
+            buildHamburgerMenu();
+            buildTopRightIcons();
+            loadRankPage();
+        });
     </script>
 </head>
 
 <body>
 
-    <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
-    <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
+    <div id="hamburgerMenu">☰</div>
+    <div id="hamburgerMenuDropdown"></div>
 
     <div id="topRightIcons"></div>
 
@@ -417,7 +531,7 @@
             </div>
         </div>
 
-        <h2 id="rankHeading">Rank</h2>
+        <h2 id="rankHeading">Leagues</h2>
         <div id="rankList"></div>
 
         <div id="friendsSection">
@@ -430,5 +544,3 @@
     </div>
 
 </body>
-
-</html>
