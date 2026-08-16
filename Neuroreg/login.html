@@ -141,12 +141,12 @@
             localStorage.setItem("userId", user.id);
 
             /* ----------------------------------------------------
-               NEW: Fetch isAdmin from public.users
-            ---------------------------------------------------- */
+          Fetch isAdmin from users table
+       ---------------------------------------------------- */
             const {data: adminData, error: adminError} = await supabase
                 .from("users")
                 .select("isadmin")
-                .eq("id", user.id)
+                .eq("userid", user.id)   // ← FIXED: use correct PK
                 .single();
 
             if (adminError) {
