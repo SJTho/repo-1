@@ -13,17 +13,7 @@
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
     import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
-
-    // Make URL global
-    window.supabaseUrl = SUPABASE_URL;
-
-    // Make KEY global
-    window.supabaseKey = SUPABASE_KEY;
-
-    // Make CLIENT global
-    window.supabase = createClient(window.supabaseUrl, window.supabaseKey);
-
-
+    window.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     window.fetchFlaggedQuestions = async () => {
       const {data, error} = await window.supabase
@@ -44,14 +34,122 @@
 
 <body>
 
-  <div id="topLeftInfo">
-    <div id="pointsValue" class="tinyText">
-      🧑‍⚕️ <span id="pointsNumber"></span>
-    </div>
-    <div id="rankValue" class="tinyText"></div>
-  </div>
+  <!-- Hamburger -->
+  <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+  <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
-  <div id="helpButton">❓</div>
+  <!-- Top-right icons -->
+  <div id="topRightIcons"></div>
+
+  <!-- Dynamic Menu Loader -->
+  <script type="module">
+    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+    import {logout} from "./scripts/logout.js";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.logout = logout;
+
+    async function loadHamburgerMenu() {
+      const dropdown = document.getElementById("hamburgerMenuDropdown");
+      const isAdmin = localStorage.getItem("isAdmin") === "true";
+      const currentPage = window.location.pathname.split("/").pop();
+
+      const {data, error} = await supabase
+        .from("menuitems")
+        .select("*")
+        .eq("hamburger", true)
+        .order("hamburgersection", {ascending: true})
+        .order("hamburgerorder", {ascending: true});
+
+      if (error) {
+        console.error("Menu load error:", error);
+        dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+        return;
+      }
+
+      let currentSection = null;
+
+      data.forEach(item => {
+        if (item.isadmin && !isAdmin) return;
+        if (item.url === currentPage) return;
+
+        if (currentSection !== null && item.hamburgersection !== currentSection) {
+          const separator = document.createElement("div");
+          separator.className = "dropdownSeparator";
+          dropdown.appendChild(separator);
+        }
+
+        currentSection = item.hamburgersection;
+
+        const div = document.createElement("div");
+        div.className = "dropdownItem";
+        div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
+
+        div.onclick = () => {
+          if (item.url === "logout") logout();
+          else window.location.href = item.url;
+        };
+
+        dropdown.appendChild(div);
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
+
+    async function loadTopRightIcons() {
+      const container = document.getElementById("topRightIcons");
+      const isAdmin = localStorage.getItem("isAdmin") === "true";
+      const currentPage = window.location.pathname.split("/").pop();
+
+      const {data, error} = await supabase
+        .from("menuitems")
+        .select("*")
+        .eq("topright", true)
+        .order("toprightorder", {ascending: true});
+
+      if (error) {
+        console.error("Top-right load error:", error);
+        return;
+      }
+
+      container.innerHTML = "";
+
+      data.forEach(item => {
+        if (item.isadmin && !isAdmin) return;
+        if (item.url === currentPage) return;
+
+        const icon = document.createElement("div");
+        icon.className = "topRightIcon";
+        icon.innerText = item.emoji;
+
+        icon.onclick = () => {
+          if (item.url === "logout") logout();
+          else window.location.href = item.url;
+        };
+
+        container.appendChild(icon);
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", loadTopRightIcons);
+  </script>
+
+  <!-- Hamburger toggle -->
+  <script>
+    const hamburger = document.getElementById("hamburgerMenu");
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+    hamburger.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+  </script>
 
   <h1>Flagged Questions</h1>
 
@@ -61,46 +159,6 @@
 
   <script>
     window.addEventListener("DOMContentLoaded", () => {
-
-      document.getElementById("helpButton").addEventListener("click", () => {
-        window.location.href = "help.html";
-      });
-
-      function giveDailyReward() {
-        const today = new Date().toISOString().split("T")[0];
-        const last = localStorage.getItem("lastDailyReward");
-        if (last !== today) {
-          let pts = parseInt(localStorage.getItem("scalpelPoints")) || 0;
-          pts += 10;
-          localStorage.setItem("scalpelPoints", String(pts));
-          localStorage.setItem("lastDailyReward", today);
-          alert("Daily reward: +10 points!");
-        }
-      }
-      giveDailyReward();
-
-      function getScalpelPoints() {
-        return parseInt(localStorage.getItem("scalpelPoints")) || 0;
-      }
-
-      function getRank(points) {
-        if (points <= 300) return "Observer";
-        if (points <= 600) return "Assistant";
-        if (points <= 900) return "Supervised Scrubbed";
-        if (points <= 1200) return "Supervised Unscrubbed";
-        return "Independent Practice";
-      }
-
-      function updatePointsDisplay() {
-        const pts = getScalpelPoints();
-        const newRank = getRank(pts);
-        document.getElementById("pointsNumber").textContent = pts;
-        document.getElementById("rankValue").textContent = newRank;
-        localStorage.setItem("previousRank", newRank);
-      }
-
-      updatePointsDisplay();
-      window.addEventListener("focus", updatePointsDisplay);
 
       async function loadFlaggedQuestions() {
         const flagged = await window.fetchFlaggedQuestions();
@@ -118,7 +176,6 @@
           div.className = "flaggedItem";
 
           div.innerHTML = `
-            <!-- ROW 1: STEM -->
             <div class="stemRow">
               <label for="stem_${q.id}">Stem:</label>
               <input id="stem_${q.id}" class="editStem" required value="${q.stem || ""}">
@@ -126,7 +183,6 @@
 
             <div class="collapsibleContent">
 
-              <!-- ROW 2: TOPIC + LEVEL -->
               <div class="topicLevelRow">
                 <label for="topic_${q.id}">Topic:</label>
                 <select id="topic_${q.id}" class="editTopic" required>
@@ -151,13 +207,11 @@
                 </select>
               </div>
 
-              <!-- ROW 3: EXPLANATION -->
               <div class="explanationRow">
                 <label for="explanation_${q.id}">Explanation:</label>
                 <input id="explanation_${q.id}" class="editExplanation" required value="${q.explanation || ""}">
               </div>
 
-              <!-- ROW 4: OPTION 1 + OPTION 2 -->
               <div class="optionRow12">
                 <label for="option1_${q.id}">Correct:</label>
                 <input id="option1_${q.id}" class="editOption1" required value="${q.option1 || ""}">
@@ -166,7 +220,6 @@
                 <input id="option2_${q.id}" class="editOption2" required value="${q.option2 || ""}">
               </div>
 
-              <!-- ROW 5: OPTION 3 + OPTION 4 -->
               <div class="optionRow34">
                 <label for="option3_${q.id}">Incorrect:</label>
                 <input id="option3_${q.id}" class="editOption3" required value="${q.option3 || ""}">
@@ -180,7 +233,6 @@
             </div>
           `;
 
-          /* COLLAPSIBLE LOGIC — click whole box */
           const content = div.querySelector(".collapsibleContent");
           content.style.display = "none";
 
@@ -190,7 +242,6 @@
             content.style.display = isOpen ? "none" : "block";
           });
 
-          /* SAVE BUTTON */
           div.querySelector(".saveBtn").addEventListener("click", async () => {
 
             const stem = div.querySelector(".editStem").value.trim();
