@@ -96,7 +96,6 @@
             display: inline-block;
             width: 70px;
             height: 30px;
-            /* MATCH LABEL HEIGHT */
         }
 
         .switch input {
@@ -140,8 +139,12 @@
             display: none;
         }
 
-        #friendsSection input,
-        #friendsSection button {
+        #addFriendBox {
+            margin-top: 20px;
+        }
+
+        #addFriendBox input,
+        #addFriendBox button {
             margin-top: 10px;
             padding: 10px;
             width: 100%;
@@ -163,7 +166,6 @@
 
             const userRank = localStorage.getItem("rank");
 
-            // REMOVE "top ten"
             document.getElementById("rankHeading").innerText = `${userRank}`;
 
             const {data: rankRows} = await supabase
@@ -335,7 +337,7 @@
                 friendsLabel.classList.remove("hidden");
                 leagueLabel.classList.add("hidden");
 
-                heading.innerText = "My Friends";   /* ⭐ NEW */
+                heading.innerText = "My Friends";
 
                 renderFriendsList();
             } else {
@@ -343,7 +345,7 @@
                 leagueLabel.classList.remove("hidden");
                 friendsLabel.classList.add("hidden");
 
-                heading.innerText = localStorage.getItem("rank"); /* ⭐ RESTORE */
+                heading.innerText = localStorage.getItem("rank");
 
                 loadRankPage();
             }
@@ -486,17 +488,25 @@
         </div>
 
         <div id="friendsSection">
-            <p>Friendships are reciprocal.</p>
 
-            <input id="friendInput" type="text" placeholder="Enter friend's nickname">
+            <!-- FRIENDS TABLE FIRST -->
+            <h2 id="rankHeading">My Friends</h2>
+            <div id="rankList"></div>
 
-            <button onclick="addFriend()">Add Friend</button>
+            <!-- ADD FRIEND BOX BELOW -->
+            <div id="addFriendBox">
+                <input id="friendInput" type="text" placeholder="Enter friend's nickname">
+                <button onclick="addFriend()">Add Friend</button>
+            </div>
+
         </div>
 
+        <!-- LEAGUE VIEW -->
         <h2 id="rankHeading">Rank</h2>
         <div id="rankList"></div>
 
-        <!-- Back button removed -->
     </div>
 
 </body>
+
+</html>
