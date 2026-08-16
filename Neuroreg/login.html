@@ -138,7 +138,6 @@
                DEBUG: Show the actual user object returned by RPC
             ---------------------------------------------------- */
             console.log("LOGIN USER OBJECT:", user);
-            return;
 
 
             /* Store session data */
@@ -176,7 +175,9 @@
                 localStorage.setItem("rank", "Unranked");
             } else {
                 localStorage.setItem("rank", rankData || "Unranked");
+                alert("Pause");
             }
+
 
             /* Redirect after storing rank + admin */
             window.location.href = "index.html";
