@@ -3,272 +3,284 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta-name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Rank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rank</title>
 
-        <link rel="stylesheet" href="./mcqcore.css">
-        <link rel="stylesheet" href="./rank.css">
+    <link rel="stylesheet" href="./mcqcore.css">
+    <link rel="stylesheet" href="./rank.css">
 
-        <style>
-            #profileContainer {
-                width: 80%;
-                max-width: 600px;
-                margin: 120px auto 60px auto;
-                background: #ffffff;
-                padding: 24px;
-                border-radius: 12px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    <style>
+        #profileContainer {
+            width: 80%;
+            max-width: 600px;
+            margin: 120px auto 60px auto;
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #rankHeading {
+            color: #000 !important;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        #rankList {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .rankRow {
+            display: grid;
+            grid-template-columns: 60px 1fr 100px 60px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 18px;
+        }
+
+        .rankRow div {
+            color: #000 !important;
+        }
+
+        .rankPosition {
+            font-weight: bold;
+            color: #14233d !important;
+        }
+
+        .rankNickname {
+            font-weight: 500;
+            color: #000 !important;
+        }
+
+        .rankPoints {
+            text-align: right;
+            font-weight: bold;
+            color: #007bff !important;
+        }
+
+        .deleteFriendBtn {
+            background: #8a2a2a;
+            color: #fff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .toggleContainer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .toggleContainer button {
+            background: #14233d;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        #friendsSection {
+            margin-top: 20px;
+            display: none;
+        }
+
+        #friendsSection input,
+        #friendsSection button {
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+        }
+    </style>
+
+    <script type="module">
+        import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+        import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadRankPage() {
+            const token = localStorage.getItem("sessionToken");
+            if (!token) {
+                window.location.href = "login.html";
+                return;
             }
 
-            #rankHeading {
-                color: #000 !important;
-                text-align: center;
-                margin-bottom: 24px;
+            const userRank = localStorage.getItem("rank");
+
+            document.getElementById("rankHeading").innerText = `${userRank} top ten`;
+
+            const {data: rankRows} = await supabase
+                .from("rank")
+                .select("minimum_score, maximum_score")
+                .eq("rank", userRank)
+                .limit(1);
+
+            const rankData = rankRows?.[0];
+            if (!rankData) return;
+
+            const min = rankData.minimum_score;
+            const max = rankData.maximum_score;
+
+            const {data: users, error} = await supabase.rpc(
+                "get_users_in_rank_range",
+                {min_score: min, max_score: max}
+            );
+
+            if (error) {
+                console.error("RPC error:", error);
+                return;
             }
 
-            #rankList {
-                margin-top: 20px;
-                width: 100%;
-            }
+            const container = document.getElementById("rankList");
+            container.innerHTML = "";
 
-            .rankRow {
-                display: grid;
-                grid-template-columns: 60px 1fr 100px 60px;
-                padding: 10px;
-                border-bottom: 1px solid #ddd;
-                font-size: 18px;
-            }
+            const topTen = users.slice(0, 10);
 
-            .rankRow div {
-                color: #000 !important;
-            }
-
-            .rankPosition {
-                font-weight: bold;
-                color: #14233d !important;
-            }
-
-            .rankNickname {
-                font-weight: 500;
-                color: #000 !important;
-            }
-
-            .rankPoints {
-                text-align: right;
-                font-weight: bold;
-                color: #007bff !important;
-            }
-
-            .deleteFriendBtn {
-                background: #8a2a2a;
-                color: #fff;
-                border: none;
-                padding: 6px 10px;
-                border-radius: 6px;
-                cursor: pointer;
-            }
-
-            .toggleContainer {
-                text-align: center;
-                margin-bottom: 20px;
-            }
-
-            .toggleContainer button {
-                background: #14233d;
-                color: #fff;
-                padding: 10px 20px;
-                border-radius: 6px;
-                border: none;
-                cursor: pointer;
-                margin: 5px;
-            }
-
-            #friendsSection {
-                margin-top: 20px;
-                display: none;
-            }
-
-            #friendsSection select,
-            #friendsSection button {
-                margin-top: 10px;
-                padding: 10px;
-                width: 100%;
-            }
-        </style>
-
-        <script type="module">
-            import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-            import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
-
-            const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-            async function loadRankPage() {
-                const token = localStorage.getItem("sessionToken");
-                if (!token) {
-                    window.location.href = "login.html";
-                    return;
-                }
-
-                const userRank = localStorage.getItem("rank");
-
-                document.getElementById("rankHeading").innerText = `${userRank} top ten`;
-
-                const {data: rankRows} = await supabase
-                    .from("rank")
-                    .select("minimum_score, maximum_score")
-                    .eq("rank", userRank)
-                    .limit(1);
-
-                const rankData = rankRows?.[0];
-                if (!rankData) return;
-
-                const min = rankData.minimum_score;
-                const max = rankData.maximum_score;
-
-                const {data: users, error} = await supabase.rpc(
-                    "get_users_in_rank_range",
-                    {min_score: min, max_score: max}
-                );
-
-                if (error) {
-                    console.error("RPC error:", error);
-                    return;
-                }
-
-                const container = document.getElementById("rankList");
-                container.innerHTML = "";
-
-                const topTen = users.slice(0, 10);
-
-                topTen.forEach((u, index) => {
-                    const row = document.createElement("div");
-                    row.className = "rankRow";
-                    row.innerHTML = `
+            topTen.forEach((u, index) => {
+                const row = document.createElement("div");
+                row.className = "rankRow";
+                row.innerHTML = `
                     <div class="rankPosition">${index + 1}</div>
                     <div class="rankNickname">${u.nickname}</div>
                     <div class="rankPoints">${u.scalpel_points}</div>
                     <div></div>
                 `;
-                    container.appendChild(row);
-                });
+                container.appendChild(row);
+            });
+        }
+
+        window.addEventListener("DOMContentLoaded", loadRankPage);
+
+        /* -----------------------------------------
+           FRIENDS SYSTEM
+        ----------------------------------------- */
+
+        async function loadFriends() {
+            const userId = parseInt(localStorage.getItem("userId"));
+
+            const {data: friendRows} = await supabase
+                .from("friends")
+                .select("friend_id")
+                .eq("user_id", userId);
+
+            if (!friendRows.length) return [];
+
+            const friendIds = friendRows.map(f => f.friend_id);
+
+            const {data: friends} = await supabase
+                .from("users")
+                .select("id, nickname, scalpel_points")
+                .in("id", friendIds)
+                .order("scalpel_points", {ascending: false});
+
+            return friends;
+        }
+
+        async function addFriend() {
+            const userId = parseInt(localStorage.getItem("userId"));
+            const nickname = document.getElementById("friendInput").value.trim();
+
+            if (!nickname) {
+                alert("Please enter a nickname.");
+                return;
             }
 
-            window.addEventListener("DOMContentLoaded", loadRankPage);
+            const {data: users, error} = await supabase
+                .from("users")
+                .select("id, nickname")
+                .eq("nickname", nickname)
+                .limit(1);
 
-            /* -----------------------------------------
-               FRIENDS SYSTEM
-            ----------------------------------------- */
-
-            async function loadAllUsers() {
-                const {data} = await supabase
-                    .from("users")
-                    .select("id, nickname")
-                    .order("nickname", {ascending: true});
-                return data;
+            if (error) {
+                console.error(error);
+                alert("Error searching for user.");
+                return;
             }
 
-            async function loadFriends() {
-                const userId = parseInt(localStorage.getItem("userId"));
-
-                const {data: friendRows} = await supabase
-                    .from("friends")
-                    .select("friend_id")
-                    .eq("user_id", userId);
-
-                if (!friendRows.length) return [];
-
-                const friendIds = friendRows.map(f => f.friend_id);
-
-                const {data: friends} = await supabase
-                    .from("users")
-                    .select("id, nickname, scalpel_points")
-                    .in("id", friendIds)
-                    .order("scalpel_points", {ascending: false});
-
-                return friends;
+            if (!users || users.length === 0) {
+                alert("No user found with that nickname.");
+                return;
             }
 
-            async function addFriend() {
-                const userId = parseInt(localStorage.getItem("userId"));
-                const friendId = parseInt(document.getElementById("friendSelect").value);
+            const friendId = users[0].id;
 
-                if (!friendId || friendId === userId) {
-                    alert("Invalid friend selection.");
-                    return;
-                }
+            if (friendId === userId) {
+                alert("You cannot add yourself.");
+                return;
+            }
 
-                await supabase.from("friends").insert([
+            const {error: insertError} = await supabase
+                .from("friends")
+                .insert([
                     {user_id: userId, friend_id: friendId},
                     {user_id: friendId, friend_id: userId}
                 ]);
 
-                alert("Friend added (reciprocal).");
-                renderFriendsList();
+            if (insertError) {
+                console.error(insertError);
+                alert("Error adding friend.");
+                return;
             }
 
-            async function deleteFriend(friendId) {
-                const userId = parseInt(localStorage.getItem("userId"));
+            alert("Friend added (reciprocal).");
+            renderFriendsList();
+        }
 
-                await supabase.from("friends")
-                    .delete()
-                    .eq("user_id", userId)
-                    .eq("friend_id", friendId);
+        async function deleteFriend(friendId) {
+            const userId = parseInt(localStorage.getItem("userId"));
 
-                await supabase.from("friends")
-                    .delete()
-                    .eq("user_id", friendId)
-                    .eq("friend_id", userId);
+            await supabase.from("friends")
+                .delete()
+                .eq("user_id", userId)
+                .eq("friend_id", friendId);
 
-                alert("Friendship removed.");
-                renderFriendsList();
+            await supabase.from("friends")
+                .delete()
+                .eq("user_id", friendId)
+                .eq("friend_id", userId);
+
+            alert("Friendship removed.");
+            renderFriendsList();
+        }
+
+        async function renderFriendsList() {
+            const container = document.getElementById("rankList");
+            container.innerHTML = "";
+
+            const friends = await loadFriends();
+
+            if (!friends.length) {
+                container.innerHTML = "<p>No friends added.</p>";
+                return;
             }
 
-            async function renderFriendsList() {
-                const container = document.getElementById("rankList");
-                container.innerHTML = "";
-
-                const friends = await loadFriends();
-
-                if (!friends.length) {
-                    container.innerHTML = "<p>No friends added.</p>";
-                    return;
-                }
-
-                friends.forEach((f, index) => {
-                    const row = document.createElement("div");
-                    row.className = "rankRow";
-                    row.innerHTML = `
+            friends.forEach((f, index) => {
+                const row = document.createElement("div");
+                row.className = "rankRow";
+                row.innerHTML = `
                     <div class="rankPosition">${index + 1}</div>
                     <div class="rankNickname">${f.nickname}</div>
                     <div class="rankPoints">${f.scalpel_points}</div>
                     <button class="deleteFriendBtn" onclick="deleteFriend(${f.id})">❌</button>
                 `;
-                    container.appendChild(row);
-                });
-            }
-
-            window.addEventListener("DOMContentLoaded", async () => {
-                const users = await loadAllUsers();
-                const select = document.getElementById("friendSelect");
-
-                users.forEach(u => {
-                    const opt = document.createElement("option");
-                    opt.value = u.id;
-                    opt.textContent = u.nickname;
-                    select.appendChild(opt);
-                });
+                container.appendChild(row);
             });
+        }
 
-            window.showLeague = function () {
-                document.getElementById("friendsSection").style.display = "none";
-                loadRankPage();
-            };
+        window.showLeague = function () {
+            document.getElementById("friendsSection").style.display = "none";
+            loadRankPage();
+        };
 
-            window.showFriends = function () {
-                document.getElementById("friendsSection").style.display = "block";
-                renderFriendsList();
-            };
-        </script>
+        window.showFriends = function () {
+            document.getElementById("friendsSection").style.display = "block";
+            renderFriendsList();
+        };
+    </script>
 </head>
 
 <body>
@@ -400,9 +412,7 @@
         <div id="friendsSection">
             <p>Friendships are reciprocal.</p>
 
-            <select id="friendSelect">
-                <option value="">Select a friend</option>
-            </select>
+            <input id="friendInput" type="text" placeholder="Enter friend's nickname">
 
             <button onclick="addFriend()">Add Friend</button>
         </div>
@@ -414,5 +424,3 @@
     </div>
 
 </body>
-
-</html>
