@@ -158,12 +158,118 @@
         }
     </style>
 
+    <!-- MUST BE FIRST: GLOBAL LOGOUT IMPORT -->
+    <script type="module">
+        import {logout} from "./scripts/logout.js";
+        window.logout = logout;
+    </script>
+
+    <!-- Supabase + menu logic -->
     <script type="module">
         import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
         import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        /* ----------------------------------------------------
+           Load Hamburger Menu (same as profile.html)
+        ---------------------------------------------------- */
+        async function loadHamburgerMenu() {
+            const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+            const isAdmin = localStorage.getItem("isAdmin") === "true";
+            const currentPage = window.location.pathname.split("/").pop();
+
+            const {data, error} = await supabase
+                .from("menuitems")
+                .select("*")
+                .eq("hamburger", true)
+                .order("hamburgersection", {ascending: true})
+                .order("hamburgerorder", {ascending: true});
+
+            if (error) {
+                console.error("Menu load error:", error);
+                dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+                return;
+            }
+
+            let currentSection = null;
+
+            data.forEach(item => {
+                if (item.isadmin && !isAdmin) return;
+                if (item.url === currentPage) return;
+
+                if (currentSection !== null && item.hamburgersection !== currentSection) {
+                    const separator = document.createElement("div");
+                    separator.className = "dropdownSeparator";
+                    dropdown.appendChild(separator);
+                }
+
+                currentSection = item.hamburgersection;
+
+                const div = document.createElement("div");
+                div.className = "dropdownItem";
+
+                const emoji = item.emoji ? item.emoji + " " : "";
+                div.innerText = emoji + item.displayname;
+
+                div.onclick = () => {
+                    if (item.url === "logout") {
+                        logout();
+                    } else {
+                        window.location.href = item.url;
+                    }
+                };
+
+                dropdown.appendChild(div);
+            });
+        }
+
+        /* ----------------------------------------------------
+           Load Top-Right Icons (same as profile.html)
+        ---------------------------------------------------- */
+        async function loadTopRightIcons() {
+            const container = document.getElementById("topRightIcons");
+
+            const isAdmin = localStorage.getItem("isAdmin") === "true";
+            const currentPage = window.location.pathname.split("/").pop();
+
+            const {data, error} = await supabase
+                .from("menuitems")
+                .select("*")
+                .eq("topright", true)
+                .order("toprightorder", {ascending: true});
+
+            if (error) {
+                console.error("Top-right load error:", error);
+                return;
+            }
+
+            container.innerHTML = "";
+
+            data.forEach(item => {
+                if (item.isadmin && !isAdmin) return;
+                if (item.url === currentPage) return;
+
+                const icon = document.createElement("div");
+                icon.className = "topRightIcon";
+                icon.innerText = item.emoji;
+
+                icon.onclick = () => {
+                    if (item.url === "logout") {
+                        logout();
+                    } else {
+                        window.location.href = item.url;
+                    }
+                };
+
+                container.appendChild(icon);
+            });
+        }
+
+        /* ----------------------------------------------------
+           Load Rank Page (Supabase-driven)
+        ---------------------------------------------------- */
         async function loadRankPage() {
             const token = localStorage.getItem("sessionToken");
             if (!token) {
@@ -171,8 +277,16 @@
                 return;
             }
 
-            const userRank = localStorage.getItem("rank");
-            document.getElementById("rankHeading").innerText = `${userRank}`;
+            const userId = parseInt(localStorage.getItem("userId"));
+
+            const {data: userData} = await supabase
+                .from("users")
+                .select("rank")
+                .eq("id", userId)
+                .single();
+
+            const userRank = userData?.rank ?? "Unranked";
+            document.getElementById("rankHeading").innerText = userRank;
 
             const {data: rankRows} = await supabase
                 .from("rank")
@@ -212,6 +326,9 @@
             });
         }
 
+        /* ----------------------------------------------------
+           Friends Logic (unchanged)
+        ---------------------------------------------------- */
         async function loadFriends() {
             const userId = parseInt(localStorage.getItem("userId"));
 
@@ -352,25 +469,40 @@
                 leagueLabel.classList.remove("hidden");
                 friendsLabel.classList.add("hidden");
 
-                heading.innerText = localStorage.getItem("rank");
-
                 loadRankPage();
             }
         };
 
-        window.addEventListener("DOMContentLoaded", () => {
-            loadRankPage();
-        });
+        /* ----------------------------------------------------
+           Page Load
+        ---------------------------------------------------- */
+        window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
+        window.addEventListener("DOMContentLoaded", loadTopRightIcons);
+        window.addEventListener("DOMContentLoaded", loadRankPage);
     </script>
 </head>
 
 <body>
 
-    <!-- Same containers as profile.html; actual content built by shared script -->
     <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
     <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
     <div id="topRightIcons"></div>
+
+    <script>
+        const hamburger = document.getElementById("hamburgerMenu");
+        const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+        hamburger.addEventListener("click", () => {
+            dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+    </script>
 
     <div id="profileContainer">
 
@@ -400,3 +532,5 @@
     </div>
 
 </body>
+
+</html>
