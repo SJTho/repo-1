@@ -282,20 +282,21 @@
         };
 
         /* ------------------------------
-           DELETE FRIEND
+           DELETE FRIEND (SECURE RPC)
         ------------------------------ */
         window.deleteFriend = async function (friendId) {
             const userId = parseInt(localStorage.getItem("userId"));
 
-            await supabase.from("friends")
-                .delete()
-                .eq("user_id", userId)
-                .eq("friend_id", friendId);
+            const {error} = await supabase.rpc(
+                "delete_friend_secure",
+                {uid: userId, fid: friendId}
+            );
 
-            await supabase.from("friends")
-                .delete()
-                .eq("user_id", friendId)
-                .eq("friend_id", userId);
+            if (error) {
+                console.error("Delete friend RPC error:", error);
+                alert("Error removing friend.");
+                return;
+            }
 
             alert("Friendship removed.");
             renderFriendsList();
