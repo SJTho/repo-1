@@ -217,7 +217,7 @@
         let currentSection = null;
 
         data.forEach(item => {
-          if (item.isadmin && !isAdmin) return;
+          if (item.admin && !isAdmin) return;
           if (item.url === currentPage) return;
 
           if (currentSection !== null && item.hamburgersection !== currentSection) {
@@ -260,7 +260,7 @@
         container.innerHTML = "";
 
         data.forEach(item => {
-          if (item.isadmin && !isAdmin) return;
+          if (item.admin && !isAdmin) return;
           if (item.url === currentPage) return;
 
           const icon = document.createElement("div");
