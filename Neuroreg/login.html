@@ -126,13 +126,18 @@
             if (Array.isArray(data)) {
                 user = data[0]?.login || data[0];
             } else {
-                user = data;
+                user = data?.login || data;
             }
 
             if (!user || user.error) {
                 alert("Invalid nickname or password");
                 return;
             }
+
+            /* ----------------------------------------------------
+               DEBUG: Show the actual user object returned by RPC
+            ---------------------------------------------------- */
+            console.log("LOGIN USER OBJECT:", user);
 
             /* Store session data */
             localStorage.setItem("sessionToken", user.token);
@@ -141,12 +146,12 @@
             localStorage.setItem("userId", user.id);
 
             /* ----------------------------------------------------
-          Fetch isAdmin from users table
-       ---------------------------------------------------- */
+               Fetch isAdmin from public.users
+            ---------------------------------------------------- */
             const {data: adminData, error: adminError} = await supabase
                 .from("users")
                 .select("isadmin")
-                .eq("userid", user.id)   // ← FIXED: use correct PK
+                .eq("id", user.id)
                 .single();
 
             if (adminError) {
