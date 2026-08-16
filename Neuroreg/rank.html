@@ -96,9 +96,7 @@
             position: relative;
             display: inline-block;
             width: 50px;
-            /* reduced width */
             height: 22px;
-            /* reduced height */
         }
 
         .switch input {
@@ -220,20 +218,15 @@
         async function loadFriends() {
             const userId = parseInt(localStorage.getItem("userId"));
 
-            const {data: friendRows} = await supabase
-                .from("friends")
-                .select("friend_id")
-                .eq("user_id", userId);
+            const {data: friends, error} = await supabase.rpc(
+                "get_friends_secure",
+                {uid: userId}
+            );
 
-            if (!friendRows.length) return [];
-
-            const friendIds = friendRows.map(f => f.friend_id);
-
-            const {data: friends} = await supabase
-                .from("users")
-                .select("id, nickname, scalpel_points")
-                .in("id", friendIds)
-                .order("scalpel_points", {ascending: false});
+            if (error) {
+                console.error("Friend RPC error:", error);
+                return [];
+            }
 
             return friends;
         }
@@ -367,14 +360,10 @@
 
 <body>
 
-    <!-- Hamburger -->
     <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
     <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
-    <!-- Top-right icons -->
     <div id="topRightIcons"></div>
-
-    <!-- (Hamburger + icons scripts unchanged) -->
 
     <div id="profileContainer">
 
@@ -406,5 +395,3 @@
     </div>
 
 </body>
-
-</html>
