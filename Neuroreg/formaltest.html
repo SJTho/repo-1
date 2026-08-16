@@ -15,6 +15,12 @@
       }
     </style>
 
+    <!-- MUST BE FIRST: GLOBAL LOGOUT IMPORT -->
+    <script type="module">
+      import {logout} from "./scripts/logout.js";
+      window.logout = logout;
+    </script>
+
     <script type="module">
       import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
       import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
@@ -35,11 +41,11 @@
          TIME FORMATTER (HH:MM)
       ---------------------------------------------------- */
       function formatTime(timeString) {
-        return timeString.slice(0, 5); // "09:00"
+        return timeString.slice(0, 5);
       }
 
       /* ----------------------------------------------------
-         CHECK REGISTRATION (Supabase)
+         CHECK REGISTRATION
       ---------------------------------------------------- */
       async function isRegistered(ev) {
         if (!userId) return false;
@@ -59,7 +65,7 @@
       }
 
       /* ----------------------------------------------------
-         REGISTER FOR EVENT (Supabase)
+         REGISTER FOR EVENT
       ---------------------------------------------------- */
       async function registerForEvent(ev) {
         if (!userId) {
@@ -97,7 +103,6 @@
           return;
         }
 
-        // 🔥 No confirmation box — just refresh
         location.reload();
       }
 
@@ -112,7 +117,7 @@
       }
 
       /* ----------------------------------------------------
-         LOAD EVENTS FROM SUPABASE
+         LOAD EVENTS
       ---------------------------------------------------- */
       async function loadEvents() {
         const container = document.getElementById("eventsContainer");
@@ -151,11 +156,11 @@
           card.className = "eventCard";
 
           card.innerHTML = `
-                    <h3>${ev.eventtitle}</h3>
-                    <p><strong>Date:</strong> ${ukDate}</p>
-                    <p><strong>Start time:</strong> Available between ${formatTime(ev.eventstarttime)} and ${formatTime(ev.eventendtime)}</p>
+          <h3>${ev.eventtitle}</h3>
+          <p><strong>Date:</strong> ${ukDate}</p>
+          <p><strong>Start time:</strong> Available between ${formatTime(ev.eventstarttime)} and ${formatTime(ev.eventendtime)}</p>
 
-                    ${closed
+          ${closed
               ? `<p class="closedMsg">Closed</p>`
               : already
                 ? (live
@@ -164,7 +169,7 @@
                 )
                 : `<button class="registerBtn">Register</button>`
             }
-                `;
+        `;
 
           if (!closed && !already) {
             card.querySelector(".registerBtn").addEventListener("click", async () => {
@@ -174,8 +179,6 @@
 
           if (!closed && already && live) {
             card.querySelector(".startBtn").addEventListener("click", () => {
-
-              // ⭐ Store event details for formaltestinstructions.html
               localStorage.setItem("currentEventId", ev.eventid);
               localStorage.setItem("currentEventTitle", ev.eventtitle);
               localStorage.setItem("currentEventStart", formatTime(ev.eventstarttime));
@@ -189,6 +192,95 @@
         }
       }
 
+      /* ----------------------------------------------------
+         DYNAMIC MENUS (same as profile.html)
+      ---------------------------------------------------- */
+
+      async function loadHamburgerMenu() {
+        const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+        const isAdmin = localStorage.getItem("isAdmin") === "true";
+        const currentPage = window.location.pathname.split("/").pop();
+
+        const {data, error} = await supabase
+          .from("menuitems")
+          .select("*")
+          .eq("hamburger", true)
+          .order("hamburgersection", {ascending: true})
+          .order("hamburgerorder", {ascending: true});
+
+        if (error) {
+          dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+          return;
+        }
+
+        let currentSection = null;
+
+        data.forEach(item => {
+          if (item.isadmin && !isAdmin) return;
+          if (item.url === currentPage) return;
+
+          if (currentSection !== null && item.hamburgersection !== currentSection) {
+            const separator = document.createElement("div");
+            separator.className = "dropdownSeparator";
+            dropdown.appendChild(separator);
+          }
+
+          currentSection = item.hamburgersection;
+
+          const div = document.createElement("div");
+          div.className = "dropdownItem";
+
+          const emoji = item.emoji ? item.emoji + " " : "";
+          div.innerText = emoji + item.displayname;
+
+          div.onclick = () => {
+            if (item.url === "logout") logout();
+            else window.location.href = item.url;
+          };
+
+          dropdown.appendChild(div);
+        });
+      }
+
+      async function loadTopRightIcons() {
+        const container = document.getElementById("topRightIcons");
+
+        const isAdmin = localStorage.getItem("isAdmin") === "true";
+        const currentPage = window.location.pathname.split("/").pop();
+
+        const {data, error} = await supabase
+          .from("menuitems")
+          .select("*")
+          .eq("topright", true)
+          .order("toprightorder", {ascending: true});
+
+        if (error) return;
+
+        container.innerHTML = "";
+
+        data.forEach(item => {
+          if (item.isadmin && !isAdmin) return;
+          if (item.url === currentPage) return;
+
+          const icon = document.createElement("div");
+          icon.className = "topRightIcon";
+          icon.innerText = item.emoji;
+
+          icon.onclick = () => {
+            if (item.url === "logout") logout();
+            else window.location.href = item.url;
+          };
+
+          container.appendChild(icon);
+        });
+      }
+
+      /* ----------------------------------------------------
+         PAGE LOAD
+      ---------------------------------------------------- */
+      window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
+      window.addEventListener("DOMContentLoaded", loadTopRightIcons);
       window.addEventListener("DOMContentLoaded", loadEvents);
     </script>
 </head>
@@ -198,31 +290,13 @@
   <!-- Top-left hamburger -->
   <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
 
-  <!-- Dropdown Menu -->
-  <div id="hamburgerMenuDropdown" class="dropdownMenu">
-    <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
+  <!-- Dynamic dropdown -->
+  <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
-    <div class="dropdownSeparator"></div>
-
-    <div class="dropdownItem" onclick="window.location.href='index.html'">🏠 Home</div>
-    <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
-    <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
-
-    <div class="dropdownSeparator"></div>
-
-    <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
-  </div>
-
-  <!-- Top-right icons -->
-  <div id="topRightIcons">
-    <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
-    <div id="homeIcon" class="topRightIcon" onclick="window.location.href='index.html'">🏠</div>
-    <div id="profileIcon" class="topRightIcon" onclick="window.location.href='profile.html'">🧑‍⚕️</div>
-    <div id="helpButton" class="topRightIcon" onclick="window.location.href='help.html'">❔</div>
-  </div>
+  <!-- Dynamic top-right icons -->
+  <div id="topRightIcons"></div>
 
   <script>
-    /* Dropdown toggle */
     const hamburger = document.getElementById("hamburgerMenu");
     const dropdown = document.getElementById("hamburgerMenuDropdown");
 
