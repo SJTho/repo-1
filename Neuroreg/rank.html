@@ -31,18 +31,16 @@
             width: 100%;
         }
 
-        /* Improved table layout */
+        /* ⭐ Equal column spacing */
         .rankRow {
             display: grid;
-            grid-template-columns: 80px 1fr 120px 120px;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            /* equal spacing */
             align-items: center;
             padding: 10px 0;
             border-bottom: 1px solid #ddd;
             font-size: 18px;
-        }
-
-        .rankRow div {
-            color: #000 !important;
+            text-align: left;
         }
 
         .rankPosition {
@@ -56,7 +54,6 @@
         }
 
         .rankPoints {
-            text-align: right;
             font-weight: bold;
             color: #007bff !important;
         }
@@ -168,9 +165,6 @@
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        /* ------------------------------
-           LEAGUE TABLE
-        ------------------------------ */
         async function loadRankPage() {
             const token = localStorage.getItem("sessionToken");
             if (!token) {
@@ -221,10 +215,6 @@
 
         window.addEventListener("DOMContentLoaded", loadRankPage);
 
-        /* ------------------------------
-           FRIENDS SYSTEM
-        ------------------------------ */
-
         async function loadFriends() {
             const userId = parseInt(localStorage.getItem("userId"));
 
@@ -241,9 +231,6 @@
             return friends;
         }
 
-        /* ------------------------------
-           ADD FRIEND (SECURE RPC)
-        ------------------------------ */
         window.addFriend = async function () {
             const userId = parseInt(localStorage.getItem("userId"));
             const nickname = document.getElementById("friendInput").value.trim();
@@ -291,9 +278,6 @@
             renderFriendsList();
         };
 
-        /* ------------------------------
-           DELETE FRIEND (SECURE RPC)
-        ------------------------------ */
         window.deleteFriend = async function (friendId) {
             const userId = parseInt(localStorage.getItem("userId"));
 
@@ -312,9 +296,6 @@
             renderFriendsList();
         };
 
-        /* ------------------------------
-           RENDER FRIENDS TABLE
-        ------------------------------ */
         async function renderFriendsList() {
             const container = document.getElementById("rankList");
             container.innerHTML = "";
@@ -339,9 +320,6 @@
             });
         }
 
-        /* ------------------------------
-           TOGGLE SWITCH
-        ------------------------------ */
         window.toggleFriendMode = function () {
             const toggle = document.getElementById("friendToggle");
             const leagueLabel = document.getElementById("leagueLabel");
