@@ -87,10 +87,8 @@
                 const userRank = localStorage.getItem("rank");
                 const userPoints = Number(localStorage.getItem("scalpel_points"));
 
-                /* Update heading */
                 document.getElementById("rankHeading").innerText = `${userRank} top ten`;
 
-                /* 1. Get rank range */
                 const {data: rankRows} = await supabase
                     .from("rank")
                     .select("minimum_score, maximum_score")
@@ -103,7 +101,6 @@
                 const min = rankData.minimum_score;
                 const max = rankData.maximum_score;
 
-                /* 2. Fetch users via RPC */
                 const {data: users, error} = await supabase.rpc(
                     "get_users_in_rank_range",
                     {min_score: min, max_score: max}
@@ -114,7 +111,6 @@
                     return;
                 }
 
-                /* 3. Render top 10 */
                 const container = document.getElementById("rankList");
                 container.innerHTML = "";
 
@@ -138,28 +134,108 @@
 
 <body>
 
+    <!-- Hamburger -->
     <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+    <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
-    <div id="hamburgerMenuDropdown" class="dropdownMenu">
-        <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
-        <div class="dropdownItem" onclick="window.location.href='formaltest.html'">💯 Examination</div>
+    <!-- Top-right icons -->
+    <div id="topRightIcons"></div>
 
-        <div class="dropdownSeparator"></div>
+    <!-- Dynamic Menu Loader -->
+    <script type="module">
+        import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+        import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+        import {logout} from "./scripts/logout.js";
 
-        <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
-        <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        window.logout = logout;
 
-        <div class="dropdownSeparator"></div>
+        async function loadHamburgerMenu() {
+            const dropdown = document.getElementById("hamburgerMenuDropdown");
+            const isAdmin = localStorage.getItem("isAdmin") === "true";
+            const currentPage = window.location.pathname.split("/").pop();
 
-        <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
-    </div>
+            const {data, error} = await supabase
+                .from("menuitems")
+                .select("*")
+                .eq("hamburger", true)
+                .order("hamburgersection", {ascending: true})
+                .order("hamburgerorder", {ascending: true});
 
-    <div id="topRightIcons">
-        <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
-        <div id="profileIcon" class="topRightIcon" onclick="window.location.href='profile.html'">🧑‍⚕️</div>
-        <div id="helpButton" class="topRightIcon" onclick="window.location.href='help.html'">❔</div>
-    </div>
+            if (error) {
+                console.error("Menu load error:", error);
+                dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+                return;
+            }
 
+            let currentSection = null;
+
+            data.forEach(item => {
+                if (item.isadmin && !isAdmin) return;
+                if (item.url === currentPage) return;
+
+                if (currentSection !== null && item.hamburgersection !== currentSection) {
+                    const separator = document.createElement("div");
+                    separator.className = "dropdownSeparator";
+                    dropdown.appendChild(separator);
+                }
+
+                currentSection = item.hamburgersection;
+
+                const div = document.createElement("div");
+                div.className = "dropdownItem";
+                div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
+
+                div.onclick = () => {
+                    if (item.url === "logout") logout();
+                    else window.location.href = item.url;
+                };
+
+                dropdown.appendChild(div);
+            });
+        }
+
+        window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
+
+        async function loadTopRightIcons() {
+            const container = document.getElementById("topRightIcons");
+            const isAdmin = localStorage.getItem("isAdmin") === "true";
+            const currentPage = window.location.pathname.split("/").pop();
+
+            const {data, error} = await supabase
+                .from("menuitems")
+                .select("*")
+                .eq("topright", true)
+                .order("toprightorder", {ascending: true});
+
+            if (error) {
+                console.error("Top-right load error:", error);
+                return;
+            }
+
+            container.innerHTML = "";
+
+            data.forEach(item => {
+                if (item.isadmin && !isAdmin) return;
+                if (item.url === currentPage) return;
+
+                const icon = document.createElement("div");
+                icon.className = "topRightIcon";
+                icon.innerText = item.emoji;
+
+                icon.onclick = () => {
+                    if (item.url === "logout") logout();
+                    else window.location.href = item.url;
+                };
+
+                container.appendChild(icon);
+            });
+        }
+
+        window.addEventListener("DOMContentLoaded", loadTopRightIcons);
+    </script>
+
+    <!-- Hamburger toggle -->
     <script>
         const hamburger = document.getElementById("hamburgerMenu");
         const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -182,3 +258,5 @@
     </div>
 
 </body>
+
+</html>
