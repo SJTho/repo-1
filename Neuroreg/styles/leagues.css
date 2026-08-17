@@ -163,7 +163,7 @@ input:checked+.slider:before {
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
-    width: 40px;
+    width: 60px;
     /* narrower */
     justify-self: end;
     /* right aligned */
