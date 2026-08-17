@@ -155,11 +155,14 @@ input:checked+.slider:before {
     padding: 4px 6px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
     width: 40px;
-    /* narrower */
     justify-self: end;
     /* right aligned */
+    align-self: center;
+    /* ⭐ vertically centred */
+    line-height: 1;
+    /* ⭐ prevents button from sitting low */
 }
 
 /* ----------------------------------------------------
@@ -169,56 +172,68 @@ input:checked+.slider:before {
 
     /* Smaller container */
     #profileContainer {
-        width: 90%;
-        padding: 16px;
-        border-radius: 12px;
+        width: 85%;
+        /* ⭐ narrower */
+        padding: 14px;
+        /* ⭐ reduced padding */
+        border-radius: 10px;
         margin: 20px auto;
     }
 
     /* Smaller toggle text */
     .toggleLabelText {
-        font-size: 20px;
+        font-size: 18px;
+        /* reduced */
     }
 
     /* Smaller rank heading */
     #rankHeading {
-        font-size: 22px;
-        margin-bottom: 16px;
+        font-size: 20px;
+        margin-bottom: 14px;
     }
 
     #rankList {
-        margin-top: 20px;
+        margin-top: 16px;
     }
 
     /* League table mobile */
     .rankRow {
-        grid-template-columns: 40px 1fr 70px;
-        padding: 10px;
-        font-size: 16px;
+        grid-template-columns: 40px 1fr 60px;
+        /* ⭐ narrower columns */
+        padding: 8px;
+        /* reduced padding */
+        font-size: 15px;
+        /* reduced text */
     }
 
     /* Friends table mobile */
     .rankRow.friendsRow {
         grid-template-columns: 1fr 1fr 1fr 1fr;
-        padding: 10px;
-        font-size: 16px;
+        padding: 8px;
+        font-size: 15px;
     }
 
     .rankPosition {
-        font-size: 18px;
+        font-size: 17px;
     }
 
     .rankNickname {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .rankPoints {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .deleteFriendBtn {
         font-size: 12px;
-        width: 36px;
-        padding: 3px 5px;
+        width: 34px;
+        /* ⭐ narrower */
+        padding: 3px 4px;
+        /* ⭐ smaller */
+        line-height: 1;
+        align-self: center;
+        /* ⭐ vertically aligned */
+        justify-self: end;
     }
 }
