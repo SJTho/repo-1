@@ -1,3 +1,6 @@
+/* ----------------------------------------------------
+   MAIN CONTAINER
+---------------------------------------------------- */
 #profileContainer {
     width: 80%;
     max-width: 700px;
@@ -8,65 +11,106 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.profileSectionTitle {
-    font-size: 20px;
-    font-weight: 700;
+/* ----------------------------------------------------
+   TOGGLE SWITCH
+---------------------------------------------------- */
+.toggleContainer {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.toggleWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.toggleLabelText {
+    font-size: 26px;
+    font-weight: bold;
+    color: #14233d;
+}
+
+.toggleLabelText.hidden {
+    visibility: hidden;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 22px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #14233d;
+    transition: .4s;
+    border-radius: 22px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #007bff;
+}
+
+input:checked+.slider:before {
+    transform: translateX(28px);
+}
+
+/* ----------------------------------------------------
+   FRIENDS SECTION
+---------------------------------------------------- */
+#friendsSection {
     margin-top: 10px;
-    /* reduced from 30px */
-    margin-bottom: 10px;
+    display: none;
 }
 
-.profileRow {
-    display: grid;
-    grid-template-columns: 160px 1fr;
-    column-gap: 10px;
-    margin-bottom: 14px;
+#addFriendBox {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
 }
 
-.profileRow label {
-    font-weight: 600;
-    text-align: right;
-    padding-right: 10px;
-    align-self: center;
-}
-
-.profileRow input {
-    width: 100%;
-    padding: 6px 10px;
-    font-size: 16px;
-    border: none;
-    background: #fafafa;
+#addFriendBox input {
+    flex: 1;
+    padding: 10px;
+    background-color: #d3d3d3;
+    border: 1px solid #999;
     border-radius: 6px;
-    outline: none;
+    color: #000;
 }
 
-/* Ensure profile labels are visible */
-#profileContainer label {
-    color: #000 !important;
+#addFriendBox button {
+    width: 140px;
+    padding: 10px;
 }
 
-.backBtn {
-    background: #14233d;
-    color: white;
-    width: 120px;
-    /* narrower button */
-    margin: 20px auto 0;
-    /* centered */
-    display: block;
-    /* ensures centering works */
-    padding: 8px 12px;
-    font-size: 16px;
-}
-
-/* Override closeBtn width for the Back button */
-button.closeBtn.backBtn {
-    width: 120px;
-    margin: 20px auto 0;
-    display: block;
-    padding: 8px 12px;
-    font-size: 16px;
-}
-
+/* ----------------------------------------------------
+   LEAGUE TABLE (3 columns)
+---------------------------------------------------- */
 #rankList {
     margin-top: 20px;
     width: 100%;
@@ -78,6 +122,7 @@ button.closeBtn.backBtn {
     padding: 10px;
     border-bottom: 1px solid #ddd;
     font-size: 18px;
+    align-items: center;
 }
 
 .rankPosition {
@@ -87,6 +132,7 @@ button.closeBtn.backBtn {
 
 .rankNickname {
     font-weight: 500;
+    color: #000;
 }
 
 .rankPoints {
@@ -96,57 +142,56 @@ button.closeBtn.backBtn {
 }
 
 /* ----------------------------------------------------
-   MOBILE ONLY — Larger text, bigger tap targets
+   FRIENDS TABLE (4 evenly spaced columns)
+---------------------------------------------------- */
+.rankRow.friendsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    /* ⭐ Even distribution */
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 18px;
+    align-items: center;
+}
+
+.deleteFriendBtn {
+    background: #b33a3a;
+    color: #fff;
+    border: none;
+    padding: 8px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 60px;
+    justify-self: end;
+    /* ⭐ Right aligned */
+}
+
+/* ----------------------------------------------------
+   MOBILE
 ---------------------------------------------------- */
 @media (max-width: 600px) {
 
-    /* Main container */
     #profileContainer {
         width: 95%;
         padding: 20px;
         border-radius: 14px;
     }
 
-    /* Section titles */
-    .profileSectionTitle {
-        font-size: 24px;
-        margin-top: 20px;
-        margin-bottom: 16px;
-    }
-
-    /* Two-column rows become stacked for readability */
-    .profileRow {
-        grid-template-columns: 1fr;
-        row-gap: 8px;
-        margin-bottom: 20px;
-    }
-
-    .profileRow label {
-        text-align: left;
-        font-size: 18px;
-        padding-right: 0;
-    }
-
-    .profileRow input {
-        font-size: 18px;
-        padding: 10px 12px;
-    }
-
-    /* Back button */
-    .backBtn {
-        width: 160px;
-        padding: 12px 16px;
-        font-size: 18px;
-    }
-
-    /* Rank list */
     #rankList {
         margin-top: 30px;
     }
 
-    /* Rank rows become larger and more spaced */
+    /* League table mobile */
     .rankRow {
         grid-template-columns: 50px 1fr 80px;
+        padding: 14px;
+        font-size: 20px;
+    }
+
+    /* Friends table mobile */
+    .rankRow.friendsRow {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
         padding: 14px;
         font-size: 20px;
     }
