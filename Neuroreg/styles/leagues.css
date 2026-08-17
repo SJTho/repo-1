@@ -155,22 +155,27 @@ input:checked+.slider:before {
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
+/* ----------------------------------------------------
+   DELETE BUTTON — ONLY CHANGE MADE HERE
+---------------------------------------------------- */
 .deleteFriendBtn {
     background: #b33a3a;
     color: #fff;
     border: none;
-    padding: 4px 6px;
+    padding: 2px 4px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
     width: 60px;
-    /* narrower */
     justify-self: end;
-    /* right aligned */
-    align-self: center;
-    /* vertically aligned */
-    line-height: 1;
-    /* prevents button sitting low */
+
+    /* ⭐ PERFECT vertical alignment */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    line-height: 14px;
+    height: 18px;
 }
 
 /* ----------------------------------------------------
@@ -178,62 +183,59 @@ input:checked+.slider:before {
 ---------------------------------------------------- */
 @media (max-width: 600px) {
 
-    /* Smaller container with more top spacing */
     #profileContainer {
-        width: 85%;
-        padding: 14px;
-        border-radius: 10px;
-        margin: 70px auto 20px auto;
-        /* increased top margin */
+        width: 90%;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 20px auto;
     }
 
-    /* Smaller toggle text */
     .toggleLabelText {
-        font-size: 18px;
+        font-size: 20px;
     }
 
-    /* Smaller rank heading */
     #rankHeading {
-        font-size: 20px;
-        margin-bottom: 14px;
+        font-size: 22px;
+        margin-bottom: 16px;
     }
 
     #rankList {
-        margin-top: 16px;
+        margin-top: 30px;
     }
 
-    /* League table mobile */
     .rankRow {
-        grid-template-columns: 40px 1fr 60px;
-        padding: 8px;
-        font-size: 15px;
+        grid-template-columns: 50px 1fr 80px;
+        padding: 14px;
+        font-size: 20px;
     }
 
-    /* Friends table mobile */
     .rankRow.friendsRow {
         grid-template-columns: 1fr 1fr 1fr 1fr;
-        padding: 8px;
-        font-size: 15px;
+        padding: 14px;
+        font-size: 20px;
     }
 
     .rankPosition {
-        font-size: 17px;
+        font-size: 22px;
     }
 
     .rankNickname {
-        font-size: 15px;
+        font-size: 20px;
     }
 
     .rankPoints {
-        font-size: 15px;
+        font-size: 20px;
     }
 
     .deleteFriendBtn {
         font-size: 12px;
-        width: 34px;
+        width: 38px;
         padding: 3px 4px;
-        line-height: 1;
-        align-self: center;
-        justify-self: end;
+        line-height: 12px;
+        height: 16px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
