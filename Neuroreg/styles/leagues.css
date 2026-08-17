@@ -1,0 +1,179 @@
+/* Existing profileContainer + layout */
+#profileContainer {
+    width: 80%;
+    max-width: 700px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Toggle section */
+.toggleContainer {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.toggleWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.toggleLabelText {
+    font-size: 26px;
+    font-weight: bold;
+    color: #14233d;
+}
+
+.toggleLabelText.hidden {
+    visibility: hidden;
+}
+
+/* Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 22px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #14233d;
+    transition: .4s;
+    border-radius: 22px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #007bff;
+}
+
+input:checked+.slider:before {
+    transform: translateX(28px);
+}
+
+/* Friends section */
+#friendsSection {
+    margin-top: 10px;
+    display: none;
+}
+
+#addFriendBox {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+#addFriendBox input {
+    flex: 1;
+    padding: 10px;
+    background-color: #d3d3d3;
+    border: 1px solid #999;
+    border-radius: 6px;
+    color: #000;
+}
+
+#addFriendBox button {
+    width: 140px;
+    padding: 10px;
+}
+
+/* Rank list */
+#rankList {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.rankRow {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 18px;
+}
+
+.rankPosition {
+    font-weight: bold;
+    color: #14233d;
+}
+
+.rankNickname {
+    font-weight: 500;
+    color: #000;
+}
+
+.rankPoints {
+    text-align: right;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Delete friend button */
+.deleteFriendBtn {
+    background: #b33a3a;
+    color: #fff;
+    border: none;
+    padding: 8px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 60px;
+    justify-self: end;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+
+    #profileContainer {
+        width: 95%;
+        padding: 20px;
+        border-radius: 14px;
+    }
+
+    #rankList {
+        margin-top: 30px;
+    }
+
+    .rankRow {
+        grid-template-columns: 50px 1fr 80px;
+        padding: 14px;
+        font-size: 20px;
+    }
+
+    .rankPosition {
+        font-size: 22px;
+    }
+
+    .rankNickname {
+        font-size: 20px;
+    }
+
+    .rankPoints {
+        font-size: 20px;
+    }
+}
