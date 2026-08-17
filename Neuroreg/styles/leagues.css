@@ -146,7 +146,6 @@ input:checked+.slider:before {
 ---------------------------------------------------- */
 .rankRow.friendsRow {
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    /* 4 equal columns */
 }
 
 .deleteFriendBtn {
@@ -154,15 +153,13 @@ input:checked+.slider:before {
     color: #fff;
     border: none;
     padding: 4px 6px;
-    /* smaller height */
     border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    /* smaller text */
+    font-size: 12px;
     width: 40px;
-    /* ⭐ narrower button */
+    /* narrower */
     justify-self: end;
-    /* stays right aligned */
+    /* right aligned */
 }
 
 /* ----------------------------------------------------
@@ -170,39 +167,58 @@ input:checked+.slider:before {
 ---------------------------------------------------- */
 @media (max-width: 600px) {
 
+    /* Smaller container */
     #profileContainer {
-        width: 95%;
-        padding: 20px;
-        border-radius: 14px;
+        width: 90%;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 20px auto;
+    }
+
+    /* Smaller toggle text */
+    .toggleLabelText {
+        font-size: 20px;
+    }
+
+    /* Smaller rank heading */
+    #rankHeading {
+        font-size: 22px;
+        margin-bottom: 16px;
     }
 
     #rankList {
-        margin-top: 30px;
+        margin-top: 20px;
     }
 
     /* League table mobile */
     .rankRow {
-        grid-template-columns: 50px 1fr 80px;
-        padding: 14px;
-        font-size: 20px;
+        grid-template-columns: 40px 1fr 70px;
+        padding: 10px;
+        font-size: 16px;
     }
 
     /* Friends table mobile */
     .rankRow.friendsRow {
         grid-template-columns: 1fr 1fr 1fr 1fr;
-        padding: 14px;
-        font-size: 20px;
+        padding: 10px;
+        font-size: 16px;
     }
 
     .rankPosition {
-        font-size: 22px;
+        font-size: 18px;
     }
 
     .rankNickname {
-        font-size: 20px;
+        font-size: 16px;
     }
 
     .rankPoints {
-        font-size: 20px;
+        font-size: 16px;
+    }
+
+    .deleteFriendBtn {
+        font-size: 12px;
+        width: 36px;
+        padding: 3px 5px;
     }
 }
