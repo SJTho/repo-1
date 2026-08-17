@@ -156,17 +156,19 @@ input:checked+.slider:before {
 }
 
 /* ----------------------------------------------------
-   DELETE BUTTON — ONLY CHANGE MADE HERE
+   DELETE BUTTON — PERFECT VERTICAL ALIGNMENT
 ---------------------------------------------------- */
 .deleteFriendBtn {
     background: #b33a3a;
     color: #fff;
     border: none;
-    padding: 2px 4px;
+    padding: 4px 4px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
+
     width: 60px;
+    /* desktop width unchanged */
     justify-self: end;
 
     /* ⭐ PERFECT vertical alignment */
@@ -174,8 +176,10 @@ input:checked+.slider:before {
     align-items: center;
     justify-content: center;
 
+    height: 28px;
+    /* ⭐ taller button */
     line-height: 14px;
-    height: 20px;
+    /* matches font-size */
 }
 
 /* ----------------------------------------------------
@@ -188,7 +192,7 @@ input:checked+.slider:before {
         padding: 16px;
         border-radius: 12px;
         margin: 90px auto 20px auto;
-        /* ⭐ restored spacing so container stays BELOW icons */
+        /* keeps container below icons */
     }
 
     .toggleLabelText {
@@ -228,15 +232,19 @@ input:checked+.slider:before {
         font-size: 20px;
     }
 
+    /* ⭐ MOBILE DELETE BUTTON — width = 40px */
     .deleteFriendBtn {
-        font-size: 12px;
-        width: 34px;
-        padding: 3px 4px;
-        line-height: 12px;
-        height: 16px;
+        font-size: 14px;
+        width: 40px;
+        /* ⭐ your request */
+        padding: 4px 4px;
 
         display: flex;
         align-items: center;
         justify-content: center;
+
+        height: 26px;
+        /* matches desktop height */
+        line-height: 14px;
     }
 }
