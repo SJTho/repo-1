@@ -187,7 +187,8 @@ input:checked+.slider:before {
         width: 90%;
         padding: 16px;
         border-radius: 12px;
-        margin: 20px auto;
+        margin: 90px auto 20px auto;
+        /* ⭐ restored spacing so container stays BELOW icons */
     }
 
     .toggleLabelText {
@@ -229,7 +230,7 @@ input:checked+.slider:before {
 
     .deleteFriendBtn {
         font-size: 12px;
-        width: 38px;
+        width: 34px;
         padding: 3px 4px;
         line-height: 12px;
         height: 16px;
