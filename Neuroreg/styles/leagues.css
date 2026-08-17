@@ -157,9 +157,11 @@ input:checked+.slider:before {
     border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
+    width: 60px;
     justify-self: end;
     /* right-align inside its column */
 }
+
 
 /* ----------------------------------------------------
    MOBILE
