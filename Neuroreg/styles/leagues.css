@@ -11,6 +11,13 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Fix heading colour (global.css sets h2 to white) */
+#rankHeading {
+    color: #14233d !important;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
 /* ----------------------------------------------------
    TOGGLE SWITCH
 ---------------------------------------------------- */
@@ -156,13 +163,14 @@ input:checked+.slider:before {
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
-    width: 60px;
+    width: 40px;
+    /* narrower */
     justify-self: end;
     /* right aligned */
     align-self: center;
-    /* ⭐ vertically centred */
+    /* vertically aligned */
     line-height: 1;
-    /* ⭐ prevents button from sitting low */
+    /* prevents button sitting low */
 }
 
 /* ----------------------------------------------------
@@ -170,20 +178,18 @@ input:checked+.slider:before {
 ---------------------------------------------------- */
 @media (max-width: 600px) {
 
-    /* Smaller container */
+    /* Smaller container with more top spacing */
     #profileContainer {
         width: 85%;
-        /* ⭐ narrower */
         padding: 14px;
-        /* ⭐ reduced padding */
         border-radius: 10px;
-        margin: 20px auto;
+        margin: 70px auto 20px auto;
+        /* increased top margin */
     }
 
     /* Smaller toggle text */
     .toggleLabelText {
         font-size: 18px;
-        /* reduced */
     }
 
     /* Smaller rank heading */
@@ -199,11 +205,8 @@ input:checked+.slider:before {
     /* League table mobile */
     .rankRow {
         grid-template-columns: 40px 1fr 60px;
-        /* ⭐ narrower columns */
         padding: 8px;
-        /* reduced padding */
         font-size: 15px;
-        /* reduced text */
     }
 
     /* Friends table mobile */
@@ -228,12 +231,9 @@ input:checked+.slider:before {
     .deleteFriendBtn {
         font-size: 12px;
         width: 34px;
-        /* ⭐ narrower */
         padding: 3px 4px;
-        /* ⭐ smaller */
         line-height: 1;
         align-self: center;
-        /* ⭐ vertically aligned */
         justify-self: end;
     }
 }
