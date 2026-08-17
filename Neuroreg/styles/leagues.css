@@ -177,3 +177,8 @@ input:checked+.slider:before {
         font-size: 20px;
     }
 }
+
+/* Friends table uses 4 columns */
+.rankRow.friendsRow {
+    grid-template-columns: 60px 1fr 100px 80px;
+}
