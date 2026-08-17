@@ -214,7 +214,7 @@ async function renderFriendsList() {
 
     friends.forEach((f, index) => {
         const row = document.createElement("div");
-        row.className = "rankRow";
+       row.className = "rankRow friendsRow";
         row.innerHTML = `
             <div class="rankPosition">${index + 1}</div>
             <div class="rankNickname">${f.nickname}</div>
