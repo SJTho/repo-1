@@ -1,0 +1,149 @@
+/* Container */
+#profileContainer {
+    width: 80%;
+    max-width: 500px;
+    margin: 120px auto 60px auto;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#profileContainer h2 {
+    color: #000;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+/* Profile rows */
+.profileRow {
+    margin-bottom: 24px;
+    font-size: 18px;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.profileRow strong {
+    margin-bottom: 6px;
+}
+
+.profileRow span {
+    font-size: 18px;
+}
+
+/* Buttons */
+.editBtn,
+.saveBtn,
+.closeBtn {
+    margin-top: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.editBtn {
+    background: #007bff;
+    color: white;
+}
+
+.saveBtn {
+    background: #28a745;
+    color: white;
+}
+
+.closeBtn {
+    background: #14233d;
+    color: white;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Input fields */
+input.editField {
+    font-size: 18px;
+    padding: 10px 12px;
+    width: 100%;
+    box-sizing: border-box;
+    background: #e0e0e0;
+    border: 1px solid #b5b5b5;
+    border-radius: 6px;
+    color: #000;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    #profileContainer {
+        width: 95%;
+        padding: 28px;
+        margin-top: 80px;
+        border-radius: 14px;
+    }
+
+    #profileContainer h2 {
+        font-size: 26px;
+        margin-bottom: 28px;
+    }
+
+    .profileRow {
+        font-size: 20px;
+        margin-bottom: 28px;
+    }
+
+    .profileRow strong {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .profileRow span {
+        font-size: 20px;
+    }
+
+    input.editField {
+        font-size: 20px;
+        padding: 12px 14px;
+        background: #d6d6d6;
+        border: 1px solid #a8a8a8;
+    }
+}
+
+/* Button sizing */
+.editBtn,
+.saveBtn {
+    font-size: 18px;
+    padding: 10px 16px;
+    border-radius: 8px;
+}
+
+.closeBtn {
+    font-size: 20px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    margin-top: 30px;
+}
+
+/* Hamburger + top-right icons */
+.hamburgerIcon {
+    font-size: 30px;
+    padding: 12px;
+}
+
+.topRightIcon {
+    font-size: 28px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdownItem {
+    font-size: 20px;
+    padding: 14px;
+}
+
+.dropdownSeparator {
+    width: 100%;
+    height: 1px;
+    background: #ccc;
+    margin: 6px 0;
+}
