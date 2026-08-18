@@ -1,0 +1,160 @@
+/* Container holding all flagged items */
+#flaggedContainer {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Each flagged question box */
+#flaggedContainer .flaggedItem {
+  width: 80% !important;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  padding: 16px;
+  border-radius: 10px;
+  background: #fafafa;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* STEM HEADER (clickable) */
+.stemHeader {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  column-gap: 10px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.stemHeader label {
+  align-self: start;
+  padding-top: 4px;
+}
+
+/* COLLAPSIBLE CONTENT WRAPPER */
+.collapsibleContent {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 14px;
+}
+
+/* Topic + Level row */
+.topicLevelRow {
+  display: grid;
+  grid-template-columns: 135px 260px 140px 260px;
+  column-gap: 10px;
+  align-items: center;
+}
+
+/* Explanation row */
+.explanationRow {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  column-gap: 10px;
+  margin-bottom: 12px;
+}
+
+.explanationRow label {
+  align-self: start;
+  padding-top: 4px;
+}
+
+/* Option rows */
+.optionRow12,
+.optionRow34 {
+  display: grid;
+  grid-template-columns: 140px 260px 140px 260px;
+  column-gap: 10px;
+  align-items: center;
+}
+
+/* Labels */
+#flaggedContainer .flaggedItem label {
+  display: block !important;
+  color: #000 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-align: right;
+  padding-right: 10px;
+}
+
+/* Generic field styling */
+#flaggedContainer .flaggedItem textarea,
+#flaggedContainer .flaggedItem input,
+#flaggedContainer .flaggedItem select {
+  width: 100% !important;
+  font-size: 14px;
+  padding: 4px 6px;
+  border: none !important;
+  background: #fafafa !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Stem + Explanation */
+.editStem,
+.editExplanation {
+  height: 24px !important;
+  overflow-y: auto !important;
+  resize: none !important;
+  line-height: 20px !important;
+}
+
+/* Dropdowns */
+.editTopic,
+.editLevel {
+  width: 260px !important;
+  height: 32px !important;
+}
+
+/* Options */
+.editOption1,
+.editOption2,
+.editOption3,
+.editOption4 {
+  height: 32px !important;
+  width: 260px !important;
+}
+
+/* Buttons */
+.buttonRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.saveBtn,
+.unflagBtn,
+.deleteBtn {
+  padding: 6px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.saveBtn {
+  background: #2a4c8a;
+  color: white;
+}
+
+.saveBtn:hover {
+  background: #3b5ca3;
+}
+
+.unflagBtn {
+  background: #888;
+  color: white;
+}
+
+.deleteBtn {
+  background: #b33a3a;
+  color: white;
+}
+
+.deleteBtn:hover {
+  background: #d14a4a;
+}
