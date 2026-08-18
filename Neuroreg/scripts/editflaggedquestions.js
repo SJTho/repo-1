@@ -142,7 +142,7 @@ async function loadFlaggedQuestions() {
     div.innerHTML = `
       <div class="stemHeader">
         <label for="stem_${q.id}">Stem:</label>
-        <input id="stem_${q.id}" class="editStem" required value="${esc(q.stem)}">
+        <input id="stem_${q.id}" class="editStem" required value="${esc(q.stem || "")}">
       </div>
 
       <div class="collapsibleContent" style="display:none">
@@ -165,23 +165,23 @@ async function loadFlaggedQuestions() {
 
         <div class="explanationRow">
           <label for="explanation_${q.id}">Explanation:</label>
-          <input id="explanation_${q.id}" class="editExplanation" required value="${esc(q.explanation)}">
+          <input id="explanation_${q.id}" class="editExplanation" required value="${esc(q.explanation || "")}">
         </div>
 
         <div class="optionRow12">
           <label for="option1_${q.id}">Correct:</label>
-          <input id="option1_${q.id}" class="editOption1" required value="${esc(q.option1)}">
+          <input id="option1_${q.id}" class="editOption1" required value="${esc(q.option1 || "")}">
 
           <label for="option2_${q.id}">Incorrect:</label>
-          <input id="option2_${q.id}" class="editOption2" required value="${esc(q.option2)}">
+          <input id="option2_${q.id}" class="editOption2" required value="${esc(q.option2 || "")}">
         </div>
 
         <div class="optionRow34">
           <label for="option3_${q.id}">Incorrect:</label>
-          <input id="option3_${q.id}" class="editOption3" required value="${esc(q.option3)}">
+          <input id="option3_${q.id}" class="editOption3" required value="${esc(q.option3 || "")}">
 
           <label for="option4_${q.id}">Incorrect:</label>
-          <input id="option4_${q.id}" class="editOption4" required value="${esc(q.option4)}">
+          <input id="option4_${q.id}" class="editOption4" required value="${esc(q.option4 || "")}">
         </div>
 
         <div class="buttonRow">
@@ -237,12 +237,8 @@ async function loadFlaggedQuestions() {
     div.querySelector(".deleteBtn").onclick = async () => {
       if (!confirm("Delete this question?")) return;
 
-      console.log("Attempting RPC delete for id:", q.id);
-
       const { data, error } = await window.supabase
         .rpc("delete_mcqquestion", { question_id: q.id });
-
-      console.log("RPC delete response:", { data, error });
 
       if (error) {
         alert("Error deleting question.");
