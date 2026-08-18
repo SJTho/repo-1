@@ -202,15 +202,25 @@ async function loadFlaggedQuestions() {
     /* ----------------------------- SAVE ----------------------------- */
 
     div.querySelector(".saveBtn").onclick = async () => {
+
+      const stem = div.querySelector(".editStem")?.value.trim() || "";
+      const topic = div.querySelector(".editTopic")?.value.trim() || "";
+      const level = div.querySelector(".editLevel")?.value.trim() || "";
+      const explanation = div.querySelector(".editExplanation")?.value.trim() || "";
+      const option1 = div.querySelector(".editOption1")?.value.trim() || "";
+      const option2 = div.querySelector(".editOption2")?.value.trim() || "";
+      const option3 = div.querySelector(".editOption3")?.value.trim() || "";
+      const option4 = div.querySelector(".editOption4")?.value.trim() || "";
+
       const updated = {
-        stem: div.querySelector(".editStem").value.trim(),
-        topic: div.querySelector(".editTopic").value.trim(),
-        level: div.querySelector(".editLevel").value.trim(),
-        explanation: div.querySelector(".editExplanation").value.trim(),
-        option1: div.querySelector(".editOption1").value.trim(),
-        option2: div.querySelector(".editOption2").value.trim(),
-        option3: div.querySelector(".editOption3").value.trim(),
-        option4: div.querySelector(".editOption4").value.trim(),
+        stem,
+        topic,
+        level,
+        explanation,
+        option1,
+        option2,
+        option3,
+        option4,
         flaggedset: 0
       };
 
