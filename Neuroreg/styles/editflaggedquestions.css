@@ -87,6 +87,8 @@
 #flaggedContainer .flaggedItem select {
   width: 100% !important;
   font-size: 14px;
+  font-family: inherit !important;
+  /* ← NEW: matches input box font */
   padding: 4px 6px;
   border: none !important;
   background: #fafafa !important;
@@ -163,3 +165,11 @@
 
 .deleteBtn:hover {
   background: #d14a4a;
+
+  /* Shift Level, Option 2, and Option 4 labels slightly right */
+  label[for^="level_"],
+  label[for^="option2_"],
+  label[for^="option4_"] {
+    margin-left: 6px !important;
+    /* adjust value as needed */
+  }
