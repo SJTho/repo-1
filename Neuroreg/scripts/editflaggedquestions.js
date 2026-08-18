@@ -225,7 +225,9 @@ async function loadFlaggedQuestions() {
       };
 
       // SAFE mandatory-fields check
-      if (Object.values(updated).some(v => v.trim().length === 0)) {
+      if (Object.entries(updated).some(([key, value]) =>
+        key !== "flaggedset" && value.trim().length === 0
+      )) {
         alert("All fields are mandatory.");
         return;
       }
