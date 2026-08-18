@@ -105,7 +105,7 @@ window.fetchFlaggedQuestions = async () => {
   const {data, error} = await window.supabase
     .from("mcqquestions")
     .select("*")
-    .gte("flaggedset", 5);
+    .gte("flaggedset", 1);
 
   if (error) {
     console.error("Supabase fetch error:", error);
