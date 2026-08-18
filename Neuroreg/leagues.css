@@ -11,6 +11,13 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Fix heading colour (global.css sets h2 to white) */
+#rankHeading {
+    color: #14233d !important;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
 /* ----------------------------------------------------
    TOGGLE SWITCH
 ---------------------------------------------------- */
@@ -123,6 +130,7 @@ input:checked+.slider:before {
     border-bottom: 1px solid #ddd;
     font-size: 18px;
     align-items: center;
+    /* ⭐ ensures vertical alignment */
 }
 
 .rankPosition {
@@ -148,21 +156,39 @@ input:checked+.slider:before {
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
+/* ----------------------------------------------------
+   DELETE BUTTON — PERFECT VERTICAL ALIGNMENT
+---------------------------------------------------- */
 .deleteFriendBtn {
     background: #b33a3a;
     color: #fff;
     border: none;
-    padding: 4px 6px;
+    padding: 4px 4px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
-    width: 40px;
+
+    width: 60px;
     justify-self: end;
-    /* right aligned */
-    align-self: center;
-    /* ⭐ vertically centred */
-    line-height: 1;
-    /* ⭐ prevents button from sitting low */
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 28px;
+    line-height: 14px;
+}
+
+/* ⭐ OVERRIDE GLOBAL.CSS MISALIGNMENT */
+.rankRow .deleteFriendBtn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    margin: 0 !important;
+    padding: 4px 4px !important;
+    line-height: 14px !important;
+    vertical-align: middle !important;
 }
 
 /* ----------------------------------------------------
@@ -170,58 +196,73 @@ input:checked+.slider:before {
 ---------------------------------------------------- */
 @media (max-width: 600px) {
 
-    /* Smaller container */
     #profileContainer {
         width: 90%;
         padding: 16px;
         border-radius: 12px;
-        margin: 20px auto;
+        margin: 90px auto 20px auto;
     }
 
-    /* Smaller toggle text */
     .toggleLabelText {
         font-size: 20px;
     }
 
-    /* Smaller rank heading */
     #rankHeading {
         font-size: 22px;
         margin-bottom: 16px;
     }
 
     #rankList {
-        margin-top: 20px;
+        margin-top: 30px;
     }
 
-    /* League table mobile */
     .rankRow {
-        grid-template-columns: 40px 1fr 70px;
-        padding: 10px;
-        font-size: 16px;
+        grid-template-columns: 50px 1fr 80px;
+        padding: 14px;
+        font-size: 20px;
     }
 
-    /* Friends table mobile */
     .rankRow.friendsRow {
         grid-template-columns: 1fr 1fr 1fr 1fr;
-        padding: 10px;
-        font-size: 16px;
+        padding: 14px;
+        font-size: 20px;
     }
 
     .rankPosition {
-        font-size: 18px;
+        font-size: 22px;
     }
 
     .rankNickname {
-        font-size: 16px;
+        font-size: 20px;
     }
 
     .rankPoints {
-        font-size: 16px;
+        font-size: 20px;
     }
 
+    /* ⭐ MOBILE DELETE BUTTON — width = 40px */
     .deleteFriendBtn {
-        font-size: 12px;
-        width: 36px;
-        padding: 3px 5px;
+        font-size: 14px;
+        width: 40px;
+        padding: 4px 4px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        height: 26px;
+        line-height: 14px;
+    }
+
+    /* ⭐ OVERRIDE GLOBAL.CSS ON MOBILE TOO */
+    .rankRow .deleteFriendBtn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        margin: 0 !important;
+        padding: 4px 4px !important;
+        line-height: 14px !important;
+        vertical-align: middle !important;
     }
 }
