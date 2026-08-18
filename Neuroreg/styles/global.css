@@ -495,7 +495,7 @@ a {
 
   /* override global button rules */
   width: auto !important;
-  display: inline-block !important;
+  /* display: inline-block !important;/*
   margin: 0 !important;
   /* identical margin */
   vertical-align: middle;
