@@ -94,13 +94,30 @@
   outline: none !important;
 }
 
-/* Stem + Explanation */
-.editStem,
-.editExplanation {
-  height: 24px !important;
+/* Stem + Explanation: now two rows with vertical scroll */
+.editStem {
+  height: 48px !important;
+  /* two rows */
+  min-height: 48px !important;
   overflow-y: auto !important;
+  /* vertical scroll */
+  overflow-x: hidden !important;
+  /* prevent horizontal overflow */
   resize: none !important;
   line-height: 20px !important;
+  white-space: normal !important;
+  /* allow wrapping */
+}
+
+.editExplanation {
+  height: 48px !important;
+  /* two rows */
+  min-height: 48px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  resize: none !important;
+  line-height: 20px !important;
+  white-space: normal !important;
 }
 
 /* Dropdowns */
