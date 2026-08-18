@@ -199,6 +199,8 @@ async function loadFlaggedQuestions() {
       content.style.display = content.style.display === "none" ? "block" : "none";
     });
 
+    /* ----------------------------- SAVE ----------------------------- */
+
     div.querySelector(".saveBtn").onclick = async () => {
       const updated = {
         stem: div.querySelector(".editStem").value.trim(),
@@ -230,15 +232,27 @@ async function loadFlaggedQuestions() {
       }
     };
 
+    /* ----------------------------- DELETE (FIXED) ----------------------------- */
+
     div.querySelector(".deleteBtn").onclick = async () => {
       if (!confirm("Delete this question?")) return;
 
-      const {error} = await window.supabase
+      console.log("Attempting to delete row with id:", q.id);
+
+      const {data, error} = await window.supabase
         .from("mcqquestions")
         .delete()
         .eq("id", q.id);
 
-      if (!error) div.remove();
+      console.log("Supabase delete response:", {data, error});
+
+      if (error) {
+        alert("Error deleting question.");
+        return;
+      }
+
+      alert("Deleted.");
+      div.remove();
     };
 
     container.appendChild(div);
