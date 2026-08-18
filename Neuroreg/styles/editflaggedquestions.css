@@ -94,24 +94,19 @@
   outline: none !important;
 }
 
-/* Stem + Explanation: now two rows with vertical scroll */
+/* Stem + Explanation: two rows with vertical scroll */
 .editStem {
   height: 48px !important;
-  /* two rows */
   min-height: 48px !important;
   overflow-y: auto !important;
-  /* vertical scroll */
   overflow-x: hidden !important;
-  /* prevent horizontal overflow */
   resize: none !important;
   line-height: 20px !important;
   white-space: normal !important;
-  /* allow wrapping */
 }
 
 .editExplanation {
   height: 48px !important;
-  /* two rows */
   min-height: 48px !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
@@ -144,7 +139,6 @@
 }
 
 .saveBtn,
-.unflagBtn,
 .deleteBtn {
   padding: 6px 14px;
   font-size: 14px;
@@ -162,11 +156,6 @@
   background: #3b5ca3;
 }
 
-.unflagBtn {
-  background: #888;
-  color: white;
-}
-
 .deleteBtn {
   background: #b33a3a;
   color: white;
@@ -174,4 +163,3 @@
 
 .deleteBtn:hover {
   background: #d14a4a;
-}
