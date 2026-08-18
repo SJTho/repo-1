@@ -141,7 +141,7 @@ input:checked+.slider:before {
     font-weight: 500;
     color: #000;
     padding-left: 6px;
-    /* shift column 2 slightly right */
+    /* slight right shift */
 }
 
 .rankPoints {
@@ -157,7 +157,7 @@ input:checked+.slider:before {
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
-/* Align columns 1–3 left, column 4 unchanged */
+/* Align columns 1–3 left */
 .rankRow.friendsRow> :nth-child(1),
 .rankRow.friendsRow> :nth-child(2),
 .rankRow.friendsRow> :nth-child(3) {
@@ -216,19 +216,34 @@ input:checked+.slider:before {
         margin: 110px auto 20px auto;
     }
 
-    /* Reduce sizes */
+    /* Reduce text size of "Leagues" and "Friends" beside toggle */
+    .toggleLabelText {
+        font-size: 16px;
+    }
+
+    /* Narrower toggle switch */
+    .switch {
+        width: 42px;
+        height: 20px;
+        transform: scale(0.80);
+    }
+
+    .slider:before {
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(22px);
+    }
+
+    /* League + friends row sizes */
     .rankRow,
     .rankRow.friendsRow {
         font-size: 16px;
         padding: 10px;
-    }
-
-    .toggleLabelText {
-        font-size: 18px;
-    }
-
-    .switch {
-        transform: scale(0.85);
     }
 
     #rankHeading {
@@ -252,13 +267,23 @@ input:checked+.slider:before {
         font-size: 18px;
     }
 
-    .rankNickname {
+    /* Leagues table column 2: left aligned + moved right */
+    .rankRow .rankNickname {
+        text-align: left;
+        padding-left: 14px;
+        /* increased shift */
         font-size: 16px;
-        padding-left: 6px;
     }
 
     .rankPoints {
         font-size: 16px;
+    }
+
+    /* Friends table column 3: smaller + slight left shift */
+    .rankRow.friendsRow> :nth-child(3) {
+        font-size: 15px;
+        padding-left: 4px;
+        text-align: left;
     }
 
     /* Mobile delete button */
