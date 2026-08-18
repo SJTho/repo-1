@@ -130,7 +130,6 @@ input:checked+.slider:before {
     border-bottom: 1px solid #ddd;
     font-size: 18px;
     align-items: center;
-    /* ⭐ ensures vertical alignment */
 }
 
 .rankPosition {
@@ -141,6 +140,8 @@ input:checked+.slider:before {
 .rankNickname {
     font-weight: 500;
     color: #000;
+    padding-left: 6px;
+    /* shift column 2 slightly right */
 }
 
 .rankPoints {
@@ -154,6 +155,13 @@ input:checked+.slider:before {
 ---------------------------------------------------- */
 .rankRow.friendsRow {
     grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+/* Align columns 1–3 left, column 4 unchanged */
+.rankRow.friendsRow> :nth-child(1),
+.rankRow.friendsRow> :nth-child(2),
+.rankRow.friendsRow> :nth-child(3) {
+    text-align: left;
 }
 
 /* ----------------------------------------------------
@@ -179,117 +187,97 @@ input:checked+.slider:before {
     line-height: 14px;
 }
 
-/* ⭐ OVERRIDE GLOBAL.CSS MISALIGNMENT */
-.rankRow .deleteFriendBtn {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    margin: 0 !important;
-    padding: 4px 4px !important;
-    line-height: 14px !important;
-    vertical-align: middle !important;
-}
-
-/* ============================================
-   HARD OVERRIDE — Fix global button interference
-   ============================================ */
+/* Hard override global.css */
 .rankRow .deleteFriendBtn {
     margin-top: 0 !important;
-    /* stops downward push */
     width: auto !important;
-    /* prevents full-width expansion */
     padding: 4px 6px !important;
-    /* restores your compact size */
     font-size: 14px !important;
-    /* overrides global 1.1rem */
     border-radius: 6px !important;
-    /* overrides global 10px */
 
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
 
     height: 28px !important;
-    /* keeps perfect vertical alignment */
     line-height: 14px !important;
+}
 
-    /* ----------------------------------------------------
+/* ----------------------------------------------------
    MOBILE
 ---------------------------------------------------- */
-    @media (max-width: 600px) {
+@media (max-width: 600px) {
 
-        #profileContainer {
-            width: 90%;
-            padding: 16px;
-            border-radius: 12px;
-            margin: 90px auto 20px auto;
-        }
+    /* Move container down */
+    #profileContainer {
+        width: 90%;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 110px auto 20px auto;
+    }
 
-        .toggleLabelText {
-            font-size: 20px;
-        }
+    /* Reduce sizes */
+    .rankRow,
+    .rankRow.friendsRow {
+        font-size: 16px;
+        padding: 10px;
+    }
 
-        #rankHeading {
-            font-size: 22px;
-            margin-bottom: 16px;
-        }
+    .toggleLabelText {
+        font-size: 18px;
+    }
 
-        #rankList {
-            margin-top: 30px;
-        }
+    .switch {
+        transform: scale(0.85);
+    }
 
-        .rankRow {
-            grid-template-columns: 50px 1fr 80px;
-            padding: 14px;
-            font-size: 20px;
-        }
+    #rankHeading {
+        font-size: 22px;
+        margin-bottom: 16px;
+    }
 
-        .rankRow.friendsRow {
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            padding: 14px;
-            font-size: 20px;
-        }
+    #rankList {
+        margin-top: 30px;
+    }
 
-        .rankPosition {
-            font-size: 22px;
-        }
+    .rankRow {
+        grid-template-columns: 50px 1fr 80px;
+    }
 
-        .rankNickname {
-            font-size: 20px;
-        }
+    .rankRow.friendsRow {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
 
-        .rankPoints {
-            font-size: 20px;
-        }
+    .rankPosition {
+        font-size: 18px;
+    }
 
-        /* ⭐ MOBILE DELETE BUTTON — width = 40px */
-        .deleteFriendBtn {
-            font-size: 14px;
-            width: 40px;
-            padding: 4px 4px;
+    .rankNickname {
+        font-size: 16px;
+        padding-left: 6px;
+    }
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+    .rankPoints {
+        font-size: 16px;
+    }
 
-            height: 26px;
-            line-height: 14px;
-        }
+    /* Mobile delete button */
+    .deleteFriendBtn {
+        font-size: 14px;
+        width: 40px;
+        padding: 4px 4px;
+        height: 26px;
+        line-height: 14px;
+    }
 
-        /* ⭐ OVERRIDE GLOBAL.CSS ON MOBILE TOO */
-        .rankRow .deleteFriendBtn {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-
-            margin: 0 !important;
-            padding: 4px 4px !important;
-            line-height: 14px !important;
-            vertical-align: middle !important;
-        }
-
-        .rankRow .deleteFriendBtn {
-            width: 40px !important;
-            height: 26px !important;
-        }
+    .rankRow .deleteFriendBtn {
+        width: 40px !important;
+        height: 26px !important;
+        padding: 4px 4px !important;
+        margin: 0 !important;
+        line-height: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+}
