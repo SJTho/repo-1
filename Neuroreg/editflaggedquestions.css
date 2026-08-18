@@ -16,18 +16,18 @@
   border-radius: 10px;
   background: #fafafa;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
 }
 
-/* STEM ROW */
-.stemRow {
+/* STEM HEADER (clickable) */
+.stemHeader {
   display: grid;
   grid-template-columns: 140px 1fr;
   column-gap: 10px;
   margin-bottom: 12px;
+  cursor: pointer;
 }
 
-.stemRow label {
+.stemHeader label {
   align-self: start;
   padding-top: 4px;
 }
@@ -37,17 +37,19 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 14px;
 }
 
+/* Topic + Level row */
 .topicLevelRow {
   display: grid;
   grid-template-columns: 135px 260px 140px 260px;
-  /* match option rows */
   column-gap: 10px;
   align-items: center;
 }
 
-/* ROW 3: EXPLANATION */
+/* Explanation row */
 .explanationRow {
   display: grid;
   grid-template-columns: 140px 1fr;
@@ -60,15 +62,8 @@
   padding-top: 4px;
 }
 
-/* ROW 4: OPTION 1 + OPTION 2 */
-.optionRow12 {
-  display: grid;
-  grid-template-columns: 140px 260px 140px 260px;
-  column-gap: 10px;
-  align-items: center;
-}
-
-/* ROW 5: OPTION 3 + OPTION 4 */
+/* Option rows */
+.optionRow12,
 .optionRow34 {
   display: grid;
   grid-template-columns: 140px 260px 140px 260px;
@@ -82,7 +77,7 @@
   color: #000 !important;
   font-size: 13px !important;
   font-weight: 600 !important;
-  text-align: right;
+  text-align: left;
   padding-right: 10px;
 }
 
@@ -92,6 +87,8 @@
 #flaggedContainer .flaggedItem select {
   width: 100% !important;
   font-size: 14px;
+  font-family: inherit !important;
+  /* ← NEW: matches input box font */
   padding: 4px 6px;
   border: none !important;
   background: #fafafa !important;
@@ -99,30 +96,35 @@
   outline: none !important;
 }
 
-/* Stem + Explanation: single-row with scroll */
-.editStem,
-.editExplanation {
-  height: 24px !important;
-  /* one row high */
+/* Stem + Explanation: two rows with vertical scroll */
+.editStem {
+  height: 48px !important;
+  min-height: 48px !important;
   overflow-y: auto !important;
-  /* scroll if content too big */
+  overflow-x: hidden !important;
   resize: none !important;
-  /* prevent manual resize */
   line-height: 20px !important;
+  white-space: normal !important;
 }
 
-.editTopic {
-  width: 260px !important;
-  height: 32px !important;
+.editExplanation {
+  height: 48px !important;
+  min-height: 48px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  resize: none !important;
+  line-height: 20px !important;
+  white-space: normal !important;
 }
 
+/* Dropdowns */
+.editTopic,
 .editLevel {
   width: 260px !important;
-  /* or smaller, but column is 260px */
   height: 32px !important;
 }
 
-/* Options sizing */
+/* Options */
 .editOption1,
 .editOption2,
 .editOption3,
@@ -131,15 +133,35 @@
   width: 260px !important;
 }
 
-.saveBtn {
-  grid-column: 1 / span 2;
-  /* stays on its own row */
-  width: fit-content;
-  /* shrink to natural size */
-  padding: 6px 14px;
-  /* smaller, tighter */
-  font-size: 14px;
+/* Buttons */
+.buttonRow {
+  display: flex;
+  gap: 10px;
   margin-top: 10px;
+}
+
+.saveBtn,
+.deleteBtn {
+  padding: 6px 14px;
+  font-size: 14px;
   border-radius: 6px;
   cursor: pointer;
+  border: none;
 }
+
+.saveBtn {
+  background: #2a4c8a;
+  color: white;
+}
+
+.saveBtn:hover {
+  background: #3b5ca3;
+}
+
+.deleteBtn {
+  background: #b33a3a;
+  color: white;
+}
+
+.deleteBtn:hover {
+  background: #d14a4a;
