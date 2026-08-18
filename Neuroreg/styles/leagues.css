@@ -288,4 +288,8 @@ input:checked+.slider:before {
             line-height: 14px !important;
             vertical-align: middle !important;
         }
-    }
+
+        .rankRow .deleteFriendBtn {
+            width: 40px !important;
+            height: 26px !important;
+        }
