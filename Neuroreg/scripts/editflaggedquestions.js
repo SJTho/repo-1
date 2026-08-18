@@ -223,6 +223,7 @@ async function loadFlaggedQuestions() {
         option4,
         flaggedset: 0
       };
+console.log(updated);
 
       if (Object.values(updated).some(v => !v)) {
         alert("All fields are mandatory.");
