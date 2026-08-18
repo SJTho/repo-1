@@ -203,14 +203,14 @@ async function loadFlaggedQuestions() {
 
     div.querySelector(".saveBtn").onclick = async () => {
 
-      const stem = div.querySelector(".editStem")?.value.trim() || "";
-      const topic = div.querySelector(".editTopic")?.value.trim() || "";
-      const level = div.querySelector(".editLevel")?.value.trim() || "";
-      const explanation = div.querySelector(".editExplanation")?.value.trim() || "";
-      const option1 = div.querySelector(".editOption1")?.value.trim() || "";
-      const option2 = div.querySelector(".editOption2")?.value.trim() || "";
-      const option3 = div.querySelector(".editOption3")?.value.trim() || "";
-      const option4 = div.querySelector(".editOption4")?.value.trim() || "";
+      const stem = div.querySelector(".editStem")?.value || "";
+      const topic = div.querySelector(".editTopic")?.value || "";
+      const level = div.querySelector(".editLevel")?.value || "";
+      const explanation = div.querySelector(".editExplanation")?.value || "";
+      const option1 = div.querySelector(".editOption1")?.value || "";
+      const option2 = div.querySelector(".editOption2")?.value || "";
+      const option3 = div.querySelector(".editOption3")?.value || "";
+      const option4 = div.querySelector(".editOption4")?.value || "";
 
       const updated = {
         stem,
@@ -223,9 +223,9 @@ async function loadFlaggedQuestions() {
         option4,
         flaggedset: 0
       };
-console.log(updated);
 
-      if (Object.values(updated).some(v => !v)) {
+      // SAFE mandatory-fields check
+      if (Object.values(updated).some(v => v.trim().length === 0)) {
         alert("All fields are mandatory.");
         return;
       }
