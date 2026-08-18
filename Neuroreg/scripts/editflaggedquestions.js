@@ -186,7 +186,6 @@ async function loadFlaggedQuestions() {
 
         <div class="buttonRow">
           <button class="saveBtn">Save</button>
-          <button class="unflagBtn">Unflag</button>
           <button class="deleteBtn">Delete</button>
         </div>
 
@@ -229,15 +228,6 @@ async function loadFlaggedQuestions() {
         alert("Saved.");
         loadFlaggedQuestions();
       }
-    };
-
-    div.querySelector(".unflagBtn").onclick = async () => {
-      const {error} = await window.supabase
-        .from("mcqquestions")
-        .update({flaggedset: 0})
-        .eq("id", q.id);
-
-      if (!error) div.remove();
     };
 
     div.querySelector(".deleteBtn").onclick = async () => {
