@@ -1,6 +1,6 @@
-import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
-import {logout} from "./logout.js";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+import { logout } from "./logout.js";
 
 window.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 window.logout = logout;
@@ -12,12 +12,12 @@ async function loadHamburgerMenu() {
   const isAdmin = localStorage.getItem("isAdmin") === "true";
   const currentPage = window.location.pathname.split("/").pop();
 
-  const {data, error} = await window.supabase
+  const { data, error } = await window.supabase
     .from("menuitems")
     .select("*")
     .eq("hamburger", true)
-    .order("hamburgersection", {ascending: true})
-    .order("hamburgerorder", {ascending: true});
+    .order("hamburgersection", { ascending: true })
+    .order("hamburgerorder", { ascending: true });
 
   if (error) {
     dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
@@ -56,11 +56,11 @@ async function loadTopRightIcons() {
   const isAdmin = localStorage.getItem("isAdmin") === "true";
   const currentPage = window.location.pathname.split("/").pop();
 
-  const {data, error} = await window.supabase
+  const { data, error } = await window.supabase
     .from("menuitems")
     .select("*")
     .eq("topright", true)
-    .order("toprightorder", {ascending: true});
+    .order("toprightorder", { ascending: true });
 
   if (error) return;
 
@@ -102,13 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ----------------------------- FLAGGED QUESTIONS ----------------------------- */
 
 window.fetchFlaggedQuestions = async () => {
-  const {data, error} = await window.supabase
+  const { data, error } = await window.supabase
     .from("mcqquestions")
     .select("*")
     .gte("flaggedset", 1);
 
   if (error) {
-    console.error("Supabase fetch error:", error);
     alert("Error loading flagged questions.");
     return [];
   }
@@ -142,7 +141,7 @@ async function loadFlaggedQuestions() {
     div.innerHTML = `
       <div class="stemHeader">
         <label for="stem_${q.id}">Stem:</label>
-        <input id="stem_${q.id}" class="editStem" required value="${esc(q.stem || "")}">
+        <textarea id="stem_${q.id}" class="editStem" required>${esc(q.stem || "")}</textarea>
       </div>
 
       <div class="collapsibleContent" style="display:none">
@@ -165,22 +164,22 @@ async function loadFlaggedQuestions() {
 
         <div class="explanationRow">
           <label for="explanation_${q.id}">Explanation:</label>
-          <input id="explanation_${q.id}" class="editExplanation" required value="${esc(q.explanation || "")}">
+          <textarea id="explanation_${q.id}" class="editExplanation" required>${esc(q.explanation || "")}</textarea>
         </div>
 
         <div class="optionRow12">
-          <label for="option1_${q.id}">Correct:</label>
+          <label for="option1_${q.id}">Option 1:</label>
           <input id="option1_${q.id}" class="editOption1" required value="${esc(q.option1 || "")}">
 
-          <label for="option2_${q.id}">Incorrect:</label>
+          <label for="option2_${q.id}">Option 2:</label>
           <input id="option2_${q.id}" class="editOption2" required value="${esc(q.option2 || "")}">
         </div>
 
         <div class="optionRow34">
-          <label for="option3_${q.id}">Incorrect:</label>
+          <label for="option3_${q.id}">Option 3:</label>
           <input id="option3_${q.id}" class="editOption3" required value="${esc(q.option3 || "")}">
 
-          <label for="option4_${q.id}">Incorrect:</label>
+          <label for="option4_${q.id}">Option 4:</label>
           <input id="option4_${q.id}" class="editOption4" required value="${esc(q.option4 || "")}">
         </div>
 
@@ -224,7 +223,6 @@ async function loadFlaggedQuestions() {
         flaggedset: 0
       };
 
-      // SAFE mandatory-fields check
       if (Object.entries(updated).some(([key, value]) =>
         key !== "flaggedset" && value.trim().length === 0
       )) {
@@ -232,7 +230,7 @@ async function loadFlaggedQuestions() {
         return;
       }
 
-      const {error} = await window.supabase
+      const { error } = await window.supabase
         .from("mcqquestions")
         .update(updated)
         .eq("id", q.id);
@@ -245,12 +243,12 @@ async function loadFlaggedQuestions() {
       }
     };
 
-    /* ----------------------------- DELETE (SECURITY DEFINER RPC) ----------------------------- */
+    /* ----------------------------- DELETE ----------------------------- */
 
     div.querySelector(".deleteBtn").onclick = async () => {
       if (!confirm("Delete this question?")) return;
 
-      const { data, error } = await window.supabase
+      const { error } = await window.supabase
         .rpc("delete_mcqquestion", { question_id: q.id });
 
       if (error) {
