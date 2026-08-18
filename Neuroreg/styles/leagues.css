@@ -141,11 +141,14 @@ input:checked+.slider:before {
     font-weight: 500;
     color: #000;
     padding-left: 6px;
-    /* slight right shift */
+    /* slight right shift (full screen) */
 }
 
 .rankPoints {
-    text-align: right;
+    text-align: left;
+    /* keep aligned left */
+    padding-left: 12px;
+    /* move whole column right (full screen) */
     font-weight: bold;
     color: #007bff;
 }
@@ -176,7 +179,8 @@ input:checked+.slider:before {
     cursor: pointer;
     font-size: 14px;
 
-    width: 60px;
+    width: 67px;
+    /* widened by ~7px */
     justify-self: end;
 
     display: flex;
@@ -208,7 +212,6 @@ input:checked+.slider:before {
 ---------------------------------------------------- */
 @media (max-width: 600px) {
 
-    /* Move container down */
     #profileContainer {
         width: 90%;
         padding: 16px;
@@ -216,7 +219,7 @@ input:checked+.slider:before {
         margin: 110px auto 20px auto;
     }
 
-    /* Reduce text size of "Leagues" and "Friends" beside toggle */
+    /* Smaller toggle labels */
     .toggleLabelText {
         font-size: 16px;
     }
@@ -239,7 +242,7 @@ input:checked+.slider:before {
         transform: translateX(22px);
     }
 
-    /* League + friends row sizes */
+    /* Row sizes */
     .rankRow,
     .rankRow.friendsRow {
         font-size: 16px;
@@ -271,7 +274,6 @@ input:checked+.slider:before {
     .rankRow .rankNickname {
         text-align: left;
         padding-left: 14px;
-        /* increased shift */
         font-size: 16px;
     }
 
@@ -279,7 +281,12 @@ input:checked+.slider:before {
         font-size: 16px;
     }
 
-    /* Friends table column 3: smaller + slight left shift */
+    /* Friends table column 2 moved left */
+    .rankRow.friendsRow> :nth-child(2) {
+        padding-left: 0px;
+    }
+
+    /* Friends table column 3 smaller + moved left */
     .rankRow.friendsRow> :nth-child(3) {
         font-size: 15px;
         padding-left: 4px;
@@ -289,14 +296,15 @@ input:checked+.slider:before {
     /* Mobile delete button */
     .deleteFriendBtn {
         font-size: 14px;
-        width: 40px;
+        width: 47px;
+        /* widened by ~7px */
         padding: 4px 4px;
         height: 26px;
         line-height: 14px;
     }
 
     .rankRow .deleteFriendBtn {
-        width: 40px !important;
+        width: 47px !important;
         height: 26px !important;
         padding: 4px 4px !important;
         margin: 0 !important;
