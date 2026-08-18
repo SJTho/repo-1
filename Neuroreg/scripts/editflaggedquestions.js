@@ -232,19 +232,17 @@ async function loadFlaggedQuestions() {
       }
     };
 
-    /* ----------------------------- DELETE (FIXED) ----------------------------- */
+    /* ----------------------------- DELETE (SECURITY DEFINER RPC) ----------------------------- */
 
     div.querySelector(".deleteBtn").onclick = async () => {
       if (!confirm("Delete this question?")) return;
 
-      console.log("Attempting to delete row with id:", q.id);
+      console.log("Attempting RPC delete for id:", q.id);
 
-      const {data, error} = await window.supabase
-        .from("mcqquestions")
-        .delete()
-        .eq("id", q.id);
+      const { data, error } = await window.supabase
+        .rpc("delete_mcqquestion", { question_id: q.id });
 
-      console.log("Supabase delete response:", {data, error});
+      console.log("RPC delete response:", { data, error });
 
       if (error) {
         alert("Error deleting question.");
