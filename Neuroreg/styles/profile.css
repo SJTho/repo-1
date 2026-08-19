@@ -42,23 +42,25 @@
     border-radius: 6px;
     border: none;
     cursor: pointer;
-    width: 60px;
 }
 
 .editBtn {
     background: #007bff;
     color: white;
+    width: 60px;
 }
 
 .saveBtn {
     background: #28a745;
     color: white;
+    width: 60px;
 }
 
 .closeBtn {
     background: #14233d;
     color: white;
     margin-top: 20px;
+    width: 100px;
 }
 
 /* Input fields */
