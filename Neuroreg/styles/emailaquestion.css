@@ -1,12 +1,11 @@
 /* Buttons */
-.subscribeBtn,
-.unsubscribeBtn,
-{
-margin-top: 6px;
-padding: 6px 12px;
-border-radius: 6px;
-border: none;
-cursor: pointer;
+.primaryBtn,
+.secondaryBtn {
+    margin-top: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
 }
 
 /* Responsive */
