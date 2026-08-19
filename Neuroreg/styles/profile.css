@@ -29,31 +29,41 @@
     margin-bottom: 6px;
 }
 
-.profileRow span {
-    font-size: 18px;
+/* Horizontal field row */
+.profileFieldRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.profileFieldRow span,
+.profileFieldRow input.editField {
+    flex: 1;
 }
 
 /* Buttons */
 .editBtn,
 .saveBtn,
 .closeBtn {
-    margin-top: 6px;
     padding: 6px 12px;
     border-radius: 6px;
     border: none;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .editBtn {
     background: #007bff;
     color: white;
-    width: 60px;
 }
 
 .saveBtn {
     background: #28a745;
     color: white;
-    width: 60px;
 }
 
 .closeBtn {
@@ -77,11 +87,12 @@ input.editField {
 
 /* Responsive */
 @media (max-width: 600px) {
+
     #profileContainer {
-        width: 95%;
-        padding: 28px;
-        margin-top: 80px;
+        width: 90%;
+        padding: 20px;
         border-radius: 14px;
+        margin: 110px auto 20px auto;
     }
 
     #profileContainer h2 {
@@ -90,40 +101,43 @@ input.editField {
     }
 
     .profileRow {
-        font-size: 20px;
+        font-size: 14px;
         margin-bottom: 28px;
     }
 
     .profileRow strong {
-        font-size: 20px;
+        font-size: 14px;
         margin-bottom: 10px;
     }
 
-    .profileRow span {
-        font-size: 20px;
+    .profileFieldRow span,
+    .profileFieldRow input.editField {
+        font-size: 14px;
     }
 
     input.editField {
-        font-size: 20px;
         padding: 12px 14px;
         background: #d6d6d6;
         border: 1px solid #a8a8a8;
     }
-}
 
-/* Button sizing */
-.editBtn,
-.saveBtn {
-    font-size: 18px;
-    padding: 10px 16px;
-    border-radius: 8px;
-}
+    .editBtn,
+    .saveBtn {
+        font-size: 14px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
 
-.closeBtn {
-    font-size: 20px;
-    padding: 14px 20px;
-    border-radius: 10px;
-    margin-top: 30px;
+    .closeBtn {
+        font-size: 14px;
+        padding: 14px 20px;
+        border-radius: 10px;
+        margin-top: 30px;
+    }
 }
 
 /* Hamburger + top-right icons */
@@ -148,14 +162,4 @@ input.editField {
     height: 1px;
     background: #ccc;
     margin: 6px 0;
-}
-
-@media (max-width: 600px) {
-
-    #profileContainer {
-        width: 90%;
-        padding: 16px;
-        border-radius: 12px;
-        margin: 110px auto 20px auto;
-    }
 }
