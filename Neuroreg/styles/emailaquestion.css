@@ -9,6 +9,10 @@
     width: 60px;
 }
 
+#emailInput {
+    width: 100px !important;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
 
@@ -43,3 +47,4 @@
         background: #ccc;
         margin: 6px 0;
     }
+}
