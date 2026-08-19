@@ -42,6 +42,7 @@
     border-radius: 6px;
     border: none;
     cursor: pointer;
+    width: 60px;
 }
 
 .editBtn {
@@ -57,7 +58,6 @@
 .closeBtn {
     background: #14233d;
     color: white;
-    width: 100%;
     margin-top: 20px;
 }
 
@@ -146,4 +146,14 @@ input.editField {
     height: 1px;
     background: #ccc;
     margin: 6px 0;
+}
+
+@media (max-width: 600px) {
+
+    #profileContainer {
+        width: 90%;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 110px auto 20px auto;
+    }
 }

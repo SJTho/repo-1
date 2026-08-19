@@ -16,6 +16,13 @@
 /* Responsive */
 @media (max-width: 600px) {
 
+    #profileContainer {
+        width: 90%;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 110px auto 20px auto;
+    }
+
     /* Button sizing */
     .subscribeBtn,
     .unsubscribeBtn {
