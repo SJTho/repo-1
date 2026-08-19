@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile</title>
 
-    <!-- Updated CSS references -->
     <link rel="stylesheet" href="./styles/global.css">
     <link rel="stylesheet" href="./styles/profile.css">
 
@@ -20,11 +19,9 @@
     <script type="module">
         import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
         import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
-
         window.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     </script>
 
-    <!-- Moved all profile logic into profile.js -->
     <script type="module" src="./scripts/profile.js"></script>
 </head>
 
@@ -38,25 +35,41 @@
 
         <h2>My Profile</h2>
 
+        <!-- Nickname -->
         <div class="profileRow">
             <strong>Nickname</strong>
-            <span id="nicknameDisplay"></span>
-            <button id="editNicknameBtn" class="editBtn" onclick="startEditNickname()">Edit</button>
-            <button id="saveNicknameBtn" class="saveBtn" onclick="saveNickname()" style="display:none;">Save</button>
+
+            <div class="profileFieldRow">
+                <span id="nicknameDisplay"></span>
+                <input id="nicknameInput" class="editField" style="display:none;">
+
+                <button id="editNicknameBtn" class="editBtn" onclick="startEditNickname()">Edit</button>
+                <button id="saveNicknameBtn" class="saveBtn" onclick="saveNickname()"
+                    style="display:none;">Save</button>
+            </div>
         </div>
 
+        <!-- Password -->
         <div class="profileRow">
             <strong>Password</strong>
-            <span id="passwordDisplay"></span>
-            <button id="editPasswordBtn" class="editBtn" onclick="startEditPassword()">Edit</button>
-            <button id="savePasswordBtn" class="saveBtn" onclick="savePassword()" style="display:none;">Save</button>
+
+            <div class="profileFieldRow">
+                <span id="passwordDisplay">********</span>
+                <input id="passwordInput" class="editField" style="display:none;">
+
+                <button id="editPasswordBtn" class="editBtn" onclick="startEditPassword()">Edit</button>
+                <button id="savePasswordBtn" class="saveBtn" onclick="savePassword()"
+                    style="display:none;">Save</button>
+            </div>
         </div>
 
+        <!-- Points -->
         <div class="profileRow">
             <strong>Scalpel Points</strong>
             <span id="pointsDisplay"></span>
         </div>
 
+        <!-- Rank -->
         <div class="profileRow">
             <strong>Rank</strong>
             <span id="rankDisplay"></span>
