@@ -16,7 +16,6 @@ function loadProfile() {
     document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
     document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
     document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
-    document.getElementById("passwordDisplay").innerText = "********";
 }
 
 window.addEventListener("DOMContentLoaded", loadProfile);
@@ -24,25 +23,29 @@ window.addEventListener("DOMContentLoaded", loadProfile);
 /* ----------------------------------------------------
    Editing Logic
 ---------------------------------------------------- */
-function enableEdit(fieldId, btnId, saveBtnId) {
-    const span = document.getElementById(fieldId);
-    const currentValue = span.innerText;
+function enableEdit(displayId, inputId, editBtnId, saveBtnId) {
+    const span = document.getElementById(displayId);
+    const input = document.getElementById(inputId);
 
-    const input = document.createElement("input");
-    input.className = "editField";
-    input.value = currentValue;
+    input.value = span.innerText;
 
-    span.replaceWith(input);
+    span.style.display = "none";
+    input.style.display = "block";
 
-    document.getElementById(btnId).style.display = "none";
+    document.getElementById(editBtnId).style.display = "none";
     document.getElementById(saveBtnId).style.display = "inline-block";
 
     return input;
 }
 
-async function saveField(inputEl, localStorageKey, supabaseColumn) {
+async function saveField(inputEl, displayId, localStorageKey, supabaseColumn) {
     const newValue = inputEl.value.trim();
+    const span = document.getElementById(displayId);
     const userId = localStorage.getItem("userId");
+
+    span.innerText = newValue;
+    span.style.display = "block";
+    inputEl.style.display = "none";
 
     localStorage.setItem(localStorageKey, newValue);
 
@@ -65,23 +68,36 @@ async function saveField(inputEl, localStorageKey, supabaseColumn) {
         return;
     }
 
+    document.getElementById(displayId.replace("Display", "Input")).style.display = "none";
+    document.getElementById(displayId).style.display = "block";
+
     window.location.reload();
 }
 
 window.startEditNickname = () => {
-    window.nicknameInput = enableEdit("nicknameDisplay", "editNicknameBtn", "saveNicknameBtn");
+    enableEdit("nicknameDisplay", "nicknameInput", "editNicknameBtn", "saveNicknameBtn");
 };
 
 window.saveNickname = () => {
-    saveField(window.nicknameInput, "nickname", "nickname");
+    saveField(
+        document.getElementById("nicknameInput"),
+        "nicknameDisplay",
+        "nickname",
+        "nickname"
+    );
 };
 
 window.startEditPassword = () => {
-    window.passwordInput = enableEdit("passwordDisplay", "editPasswordBtn", "savePasswordBtn");
+    enableEdit("passwordDisplay", "passwordInput", "editPasswordBtn", "savePasswordBtn");
 };
 
 window.savePassword = () => {
-    saveField(window.passwordInput, "password_hash", "password_hash");
+    saveField(
+        document.getElementById("passwordInput"),
+        "passwordDisplay",
+        "password_hash",
+        "password_hash"
+    );
 };
 
 /* ----------------------------------------------------
@@ -187,15 +203,17 @@ window.addEventListener("DOMContentLoaded", loadTopRightIcons);
 /* ----------------------------------------------------
    Hamburger Toggle
 ---------------------------------------------------- */
-const hamburger = document.getElementById("hamburgerMenu");
-const dropdown = document.getElementById("hamburgerMenuDropdown");
+window.addEventListener("DOMContentLoaded", () => {
+    const hamburger = document.getElementById("hamburgerMenu");
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
 
-hamburger.addEventListener("click", () => {
-    dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
-});
+    hamburger.addEventListener("click", () => {
+        dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    });
 
-document.addEventListener("click", (event) => {
-    if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.style.display = "none";
-    }
+    document.addEventListener("click", (event) => {
+        if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.style.display = "none";
+        }
+    });
 });
