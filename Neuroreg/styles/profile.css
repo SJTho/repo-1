@@ -59,18 +59,20 @@
 .editBtn {
     background: #007bff;
     color: white;
+    width: 100px;
 }
 
 .saveBtn {
     background: #28a745;
     color: white;
+    width: 100px;
 }
 
 .closeBtn {
     background: #14233d;
     color: white;
     margin-top: 20px;
-    width: 100px;
+    width: 200px;
 }
 
 /* Input fields */
@@ -130,6 +132,7 @@ input.editField {
         align-items: center;
         justify-content: center;
         text-align: center;
+        width: 100;
     }
 
     .closeBtn {
@@ -137,6 +140,7 @@ input.editField {
         padding: 14px 20px;
         border-radius: 10px;
         margin-top: 30px;
+        width: 100;
     }
 }
 
