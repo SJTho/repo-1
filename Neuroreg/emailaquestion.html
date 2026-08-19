@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email a Question</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="./styles/global.css">
+    <link rel="stylesheet" href="./styles/emailaquestion.css">
+
+    <!-- MUST BE FIRST: GLOBAL LOGOUT IMPORT -->
+    <script type="module">
+        import {logout} from "./scripts/logout.js";
+        window.logout = logout;
+    </script>
+
+    <!-- Supabase client -->
+    <script type="module">
+        import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+        import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+
+        window.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    </script>
+
+    <!-- Page logic -->
+    <script type="module" src="./scripts/emailaquestion.js"></script>
+</head>
+
+<body>
+
+    <!-- Hamburger + top-right icons -->
+    <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+    <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
+    <div id="topRightIcons"></div>
+
+    <div id="profileContainer">
+
+        <h2>Email a Question</h2>
+
+        <!-- Subscription UI -->
+        <div id="emailSubscriptionBox" class="subscriptionBox">
+
+            <h3>Daily MCQ Email Subscription</h3>
+
+            <p>This page is under development<br>
+                Subscribe to receive one multiple‑choice question every day.</p>
+
+            <label for="emailInput">Your email address:</label>
+            <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email">
+
+            <div class="subscriptionButtons">
+                <button id="subscribeBtn" class="primaryBtn">Subscribe</button>
+                <button id="unsubscribeBtn" class="secondaryBtn">Unsubscribe</button>
+            </div>
+
+            <div id="emailStatus" class="statusMessage"></div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
