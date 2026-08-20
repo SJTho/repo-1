@@ -21,15 +21,14 @@ function loadProfile() {
     const scalpelPoints = localStorage.getItem("scalpel_points");
     const rank = localStorage.getItem("rank");
     const email = localStorage.getItem("email");
-    const subscribed = localStorage.getItem("subscribed");
-    const isAdmin = localStorage.getItem("isAdmin");
 
     document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
     document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
     document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
     document.getElementById("emailDisplay").innerText = email ?? "N/A";
-    document.getElementById("subscribedDisplay").innerText = subscribed === "true" ? "Yes" : "No";
-    document.getElementById("adminDisplay").innerText = isAdmin === "true" ? "Yes" : "No";
+
+    // Password is never shown — always masked
+    document.getElementById("passwordDisplay").innerText = "********";
 }
 
 window.addEventListener("DOMContentLoaded", loadProfile);
@@ -41,7 +40,7 @@ function enableEdit(displayId, inputId, editBtnId, saveBtnId) {
     const span = document.getElementById(displayId);
     const input = document.getElementById(inputId);
 
-    input.value = span.innerText;
+    input.value = span.innerText === "********" ? "" : span.innerText;
 
     span.style.display = "none";
     input.style.display = "block";
@@ -57,7 +56,8 @@ async function saveField(inputEl, displayId, localStorageKey, supabaseColumn) {
     const span = document.getElementById(displayId);
     const userId = localStorage.getItem("userId");
 
-    span.innerText = newValue;
+    // Update UI immediately
+    span.innerText = supabaseColumn === "password_hash" ? "********" : newValue;
     span.style.display = "block";
     inputEl.style.display = "none";
 
@@ -88,6 +88,7 @@ async function saveField(inputEl, displayId, localStorageKey, supabaseColumn) {
     window.location.reload();
 }
 
+// Nickname
 window.startEditNickname = () => {
     enableEdit("nicknameDisplay", "nicknameInput", "editNicknameBtn", "saveNicknameBtn");
 };
@@ -101,6 +102,7 @@ window.saveNickname = () => {
     );
 };
 
+// Email
 window.startEditEmail = () => {
     enableEdit("emailDisplay", "emailInput", "editEmailBtn", "saveEmailBtn");
 };
@@ -111,6 +113,20 @@ window.saveEmail = () => {
         "emailDisplay",
         "email",
         "email"
+    );
+};
+
+// Password (NEW)
+window.startEditPassword = () => {
+    enableEdit("passwordDisplay", "passwordInput", "editPasswordBtn", "savePasswordBtn");
+};
+
+window.savePassword = () => {
+    saveField(
+        document.getElementById("passwordInput"),
+        "passwordDisplay",
+        "password_hash",
+        "password_hash"
     );
 };
 
