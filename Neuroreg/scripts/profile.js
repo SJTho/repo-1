@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Supabase Client (matches login.js)
+// Supabase Client
 // ----------------------------------------------------
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
@@ -85,9 +85,6 @@ async function saveField(inputEl, displayId, localStorageKey, supabaseColumn) {
         return;
     }
 
-    document.getElementById(displayId.replace("Display", "Input")).style.display = "none";
-    document.getElementById(displayId).style.display = "block";
-
     window.location.reload();
 }
 
@@ -101,19 +98,6 @@ window.saveNickname = () => {
         "nicknameDisplay",
         "nickname",
         "nickname"
-    );
-};
-
-window.startEditPassword = () => {
-    enableEdit("passwordDisplay", "passwordInput", "editPasswordBtn", "savePasswordBtn");
-};
-
-window.savePassword = () => {
-    saveField(
-        document.getElementById("passwordInput"),
-        "passwordDisplay",
-        "password_hash",
-        "password_hash"
     );
 };
 
