@@ -2,65 +2,52 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login / Signup</title>
-
-    <link rel="stylesheet" href="./styles/global.css">
-    <link rel="stylesheet" href="./styles/login.css">
-
-    <script type="module" src="./scripts/login.js"></script>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+    <link rel="stylesheet" href="styles/global.css" />
+    <link rel="stylesheet" href="styles/login.css" />
 </head>
 
 <body>
+    <div class="login-container">
+        <h1>Login</h1>
 
-    <div id="authContainer">
+        <form id="login-form">
+            <label>Email</label>
+            <input type="email" id="email" required />
 
-        <!-- LOGIN FORM -->
-        <div id="loginForm">
-            <h2>Login</h2>
+            <label>Password</label>
+            <input type="password" id="password" required />
 
-            <div class="authRow">
-                <label>Email</label>
-                <input id="loginEmail" type="email">
-            </div>
+            <button type="submit">Login</button>
+        </form>
 
-            <div class="authRow">
-                <label>Password</label>
-                <input id="loginPassword" type="password">
-            </div>
-
-            <button class="closeBtn" onclick="login()">Login</button>
-
-            <div class="switchLink" onclick="showSignup()">Create an account</div>
-        </div>
-
-        <!-- SIGNUP FORM -->
-        <div id="signupForm" style="display:none;">
-            <h2>Sign Up</h2>
-
-            <div class="authRow">
-                <label>Nickname</label>
-                <input id="signupNickname" type="text">
-            </div>
-
-            <div class="authRow">
-                <label>Email</label>
-                <input id="signupEmail" type="email">
-            </div>
-
-            <div class="authRow">
-                <label>Password</label>
-                <input id="signupPassword" type="password">
-            </div>
-
-            <button class="closeBtn" onclick="signup()">Sign Up</button>
-
-            <div class="switchLink" onclick="showLogin()">Already have an account?</div>
-        </div>
-
+        <p id="error-message"></p>
     </div>
 
+    <script type="module">
+        import {login} from './scripts/login.js';
+
+        const form = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            const {user, profile, error} = await login(email, password);
+
+            if (error) {
+                errorMessage.textContent = error;
+                return;
+            }
+
+            // Redirect to your main app page
+            window.location.href = '/profile.html';
+        });
+    </script>
 </body>
 
 </html>
