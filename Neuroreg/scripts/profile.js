@@ -7,27 +7,36 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ----------------------------------------------------
-// Load Profile
+// Load Profile (NOW FROM public.profiles)
 // ----------------------------------------------------
-function loadProfile() {
+async function loadProfile() {
     const token = localStorage.getItem("sessionToken");
+    const userId = localStorage.getItem("userId");
 
-    if (!token) {
+    if (!token || !userId) {
         window.location.href = "login.html";
         return;
     }
 
-    const nickname = localStorage.getItem("nickname");
-    const scalpelPoints = localStorage.getItem("scalpel_points");
-    const rank = localStorage.getItem("rank");
-    const email = localStorage.getItem("email");
+    const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-    document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
-    document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
-    document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
-    document.getElementById("emailDisplay").innerText = email ?? "N/A";
+    if (error || !profile) {
+        console.error("Profile load error:", error);
+        document.getElementById("error-message").innerText = "Failed to load profile.";
+        return;
+    }
 
-    // Password is never shown — always masked
+    // Populate UI
+    document.getElementById("nicknameDisplay").innerText = profile.nickname ?? "N/A";
+    document.getElementById("emailDisplay").innerText = profile.email ?? "N/A";
+    document.getElementById("pointsDisplay").innerText = profile.scalpel_points ?? "0";
+    document.getElementById("rankDisplay").innerText = profile.rank ?? "Unranked";
+
+    // Password always masked
     document.getElementById("passwordDisplay").innerText = "********";
 }
 
@@ -51,17 +60,14 @@ function enableEdit(displayId, inputId, editBtnId, saveBtnId) {
     return input;
 }
 
-async function saveField(inputEl, displayId, localStorageKey, supabaseColumn) {
+async function saveField(inputEl, displayId, supabaseColumn) {
     const newValue = inputEl.value.trim();
     const span = document.getElementById(displayId);
     const userId = localStorage.getItem("userId");
 
-    // Update UI immediately
     span.innerText = supabaseColumn === "password_hash" ? "********" : newValue;
     span.style.display = "block";
     inputEl.style.display = "none";
-
-    localStorage.setItem(localStorageKey, newValue);
 
     let rpcName;
     let rpcArgs;
@@ -81,7 +87,7 @@ async function saveField(inputEl, displayId, localStorageKey, supabaseColumn) {
 
     if (error) {
         console.error(error);
-        alert("Failed to save to Supabase: " + error.message);
+        alert("Failed to save: " + error.message);
         return;
     }
 
@@ -97,7 +103,6 @@ window.saveNickname = () => {
     saveField(
         document.getElementById("nicknameInput"),
         "nicknameDisplay",
-        "nickname",
         "nickname"
     );
 };
@@ -111,12 +116,11 @@ window.saveEmail = () => {
     saveField(
         document.getElementById("emailInput"),
         "emailDisplay",
-        "email",
         "email"
     );
 };
 
-// Password (NEW)
+// Password
 window.startEditPassword = () => {
     enableEdit("passwordDisplay", "passwordInput", "editPasswordBtn", "savePasswordBtn");
 };
@@ -125,13 +129,12 @@ window.savePassword = () => {
     saveField(
         document.getElementById("passwordInput"),
         "passwordDisplay",
-        "password_hash",
         "password_hash"
     );
 };
 
 // ----------------------------------------------------
-// Hamburger Menu
+// Hamburger Menu (unchanged)
 // ----------------------------------------------------
 async function loadHamburgerMenu() {
     const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -174,7 +177,8 @@ async function loadHamburgerMenu() {
 
         div.onclick = () => {
             if (item.url === "logout") {
-                logout();
+                localStorage.clear();
+                window.location.href = "login.html";
             } else {
                 window.location.href = item.url;
             }
@@ -187,7 +191,7 @@ async function loadHamburgerMenu() {
 window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
 
 // ----------------------------------------------------
-// Top-Right Icons
+// Top-Right Icons (unchanged)
 // ----------------------------------------------------
 async function loadTopRightIcons() {
     const container = document.getElementById("topRightIcons");
@@ -218,7 +222,8 @@ async function loadTopRightIcons() {
 
         icon.onclick = () => {
             if (item.url === "logout") {
-                logout();
+                localStorage.clear();
+                window.location.href = "login.html";
             } else {
                 window.location.href = item.url;
             }
