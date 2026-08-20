@@ -1,7 +1,7 @@
 #authContainer {
     width: 80%;
     max-width: 450px;
-    margin: 30px auto; /* reduced by 50% */
+    margin: 30px auto;
     background: #ffffff;
     padding: 24px;
     border-radius: 12px;
@@ -42,7 +42,7 @@
     color: #000 !important;
 }
 
-/* Button styling copied from profile.css */
+/* Button styling (same as profile.css) */
 .closeBtn {
     background: #14233d;
     color: white;
@@ -61,7 +61,7 @@
 
 @media (max-width: 600px) {
     #authContainer {
-        margin: 30px auto; /* reduced by 50% */
+        margin: 30px auto;
     }
 
     .closeBtn {
