@@ -2,7 +2,8 @@
 #profileContainer {
     width: 80%;
     max-width: 500px;
-    margin: 120px auto 60px auto;
+    margin: 40px auto 60px auto;
+    /* reduced by 2/3 */
     background: #ffffff;
     padding: 24px;
     border-radius: 12px;
@@ -113,7 +114,8 @@ input.editField {
         width: 90%;
         padding: 20px;
         border-radius: 14px;
-        margin: 110px auto 20px auto;
+        margin: 55px auto 20px auto;
+        /* reduced by 50% */
     }
 
     #profileContainer h2 {
@@ -148,6 +150,10 @@ input.editField {
         padding: 10px 16px;
         border-radius: 8px;
         width: 100px;
+        /* FIXED px */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .closeBtn {
@@ -156,11 +162,13 @@ input.editField {
         border-radius: 10px;
         margin-top: 30px;
         width: 100px;
+        /* FIXED px */
     }
 
-    /* Mobile ONLY: left-align nickname + email */
+    /* Mobile ONLY: left-align nickname, email, password */
     #nicknameDisplay,
-    #emailDisplay {
+    #emailDisplay,
+    #passwordDisplay {
         text-align: left;
         margin-left: 0;
     }
