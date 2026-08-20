@@ -1,117 +1,118 @@
-import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
-/* ----------------------------------------------------
-   Switch between Login and Signup views
----------------------------------------------------- */
-function showLogin() {
-    document.getElementById("loginForm").style.display = "block";
-    document.getElementById("signupForm").style.display = "none";
+// -----------------------------
+// SIGNUP
+// -----------------------------
+export async function signup(email, password, nickname) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) return { error };
+
+  const user = data.user;
+
+  // Create profile row
+  const { error: profileError } = await supabase.from('profiles').insert({
+    id: user.id,
+    nickname,
+    email
+  });
+
+  if (profileError) return { error: profileError };
+
+  return { user };
 }
 
-function showSignup() {
-    document.getElementById("loginForm").style.display = "none";
-    document.getElementById("signupForm").style.display = "block";
+// -----------------------------
+// LOGIN
+// -----------------------------
+export async function login(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) return { error };
+
+  const user = data.user;
+
+  // Fetch profile
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError) return { error: profileError };
+
+  return { user, profile };
 }
 
-/* ----------------------------------------------------
-   Signup RPC (nickname + email + password)
----------------------------------------------------- */
-async function signup() {
-    const nickname = document.getElementById("signupNickname").value.trim();
-    const email = document.getElementById("signupEmail").value.trim();
-    const password = document.getElementById("signupPassword").value.trim();
-
-    if (!nickname || !email || !password) {
-        alert("Please fill in all fields.");
-        return;
-    }
-
-    const {data, error} = await supabase.rpc("signup", {
-        nickname_input: nickname,
-        email_input: email,
-        password_input: password
-    });
-
-    if (error) {
-        alert("Signup failed: " + error.message);
-        return;
-    }
-
-    alert("Signup successful. You can now log in.");
-    showLogin();
+// -----------------------------
+// LOGOUT
+// -----------------------------
+export async function logout() {
+  await supabase.auth.signOut();
 }
 
-/* ----------------------------------------------------
-   Login RPC (email + password)
----------------------------------------------------- */
-async function login() {
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
+// -----------------------------
+// GET CURRENT USER PROFILE
+// -----------------------------
+export async function getProfile() {
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
 
-    if (!email || !password) {
-        alert("Please fill in all fields.");
-        return;
-    }
+  if (!user) return { error: 'Not logged in' };
 
-    const {data, error} = await supabase.rpc("login", {
-        email_input: email,
-        password_input: password
-    });
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
 
-    if (error) {
-        alert("Login failed: " + error.message);
-        return;
-    }
+  if (error) return { error };
 
-    let user;
-
-    if (Array.isArray(data)) {
-        user = data[0]?.login || data[0];
-    } else {
-        user = data?.login || data;
-    }
-
-    if (!user || user.error) {
-        alert("Invalid email or password");
-        return;
-    }
-
-    /* Store session data */
-    localStorage.setItem("sessionToken", user.token);
-    localStorage.setItem("nickname", user.nickname);
-    localStorage.setItem("email", user.email);
-    localStorage.setItem("scalpel_points", user.scalpel_points);
-    localStorage.setItem("userId", user.id);
-
-    localStorage.setItem("isAdmin", user.isadmin ? "true" : "false");
-
-    /* Rank lookup */
-    const {data: rankData, error: rankError} = await supabase.rpc(
-        "get_rank_for_points",
-        {points: user.scalpel_points}
-    );
-
-    if (rankError) {
-        console.error("Rank lookup failed:", rankError);
-        localStorage.setItem("rank", "Unranked");
-    } else {
-        localStorage.setItem("rank", rankData || "Unranked");
-    }
-
-    window.location.href = "index.html";
+  return { profile };
 }
 
-/* ----------------------------------------------------
-   Expose functions globally
----------------------------------------------------- */
-window.login = login;
-window.signup = signup;
-window.showLogin = showLogin;
-window.showSignup = showSignup;
+// -----------------------------
+// UPDATE PROFILE
+// -----------------------------
+export async function updateProfile(updates) {
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
 
-window.addEventListener("DOMContentLoaded", () => {
-    showLogin();
-});
+  if (!user) return { error: 'Not logged in' };
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      ...updates,
+      updated_at: new Date()
+    })
+    .eq('id', user.id)
+    .select()
+    .single();
+
+  if (error) return { error };
+
+  return { data };
+}
+
+// -----------------------------
+// AUTH STATE LISTENER
+// -----------------------------
+export function onAuthStateChange(callback) {
+  return supabase.auth.onAuthStateChange((_event, session) => {
+    callback(session);
+  });
+}
