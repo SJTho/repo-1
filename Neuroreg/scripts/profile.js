@@ -132,25 +132,22 @@ window.savePassword = () => {
         "password_hash"
     );
 };
-
-// ----------------------------------------------------
-// Hamburger Menu (unchanged)
-// ----------------------------------------------------
+/* ----------------------------------------------------
+   Hamburger Menu
+---------------------------------------------------- */
 async function loadHamburgerMenu() {
     const dropdown = document.getElementById("hamburgerMenuDropdown");
-
     const isAdmin = localStorage.getItem("isAdmin") === "true";
     const currentPage = window.location.pathname.split("/").pop();
 
-    const { data, error } = await supabase
+    const {data, error} = await supabase
         .from("menuitems")
         .select("*")
         .eq("hamburger", true)
-        .order("hamburgersection", { ascending: true })
-        .order("hamburgerorder", { ascending: true });
+        .order("hamburgersection", {ascending: true})
+        .order("hamburgerorder", {ascending: true});
 
     if (error) {
-        console.error("Menu load error:", error);
         dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
         return;
     }
@@ -176,39 +173,29 @@ async function loadHamburgerMenu() {
         div.innerText = emoji + item.displayname;
 
         div.onclick = () => {
-            if (item.url === "logout") {
-                localStorage.clear();
-                window.location.href = "login.html";
-            } else {
-                window.location.href = item.url;
-            }
+            if (item.url === "logout") logout();
+            else window.location.href = item.url;
         };
 
         dropdown.appendChild(div);
     });
 }
 
-window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
-
-// ----------------------------------------------------
-// Top-Right Icons (unchanged)
-// ----------------------------------------------------
+/* ----------------------------------------------------
+   Top-Right Icons
+---------------------------------------------------- */
 async function loadTopRightIcons() {
     const container = document.getElementById("topRightIcons");
-
     const isAdmin = localStorage.getItem("isAdmin") === "true";
     const currentPage = window.location.pathname.split("/").pop();
 
-    const { data, error } = await supabase
+    const {data, error} = await supabase
         .from("menuitems")
         .select("*")
         .eq("topright", true)
-        .order("toprightorder", { ascending: true });
+        .order("toprightorder", {ascending: true});
 
-    if (error) {
-        console.error("Top-right load error:", error);
-        return;
-    }
+    if (error) return;
 
     container.innerHTML = "";
 
@@ -221,34 +208,17 @@ async function loadTopRightIcons() {
         icon.innerText = item.emoji;
 
         icon.onclick = () => {
-            if (item.url === "logout") {
-                localStorage.clear();
-                window.location.href = "login.html";
-            } else {
-                window.location.href = item.url;
-            }
+            if (item.url === "logout") logout();
+            else window.location.href = item.url;
         };
 
         container.appendChild(icon);
     });
 }
-
+/* ----------------------------------------------------
+   Page Load
+---------------------------------------------------- */
+window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
 window.addEventListener("DOMContentLoaded", loadTopRightIcons);
 
-// ----------------------------------------------------
-// Hamburger Toggle
-// ----------------------------------------------------
-window.addEventListener("DOMContentLoaded", () => {
-    const hamburger = document.getElementById("hamburgerMenu");
-    const dropdown = document.getElementById("hamburgerMenuDropdown");
-
-    hamburger.addEventListener("click", () => {
-        dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
-    });
-
-    document.addEventListener("click", (event) => {
-        if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
-            dropdown.style.display = "none";
-        }
-    });
 });
