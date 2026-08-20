@@ -12,10 +12,12 @@ function loadProfile() {
     const nickname = localStorage.getItem("nickname");
     const scalpelPoints = localStorage.getItem("scalpel_points");
     const rank = localStorage.getItem("rank");
+    const email = localStorage.getItem("email");
 
     document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
     document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
     document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
+    document.getElementById("emailDisplay").innerText = email ?? "N/A";
 }
 
 window.addEventListener("DOMContentLoaded", loadProfile);
@@ -58,6 +60,9 @@ async function saveField(inputEl, displayId, localStorageKey, supabaseColumn) {
     } else if (supabaseColumn === "password_hash") {
         rpcName = "update_password";
         rpcArgs = { user_id: userId, new_password: newValue };
+    } else if (supabaseColumn === "email") {
+        rpcName = "update_email";
+        rpcArgs = { user_id: userId, new_email: newValue };
     }
 
     const { error } = await supabase.rpc(rpcName, rpcArgs);
@@ -97,6 +102,19 @@ window.savePassword = () => {
         "passwordDisplay",
         "password_hash",
         "password_hash"
+    );
+};
+
+window.startEditEmail = () => {
+    enableEdit("emailDisplay", "emailInput", "editEmailBtn", "saveEmailBtn");
+};
+
+window.saveEmail = () => {
+    saveField(
+        document.getElementById("emailInput"),
+        "emailDisplay",
+        "email",
+        "email"
     );
 };
 
