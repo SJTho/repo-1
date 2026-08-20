@@ -1,12 +1,42 @@
-import { createClient } from '@supabase/supabase-js';
+// login.js — CDN version (no module imports)
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+// Supabase client (global)
+const supabase = window.supabase.createClient(
+  'https://YOUR_PROJECT.supabase.co',
+  'YOUR_ANON_KEY'
 );
 
 // -----------------------------
-// LOGIN
+// SIGNUP (new user creation)
+// -----------------------------
+export async function signup(email, password, nickname) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  const user = data.user;
+
+  // Create profile row
+  const { error: profileError } = await supabase.from('profiles').insert({
+    id: user.id,
+    nickname,
+    email
+  });
+
+  if (profileError) {
+    return { error: profileError.message };
+  }
+
+  return { user };
+}
+
+// -----------------------------
+// LOGIN (industry-standard)
 // -----------------------------
 export async function login(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -35,7 +65,7 @@ export async function login(email, password) {
 }
 
 // -----------------------------
-// CHECK IF USER IS LOGGED IN
+// GET CURRENT USER
 // -----------------------------
 export async function getCurrentUser() {
   const {
@@ -43,27 +73,6 @@ export async function getCurrentUser() {
   } = await supabase.auth.getUser();
 
   return user || null;
-}
-
-// -----------------------------
-// GET CURRENT USER PROFILE
-// -----------------------------
-export async function getCurrentProfile() {
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  if (error) return null;
-
-  return profile;
 }
 
 // -----------------------------
