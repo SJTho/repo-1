@@ -41,13 +41,11 @@
         <p id="error-message"></p>
     </div>
 
-    <!-- Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <!-- Load local Supabase module -->
+    <script type="module" src="./scripts/login.js"></script>
 
-    <!-- Your login.js -->
-    <script type="module">
-        import {login, signup} from './scripts/login.js';
-
+    <!-- Page logic -->
+    <script>
         const loginForm = document.getElementById('login-form');
         const signupForm = document.getElementById('signup-form');
         const errorMessage = document.getElementById('error-message');
@@ -59,7 +57,7 @@
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
 
-            const {user, profile, error} = await login(email, password);
+            const {user, profile, error} = await window.login(email, password);
 
             if (error) {
                 errorMessage.textContent = error;
@@ -77,7 +75,7 @@
             const password = document.getElementById('signup-password').value.trim();
             const nickname = document.getElementById('signup-nickname').value.trim();
 
-            const {user, error} = await signup(email, password, nickname);
+            const {user, error} = await window.signup(email, password, nickname);
 
             if (error) {
                 errorMessage.textContent = error;
