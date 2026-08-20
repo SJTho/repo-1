@@ -52,6 +52,13 @@ window.signup = async function (email, password, nickname) {
   localStorage.setItem("userId", user.id);
   localStorage.setItem("isAdmin", "false");
 
+  console.log("sessionToken:", localStorage.getItem("sessionToken"));
+console.log("nickname:", localStorage.getItem("nickname"));
+console.log("scalpel_points:", localStorage.getItem("scalpel_points"));
+console.log("userId:", localStorage.getItem("userId"));
+console.log("isAdmin:", localStorage.getItem("isAdmin"));
+return;
+
   // Step 5: Redirect to index.html
   window.location.href = "index.html";
 
