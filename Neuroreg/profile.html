@@ -2,94 +2,79 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile</title>
+    <meta charset="UTF-8" />
+    <title>Your Profile</title>
 
-    <link rel="stylesheet" href="./styles/global.css">
-    <link rel="stylesheet" href="./styles/profile.css">
+    <link rel="stylesheet" href="styles/global.css" />
+    <link rel="stylesheet" href="styles/profile.css" />
 
-    <!-- MUST BE FIRST: GLOBAL LOGOUT IMPORT -->
-    <script type="module">
-        import {logout} from "./scripts/logout.js";
-        window.logout = logout;
-    </script>
-
-    <!-- Supabase client -->
-    <script type="module">
-        import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-        import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
-        window.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-    </script>
-
-    <script type="module" src="./scripts/profile.js"></script>
+    <!-- Supabase client + profile.js -->
+    <script type="module" src="scripts/profile.js"></script>
 </head>
 
 <body>
 
-    <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
-    <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
-    <div id="topRightIcons"></div>
+    <!-- Top-right icons -->
+    <div id="topRightIcons" class="top-right-icons"></div>
 
-    <div id="profileContainer">
+    <!-- Hamburger -->
+    <div id="hamburgerMenu" class="hamburger">☰</div>
+    <div id="hamburgerMenuDropdown" class="hamburger-dropdown"></div>
 
-        <h2>My Profile</h2>
+    <div class="profile-container">
+        <h1>Your Profile</h1>
 
-        <!-- Nickname -->
-        <div class="profileRow">
-            <strong>Nickname</strong>
+        <div id="profile-content">
 
-            <div class="profileFieldRow">
+            <!-- Nickname -->
+            <div class="profile-row">
+                <label>Nickname:</label>
                 <span id="nicknameDisplay"></span>
-                <input id="nicknameInput" class="editField" style="display:none;">
-
-                <button id="editNicknameBtn" class="editBtn" onclick="startEditNickname()">Edit</button>
-                <button id="saveNicknameBtn" class="saveBtn" onclick="saveNickname()"
-                    style="display:none;">Save</button>
+                <input id="nicknameInput" class="profile-input" style="display:none;" />
+                <button id="editNicknameBtn" class="profile-btn">Edit</button>
+                <button id="saveNicknameBtn" class="profile-btn" style="display:none;">Save</button>
             </div>
-        </div>
 
-        <!-- Password -->
-        <div class="profileRow">
-            <strong>Password</strong>
-
-            <div class="profileFieldRow">
-                <span id="passwordDisplay">********</span>
-                <input id="passwordInput" class="editField" style="display:none;">
-
-                <button id="editPasswordBtn" class="editBtn" onclick="startEditPassword()">Edit</button>
-                <button id="savePasswordBtn" class="saveBtn" onclick="savePassword()"
-                    style="display:none;">Save</button>
-            </div>
-        </div>
-
-        <!-- Email -->
-        <div class="profileRow">
-            <strong>Email</strong>
-
-            <div class="profileFieldRow">
+            <!-- Email -->
+            <div class="profile-row">
+                <label>Email:</label>
                 <span id="emailDisplay"></span>
-                <input id="emailInput" class="editField" style="display:none;">
-
-                <button id="editEmailBtn" class="editBtn" onclick="startEditEmail()">Edit</button>
-                <button id="saveEmailBtn" class="saveBtn" onclick="saveEmail()" style="display:none;">Save</button>
+                <input id="emailInput" class="profile-input" style="display:none;" />
+                <button id="editEmailBtn" class="profile-btn">Edit</button>
+                <button id="saveEmailBtn" class="profile-btn" style="display:none;">Save</button>
             </div>
+
+            <!-- Scalpel Points -->
+            <div class="profile-row">
+                <label>Scalpel Points:</label>
+                <span id="pointsDisplay"></span>
+            </div>
+
+            <!-- Rank -->
+            <div class="profile-row">
+                <label>Rank:</label>
+                <span id="rankDisplay"></span>
+            </div>
+
+            <!-- Subscribed -->
+            <div class="profile-row">
+                <label>Subscribed:</label>
+                <span id="subscribedDisplay"></span>
+                <button id="toggleSubscribedBtn" class="profile-btn">Toggle</button>
+            </div>
+
+            <!-- Admin -->
+            <div class="profile-row">
+                <label>Admin:</label>
+                <span id="adminDisplay"></span>
+            </div>
+
+            <!-- Logout -->
+            <button id="logoutBtn" class="logout-button">Logout</button>
+
         </div>
 
-        <!-- Points -->
-        <div class="profileRow">
-            <strong>Scalpel Points</strong>
-            <span id="pointsDisplay"></span>
-        </div>
-
-        <!-- Rank -->
-        <div class="profileRow">
-            <strong>Rank</strong>
-            <span id="rankDisplay"></span>
-        </div>
-
-        <button class="closeBtn" onclick="window.location.href='index.html'">Back</button>
-
+        <p id="error-message" class="error-message"></p>
     </div>
 
 </body>
