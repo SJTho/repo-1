@@ -36,14 +36,23 @@ window.signup = async function (email, password, nickname) {
   const { error: profileError } = await supabase.from("profiles").insert({
     id: user.id,
     nickname,
-    email
+    email,
+    scalpel_points: 0,
+    isadmin: false
   });
 
   if (profileError) {
     return { error: profileError.message };
   }
 
-  // Step 4: Redirect to index.html
+  // Step 4: Save session + profile info to localStorage
+  localStorage.setItem("sessionToken", loginData.session.access_token);
+  localStorage.setItem("nickname", nickname);
+  localStorage.setItem("scalpel_points", "0");
+  localStorage.setItem("userId", user.id);
+  localStorage.setItem("isAdmin", "false");
+
+  // Step 5: Redirect to index.html
   window.location.href = "index.html";
 
   return { user };
@@ -74,6 +83,15 @@ window.login = async function (email, password) {
   if (profileError) {
     return { error: profileError.message };
   }
+
+  // ---------------------------------------------
+  // Save session + profile info to localStorage
+  // ---------------------------------------------
+  localStorage.setItem("sessionToken", data.session.access_token);
+  localStorage.setItem("nickname", profile.nickname);
+  localStorage.setItem("scalpel_points", profile.scalpel_points);
+  localStorage.setItem("userId", user.id);
+  localStorage.setItem("isAdmin", profile.isadmin ? "true" : "false");
 
   // Redirect to index.html
   window.location.href = "index.html";
