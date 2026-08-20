@@ -1,14 +1,12 @@
-// login.js — Local Supabase ESM version (GitHub Pages compatible)
+// login.js — ESM version using esm.sh (GitHub Pages compatible)
 
-import { createClient } from './supabase.mjs';
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 
 // ---------------------------------------------
 // Initialize Supabase
 // ---------------------------------------------
-const supabase = createClient(
-  'https://YOUR_PROJECT.supabase.co',
-  'YOUR_ANON_KEY'
-);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ---------------------------------------------
 // SIGNUP
@@ -26,7 +24,7 @@ window.signup = async function (email, password, nickname) {
   const user = data.user;
 
   // Insert profile row
-  const { error: profileError } = await supabase.from('profiles').insert({
+  const { error: profileError } = await supabase.from("profiles").insert({
     id: user.id,
     nickname,
     email
@@ -56,9 +54,9 @@ window.login = async function (email, password) {
 
   // Fetch profile row
   const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
     .single();
 
   if (profileError) {
