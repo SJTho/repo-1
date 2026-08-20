@@ -1,3 +1,4 @@
+/* Main container */
 #authContainer {
     width: 80%;
     max-width: 450px;
@@ -8,6 +9,14 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Headings */
+#authContainer h2 {
+    color: #000;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Form rows */
 .authRow {
     margin-bottom: 16px;
 }
@@ -30,6 +39,24 @@
     color: #000;
 }
 
+/* Buttons */
+button {
+    background: #14233d;
+    color: white;
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+/* Toggle link */
 .switchLink {
     text-align: center;
     margin-top: 20px;
@@ -38,36 +65,24 @@
     font-weight: 600;
 }
 
-#authContainer h2 {
-    color: #000 !important;
-}
-
-/* Button styling (same as profile.css) */
-.closeBtn {
-    background: #14233d;
-    color: white;
-    margin-top: 20px;
-    width: 200px;
-    padding: 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+/* Error messages */
+.errorBox {
+    display: none;
+    color: red;
+    margin-top: 10px;
+    font-weight: 600;
     text-align: center;
-    font-size: 16px;
 }
 
+/* Mobile */
 @media (max-width: 600px) {
     #authContainer {
         margin: 30px auto;
     }
 
-    .closeBtn {
-        width: 100px;
-        padding: 14px 20px;
+    button {
         font-size: 14px;
+        padding: 14px 20px;
         border-radius: 10px;
     }
 }
