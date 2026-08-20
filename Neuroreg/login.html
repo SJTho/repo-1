@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Login</title>
+    <title>Login / Signup</title>
+
     <link rel="stylesheet" href="styles/global.css" />
     <link rel="stylesheet" href="styles/login.css" />
 </head>
@@ -14,28 +15,49 @@
 
         <form id="login-form">
             <label>Email</label>
-            <input type="email" id="email" required />
+            <input type="email" id="login-email" required />
 
             <label>Password</label>
-            <input type="password" id="password" required />
+            <input type="password" id="login-password" required />
 
             <button type="submit">Login</button>
+        </form>
+
+        <h1>Create Account</h1>
+
+        <form id="signup-form">
+            <label>Email</label>
+            <input type="email" id="signup-email" required />
+
+            <label>Password</label>
+            <input type="password" id="signup-password" required />
+
+            <label>Nickname</label>
+            <input type="text" id="signup-nickname" required />
+
+            <button type="submit">Create Account</button>
         </form>
 
         <p id="error-message"></p>
     </div>
 
-    <script type="module">
-        import {login} from './scripts/login.js';
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-        const form = document.getElementById('login-form');
+    <!-- Your login.js -->
+    <script type="module">
+        import {login, signup} from './scripts/login.js';
+
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
         const errorMessage = document.getElementById('error-message');
 
-        form.addEventListener('submit', async (e) => {
+        // LOGIN
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
 
             const {user, profile, error} = await login(email, password);
 
@@ -44,7 +66,24 @@
                 return;
             }
 
-            // Redirect to your main app page
+            window.location.href = '/profile.html';
+        });
+
+        // SIGNUP
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
+            const nickname = document.getElementById('signup-nickname').value.trim();
+
+            const {user, error} = await signup(email, password, nickname);
+
+            if (error) {
+                errorMessage.textContent = error;
+                return;
+            }
+
             window.location.href = '/profile.html';
         });
     </script>
