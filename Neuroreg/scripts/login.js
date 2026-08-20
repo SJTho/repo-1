@@ -9,21 +9,30 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ---------------------------------------------
-// SIGNUP
+// SIGNUP (fixed: now signs user in before inserting profile)
 // ---------------------------------------------
 window.signup = async function (email, password, nickname) {
-  const { data, error } = await supabase.auth.signUp({
+  // Step 1: Create the user
+  const { data: signupData, error: signupError } = await supabase.auth.signUp({
     email,
     password
   });
 
-  if (error) {
-    return { error: error.message };
+  if (signupError) {
+    return { error: signupError.message };
   }
 
-  const user = data.user;
+  // Step 2: Sign the user in (creates authenticated session)
+  const { data: loginData, error: loginError } =
+    await supabase.auth.signInWithPassword({ email, password });
 
-  // Insert profile row
+  if (loginError) {
+    return { error: loginError.message };
+  }
+
+  const user = loginData.user;
+
+  // Step 3: Insert profile (now authenticated)
   const { error: profileError } = await supabase.from("profiles").insert({
     id: user.id,
     nickname,
@@ -33,6 +42,9 @@ window.signup = async function (email, password, nickname) {
   if (profileError) {
     return { error: profileError.message };
   }
+
+  // Step 4: Redirect to index.html
+  window.location.href = "index.html";
 
   return { user };
 };
@@ -62,6 +74,9 @@ window.login = async function (email, password) {
   if (profileError) {
     return { error: profileError.message };
   }
+
+  // Redirect to index.html
+  window.location.href = "index.html";
 
   return { user, profile };
 };
