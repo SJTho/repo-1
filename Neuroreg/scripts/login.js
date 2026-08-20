@@ -1,15 +1,20 @@
-// login.js — CDN version (no module imports)
+// login.js — Local Supabase version (no CDN, no module imports)
 
 // ---------------------------------------------
-// Supabase client (global)
+// Load local Supabase client
 // ---------------------------------------------
-const supabase = window.supabase.createClient(
+import { createClient } from './supabase.js';
+
+// ---------------------------------------------
+// Initialize Supabase
+// ---------------------------------------------
+const supabase = createClient(
   'https://YOUR_PROJECT.supabase.co',
   'YOUR_ANON_KEY'
 );
 
 // ---------------------------------------------
-// SIGNUP (new user creation)
+// SIGNUP
 // ---------------------------------------------
 window.signup = async function (email, password, nickname) {
   const { data, error } = await supabase.auth.signUp({
@@ -17,28 +22,23 @@ window.signup = async function (email, password, nickname) {
     password
   });
 
-  if (error) {
-    return { error: error.message };
-  }
+  if (error) return { error: error.message };
 
   const user = data.user;
 
-  // Create profile row
   const { error: profileError } = await supabase.from('profiles').insert({
     id: user.id,
     nickname,
     email
   });
 
-  if (profileError) {
-    return { error: profileError.message };
-  }
+  if (profileError) return { error: profileError.message };
 
   return { user };
 };
 
 // ---------------------------------------------
-// LOGIN (industry-standard)
+// LOGIN
 // ---------------------------------------------
 window.login = async function (email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -46,22 +46,17 @@ window.login = async function (email, password) {
     password
   });
 
-  if (error) {
-    return { error: error.message };
-  }
+  if (error) return { error: error.message };
 
   const user = data.user;
 
-  // Fetch profile row
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single();
 
-  if (profileError) {
-    return { error: profileError.message };
-  }
+  if (profileError) return { error: profileError.message };
 
   return { user, profile };
 };
