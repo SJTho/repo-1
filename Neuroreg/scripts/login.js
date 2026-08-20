@@ -17,19 +17,21 @@ function showSignup() {
 }
 
 /* ----------------------------------------------------
-   Signup RPC
+   Signup RPC (nickname + email + password)
 ---------------------------------------------------- */
 async function signup() {
     const nickname = document.getElementById("signupNickname").value.trim();
+    const email = document.getElementById("signupEmail").value.trim();
     const password = document.getElementById("signupPassword").value.trim();
 
-    if (!nickname || !password) {
+    if (!nickname || !email || !password) {
         alert("Please fill in all fields.");
         return;
     }
 
     const {data, error} = await supabase.rpc("signup", {
         nickname_input: nickname,
+        email_input: email,
         password_input: password
     });
 
@@ -43,19 +45,19 @@ async function signup() {
 }
 
 /* ----------------------------------------------------
-   Login RPC + Rank Lookup
+   Login RPC (email + password)
 ---------------------------------------------------- */
 async function login() {
-    const nickname = document.getElementById("loginNickname").value.trim();
+    const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value.trim();
 
-    if (!nickname || !password) {
+    if (!email || !password) {
         alert("Please fill in all fields.");
         return;
     }
 
     const {data, error} = await supabase.rpc("login", {
-        nickname_input: nickname,
+        email_input: email,
         password_input: password
     });
 
@@ -73,22 +75,20 @@ async function login() {
     }
 
     if (!user || user.error) {
-        alert("Invalid nickname or password");
+        alert("Invalid email or password");
         return;
     }
 
     /* Store session data */
     localStorage.setItem("sessionToken", user.token);
     localStorage.setItem("nickname", user.nickname);
+    localStorage.setItem("email", user.email);
     localStorage.setItem("scalpel_points", user.scalpel_points);
     localStorage.setItem("userId", user.id);
 
-    /* Store admin flag directly from RPC */
     localStorage.setItem("isAdmin", user.isadmin ? "true" : "false");
 
-    /* ----------------------------------------------------
-       Fetch rank using your RPC
-    ---------------------------------------------------- */
+    /* Rank lookup */
     const {data: rankData, error: rankError} = await supabase.rpc(
         "get_rank_for_points",
         {points: user.scalpel_points}
@@ -101,7 +101,6 @@ async function login() {
         localStorage.setItem("rank", rankData || "Unranked");
     }
 
-    /* Redirect after storing rank + admin */
     window.location.href = "index.html";
 }
 
