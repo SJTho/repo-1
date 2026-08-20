@@ -6,31 +6,6 @@ const supabase = createClient(
 );
 
 // -----------------------------
-// SIGNUP
-// -----------------------------
-export async function signup(email, password, nickname) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password
-  });
-
-  if (error) return { error };
-
-  const user = data.user;
-
-  // Create profile row
-  const { error: profileError } = await supabase.from('profiles').insert({
-    id: user.id,
-    nickname,
-    email
-  });
-
-  if (profileError) return { error: profileError };
-
-  return { user };
-}
-
-// -----------------------------
 // LOGIN
 // -----------------------------
 export async function login(email, password) {
@@ -39,38 +14,46 @@ export async function login(email, password) {
     password
   });
 
-  if (error) return { error };
+  if (error) {
+    return { error: error.message };
+  }
 
   const user = data.user;
 
-  // Fetch profile
+  // Fetch profile row
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single();
 
-  if (profileError) return { error: profileError };
+  if (profileError) {
+    return { error: profileError.message };
+  }
 
   return { user, profile };
 }
 
 // -----------------------------
-// LOGOUT
+// CHECK IF USER IS LOGGED IN
 // -----------------------------
-export async function logout() {
-  await supabase.auth.signOut();
+export async function getCurrentUser() {
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  return user || null;
 }
 
 // -----------------------------
 // GET CURRENT USER PROFILE
 // -----------------------------
-export async function getProfile() {
+export async function getCurrentProfile() {
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (!user) return { error: 'Not logged in' };
+  if (!user) return null;
 
   const { data: profile, error } = await supabase
     .from('profiles')
@@ -78,34 +61,16 @@ export async function getProfile() {
     .eq('id', user.id)
     .single();
 
-  if (error) return { error };
+  if (error) return null;
 
-  return { profile };
+  return profile;
 }
 
 // -----------------------------
-// UPDATE PROFILE
+// LOGOUT
 // -----------------------------
-export async function updateProfile(updates) {
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  if (!user) return { error: 'Not logged in' };
-
-  const { data, error } = await supabase
-    .from('profiles')
-    .update({
-      ...updates,
-      updated_at: new Date()
-    })
-    .eq('id', user.id)
-    .select()
-    .single();
-
-  if (error) return { error };
-
-  return { data };
+export async function logout() {
+  await supabase.auth.signOut();
 }
 
 // -----------------------------
