@@ -1,8 +1,9 @@
 /* Main container */
 #authContainer {
-    width: 80%;
-    max-width: 450px;
-    margin: 30px auto;
+    width: 90%;
+    max-width: 420px;
+    /* balanced width for desktop */
+    margin: 40px auto;
     background: #ffffff;
     padding: 24px;
     border-radius: 12px;
@@ -28,8 +29,10 @@
     color: #000;
 }
 
+/* INPUTS — match button width exactly */
 .authRow input {
-    width: calc(100% - 4px);
+    width: 100%;
+    max-width: 100%;
     padding: 10px;
     font-size: 16px;
     border: none;
@@ -65,6 +68,17 @@ button:hover {
     font-weight: 600;
 }
 
+/* Forgot password link — small, left aligned */
+.forgotPasswordLink {
+    font-size: 13px;
+    font-weight: normal;
+    color: #0077cc;
+    cursor: pointer;
+    margin-top: -6px;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
 /* Error messages */
 .errorBox {
     display: none;
@@ -74,25 +88,25 @@ button:hover {
     text-align: center;
 }
 
-.forgotPasswordLink {
-    font-size: 13px;
-    font-weight: normal;
-    color: #0077cc;
-    cursor: pointer;
-    margin-top: -8px;
-    margin-bottom: 12px;
-    text-align: left;
-}
-
-/* Mobile */
+/* Mobile improvements */
 @media (max-width: 600px) {
     #authContainer {
+        width: 95%;
+        /* wider container */
+        max-width: 95%;
+        /* prevents tiny layout */
+        padding: 20px;
         margin: 30px auto;
     }
 
     button {
-        font-size: 14px;
+        font-size: 15px;
         padding: 14px 20px;
         border-radius: 10px;
+    }
+
+    .authRow input {
+        font-size: 15px;
+        padding: 12px;
     }
 }
