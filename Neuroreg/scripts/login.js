@@ -1,15 +1,17 @@
 // login.js — CDN version (no module imports)
 
+// ---------------------------------------------
 // Supabase client (global)
+// ---------------------------------------------
 const supabase = window.supabase.createClient(
   'https://YOUR_PROJECT.supabase.co',
   'YOUR_ANON_KEY'
 );
 
-// -----------------------------
+// ---------------------------------------------
 // SIGNUP (new user creation)
-// -----------------------------
-export async function signup(email, password, nickname) {
+// ---------------------------------------------
+window.signup = async function (email, password, nickname) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password
@@ -33,12 +35,12 @@ export async function signup(email, password, nickname) {
   }
 
   return { user };
-}
+};
 
-// -----------------------------
+// ---------------------------------------------
 // LOGIN (industry-standard)
-// -----------------------------
-export async function login(email, password) {
+// ---------------------------------------------
+window.login = async function (email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password
@@ -62,31 +64,31 @@ export async function login(email, password) {
   }
 
   return { user, profile };
-}
+};
 
-// -----------------------------
+// ---------------------------------------------
 // GET CURRENT USER
-// -----------------------------
-export async function getCurrentUser() {
+// ---------------------------------------------
+window.getCurrentUser = async function () {
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
   return user || null;
-}
+};
 
-// -----------------------------
+// ---------------------------------------------
 // LOGOUT
-// -----------------------------
-export async function logout() {
+// ---------------------------------------------
+window.logout = async function () {
   await supabase.auth.signOut();
-}
+};
 
-// -----------------------------
+// ---------------------------------------------
 // AUTH STATE LISTENER
-// -----------------------------
-export function onAuthStateChange(callback) {
+// ---------------------------------------------
+window.onAuthStateChange = function (callback) {
   return supabase.auth.onAuthStateChange((_event, session) => {
     callback(session);
   });
-}
+};
