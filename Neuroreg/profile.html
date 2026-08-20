@@ -8,73 +8,78 @@
     <link rel="stylesheet" href="styles/global.css" />
     <link rel="stylesheet" href="styles/profile.css" />
 
-    <!-- Supabase client + profile.js -->
     <script type="module" src="scripts/profile.js"></script>
 </head>
 
 <body>
 
     <!-- Top-right icons -->
-    <div id="topRightIcons" class="top-right-icons"></div>
+    <div id="topRightIcons" class="topRightIcons"></div>
 
     <!-- Hamburger -->
-    <div id="hamburgerMenu" class="hamburger">☰</div>
+    <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
     <div id="hamburgerMenuDropdown" class="hamburger-dropdown"></div>
 
-    <div class="profile-container">
-        <h1>Your Profile</h1>
+    <div id="profileContainer">
+
+        <h2>Your Profile</h2>
 
         <div id="profile-content">
 
             <!-- Nickname -->
-            <div class="profile-row">
-                <label>Nickname:</label>
-                <span id="nicknameDisplay"></span>
-                <input id="nicknameInput" class="profile-input" style="display:none;" />
-                <button id="editNicknameBtn" class="profile-btn">Edit</button>
-                <button id="saveNicknameBtn" class="profile-btn" style="display:none;">Save</button>
+            <div class="profileRow">
+                <strong>Nickname:</strong>
+                <div class="profileFieldRow">
+                    <span id="nicknameDisplay"></span>
+                    <input id="nicknameInput" class="editField" style="display:none;" />
+                </div>
+                <button id="editNicknameBtn" class="editBtn">Edit</button>
+                <button id="saveNicknameBtn" class="saveBtn" style="display:none;">Save</button>
             </div>
 
             <!-- Email -->
-            <div class="profile-row">
-                <label>Email:</label>
-                <span id="emailDisplay"></span>
-                <input id="emailInput" class="profile-input" style="display:none;" />
-                <button id="editEmailBtn" class="profile-btn">Edit</button>
-                <button id="saveEmailBtn" class="profile-btn" style="display:none;">Save</button>
+            <div class="profileRow">
+                <strong>Email:</strong>
+                <div class="profileFieldRow">
+                    <span id="emailDisplay"></span>
+                    <input id="emailInput" class="editField" style="display:none;" />
+                </div>
+                <button id="editEmailBtn" class="editBtn">Edit</button>
+                <button id="saveEmailBtn" class="saveBtn" style="display:none;">Save</button>
             </div>
 
             <!-- Scalpel Points -->
-            <div class="profile-row">
-                <label>Scalpel Points:</label>
+            <div class="profileRow">
+                <strong>Scalpel Points:</strong>
                 <span id="pointsDisplay"></span>
             </div>
 
             <!-- Rank -->
-            <div class="profile-row">
-                <label>Rank:</label>
+            <div class="profileRow">
+                <strong>Rank:</strong>
                 <span id="rankDisplay"></span>
             </div>
 
             <!-- Subscribed -->
-            <div class="profile-row">
-                <label>Subscribed:</label>
+            <div class="profileRow">
+                <strong>Subscribed:</strong>
                 <span id="subscribedDisplay"></span>
-                <button id="toggleSubscribedBtn" class="profile-btn">Toggle</button>
+                <button id="toggleSubscribedBtn" class="editBtn">Toggle</button>
             </div>
 
             <!-- Admin -->
-            <div class="profile-row">
-                <label>Admin:</label>
+            <div class="profileRow">
+                <strong>Admin:</strong>
                 <span id="adminDisplay"></span>
             </div>
 
             <!-- Logout -->
-            <button id="logoutBtn" class="logout-button">Logout</button>
+            <button id="logoutBtn" class="closeBtn">Logout</button>
 
         </div>
 
         <p id="error-message" class="error-message"></p>
+
     </div>
 
 </body>
