@@ -5,12 +5,8 @@
     <meta charset="UTF-8">
     <title>Login / Signup</title>
 
-    <!-- External CSS -->
-    <link rel="stylesheet" href="./styles/global.css">
-    <link rel="stylesheet" href="./styles/login.css">
-
-    <!-- Supabase login logic -->
-    <script type="module" src="./scripts/login.js"></script>
+    <link rel="stylesheet" href="css/login.css">
+    <script type="module" src="js/login.js"></script>
 </head>
 
 <body>
@@ -34,6 +30,8 @@
             <button onclick="handleLogin()">Login</button>
 
             <div class="switchLink" onclick="showSignup()">Create an account</div>
+            <div class="switchLink" onclick="showForgotEmail()">Forgot your email?</div>
+
             <div id="login-error" class="errorBox"></div>
         </div>
 
@@ -62,21 +60,43 @@
             <div id="signup-error" class="errorBox"></div>
         </div>
 
+        <!-- FORGOTTEN EMAIL FORM -->
+        <div id="forgotEmailForm" style="display:none;">
+            <h2>Recover Email</h2>
+
+            <div class="authRow">
+                <label>Enter your nickname</label>
+                <input id="recoverNickname" type="text">
+            </div>
+
+            <button onclick="handleRecoverEmail()">Send recovery email</button>
+
+            <div class="switchLink" onclick="showLogin()">Back to login</div>
+            <div id="recover-error" class="errorBox"></div>
+            <div id="recover-success" class="errorBox" style="color:green;"></div>
+        </div>
+
     </div>
 
     <script>
-        // Toggle functions
         function showLogin() {
             document.getElementById("loginForm").style.display = "block";
             document.getElementById("signupForm").style.display = "none";
+            document.getElementById("forgotEmailForm").style.display = "none";
         }
 
         function showSignup() {
             document.getElementById("loginForm").style.display = "none";
             document.getElementById("signupForm").style.display = "block";
+            document.getElementById("forgotEmailForm").style.display = "none";
         }
 
-        // Login handler
+        function showForgotEmail() {
+            document.getElementById("loginForm").style.display = "none";
+            document.getElementById("signupForm").style.display = "none";
+            document.getElementById("forgotEmailForm").style.display = "block";
+        }
+
         async function handleLogin() {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
@@ -91,7 +111,6 @@
             }
         }
 
-        // Signup handler
         async function handleSignup() {
             const email = document.getElementById("signupEmail").value.trim();
             const password = document.getElementById("signupPassword").value.trim();
@@ -105,6 +124,25 @@
                 errorBox.style.display = "block";
                 return;
             }
+        }
+
+        async function handleRecoverEmail() {
+            const nickname = document.getElementById("recoverNickname").value.trim();
+            const errorBox = document.getElementById("recover-error");
+            const successBox = document.getElementById("recover-success");
+
+            const result = await recoverEmail(nickname);
+
+            if (result.error) {
+                errorBox.textContent = result.error;
+                errorBox.style.display = "block";
+                successBox.style.display = "none";
+                return;
+            }
+
+            errorBox.style.display = "none";
+            successBox.textContent = result.message;
+            successBox.style.display = "block";
         }
     </script>
 
