@@ -2,89 +2,154 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <title>Login / Signup</title>
 
-    <link rel="stylesheet" href="styles/global.css" />
-    <link rel="stylesheet" href="styles/login.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        #authContainer {
+            max-width: 400px;
+            margin: auto;
+        }
+
+        .authRow {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .switchLink {
+            margin-top: 12px;
+            color: blue;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .errorBox {
+            display: none;
+            color: red;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+    </style>
+
+    <script type="module" src="js/login.js"></script>
 </head>
 
 <body>
-    <div class="login-container">
-        <h1>Login</h1>
 
-        <form id="login-form">
-            <label>Email</label>
-            <input type="email" id="login-email" required />
+    <div id="authContainer">
 
-            <label>Password</label>
-            <input type="password" id="login-password" required />
+        <!-- LOGIN FORM -->
+        <div id="loginForm">
+            <h2>Login</h2>
 
-            <button type="submit">Login</button>
-        </form>
+            <div class="authRow">
+                <label>Email</label>
+                <input id="loginEmail" type="email">
+            </div>
 
-        <h1>Create Account</h1>
+            <div class="authRow">
+                <label>Password</label>
+                <input id="loginPassword" type="password">
+            </div>
 
-        <form id="signup-form">
-            <label>Email</label>
-            <input type="email" id="signup-email" required />
+            <button onclick="handleLogin()">Login</button>
 
-            <label>Password</label>
-            <input type="password" id="signup-password" required />
+            <div class="switchLink" onclick="showSignup()">Create an account</div>
+            <div id="login-error" class="errorBox"></div>
+        </div>
 
-            <label>Nickname</label>
-            <input type="text" id="signup-nickname" required />
+        <!-- SIGNUP FORM -->
+        <div id="signupForm" style="display:none;">
+            <h2>Sign Up</h2>
 
-            <button type="submit">Create Account</button>
-        </form>
+            <div class="authRow">
+                <label>Email</label>
+                <input id="signupEmail" type="email">
+            </div>
 
-        <p id="error-message"></p>
+            <div class="authRow">
+                <label>Password</label>
+                <input id="signupPassword" type="password">
+            </div>
+
+            <div class="authRow">
+                <label>Nickname</label>
+                <input id="signupNickname" type="text">
+            </div>
+
+            <button onclick="handleSignup()">Sign Up</button>
+
+            <div class="switchLink" onclick="showLogin()">Already have an account?</div>
+            <div id="signup-error" class="errorBox"></div>
+        </div>
+
     </div>
 
-    <!-- Load local Supabase module -->
-    <script type="module" src="./scripts/login.js"></script>
-
-    <!-- Page logic -->
     <script>
-        const loginForm = document.getElementById('login-form');
-        const signupForm = document.getElementById('signup-form');
-        const errorMessage = document.getElementById('error-message');
+        // Toggle functions
+        function showLogin() {
+            document.getElementById("loginForm").style.display = "block";
+            document.getElementById("signupForm").style.display = "none";
+        }
 
-        // LOGIN
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        function showSignup() {
+            document.getElementById("loginForm").style.display = "none";
+            document.getElementById("signupForm").style.display = "block";
+        }
 
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
+        // Login handler
+        async function handleLogin() {
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value.trim();
+            const errorBox = document.getElementById("login-error");
 
-            const {user, profile, error} = await window.login(email, password);
+            const result = await login(email, password);
 
-            if (error) {
-                errorMessage.textContent = error;
+            if (result.error) {
+                errorBox.textContent = result.error;
+                errorBox.style.display = "block";
                 return;
             }
+        }
 
-            window.location.href = 'index.html';
-        });
+        // Signup handler
+        async function handleSignup() {
+            const email = document.getElementById("signupEmail").value.trim();
+            const password = document.getElementById("signupPassword").value.trim();
+            const nickname = document.getElementById("signupNickname").value.trim();
+            const errorBox = document.getElementById("signup-error");
 
-        // SIGNUP
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            const result = await signup(email, password, nickname);
 
-            const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value.trim();
-            const nickname = document.getElementById('signup-nickname').value.trim();
-
-            const {user, error} = await window.signup(email, password, nickname);
-
-            if (error) {
-                errorMessage.textContent = error;
+            if (result.error) {
+                errorBox.textContent = result.error;
+                errorBox.style.display = "block";
                 return;
             }
-
-            window.location.href = 'index.html';
-        });
+        }
     </script>
+
 </body>
 
 </html>
