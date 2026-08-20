@@ -1,6 +1,14 @@
-/* ----------------------------------------------------
-   Load Profile
----------------------------------------------------- */
+// ----------------------------------------------------
+// Supabase Client (matches login.js)
+// ----------------------------------------------------
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ----------------------------------------------------
+// Load Profile
+// ----------------------------------------------------
 function loadProfile() {
     const token = localStorage.getItem("sessionToken");
 
@@ -13,18 +21,22 @@ function loadProfile() {
     const scalpelPoints = localStorage.getItem("scalpel_points");
     const rank = localStorage.getItem("rank");
     const email = localStorage.getItem("email");
+    const subscribed = localStorage.getItem("subscribed");
+    const isAdmin = localStorage.getItem("isAdmin");
 
     document.getElementById("nicknameDisplay").innerText = nickname ?? "N/A";
     document.getElementById("pointsDisplay").innerText = scalpelPoints ?? "0";
     document.getElementById("rankDisplay").innerText = rank ?? "Unranked";
     document.getElementById("emailDisplay").innerText = email ?? "N/A";
+    document.getElementById("subscribedDisplay").innerText = subscribed === "true" ? "Yes" : "No";
+    document.getElementById("adminDisplay").innerText = isAdmin === "true" ? "Yes" : "No";
 }
 
 window.addEventListener("DOMContentLoaded", loadProfile);
 
-/* ----------------------------------------------------
-   Editing Logic
----------------------------------------------------- */
+// ----------------------------------------------------
+// Editing Logic
+// ----------------------------------------------------
 function enableEdit(displayId, inputId, editBtnId, saveBtnId) {
     const span = document.getElementById(displayId);
     const input = document.getElementById(inputId);
@@ -118,9 +130,9 @@ window.saveEmail = () => {
     );
 };
 
-/* ----------------------------------------------------
-   Hamburger Menu
----------------------------------------------------- */
+// ----------------------------------------------------
+// Hamburger Menu
+// ----------------------------------------------------
 async function loadHamburgerMenu() {
     const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -174,9 +186,9 @@ async function loadHamburgerMenu() {
 
 window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
 
-/* ----------------------------------------------------
-   Top-Right Icons
----------------------------------------------------- */
+// ----------------------------------------------------
+// Top-Right Icons
+// ----------------------------------------------------
 async function loadTopRightIcons() {
     const container = document.getElementById("topRightIcons");
 
@@ -218,9 +230,9 @@ async function loadTopRightIcons() {
 
 window.addEventListener("DOMContentLoaded", loadTopRightIcons);
 
-/* ----------------------------------------------------
-   Hamburger Toggle
----------------------------------------------------- */
+// ----------------------------------------------------
+// Hamburger Toggle
+// ----------------------------------------------------
 window.addEventListener("DOMContentLoaded", () => {
     const hamburger = document.getElementById("hamburgerMenu");
     const dropdown = document.getElementById("hamburgerMenuDropdown");
