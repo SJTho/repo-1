@@ -1,8 +1,5 @@
-// login.js — Local Supabase version (no CDN, no module imports)
+// login.js — Local Supabase ESM version
 
-// ---------------------------------------------
-// Load local Supabase client
-// ---------------------------------------------
 import { createClient } from './supabase.js';
 
 // ---------------------------------------------
