@@ -7,7 +7,7 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ----------------------------------------------------
-// Load Profile (NOW FROM public.profiles)
+// Load Profile
 // ----------------------------------------------------
 async function loadProfile() {
     const token = localStorage.getItem("sessionToken");
@@ -30,17 +30,12 @@ async function loadProfile() {
         return;
     }
 
-    // Populate UI
     document.getElementById("nicknameDisplay").innerText = profile.nickname ?? "N/A";
     document.getElementById("emailDisplay").innerText = profile.email ?? "N/A";
     document.getElementById("pointsDisplay").innerText = profile.scalpel_points ?? "0";
     document.getElementById("rankDisplay").innerText = profile.rank ?? "Unranked";
-
-    // Password always masked
     document.getElementById("passwordDisplay").innerText = "********";
 }
-
-window.addEventListener("DOMContentLoaded", loadProfile);
 
 // ----------------------------------------------------
 // Editing Logic
@@ -65,9 +60,10 @@ async function saveField(inputEl, displayId, supabaseColumn) {
     const span = document.getElementById(displayId);
     const userId = localStorage.getItem("userId");
 
-    span.innerText = supabaseColumn === "password_hash" ? "********" : newValue;
-    span.style.display = "block";
-    inputEl.style.display = "none";
+    if (!newValue) {
+        alert("Value cannot be empty.");
+        return;
+    }
 
     let rpcName;
     let rpcArgs;
@@ -91,34 +87,45 @@ async function saveField(inputEl, displayId, supabaseColumn) {
         return;
     }
 
+    span.innerText = supabaseColumn === "password_hash" ? "********" : newValue;
+    span.style.display = "block";
+    inputEl.style.display = "none";
+
     window.location.reload();
 }
 
 // ----------------------------------------------------
-// Click Handlers (added)
+// Click Handlers
 // ----------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-    // Nickname
+function attachEditHandlers() {
     document.getElementById("editNicknameBtn").onclick = () =>
         enableEdit("nicknameDisplay", "nicknameInput", "editNicknameBtn", "saveNicknameBtn");
 
     document.getElementById("saveNicknameBtn").onclick = () =>
         saveField(document.getElementById("nicknameInput"), "nicknameDisplay", "nickname");
 
-    // Email
     document.getElementById("editEmailBtn").onclick = () =>
         enableEdit("emailDisplay", "emailInput", "editEmailBtn", "saveEmailBtn");
 
     document.getElementById("saveEmailBtn").onclick = () =>
         saveField(document.getElementById("emailInput"), "emailDisplay", "email");
 
-    // Password
     document.getElementById("editPasswordBtn").onclick = () =>
         enableEdit("passwordDisplay", "passwordInput", "editPasswordBtn", "savePasswordBtn");
 
     document.getElementById("savePasswordBtn").onclick = () =>
         saveField(document.getElementById("passwordInput"), "passwordDisplay", "password_hash");
-});
+}
+
+// ----------------------------------------------------
+// Logout
+// ----------------------------------------------------
+function logout() {
+    localStorage.removeItem("sessionToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("isAdmin");
+    window.location.href = "login.html";
+}
 
 // ----------------------------------------------------
 // Hamburger Menu
@@ -205,7 +212,25 @@ async function loadTopRightIcons() {
 }
 
 // ----------------------------------------------------
+// Hamburger Click Handler (works with .dropdownMenu CSS)
+// ----------------------------------------------------
+function attachHamburgerHandler() {
+    const icon = document.getElementById("hamburgerMenu");
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+    icon.onclick = () => {
+        dropdown.style.display =
+            dropdown.style.display === "flex" ? "none" : "flex";
+    };
+}
+
+// ----------------------------------------------------
 // Page Load
 // ----------------------------------------------------
-window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
-window.addEventListener("DOMContentLoaded", loadTopRightIcons);
+window.addEventListener("DOMContentLoaded", () => {
+    loadProfile();
+    attachEditHandlers();
+    loadHamburgerMenu();
+    loadTopRightIcons();
+    attachHamburgerHandler();
+});
