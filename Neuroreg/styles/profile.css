@@ -165,31 +165,6 @@ input.editField {
         /* FIXED px */
     }
 
-    /* Hamburger icon */
-    .hamburgerIcon {
-        font-size: 26px;
-        padding: 10px;
-        cursor: pointer;
-        position: absolute;
-        top: 12px;
-        left: 12px;
-    }
-
-    /* Hamburger dropdown */
-    .hamburger-dropdown {
-        display: none;
-        /* hidden until clicked */
-        flex-direction: column;
-        position: absolute;
-        top: 50px;
-        left: 12px;
-        background: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        padding: 8px;
-        z-index: 100;
-    }
-
     /* Dropdown items */
     .dropdownItem {
         font-size: 16px;
@@ -217,28 +192,4 @@ input.editField {
         text-align: left;
         margin-left: 0;
     }
-}
-
-/* Hamburger + top-right icons */
-.hamburgerIcon {
-    font-size: 30px;
-    padding: 12px;
-}
-
-.topRightIcon {
-    font-size: 28px;
-    padding: 10px;
-    cursor: pointer;
-}
-
-.dropdownItem {
-    font-size: 20px;
-    padding: 14px;
-}
-
-.dropdownSeparator {
-    width: 100%;
-    height: 1px;
-    background: #ccc;
-    margin: 6px 0;
 }
