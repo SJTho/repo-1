@@ -94,58 +94,46 @@ async function saveField(inputEl, displayId, supabaseColumn) {
     window.location.reload();
 }
 
-// Nickname
-window.startEditNickname = () => {
-    enableEdit("nicknameDisplay", "nicknameInput", "editNicknameBtn", "saveNicknameBtn");
-};
+// ----------------------------------------------------
+// Click Handlers (added)
+// ----------------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    // Nickname
+    document.getElementById("editNicknameBtn").onclick = () =>
+        enableEdit("nicknameDisplay", "nicknameInput", "editNicknameBtn", "saveNicknameBtn");
 
-window.saveNickname = () => {
-    saveField(
-        document.getElementById("nicknameInput"),
-        "nicknameDisplay",
-        "nickname"
-    );
-};
+    document.getElementById("saveNicknameBtn").onclick = () =>
+        saveField(document.getElementById("nicknameInput"), "nicknameDisplay", "nickname");
 
-// Email
-window.startEditEmail = () => {
-    enableEdit("emailDisplay", "emailInput", "editEmailBtn", "saveEmailBtn");
-};
+    // Email
+    document.getElementById("editEmailBtn").onclick = () =>
+        enableEdit("emailDisplay", "emailInput", "editEmailBtn", "saveEmailBtn");
 
-window.saveEmail = () => {
-    saveField(
-        document.getElementById("emailInput"),
-        "emailDisplay",
-        "email"
-    );
-};
+    document.getElementById("saveEmailBtn").onclick = () =>
+        saveField(document.getElementById("emailInput"), "emailDisplay", "email");
 
-// Password
-window.startEditPassword = () => {
-    enableEdit("passwordDisplay", "passwordInput", "editPasswordBtn", "savePasswordBtn");
-};
+    // Password
+    document.getElementById("editPasswordBtn").onclick = () =>
+        enableEdit("passwordDisplay", "passwordInput", "editPasswordBtn", "savePasswordBtn");
 
-window.savePassword = () => {
-    saveField(
-        document.getElementById("passwordInput"),
-        "passwordDisplay",
-        "password_hash"
-    );
-};
-/* ----------------------------------------------------
-   Hamburger Menu
----------------------------------------------------- */
+    document.getElementById("savePasswordBtn").onclick = () =>
+        saveField(document.getElementById("passwordInput"), "passwordDisplay", "password_hash");
+});
+
+// ----------------------------------------------------
+// Hamburger Menu
+// ----------------------------------------------------
 async function loadHamburgerMenu() {
     const dropdown = document.getElementById("hamburgerMenuDropdown");
     const isAdmin = localStorage.getItem("isAdmin") === "true";
     const currentPage = window.location.pathname.split("/").pop();
 
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from("menuitems")
         .select("*")
         .eq("hamburger", true)
-        .order("hamburgersection", {ascending: true})
-        .order("hamburgerorder", {ascending: true});
+        .order("hamburgersection", { ascending: true })
+        .order("hamburgerorder", { ascending: true });
 
     if (error) {
         dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
@@ -181,19 +169,19 @@ async function loadHamburgerMenu() {
     });
 }
 
-/* ----------------------------------------------------
-   Top-Right Icons
----------------------------------------------------- */
+// ----------------------------------------------------
+// Top-Right Icons
+// ----------------------------------------------------
 async function loadTopRightIcons() {
     const container = document.getElementById("topRightIcons");
     const isAdmin = localStorage.getItem("isAdmin") === "true";
     const currentPage = window.location.pathname.split("/").pop();
 
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from("menuitems")
         .select("*")
         .eq("topright", true)
-        .order("toprightorder", {ascending: true});
+        .order("toprightorder", { ascending: true });
 
     if (error) return;
 
@@ -216,11 +204,8 @@ async function loadTopRightIcons() {
     });
 }
 
-/* ----------------------------------------------------
-   Page Load
----------------------------------------------------- */
-{
+// ----------------------------------------------------
+// Page Load
+// ----------------------------------------------------
 window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
 window.addEventListener("DOMContentLoaded", loadTopRightIcons);
-
-};
