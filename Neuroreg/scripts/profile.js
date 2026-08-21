@@ -215,10 +215,12 @@ async function loadTopRightIcons() {
         container.appendChild(icon);
     });
 }
+
 /* ----------------------------------------------------
    Page Load
 ---------------------------------------------------- */
+{
 window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
 window.addEventListener("DOMContentLoaded", loadTopRightIcons);
 
-});
+};
