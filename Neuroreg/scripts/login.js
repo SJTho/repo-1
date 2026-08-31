@@ -5,9 +5,12 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// SIGNUP
+// ----------------------------------------------------
+// SIGNUP (fixed: profile insert happens AFTER login)
+// ----------------------------------------------------
 window.signup = async function (email, password, nickname) {
   try {
+    // 1. Create auth user
     const { data: signupData, error: signupError } = await supabase.auth.signUp({
       email,
       password
@@ -15,6 +18,7 @@ window.signup = async function (email, password, nickname) {
 
     if (signupError) return { error: signupError.message };
 
+    // 2. Log them in (now authenticated → RLS allows profile insert)
     const { data: loginData, error: loginError } =
       await supabase.auth.signInWithPassword({ email, password });
 
@@ -22,6 +26,7 @@ window.signup = async function (email, password, nickname) {
 
     const user = loginData.user;
 
+    // 3. Insert profile row (NOW allowed)
     const { error: profileError } = await supabase.from("profiles").insert({
       id: user.id,
       nickname,
@@ -32,12 +37,14 @@ window.signup = async function (email, password, nickname) {
 
     if (profileError) return { error: profileError.message };
 
+    // 4. Store session + profile info
     localStorage.setItem("sessionToken", loginData.session.access_token);
     localStorage.setItem("nickname", nickname);
     localStorage.setItem("scalpel_points", "0");
     localStorage.setItem("userId", user.id);
     localStorage.setItem("isAdmin", "false");
 
+    // 5. Redirect
     window.location.href = "index.html";
 
     return { user };
@@ -47,7 +54,9 @@ window.signup = async function (email, password, nickname) {
   }
 };
 
+// ----------------------------------------------------
 // LOGIN
+// ----------------------------------------------------
 window.login = async function (email, password) {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -59,6 +68,7 @@ window.login = async function (email, password) {
 
     const user = data.user;
 
+    // Load profile
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("*")
@@ -67,6 +77,7 @@ window.login = async function (email, password) {
 
     if (profileError) return { error: profileError.message };
 
+    // Store session + profile
     localStorage.setItem("sessionToken", data.session.access_token);
     localStorage.setItem("nickname", profile.nickname);
     localStorage.setItem("scalpel_points", profile.scalpel_points);
@@ -82,14 +93,15 @@ window.login = async function (email, password) {
   }
 };
 
-// FORGOTTEN EMAIL (placeholder until Brevo exists)
+// ----------------------------------------------------
+// RECOVER EMAIL (nickname → email lookup)
+// ----------------------------------------------------
 window.recoverEmail = async function (nickname) {
   try {
     if (!nickname) {
       return { error: "Please enter your nickname." };
     }
 
-    // Look up user by nickname
     const { data, error } = await supabase
       .from("profiles")
       .select("email")
@@ -100,9 +112,10 @@ window.recoverEmail = async function (nickname) {
       return { error: "No user found with that nickname." };
     }
 
-    // Placeholder until Brevo account exists
     return {
-      message: "Recovery email service is not active yet. Your email would be sent to: " + data.email
+      message:
+        "Recovery email service is not active yet. Your email would be sent to: " +
+        data.email
     };
 
   } catch (err) {
@@ -110,13 +123,17 @@ window.recoverEmail = async function (nickname) {
   }
 };
 
+// ----------------------------------------------------
 // GET CURRENT USER
+// ----------------------------------------------------
 window.getCurrentUser = async function () {
   const { data: { user } } = await supabase.auth.getUser();
   return user || null;
 };
 
+// ----------------------------------------------------
 // AUTH STATE LISTENER
+// ----------------------------------------------------
 window.onAuthStateChange = function (callback) {
   return supabase.auth.onAuthStateChange((_event, session) => {
     callback(session);
