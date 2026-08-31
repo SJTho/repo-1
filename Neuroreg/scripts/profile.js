@@ -34,10 +34,26 @@ async function loadProfile() {
         return;
     }
 
+    // --- Rank lookup ---
+    const points = profile.scalpel_points ?? 0;
+
+    const { data: rankRow, error: rankError } = await supabase
+        .from("rank")
+        .select("rank")
+        .lte("minimum_score", points)
+        .gte("maximum_score", points)
+        .single();
+
+    let rankText = "Unranked";
+    if (!rankError && rankRow) {
+        rankText = rankRow.rank;
+    }
+
+    // --- Populate UI ---
     document.getElementById("nicknameDisplay").innerText = profile.nickname ?? "N/A";
     document.getElementById("emailDisplay").innerText = authUser.user.email ?? "N/A";
-    document.getElementById("pointsDisplay").innerText = profile.scalpel_points ?? "0";
-    document.getElementById("rankDisplay").innerText = profile.rank ?? "Unranked";
+    document.getElementById("pointsDisplay").innerText = points;
+    document.getElementById("rankDisplay").innerText = rankText;
     document.getElementById("passwordDisplay").innerText = "********";
 }
 
