@@ -159,7 +159,10 @@ async function loadRankPage() {
         }
     );
 
-    if (error) return;
+    if (error) {
+        console.error("League load error:", error);
+        return;
+    }
 
     const container = document.getElementById("rankList");
     container.innerHTML = "";
