@@ -1,22 +1,53 @@
-import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ----------------------------------------------------
-   Hamburger Menu (same as profile.html)
+   Helper: Get Rank From Points
+---------------------------------------------------- */
+async function getRankFromPoints(points) {
+    const { data: rankRow, error } = await supabase
+        .from("rank")
+        .select("rank")
+        .lte("minimum_score", points)
+        .gte("maximum_score", points)
+        .single();
+
+    if (error || !rankRow) return "Unranked";
+    return rankRow.rank;
+}
+
+/* ----------------------------------------------------
+   Helper: Get User Profile
+---------------------------------------------------- */
+async function getUserProfile() {
+    const userId = localStorage.getItem("userId");
+
+    const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+    if (error || !profile) return null;
+    return profile;
+}
+
+/* ----------------------------------------------------
+   Hamburger Menu
 ---------------------------------------------------- */
 async function loadHamburgerMenu() {
     const dropdown = document.getElementById("hamburgerMenuDropdown");
     const isAdmin = localStorage.getItem("isAdmin") === "true";
     const currentPage = window.location.pathname.split("/").pop();
 
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from("menuitems")
         .select("*")
         .eq("hamburger", true)
-        .order("hamburgersection", {ascending: true})
-        .order("hamburgerorder", {ascending: true});
+        .order("hamburgersection", { ascending: true })
+        .order("hamburgerorder", { ascending: true });
 
     if (error) {
         dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
@@ -53,18 +84,18 @@ async function loadHamburgerMenu() {
 }
 
 /* ----------------------------------------------------
-   Top-Right Icons (same as profile.html)
+   Top-Right Icons
 ---------------------------------------------------- */
 async function loadTopRightIcons() {
     const container = document.getElementById("topRightIcons");
     const isAdmin = localStorage.getItem("isAdmin") === "true";
     const currentPage = window.location.pathname.split("/").pop();
 
-    const {data, error} = await supabase
+    const { data, error } = await supabase
         .from("menuitems")
         .select("*")
         .eq("topright", true)
-        .order("toprightorder", {ascending: true});
+        .order("toprightorder", { ascending: true });
 
     if (error) return;
 
@@ -88,7 +119,7 @@ async function loadTopRightIcons() {
 }
 
 /* ----------------------------------------------------
-   Rank Page (LOCALSTORAGE)
+   Rank Page (League mode)
 ---------------------------------------------------- */
 async function loadRankPage() {
     const token = localStorage.getItem("sessionToken");
@@ -97,10 +128,20 @@ async function loadRankPage() {
         return;
     }
 
-    const userRank = localStorage.getItem("rank") ?? "Unranked";
+    // Load user profile
+    const profile = await getUserProfile();
+    if (!profile) return;
+
+    const points = profile.scalpel_points ?? 0;
+
+    // Calculate rank dynamically
+    const userRank = await getRankFromPoints(points);
+
+    // Update heading
     document.getElementById("rankHeading").innerText = userRank;
 
-    const {data: rankRows} = await supabase
+    // Get rank range
+    const { data: rankRows } = await supabase
         .from("rank")
         .select("minimum_score, maximum_score")
         .eq("rank", userRank)
@@ -109,7 +150,8 @@ async function loadRankPage() {
     const rankData = rankRows?.[0];
     if (!rankData) return;
 
-    const {data: users, error} = await supabase.rpc(
+    // Get users in this rank range
+    const { data: users, error } = await supabase.rpc(
         "get_users_in_rank_range",
         {
             min_score: rankData.minimum_score,
@@ -138,18 +180,18 @@ async function loadRankPage() {
    Friends Logic
 ---------------------------------------------------- */
 async function loadFriends() {
-    const userId = parseInt(localStorage.getItem("userId"));
+    const userId = localStorage.getItem("userId");
 
-    const {data: friends} = await supabase.rpc(
+    const { data: friends } = await supabase.rpc(
         "get_friends_secure",
-        {uid: userId}
+        { uid: userId }
     );
 
     return friends ?? [];
 }
 
 window.addFriend = async function () {
-    const userId = parseInt(localStorage.getItem("userId"));
+    const userId = localStorage.getItem("userId");
     const nickname = document.getElementById("friendInput").value.trim();
 
     if (!nickname) {
@@ -157,9 +199,9 @@ window.addFriend = async function () {
         return;
     }
 
-    const {data: users} = await supabase.rpc(
+    const { data: users } = await supabase.rpc(
         "get_user_by_nickname",
-        {nick: nickname}
+        { nick: nickname }
     );
 
     if (!users || users.length === 0) {
@@ -191,7 +233,7 @@ window.addFriend = async function () {
 };
 
 window.deleteFriend = async function (friendId) {
-    const userId = parseInt(localStorage.getItem("userId"));
+    const userId = localStorage.getItem("userId");
 
     await supabase.rpc("delete_friend_secure", {
         uid: userId,
@@ -212,20 +254,29 @@ async function renderFriendsList() {
         return;
     }
 
-    friends.forEach((f, index) => {
+    for (let i = 0; i < friends.length; i++) {
+        const f = friends[i];
+
+        // Calculate each friend's rank dynamically
+        const friendRank = await getRankFromPoints(f.scalpel_points);
+
         const row = document.createElement("div");
-       row.className = "rankRow friendsRow";
+        row.className = "rankRow friendsRow";
         row.innerHTML = `
-            <div class="rankPosition">${index + 1}</div>
+            <div class="rankPosition">${i + 1}</div>
             <div class="rankNickname">${f.nickname}</div>
             <div class="rankPoints">${f.scalpel_points}</div>
-            <button class="deleteFriendBtn" onclick="deleteFriend(${f.id})">Delete</button>
+            <div class="rankText">${friendRank}</div>
+            <button class="deleteFriendBtn" onclick="deleteFriend('${f.id}')">Delete</button>
         `;
         container.appendChild(row);
-    });
+    }
 }
 
-window.toggleFriendMode = function () {
+/* ----------------------------------------------------
+   Toggle League / Friends
+---------------------------------------------------- */
+window.toggleFriendMode = async function () {
     const toggle = document.getElementById("friendToggle");
     const leagueLabel = document.getElementById("leagueLabel");
     const friendsLabel = document.getElementById("friendsLabel");
@@ -244,7 +295,11 @@ window.toggleFriendMode = function () {
         leagueLabel.classList.remove("hidden");
         friendsLabel.classList.add("hidden");
 
-        heading.innerText = localStorage.getItem("rank");
+        // Recalculate rank for heading
+        const profile = await getUserProfile();
+        const userRank = await getRankFromPoints(profile.scalpel_points);
+
+        heading.innerText = userRank;
 
         loadRankPage();
     }
