@@ -19,7 +19,7 @@
 /* Profile rows */
 .profileRow {
     margin-bottom: 24px;
-    font-size: 18px;
+    font-size: 14px;
     color: #000;
     display: flex;
     flex-direction: column;
@@ -78,7 +78,7 @@
 
 /* Input fields */
 input.editField {
-    font-size: 18px;
+    font-size: 14px;
     padding: 10px 12px;
     width: 100%;
     box-sizing: border-box;
