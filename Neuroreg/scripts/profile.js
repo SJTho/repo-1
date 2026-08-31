@@ -18,22 +18,26 @@ async function loadProfile() {
         return;
     }
 
-    const { data: profile, error } = await supabase
-        .from("profiles")
+    // Load nickname + points + rank from public.users
+    const { data: userRow, error: userError } = await supabase
+        .from("users")
         .select("*")
         .eq("id", userId)
         .single();
 
-    if (error || !profile) {
-        console.error("Profile load error:", error);
+    // Load email from auth.users
+    const { data: authUser, error: authError } = await supabase.auth.getUser();
+
+    if (userError || authError || !userRow || !authUser?.user) {
+        console.error("Profile load error:", userError || authError);
         document.getElementById("error-message").innerText = "Failed to load profile.";
         return;
     }
 
-    document.getElementById("nicknameDisplay").innerText = profile.nickname ?? "N/A";
-    document.getElementById("emailDisplay").innerText = profile.email ?? "N/A";
-    document.getElementById("pointsDisplay").innerText = profile.scalpel_points ?? "0";
-    document.getElementById("rankDisplay").innerText = profile.rank ?? "Unranked";
+    document.getElementById("nicknameDisplay").innerText = userRow.nickname ?? "N/A";
+    document.getElementById("emailDisplay").innerText = authUser.user.email ?? "N/A";
+    document.getElementById("pointsDisplay").innerText = userRow.scalpel_points ?? "0";
+    document.getElementById("rankDisplay").innerText = userRow.rank ?? "Unranked";
     document.getElementById("passwordDisplay").innerText = "********";
 }
 
@@ -55,6 +59,9 @@ function enableEdit(displayId, inputId, editBtnId, saveBtnId) {
     return input;
 }
 
+// ----------------------------------------------------
+// Save Logic (FIXED)
+// ----------------------------------------------------
 async function saveField(inputEl, displayId, supabaseColumn) {
     const newValue = inputEl.value.trim();
     const span = document.getElementById(displayId);
@@ -65,21 +72,32 @@ async function saveField(inputEl, displayId, supabaseColumn) {
         return;
     }
 
-    let rpcName;
-    let rpcArgs;
+    let error = null;
 
+    // Update nickname in public.users
     if (supabaseColumn === "nickname") {
-        rpcName = "update_nickname";
-        rpcArgs = { user_id: userId, new_nickname: newValue };
-    } else if (supabaseColumn === "password_hash") {
-        rpcName = "update_password";
-        rpcArgs = { user_id: userId, new_password: newValue };
-    } else if (supabaseColumn === "email") {
-        rpcName = "update_email";
-        rpcArgs = { user_id: userId, new_email: newValue };
+        const { error: rpcError } = await supabase.rpc("update_nickname", {
+            user_id: userId,
+            new_nickname: newValue
+        });
+        error = rpcError;
     }
 
-    const { error } = await supabase.rpc(rpcName, rpcArgs);
+    // Update email in auth.users
+    if (supabaseColumn === "email") {
+        const { error: authErr } = await supabase.auth.updateUser({
+            email: newValue
+        });
+        error = authErr;
+    }
+
+    // Update password in auth.users
+    if (supabaseColumn === "password_hash") {
+        const { error: passErr } = await supabase.auth.updateUser({
+            password: newValue
+        });
+        error = passErr;
+    }
 
     if (error) {
         console.error(error);
@@ -212,7 +230,7 @@ async function loadTopRightIcons() {
 }
 
 // ----------------------------------------------------
-// Hamburger Click Handler (works with .dropdownMenu CSS)
+// Hamburger Click Handler
 // ----------------------------------------------------
 function attachHamburgerHandler() {
     const icon = document.getElementById("hamburgerMenu");
