@@ -18,9 +18,9 @@ async function loadProfile() {
         return;
     }
 
-    // Load nickname + points + rank from public.users
-    const { data: userRow, error: userError } = await supabase
-        .from("users")
+    // Load profile row from public.profiles
+    const { data: profile, error: profileError } = await supabase
+        .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
@@ -28,16 +28,16 @@ async function loadProfile() {
     // Load email from auth.users
     const { data: authUser, error: authError } = await supabase.auth.getUser();
 
-    if (userError || authError || !userRow || !authUser?.user) {
-        console.error("Profile load error:", userError || authError);
+    if (profileError || authError || !profile || !authUser?.user) {
+        console.error("Profile load error:", profileError || authError);
         document.getElementById("error-message").innerText = "Failed to load profile.";
         return;
     }
 
-    document.getElementById("nicknameDisplay").innerText = userRow.nickname ?? "N/A";
+    document.getElementById("nicknameDisplay").innerText = profile.nickname ?? "N/A";
     document.getElementById("emailDisplay").innerText = authUser.user.email ?? "N/A";
-    document.getElementById("pointsDisplay").innerText = userRow.scalpel_points ?? "0";
-    document.getElementById("rankDisplay").innerText = userRow.rank ?? "Unranked";
+    document.getElementById("pointsDisplay").innerText = profile.scalpel_points ?? "0";
+    document.getElementById("rankDisplay").innerText = profile.rank ?? "Unranked";
     document.getElementById("passwordDisplay").innerText = "********";
 }
 
@@ -60,7 +60,7 @@ function enableEdit(displayId, inputId, editBtnId, saveBtnId) {
 }
 
 // ----------------------------------------------------
-// Save Logic (FIXED)
+// Save Logic (Corrected for public.profiles + Auth)
 // ----------------------------------------------------
 async function saveField(inputEl, displayId, supabaseColumn) {
     const newValue = inputEl.value.trim();
@@ -74,7 +74,7 @@ async function saveField(inputEl, displayId, supabaseColumn) {
 
     let error = null;
 
-    // Update nickname in public.users
+    // Update nickname in public.profiles
     if (supabaseColumn === "nickname") {
         const { error: rpcError } = await supabase.rpc("update_nickname", {
             user_id: userId,
