@@ -15,10 +15,37 @@ document.addEventListener("click", (event) => {
 });
 
 // ------------------------------
-// Drag & Drop System
-// Each dragged item moves to the front
+// CATEGORY BUTTON LOGIC
 // ------------------------------
+const categoryButtons = document.querySelectorAll(".categoryBtn");
 
+categoryButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+        showCategory(btn.textContent.trim());
+    });
+});
+
+function showCategory(category) {
+    // Hide all items
+    document.querySelectorAll(".equipmentItem").forEach(item => {
+        item.style.display = "none";
+    });
+
+    // Show only items in the selected category
+    let selector = "";
+    if (category === "Room") selector = ".roomItem";
+    if (category === "Anaesthetic") selector = ".anaestheticItem";
+    if (category === "Surgical") selector = ".surgicalItem";
+    if (category === "Staff") selector = ".staffItem";
+
+    document.querySelectorAll(selector).forEach(item => {
+        item.style.display = "block";
+    });
+}
+
+// ------------------------------
+// Drag & Drop System
+// ------------------------------
 function makeDraggable(el) {
     let offsetX = 0;
     let offsetY = 0;
