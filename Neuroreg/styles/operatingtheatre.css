@@ -41,6 +41,7 @@
 .categoryBtn {
   width: 120px;
   height: 120px;
+  /* ensures perfect square */
   background: #14233d;
   color: white;
   border: none;
@@ -56,4 +57,3 @@
 
 .categoryBtn:hover {
   background: #1f355c;
-}
