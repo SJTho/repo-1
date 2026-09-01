@@ -15,32 +15,50 @@ document.addEventListener("click", (event) => {
 });
 
 // ------------------------------
-// CATEGORY BUTTON LOGIC
+// CATEGORY SYSTEM
 // ------------------------------
-const categoryButtons = document.querySelectorAll(".categoryBtn");
 
-categoryButtons.forEach(btn => {
+// Ordered lists of items per category
+const categoryMap = {
+    Room: Array.from(document.querySelectorAll(".roomItem")),
+    Anaesthetic: Array.from(document.querySelectorAll(".anaestheticItem")),
+    Surgical: Array.from(document.querySelectorAll(".surgicalItem")),
+    Staff: Array.from(document.querySelectorAll(".staffItem"))
+};
+
+// Track how many items have been revealed per category
+const revealIndex = {
+    Room: 0,
+    Anaesthetic: 0,
+    Surgical: 0,
+    Staff: 0
+};
+
+// Handle category button clicks
+document.querySelectorAll(".categoryBtn").forEach(btn => {
     btn.addEventListener("click", () => {
-        showCategory(btn.textContent.trim());
+        const category = btn.textContent.trim();
+        revealNextItem(category);
     });
 });
 
-function showCategory(category) {
-    // Hide all items
-    document.querySelectorAll(".equipmentItem").forEach(item => {
-        item.style.display = "none";
-    });
+// Reveal ONE new item from the category
+function revealNextItem(category) {
+    const items = categoryMap[category];
+    const index = revealIndex[category];
 
-    // Show only items in the selected category
-    let selector = "";
-    if (category === "Room") selector = ".roomItem";
-    if (category === "Anaesthetic") selector = ".anaestheticItem";
-    if (category === "Surgical") selector = ".surgicalItem";
-    if (category === "Staff") selector = ".staffItem";
+    // If all items already revealed, do nothing
+    if (index >= items.length) return;
 
-    document.querySelectorAll(selector).forEach(item => {
-        item.style.display = "block";
-    });
+    // Reveal the next item
+    const item = items[index];
+    item.style.display = "block";
+
+    // Prepare it for dragging
+    makeDraggable(item);
+
+    // Move to next item for future clicks
+    revealIndex[category]++;
 }
 
 // ------------------------------
@@ -86,8 +104,10 @@ function getNextZIndex() {
 }
 
 // ------------------------------
-// Initialise draggable items
+// Initialise (items start hidden)
 // ------------------------------
 window.onload = () => {
-    document.querySelectorAll(".equipmentItem").forEach(makeDraggable);
+    document.querySelectorAll(".equipmentItem").forEach(item => {
+        item.style.display = "none"; // start hidden
+    });
 };
