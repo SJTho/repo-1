@@ -24,6 +24,17 @@
   -webkit-user-drag: none;
 }
 
+/* Hide all equipment by default */
+.equipmentItem {
+  display: none;
+  position: absolute;
+  width: 360px;
+  /* 300% bigger */
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 /* Operating table should always be in front */
 .operatingTable {
   z-index: 99999;
