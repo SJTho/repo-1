@@ -5,17 +5,21 @@
   margin-bottom: 20px;
 }
 
-/* Background theatre image */
+/* Background theatre image — now 50% smaller */
 #theatreBackground {
-  width: 100%;
+  width: 50%;
   border-radius: 10px;
   margin-top: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* Draggable equipment items */
+/* Draggable equipment items — now 300% bigger */
 .equipmentItem {
   position: absolute;
-  width: 120px;
+  width: 360px;
+  /* 120px × 3 = 360px */
   cursor: grab;
   user-select: none;
   -webkit-user-drag: none;
