@@ -35,3 +35,8 @@
   border: none;
   cursor: pointer;
 }
+
+/* Operating table should always be in front */
+.operatingTable {
+  z-index: 99999;
+}
