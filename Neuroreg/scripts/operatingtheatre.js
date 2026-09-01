@@ -1,4 +1,6 @@
+// ------------------------------
 // Hamburger Menu
+// ------------------------------
 const hamburger = document.getElementById("hamburgerMenu");
 const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -12,7 +14,11 @@ document.addEventListener("click", (event) => {
     }
 });
 
-// Drag and Drop
+// ------------------------------
+// Drag & Drop System
+// Each dragged item moves to the front
+// ------------------------------
+
 function makeDraggable(el) {
     let offsetX = 0;
     let offsetY = 0;
@@ -20,9 +26,12 @@ function makeDraggable(el) {
 
     el.addEventListener("mousedown", (e) => {
         isDragging = true;
+
+        // Bring this item to the front
+        el.style.zIndex = getNextZIndex();
+
         offsetX = e.clientX - el.getBoundingClientRect().left;
         offsetY = e.clientY - el.getBoundingClientRect().top;
-        el.style.zIndex = 9999;
     });
 
     document.addEventListener("mousemove", (e) => {
@@ -36,6 +45,22 @@ function makeDraggable(el) {
     });
 }
 
+// Helper: always return a higher z-index than any existing item
+function getNextZIndex() {
+    const items = document.querySelectorAll(".equipmentItem");
+    let maxZ = 0;
+
+    items.forEach(item => {
+        const z = parseInt(window.getComputedStyle(item).zIndex) || 0;
+        if (z > maxZ) maxZ = z;
+    });
+
+    return maxZ + 1;
+}
+
+// ------------------------------
+// Initialise draggable items
+// ------------------------------
 window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(makeDraggable);
 };
