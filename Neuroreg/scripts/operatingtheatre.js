@@ -54,11 +54,33 @@ function revealNextItem(category) {
     const item = items[index];
     item.style.display = "block";
 
+    // Position it in the centre of the background image
+    centerItemOnBackground(item);
+
     // Prepare it for dragging
     makeDraggable(item);
 
     // Move to next item for future clicks
     revealIndex[category]++;
+}
+
+// ------------------------------
+// Position new items in the centre of the background
+// ------------------------------
+function centerItemOnBackground(item) {
+    const bg = document.getElementById("theatreBackground");
+    const bgRect = bg.getBoundingClientRect();
+
+    const itemWidth = item.offsetWidth;
+    const itemHeight = item.offsetHeight;
+
+    // Calculate centre position
+    const left = bgRect.left + (bgRect.width / 2) - (itemWidth / 2);
+    const top = bgRect.top + (bgRect.height / 2) - (itemHeight / 2);
+
+    // Apply position
+    item.style.left = `${left}px`;
+    item.style.top = `${top}px`;
 }
 
 // ------------------------------
