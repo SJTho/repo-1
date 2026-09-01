@@ -5,7 +5,7 @@
   margin-bottom: 20px;
 }
 
-/* Background theatre image — now 50% smaller */
+/* Background theatre image */
 #theatreBackground {
   width: 50%;
   border-radius: 10px;
@@ -15,11 +15,10 @@
   margin-right: auto;
 }
 
-/* Draggable equipment items — now 300% bigger */
+/* Draggable equipment items */
 .equipmentItem {
   position: absolute;
-  width: 360px;
-  /* 120px × 3 = 360px */
+  width: 240px;
   cursor: grab;
   user-select: none;
   -webkit-user-drag: none;
@@ -29,7 +28,7 @@
 .closeBtn {
   background: #14233d;
   color: white;
-  width: 100%;
+  width: 30%;
   margin-top: 20px;
   padding: 10px;
   border-radius: 6px;
