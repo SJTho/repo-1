@@ -15,21 +15,11 @@
   margin-right: auto;
 }
 
-/* Draggable equipment items */
-.equipmentItem {
-  position: absolute;
-  width: 240px;
-  cursor: grab;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
 /* Hide all equipment by default */
 .equipmentItem {
   display: none;
   position: absolute;
-  width: 360px;
-  /* 300% bigger */
+  width: 240px;
   cursor: grab;
   user-select: none;
   -webkit-user-drag: none;
