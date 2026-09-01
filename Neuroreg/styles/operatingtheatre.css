@@ -24,19 +24,36 @@
   -webkit-user-drag: none;
 }
 
-/* Back button */
-.closeBtn {
-  background: #14233d;
-  color: white;
-  width: 30%;
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-}
-
 /* Operating table should always be in front */
 .operatingTable {
   z-index: 99999;
+}
+
+/* Category button container */
+#categoryButtons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+/* Square category buttons */
+.categoryBtn {
+  width: 120px;
+  height: 120px;
+  background: #14233d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.categoryBtn:hover {
+  background: #1f355c;
 }
