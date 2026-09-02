@@ -48,6 +48,9 @@ function revealNextItem(category) {
     const item = items[index];
     item.style.display = "block";
 
+    // ⭐ Force browser to calculate width/height before centering
+    item.getBoundingClientRect();
+
     centerItemOnBackground(item);
     makeDraggable(item);
 
@@ -167,6 +170,7 @@ function makeDraggable(el) {
 
     // Resize
     el.addEventListener("wheel", (e) => {
+        if (isDragging) return; // prevent resize during drag
         e.preventDefault();
 
         if (Math.abs(e.deltaY) < 5) return;
@@ -208,3 +212,4 @@ window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
         item.style.display = "none";
     });
+};
