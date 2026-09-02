@@ -62,14 +62,14 @@ function revealNextItem(category) {
 // Position new items in the centre of the background
 // ------------------------------
 function centerItemOnBackground(item) {
-    const bg = document.getElementById("theatreBackground");
-    const bgRect = bg.getBoundingClientRect();
+    const wrapper = document.getElementById("theatreWrapper");
+    const wrapperRect = wrapper.getBoundingClientRect();
 
     const itemWidth = item.offsetWidth;
     const itemHeight = item.offsetHeight;
 
-    const left = bgRect.left + (bgRect.width / 2) - (itemWidth / 2);
-    const top = bgRect.top + (bgRect.height / 2) - (itemHeight / 2);
+    const left = (wrapperRect.width / 2) - (itemWidth / 2);
+    const top = (wrapperRect.height / 2) - (itemHeight / 2);
 
     item.style.left = `${left}px`;
     item.style.top = `${top}px`;
@@ -88,34 +88,84 @@ function makeDraggable(el) {
         isDragging = true;
         el.style.zIndex = getNextZIndex();
 
-        offsetX = e.clientX - el.getBoundingClientRect().left;
-        offsetY = e.clientY - el.getBoundingClientRect().top;
+        const rect = el.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
     });
 
     document.addEventListener("mousemove", (e) => {
         if (!isDragging) return;
-        el.style.left = (e.clientX - offsetX) + "px";
-        el.style.top = (e.clientY - offsetY) + "px";
+
+        const parentRect = el.parentElement.getBoundingClientRect();
+        const newLeft = e.clientX - offsetX - parentRect.left;
+        const newTop = e.clientY - offsetY - parentRect.top;
+
+        el.style.left = newLeft + "px";
+        el.style.top = newTop + "px";
     });
 
     document.addEventListener("mouseup", () => {
+        if (!isDragging) return;
         isDragging = false;
+
+        const store = document.getElementById("storeroom");
+        const theatreWrapper = document.getElementById("theatreWrapper");
+
+        const storeRect = store.getBoundingClientRect();
+        const theatreRect = theatreWrapper.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+
+        // If dropped fully inside storeroom, move it there
+        if (
+            elRect.left >= storeRect.left &&
+            elRect.right <= storeRect.right &&
+            elRect.top >= storeRect.top &&
+            elRect.bottom <= storeRect.bottom
+        ) {
+            // Reparent to storeroom
+            store.appendChild(el);
+
+            const newParentRect = store.getBoundingClientRect();
+            const left = elRect.left - newParentRect.left;
+            const top = elRect.top - newParentRect.top;
+
+            el.style.left = left + "px";
+            el.style.top = top + "px";
+            el.style.zIndex = 1;
+        }
+        // If dropped inside theatre, ensure it's parented to equipmentContainer
+        else if (
+            elRect.left >= theatreRect.left &&
+            elRect.right <= theatreRect.right &&
+            elRect.top >= theatreRect.top &&
+            elRect.bottom <= theatreRect.bottom
+        ) {
+            const equipmentContainer = document.getElementById("equipmentContainer");
+            equipmentContainer.appendChild(el);
+
+            const newParentRect = equipmentContainer.getBoundingClientRect();
+            const left = elRect.left - newParentRect.left;
+            const top = elRect.top - newParentRect.top;
+
+            el.style.left = left + "px";
+            el.style.top = top + "px";
+        }
+        // Otherwise, leave it where it is (but clipped by whichever container it's in)
     });
 
-// --- Resize with mouse wheel (gentle) ---
-el.addEventListener("wheel", (e) => {
-    e.preventDefault();
+    // --- Resize with mouse wheel (smooth) ---
+    el.addEventListener("wheel", (e) => {
+        e.preventDefault();
 
-    const currentWidth = el.offsetWidth;
+        // Ignore tiny accidental scrolls
+        if (Math.abs(e.deltaY) < 5) return;
 
-    // Much smaller change per wheel tick
-    const delta = e.deltaY < 0 ? 1.01 : 0.99;
+        const currentWidth = el.offsetWidth;
+        const delta = e.deltaY < 0 ? 1.01 : 0.99;
+        const newWidth = Math.max(80, Math.min(600, currentWidth * delta));
 
-    // Clamp size
-    const newWidth = Math.max(80, Math.min(600, currentWidth * delta));
-
-    el.style.width = newWidth + "px";
-});
+        el.style.width = newWidth + "px";
+    });
 
     // --- Flip left/right on double-click ---
     el.addEventListener("dblclick", () => {
@@ -149,4 +199,3 @@ window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
         item.style.display = "none";
     });
-};
