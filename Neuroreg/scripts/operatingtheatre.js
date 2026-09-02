@@ -102,16 +102,20 @@ function makeDraggable(el) {
         isDragging = false;
     });
 
-    // --- Resize with mouse wheel ---
-    el.addEventListener("wheel", (e) => {
-        e.preventDefault();
+// --- Resize with mouse wheel (gentle) ---
+el.addEventListener("wheel", (e) => {
+    e.preventDefault();
 
-        const currentWidth = el.offsetWidth;
-        const delta = e.deltaY < 0 ? 1.1 : 0.9;
-        const newWidth = Math.max(80, Math.min(600, currentWidth * delta));
+    const currentWidth = el.offsetWidth;
 
-        el.style.width = newWidth + "px";
-    });
+    // Much smaller change per wheel tick
+    const delta = e.deltaY < 0 ? 1.03 : 0.97;
+
+    // Clamp size
+    const newWidth = Math.max(80, Math.min(600, currentWidth * delta));
+
+    el.style.width = newWidth + "px";
+});
 
     // --- Flip left/right on double-click ---
     el.addEventListener("dblclick", () => {
