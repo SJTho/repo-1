@@ -47,16 +47,13 @@ function revealNextItem(category) {
 
     const item = items[index];
 
-    // Always spawn inside theatre
     const equipmentContainer = document.getElementById("equipmentContainer");
     equipmentContainer.appendChild(item);
 
     item.style.display = "block";
 
-    // Force layout
     item.getBoundingClientRect();
 
-    // Initialise scale + flip state
     item.dataset.scale = "1";
     item.dataset.flipped = "false";
 
@@ -94,10 +91,8 @@ function makeDraggable(el) {
     let startX = 0;
     let startY = 0;
 
-    // Drag start (but not yet dragging)
     el.addEventListener("mousedown", (e) => {
 
-        // If item is currently stored (hidden), restore it
         if (el.style.display === "none") {
             el.style.display = "block";
             removeItemFromStoreRoom(el);
@@ -110,19 +105,17 @@ function makeDraggable(el) {
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
 
-        dragStarted = true;   // waiting to see if user actually drags
+        dragStarted = true;
     });
 
-    // Drag move
     document.addEventListener("mousemove", (e) => {
         if (!dragStarted) return;
 
-        // Only start dragging if movement is significant
         if (!isDragging) {
             const dx = Math.abs(e.clientX - startX);
             const dy = Math.abs(e.clientY - startY);
 
-            if (dx < 3 && dy < 3) return; // treat as click, not drag
+            if (dx < 3 && dy < 3) return;
             isDragging = true;
             el.style.zIndex = getNextZIndex();
         }
@@ -134,9 +127,6 @@ function makeDraggable(el) {
         el.style.left = newLeft + "px";
         el.style.top = newTop + "px";
 
-        // ------------------------------
-        // Store Room Hover Detection
-        // ------------------------------
         const storeRoom = document.getElementById("storeroom");
         const storeRect = storeRoom.getBoundingClientRect();
         const elRect = el.getBoundingClientRect();
@@ -154,7 +144,6 @@ function makeDraggable(el) {
         }
     });
 
-    // Drag end
     document.addEventListener("mouseup", () => {
         if (dragStarted) {
             const storeRoom = document.getElementById("storeroom");
@@ -178,20 +167,18 @@ function makeDraggable(el) {
         isDragging = false;
     });
 
-    // ⭐ Flip (now works because dragging no longer triggers)
     el.addEventListener("dblclick", () => {
         const flipped = el.dataset.flipped === "true";
         el.dataset.flipped = flipped ? "false" : "true";
         applyTransform(el);
     });
 
-    // ⭐ Slow zoom (scale transform)
     el.addEventListener("wheel", (e) => {
         if (isDragging) return;
         e.preventDefault();
 
         let scale = parseFloat(el.dataset.scale || "1");
-        const delta = e.deltaY < 0 ? 1.01 : 0.99; // your slow zoom
+        const delta = e.deltaY < 0 ? 1.01 : 0.99;
 
         scale = Math.max(0.3, Math.min(3, scale * delta));
         el.dataset.scale = scale;
@@ -200,7 +187,6 @@ function makeDraggable(el) {
     });
 }
 
-// ⭐ Combine flip + scale every time
 function applyTransform(el) {
     const scale = parseFloat(el.dataset.scale || "1");
     const flipped = el.dataset.flipped === "true";
@@ -209,7 +195,6 @@ function applyTransform(el) {
     el.style.transform = `${flipPart} scale(${scale})`;
 }
 
-// Z-index helper
 function getNextZIndex() {
     const items = document.querySelectorAll(".equipmentItem");
     let maxZ = 0;
@@ -229,17 +214,16 @@ function getNextZIndex() {
 function moveItemToStoreRoom(el) {
     const storeRoom = document.getElementById("storeroom");
 
-    // Create tiny thumbnail
     const thumb = document.createElement("img");
     thumb.src = el.src;
     thumb.classList.add("storeThumb");
 
     storeRoom.appendChild(thumb);
 
-    // Hide the main draggable item
     el.style.display = "none";
 
     updateStoreRoomEmoji();
+    scaleRoomContents();
 }
 
 function removeItemFromStoreRoom(el) {
@@ -251,6 +235,7 @@ function removeItemFromStoreRoom(el) {
     });
 
     updateStoreRoomEmoji();
+    scaleRoomContents();
 }
 
 function updateStoreRoomEmoji() {
@@ -261,9 +246,32 @@ function updateStoreRoomEmoji() {
     emoji.style.display = thumbs.length === 0 ? "block" : "none";
 }
 
+// ------------------------------
+// ⭐ NEW: Scale room contents
+// ------------------------------
+function scaleRoomContents() {
+    const rooms = document.querySelectorAll(".roomPanel");
+
+    rooms.forEach(room => {
+        const emoji = room.querySelector(".roomEmoji");
+        const title = room.querySelector("h3");
+        const thumbs = room.querySelectorAll(".storeThumb");
+
+        title.style.fontSize = "14px";
+        emoji.style.fontSize = "32px";
+
+        thumbs.forEach(t => {
+            t.style.width = "30px";
+            t.style.margin = "2px";
+        });
+    });
+}
+
 // Initialise
 window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
         item.style.display = "none";
     });
+
+    scaleRoomContents();
 };
