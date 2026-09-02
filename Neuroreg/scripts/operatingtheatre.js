@@ -109,7 +109,7 @@ el.addEventListener("wheel", (e) => {
     const currentWidth = el.offsetWidth;
 
     // Much smaller change per wheel tick
-    const delta = e.deltaY < 0 ? 1.03 : 0.97;
+    const delta = e.deltaY < 0 ? 1.01 : 0.99;
 
     // Clamp size
     const newWidth = Math.max(80, Math.min(600, currentWidth * delta));
