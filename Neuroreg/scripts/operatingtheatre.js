@@ -179,10 +179,15 @@ function makeDraggable(el) {
         }
     });
 
-    // ⭐ Flip via class
-    el.addEventListener("dblclick", () => {
-        el.classList.toggle("flipped");
-    });
+el.addEventListener("click", (e) => {
+    // detail === 2 means it's the second click of a double-click
+    if (e.detail === 2) {
+        const flipped = el.dataset.flipped === "true";
+        el.dataset.flipped = flipped ? "false" : "true";
+
+        applyTransform(el);
+    }
+});
 
     // ⭐ Resize using transform scale (never overwrites flip)
     el.addEventListener("wheel", (e) => {
@@ -190,7 +195,7 @@ function makeDraggable(el) {
         e.preventDefault();
 
         let scale = parseFloat(el.dataset.scale || "1");
-        const delta = e.deltaY < 0 ? 1.05 : 0.95;
+        const delta = e.deltaY < 0 ? 1.01 : 0.99;
 
         scale = Math.max(0.3, Math.min(3, scale * delta));
         el.dataset.scale = scale;
