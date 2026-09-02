@@ -47,17 +47,18 @@ function revealNextItem(category) {
 
     const item = items[index];
 
-    // ⭐ ALWAYS place new items inside the theatre
+    // Always spawn inside theatre
     const equipmentContainer = document.getElementById("equipmentContainer");
     equipmentContainer.appendChild(item);
 
     item.style.display = "block";
 
-    // Force layout so width/height are valid
+    // Force layout
     item.getBoundingClientRect();
 
-    // Initialise scale
+    // Initialise scale + flip state
     item.dataset.scale = "1";
+    item.dataset.flipped = "false";
 
     centerItemOnBackground(item);
     makeDraggable(item);
@@ -89,23 +90,35 @@ function makeDraggable(el) {
     let offsetX = 0;
     let offsetY = 0;
     let isDragging = false;
+    let dragStarted = false;
+    let startX = 0;
+    let startY = 0;
 
-    // Flip state
-    el.dataset.flipped = "false";
-
-    // Drag start
+    // Drag start (but not yet dragging)
     el.addEventListener("mousedown", (e) => {
-        isDragging = true;
-        el.style.zIndex = getNextZIndex();
+        startX = e.clientX;
+        startY = e.clientY;
 
         const rect = el.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
+
+        dragStarted = true;   // waiting to see if user actually drags
     });
 
     // Drag move
     document.addEventListener("mousemove", (e) => {
-        if (!isDragging) return;
+        if (!dragStarted) return;
+
+        // Only start dragging if movement is significant
+        if (!isDragging) {
+            const dx = Math.abs(e.clientX - startX);
+            const dy = Math.abs(e.clientY - startY);
+
+            if (dx < 3 && dy < 3) return; // treat as click, not drag
+            isDragging = true;
+            el.style.zIndex = getNextZIndex();
+        }
 
         const parentRect = el.parentElement.getBoundingClientRect();
         const newLeft = e.clientX - offsetX - parentRect.left;
@@ -117,94 +130,39 @@ function makeDraggable(el) {
 
     // Drag end
     document.addEventListener("mouseup", () => {
-        if (!isDragging) return;
+        dragStarted = false;
         isDragging = false;
-
-        const theatreWrapper = document.getElementById("theatreWrapper");
-        const equipmentContainer = document.getElementById("equipmentContainer");
-
-        const store = document.getElementById("storeroom");
-        const staff = document.getElementById("staffroom");
-
-        const elRect = el.getBoundingClientRect();
-        const theatreRect = theatreWrapper.getBoundingClientRect();
-        const storeRect = store.getBoundingClientRect();
-        const staffRect = staff.getBoundingClientRect();
-
-        function moveToRoom(roomElement) {
-            roomElement.appendChild(el);
-            const newParentRect = roomElement.getBoundingClientRect();
-            const left = elRect.left - newParentRect.left;
-            const top = elRect.top - newParentRect.top;
-            el.style.left = left + "px";
-            el.style.top = top + "px";
-            el.style.zIndex = 1;
-        }
-
-        // Store Room drop
-        if (
-            elRect.left >= storeRect.left &&
-            elRect.right <= storeRect.right &&
-            elRect.top >= storeRect.top &&
-            elRect.bottom <= storeRect.bottom
-        ) {
-            moveToRoom(store);
-            return;
-        }
-
-        // Staff Room drop
-        if (
-            elRect.left >= staffRect.left &&
-            elRect.right <= staffRect.right &&
-            elRect.top >= staffRect.top &&
-            elRect.bottom <= staffRect.bottom
-        ) {
-            moveToRoom(staff);
-            return;
-        }
-
-        // Theatre drop
-        if (
-            elRect.left >= theatreRect.left &&
-            elRect.right <= theatreRect.right &&
-            elRect.top >= theatreRect.top &&
-            elRect.bottom <= theatreRect.bottom
-        ) {
-            equipmentContainer.appendChild(el);
-            const newParentRect = equipmentContainer.getBoundingClientRect();
-            const left = elRect.left - newParentRect.left;
-            const top = elRect.top - newParentRect.top;
-            el.style.left = left + "px";
-            el.style.top = top + "px";
-        }
     });
 
-el.addEventListener("click", (e) => {
-    // detail === 2 means it's the second click of a double-click
-    if (e.detail === 2) {
+    // ⭐ Flip (now works because dragging no longer triggers)
+    el.addEventListener("dblclick", () => {
         const flipped = el.dataset.flipped === "true";
         el.dataset.flipped = flipped ? "false" : "true";
-
         applyTransform(el);
-    }
-});
+    });
 
-    // ⭐ Resize using transform scale (never overwrites flip)
+    // ⭐ Slow zoom (scale transform)
     el.addEventListener("wheel", (e) => {
         if (isDragging) return;
         e.preventDefault();
 
         let scale = parseFloat(el.dataset.scale || "1");
-        const delta = e.deltaY < 0 ? 1.01 : 0.99;
+        const delta = e.deltaY < 0 ? 1.01 : 0.99; // your slow zoom
 
         scale = Math.max(0.3, Math.min(3, scale * delta));
         el.dataset.scale = scale;
 
-        const flipped = el.classList.contains("flipped");
-        const flipPart = flipped ? "scaleX(-1)" : "scaleX(1)";
-
-        el.style.transform = `${flipPart} scale(${scale})`;
+        applyTransform(el);
     });
+}
+
+// ⭐ Combine flip + scale every time
+function applyTransform(el) {
+    const scale = parseFloat(el.dataset.scale || "1");
+    const flipped = el.dataset.flipped === "true";
+
+    const flipPart = flipped ? "scaleX(-1)" : "scaleX(1)";
+    el.style.transform = `${flipPart} scale(${scale})`;
 }
 
 // Z-index helper
