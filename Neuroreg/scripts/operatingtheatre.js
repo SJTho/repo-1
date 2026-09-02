@@ -96,6 +96,13 @@ function makeDraggable(el) {
 
     // Drag start (but not yet dragging)
     el.addEventListener("mousedown", (e) => {
+
+        // If item is currently stored (hidden), restore it
+        if (el.style.display === "none") {
+            el.style.display = "block";
+            removeItemFromStoreRoom(el);
+        }
+
         startX = e.clientX;
         startY = e.clientY;
 
@@ -126,10 +133,47 @@ function makeDraggable(el) {
 
         el.style.left = newLeft + "px";
         el.style.top = newTop + "px";
+
+        // ------------------------------
+        // Store Room Hover Detection
+        // ------------------------------
+        const storeRoom = document.getElementById("storeroom");
+        const storeRect = storeRoom.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+
+        const hoveringStore =
+            elRect.right > storeRect.left &&
+            elRect.left < storeRect.right &&
+            elRect.bottom > storeRect.top &&
+            elRect.top < storeRect.bottom;
+
+        if (hoveringStore) {
+            storeRoom.classList.add("drag-over");
+        } else {
+            storeRoom.classList.remove("drag-over");
+        }
     });
 
     // Drag end
     document.addEventListener("mouseup", () => {
+        if (dragStarted) {
+            const storeRoom = document.getElementById("storeroom");
+            const storeRect = storeRoom.getBoundingClientRect();
+            const elRect = el.getBoundingClientRect();
+
+            const droppedInStore =
+                elRect.right > storeRect.left &&
+                elRect.left < storeRect.right &&
+                elRect.bottom > storeRect.top &&
+                elRect.top < storeRect.bottom;
+
+            if (droppedInStore) {
+                moveItemToStoreRoom(el);
+            }
+
+            storeRoom.classList.remove("drag-over");
+        }
+
         dragStarted = false;
         isDragging = false;
     });
@@ -176,6 +220,45 @@ function getNextZIndex() {
     });
 
     return maxZ + 1;
+}
+
+// ------------------------------
+// Store Room Thumbnail System
+// ------------------------------
+
+function moveItemToStoreRoom(el) {
+    const storeRoom = document.getElementById("storeroom");
+
+    // Create tiny thumbnail
+    const thumb = document.createElement("img");
+    thumb.src = el.src;
+    thumb.classList.add("storeThumb");
+
+    storeRoom.appendChild(thumb);
+
+    // Hide the main draggable item
+    el.style.display = "none";
+
+    updateStoreRoomEmoji();
+}
+
+function removeItemFromStoreRoom(el) {
+    const storeRoom = document.getElementById("storeroom");
+    const thumbs = storeRoom.querySelectorAll(".storeThumb");
+
+    thumbs.forEach(t => {
+        if (t.src === el.src) t.remove();
+    });
+
+    updateStoreRoomEmoji();
+}
+
+function updateStoreRoomEmoji() {
+    const storeRoom = document.getElementById("storeroom");
+    const emoji = storeRoom.querySelector(".roomEmoji");
+    const thumbs = storeRoom.querySelectorAll(".storeThumb");
+
+    emoji.style.display = thumbs.length === 0 ? "block" : "none";
 }
 
 // Initialise
