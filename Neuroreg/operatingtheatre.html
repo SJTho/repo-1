@@ -41,21 +41,13 @@
     <div id="profileContainer">
         <h2>My Theatre</h2>
 
-        <!-- Category Buttons -->
-        <div id="categoryButtons">
-            <button class="categoryBtn">Room</button>
-            <button class="categoryBtn">Anaesthetic</button>
-            <button class="categoryBtn">Surgical</button>
-            <button class="categoryBtn">Staff</button>
-        </div>
-
-        <!-- Theatre + Storeroom layout -->
+        <!-- Theatre + Rooms -->
         <div id="theatreAndStore">
-            <!-- Theatre wrapper (clipped) -->
+
+            <!-- Theatre wrapper -->
             <div id="theatreWrapper">
                 <img id="theatreBackground" src="./images/holdingbackground.png" alt="Operating Theatre Background">
 
-                <!-- Equipment items (initially hidden, overlayed on theatre) -->
                 <div id="equipmentContainer">
                     <!-- ROOM -->
                     <img class="equipmentItem roomItem" src="./images/operatinglights.png">
@@ -78,11 +70,27 @@
                 </div>
             </div>
 
-            <!-- Storeroom (narrow right panel) -->
-            <div id="storeroom">
-                <h3>Storeroom</h3>
+            <!-- Storeroom + Staff Room -->
+            <div id="roomsRow">
+                <div id="storeroom" class="roomPanel">
+                    <h3>Storeroom</h3>
+                </div>
+
+                <div id="staffroom" class="roomPanel">
+                    <h3>Staff Room</h3>
+                </div>
             </div>
+
         </div>
+
+        <!-- Category Buttons -->
+        <div id="categoryButtons">
+            <button class="categoryBtn">Room</button>
+            <button class="categoryBtn">Anaesthetic</button>
+            <button class="categoryBtn">Surgical</button>
+            <button class="categoryBtn">Staff</button>
+        </div>
+
     </div>
 
 </body>
