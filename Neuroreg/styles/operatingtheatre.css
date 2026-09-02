@@ -59,14 +59,14 @@
   gap: 20px;
   width: 100%;
   max-width: 900px;
-  height: 125px;
+  height: 80px;
   /* 50% smaller */
 }
 
 /* Shared room panel styling */
 .roomPanel {
   flex: 1;
-  height: 125px;
+  height: 80px;
   background: #0d1628;
   border-radius: 10px;
   border: 2px solid #1f355c;
@@ -78,10 +78,15 @@
   z-index: 1;
 }
 
+.roomPanel h3 {
+  font-size: 14px;
+  margin-top: 2px;
+}
+
 /* Emoji inside rooms */
 .roomEmoji {
-  font-size: 48px;
-  margin-top: 10px;
+  font-size: 28px;
+  margin-top: 4px;
   opacity: 0.9;
 }
 
@@ -120,13 +125,14 @@
 }
 
 .storeThumb {
-  width: 40px;
+  width: 26px;
   height: auto;
-  margin: 4px;
+  margin: 2px;
   border-radius: 4px;
 }
 
-#storeroom.drag-over {
+#storeroom.drag-over,
+#staffroom.drag-over {
   background: #1f355c;
   border-color: #4a6ea8;
 }
