@@ -56,6 +56,9 @@ function revealNextItem(category) {
     // Force layout so width/height are valid
     item.getBoundingClientRect();
 
+    // Initialise scale
+    item.dataset.scale = "1";
+
     centerItemOnBackground(item);
     makeDraggable(item);
 
@@ -80,12 +83,15 @@ function centerItemOnBackground(item) {
 }
 
 // ------------------------------
-// Drag, Resize, Flip System
+// Drag, Resize (scale), Flip System
 // ------------------------------
 function makeDraggable(el) {
     let offsetX = 0;
     let offsetY = 0;
     let isDragging = false;
+
+    // Flip state
+    el.dataset.flipped = "false";
 
     // Drag start
     el.addEventListener("mousedown", (e) => {
@@ -173,29 +179,26 @@ function makeDraggable(el) {
         }
     });
 
-    // Flip
+    // ⭐ Flip via class
     el.addEventListener("dblclick", () => {
-        const current = el.style.transform;
-
-        if (current.includes("scaleX(-1)")) {
-            el.style.transform = "scaleX(1)";
-        } else {
-            el.style.transform = "scaleX(-1)";
-        }
+        el.classList.toggle("flipped");
     });
 
-    // Resize
+    // ⭐ Resize using transform scale (never overwrites flip)
     el.addEventListener("wheel", (e) => {
         if (isDragging) return;
         e.preventDefault();
 
-        if (Math.abs(e.deltaY) < 5) return;
+        let scale = parseFloat(el.dataset.scale || "1");
+        const delta = e.deltaY < 0 ? 1.05 : 0.95;
 
-        const currentWidth = el.offsetWidth;
-        const delta = e.deltaY < 0 ? 1.01 : 0.99;
-        const newWidth = Math.max(80, Math.min(600, currentWidth * delta));
+        scale = Math.max(0.3, Math.min(3, scale * delta));
+        el.dataset.scale = scale;
 
-        el.style.width = newWidth + "px";
+        const flipped = el.classList.contains("flipped");
+        const flipPart = flipped ? "scaleX(-1)" : "scaleX(1)";
+
+        el.style.transform = `${flipPart} scale(${scale})`;
     });
 }
 
