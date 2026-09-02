@@ -95,7 +95,7 @@ function makeDraggable(el) {
 
         if (el.style.display === "none") {
             el.style.display = "block";
-            removeItemFromStoreRoom(el);
+            removeItemFromRooms(el);
         }
 
         startX = e.clientX;
@@ -127,40 +127,13 @@ function makeDraggable(el) {
         el.style.left = newLeft + "px";
         el.style.top = newTop + "px";
 
-        const storeRoom = document.getElementById("storeroom");
-        const storeRect = storeRoom.getBoundingClientRect();
-        const elRect = el.getBoundingClientRect();
-
-        const hoveringStore =
-            elRect.right > storeRect.left &&
-            elRect.left < storeRect.right &&
-            elRect.bottom > storeRect.top &&
-            elRect.top < storeRect.bottom;
-
-        if (hoveringStore) {
-            storeRoom.classList.add("drag-over");
-        } else {
-            storeRoom.classList.remove("drag-over");
-        }
+        highlightRoomOnHover(el);
     });
 
     document.addEventListener("mouseup", () => {
         if (dragStarted) {
-            const storeRoom = document.getElementById("storeroom");
-            const storeRect = storeRoom.getBoundingClientRect();
-            const elRect = el.getBoundingClientRect();
-
-            const droppedInStore =
-                elRect.right > storeRect.left &&
-                elRect.left < storeRect.right &&
-                elRect.bottom > storeRect.top &&
-                elRect.top < storeRect.bottom;
-
-            if (droppedInStore) {
-                moveItemToStoreRoom(el);
-            }
-
-            storeRoom.classList.remove("drag-over");
+            attemptRoomDrop(el);
+            clearRoomHighlights();
         }
 
         dragStarted = false;
@@ -208,46 +181,116 @@ function getNextZIndex() {
 }
 
 // ------------------------------
-// Store Room Thumbnail System
+// ⭐ ROOM DROP LOGIC (Store + Staff)
 // ------------------------------
 
-function moveItemToStoreRoom(el) {
-    const storeRoom = document.getElementById("storeroom");
+function highlightRoomOnHover(el) {
+    const rooms = document.querySelectorAll(".roomPanel");
+    const elRect = el.getBoundingClientRect();
 
+    rooms.forEach(room => {
+        const rect = room.getBoundingClientRect();
+
+        const hovering =
+            elRect.right > rect.left &&
+            elRect.left < rect.right &&
+            elRect.bottom > rect.top &&
+            elRect.top < rect.bottom;
+
+        if (hovering) {
+            room.classList.add("drag-over");
+        } else {
+            room.classList.remove("drag-over");
+        }
+    });
+}
+
+function clearRoomHighlights() {
+    document.querySelectorAll(".roomPanel").forEach(room => {
+        room.classList.remove("drag-over");
+    });
+}
+
+function attemptRoomDrop(el) {
+    const elRect = el.getBoundingClientRect();
+
+    const storeRoom = document.getElementById("storeroom");
+    const staffRoom = document.getElementById("staffroom");
+
+    const storeRect = storeRoom.getBoundingClientRect();
+    const staffRect = staffRoom.getBoundingClientRect();
+
+    const isStaff = el.classList.contains("staffItem");
+
+    const droppedInStore =
+        elRect.right > storeRect.left &&
+        elRect.left < storeRect.right &&
+        elRect.bottom > storeRect.top &&
+        elRect.top < storeRect.bottom;
+
+    const droppedInStaff =
+        elRect.right > staffRect.left &&
+        elRect.left < staffRect.right &&
+        elRect.bottom > staffRect.top &&
+        elRect.top < staffRect.bottom;
+
+    if (droppedInStore) {
+        if (isStaff) {
+            alert("Staff must be placed in the Staff Room.");
+            return;
+        }
+        moveItemToRoom(el, storeRoom);
+    }
+
+    if (droppedInStaff) {
+        if (!isStaff) {
+            alert("Only staff can be placed in the Staff Room.");
+            return;
+        }
+        moveItemToRoom(el, staffRoom);
+    }
+}
+
+// ------------------------------
+// ⭐ Thumbnail System (Both Rooms)
+// ------------------------------
+
+function moveItemToRoom(el, room) {
     const thumb = document.createElement("img");
     thumb.src = el.src;
     thumb.classList.add("storeThumb");
 
-    storeRoom.appendChild(thumb);
+    room.appendChild(thumb);
 
     el.style.display = "none";
 
-    updateStoreRoomEmoji();
+    updateRoomEmoji(room);
     scaleRoomContents();
 }
 
-function removeItemFromStoreRoom(el) {
-    const storeRoom = document.getElementById("storeroom");
-    const thumbs = storeRoom.querySelectorAll(".storeThumb");
+function removeItemFromRooms(el) {
+    const rooms = document.querySelectorAll(".roomPanel");
 
-    thumbs.forEach(t => {
-        if (t.src === el.src) t.remove();
+    rooms.forEach(room => {
+        const thumbs = room.querySelectorAll(".storeThumb");
+        thumbs.forEach(t => {
+            if (t.src === el.src) t.remove();
+        });
+        updateRoomEmoji(room);
     });
 
-    updateStoreRoomEmoji();
     scaleRoomContents();
 }
 
-function updateStoreRoomEmoji() {
-    const storeRoom = document.getElementById("storeroom");
-    const emoji = storeRoom.querySelector(".roomEmoji");
-    const thumbs = storeRoom.querySelectorAll(".storeThumb");
+function updateRoomEmoji(room) {
+    const emoji = room.querySelector(".roomEmoji");
+    const thumbs = room.querySelectorAll(".storeThumb");
 
     emoji.style.display = thumbs.length === 0 ? "block" : "none";
 }
 
 // ------------------------------
-// ⭐ NEW: Scale room contents
+// ⭐ Scale room contents
 // ------------------------------
 function scaleRoomContents() {
     const rooms = document.querySelectorAll(".roomPanel");
