@@ -82,6 +82,9 @@ function makeDraggable(el) {
     let offsetY = 0;
     let isDragging = false;
 
+    // Track flip state
+    el.dataset.flipped = "false";
+
     // Drag start
     el.addEventListener("mousedown", (e) => {
         isDragging = true;
@@ -168,10 +171,22 @@ function makeDraggable(el) {
         }
     });
 
-    // Resize
+    // ⭐ Flip (now stored in dataset)
+    el.addEventListener("dblclick", () => {
+        const flipped = el.dataset.flipped === "true";
+
+        el.dataset.flipped = flipped ? "false" : "true";
+
+        const scaleX = flipped ? "scaleX(1)" : "scaleX(-1)";
+        el.style.transform = scaleX;
+    });
+
+    // ⭐ Flip-safe Resize
     el.addEventListener("wheel", (e) => {
-        if (isDragging) return; // prevent resize during drag
+        if (isDragging) return;
         e.preventDefault();
+
+        const currentTransform = el.style.transform; // preserve flip
 
         if (Math.abs(e.deltaY) < 5) return;
 
@@ -180,17 +195,7 @@ function makeDraggable(el) {
         const newWidth = Math.max(80, Math.min(600, currentWidth * delta));
 
         el.style.width = newWidth + "px";
-    });
-
-    // Flip
-    el.addEventListener("dblclick", () => {
-        const current = el.style.transform;
-
-        if (current.includes("scaleX(-1)")) {
-            el.style.transform = "scaleX(1)";
-        } else {
-            el.style.transform = "scaleX(-1)";
-        }
+        el.style.transform = currentTransform; // restore flip
     });
 }
 
