@@ -18,7 +18,6 @@ document.addEventListener("click", (event) => {
 // CATEGORY SYSTEM
 // ------------------------------
 
-// Ordered lists of items per category
 const categoryMap = {
     Room: Array.from(document.querySelectorAll(".roomItem")),
     Anaesthetic: Array.from(document.querySelectorAll(".anaestheticItem")),
@@ -26,7 +25,6 @@ const categoryMap = {
     Staff: Array.from(document.querySelectorAll(".staffItem"))
 };
 
-// Track how many items have been revealed per category
 const revealIndex = {
     Room: 0,
     Anaesthetic: 0,
@@ -34,7 +32,6 @@ const revealIndex = {
     Staff: 0
 };
 
-// Handle category button clicks
 document.querySelectorAll(".categoryBtn").forEach(btn => {
     btn.addEventListener("click", () => {
         const category = btn.textContent.trim();
@@ -42,7 +39,6 @@ document.querySelectorAll(".categoryBtn").forEach(btn => {
     });
 });
 
-// Reveal ONE new item from the category
 function revealNextItem(category) {
     const items = categoryMap[category];
     const index = revealIndex[category];
@@ -59,7 +55,7 @@ function revealNextItem(category) {
 }
 
 // ------------------------------
-// Position new items in the centre of the background
+// Center new items
 // ------------------------------
 function centerItemOnBackground(item) {
     const wrapper = document.getElementById("theatreWrapper");
@@ -83,7 +79,7 @@ function makeDraggable(el) {
     let offsetY = 0;
     let isDragging = false;
 
-    // --- Dragging ---
+    // Drag start
     el.addEventListener("mousedown", (e) => {
         isDragging = true;
         el.style.zIndex = getNextZIndex();
@@ -93,6 +89,7 @@ function makeDraggable(el) {
         offsetY = e.clientY - rect.top;
     });
 
+    // Drag move
     document.addEventListener("mousemove", (e) => {
         if (!isDragging) return;
 
@@ -104,60 +101,74 @@ function makeDraggable(el) {
         el.style.top = newTop + "px";
     });
 
+    // Drag end
     document.addEventListener("mouseup", () => {
         if (!isDragging) return;
         isDragging = false;
 
-        const store = document.getElementById("storeroom");
         const theatreWrapper = document.getElementById("theatreWrapper");
+        const equipmentContainer = document.getElementById("equipmentContainer");
 
-        const storeRect = store.getBoundingClientRect();
-        const theatreRect = theatreWrapper.getBoundingClientRect();
+        const store = document.getElementById("storeroom");
+        const staff = document.getElementById("staffroom");
+
         const elRect = el.getBoundingClientRect();
+        const theatreRect = theatreWrapper.getBoundingClientRect();
+        const storeRect = store.getBoundingClientRect();
+        const staffRect = staff.getBoundingClientRect();
 
-        // If dropped fully inside storeroom, move it there
+        function moveToRoom(roomElement) {
+            roomElement.appendChild(el);
+            const newParentRect = roomElement.getBoundingClientRect();
+            const left = elRect.left - newParentRect.left;
+            const top = elRect.top - newParentRect.top;
+            el.style.left = left + "px";
+            el.style.top = top + "px";
+            el.style.zIndex = 1;
+        }
+
+        // Storeroom drop
         if (
             elRect.left >= storeRect.left &&
             elRect.right <= storeRect.right &&
             elRect.top >= storeRect.top &&
             elRect.bottom <= storeRect.bottom
         ) {
-            // Reparent to storeroom
-            store.appendChild(el);
-
-            const newParentRect = store.getBoundingClientRect();
-            const left = elRect.left - newParentRect.left;
-            const top = elRect.top - newParentRect.top;
-
-            el.style.left = left + "px";
-            el.style.top = top + "px";
-            el.style.zIndex = 1;
+            moveToRoom(store);
+            return;
         }
-        // If dropped inside theatre, ensure it's parented to equipmentContainer
-        else if (
+
+        // Staff room drop
+        if (
+            elRect.left >= staffRect.left &&
+            elRect.right <= staffRect.right &&
+            elRect.top >= staffRect.top &&
+            elRect.bottom <= staffRect.bottom
+        ) {
+            moveToRoom(staff);
+            return;
+        }
+
+        // Theatre drop
+        if (
             elRect.left >= theatreRect.left &&
             elRect.right <= theatreRect.right &&
             elRect.top >= theatreRect.top &&
             elRect.bottom <= theatreRect.bottom
         ) {
-            const equipmentContainer = document.getElementById("equipmentContainer");
             equipmentContainer.appendChild(el);
-
             const newParentRect = equipmentContainer.getBoundingClientRect();
             const left = elRect.left - newParentRect.left;
             const top = elRect.top - newParentRect.top;
-
             el.style.left = left + "px";
             el.style.top = top + "px";
         }
-        // Otherwise, leave it where it is (but clipped by whichever container it's in)
     });
 
-    // --- Resize with mouse wheel (smooth) ---
+    // Resize
     el.addEventListener("wheel", (e) => {
         e.preventDefault();
 
-        // Ignore tiny accidental scrolls
         if (Math.abs(e.deltaY) < 5) return;
 
         const currentWidth = el.offsetWidth;
@@ -167,7 +178,7 @@ function makeDraggable(el) {
         el.style.width = newWidth + "px";
     });
 
-    // --- Flip left/right on double-click ---
+    // Flip
     el.addEventListener("dblclick", () => {
         const current = el.style.transform;
 
@@ -179,7 +190,7 @@ function makeDraggable(el) {
     });
 }
 
-// Helper: always return a higher z-index than any existing item
+// Z-index helper
 function getNextZIndex() {
     const items = document.querySelectorAll(".equipmentItem");
     let maxZ = 0;
@@ -192,9 +203,7 @@ function getNextZIndex() {
     return maxZ + 1;
 }
 
-// ------------------------------
-// Initialise (items start hidden)
-// ------------------------------
+// Initialise
 window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
         item.style.display = "none";
