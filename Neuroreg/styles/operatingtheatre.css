@@ -118,3 +118,15 @@
 #staffroom .equipmentItem {
   margin: 4px;
 }
+
+.storeThumb {
+  width: 40px;
+  height: auto;
+  margin: 4px;
+  border-radius: 4px;
+}
+
+#storeroom.drag-over {
+  background: #1f355c;
+  border-color: #4a6ea8;
+}
