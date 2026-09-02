@@ -47,16 +47,11 @@ function revealNextItem(category) {
 
     const item = items[index];
 
-    // Always spawn inside theatre
     const equipmentContainer = document.getElementById("equipmentContainer");
     equipmentContainer.appendChild(item);
 
     item.style.display = "block";
 
-    // Force layout
-    item.getBoundingClientRect();
-
-    // Initialise scale + flip state
     item.dataset.scale = "1";
     item.dataset.flipped = "false";
 
@@ -84,7 +79,37 @@ function centerItemOnBackground(item) {
 }
 
 // ------------------------------
-// Drag, Resize (scale), Flip System
+// Store Room / Staff Room UI Update
+// ------------------------------
+function updateRoomDisplay(roomElement) {
+    const emoji = roomElement.querySelector(".roomEmoji");
+    const items = roomElement.querySelectorAll(".equipmentItem");
+
+    const hasItems = items.length > 0;
+
+    if (emoji) {
+        emoji.style.display = hasItems ? "none" : "block";
+    }
+
+    // Thumbnail mode for items inside rooms
+    items.forEach(item => {
+        item.style.position = "relative";
+        item.style.left = "";
+        item.style.top = "";
+
+        // Save original scale if not already saved
+        if (!item.dataset.originalScale) {
+            item.dataset.originalScale = item.dataset.scale;
+        }
+
+        // Thumbnail scale
+        item.dataset.scale = "0.3";
+        applyTransform(item);
+    });
+}
+
+// ------------------------------
+// Drag, Resize, Flip System
 // ------------------------------
 function makeDraggable(el) {
     let offsetX = 0;
@@ -94,60 +119,135 @@ function makeDraggable(el) {
     let startX = 0;
     let startY = 0;
 
-    // Drag start (but not yet dragging)
     el.addEventListener("mousedown", (e) => {
+        const rect = el.getBoundingClientRect();
+
         startX = e.clientX;
         startY = e.clientY;
 
-        const rect = el.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
 
-        dragStarted = true;   // waiting to see if user actually drags
+        dragStarted = true;
     });
 
-    // Drag move
     document.addEventListener("mousemove", (e) => {
         if (!dragStarted) return;
 
-        // Only start dragging if movement is significant
         if (!isDragging) {
             const dx = Math.abs(e.clientX - startX);
             const dy = Math.abs(e.clientY - startY);
 
-            if (dx < 3 && dy < 3) return; // treat as click, not drag
+            if (dx < 3 && dy < 3) return;
+
             isDragging = true;
             el.style.zIndex = getNextZIndex();
+
+            // Restore full scale when dragging out of room
+            if (el.parentElement.id === "storeroom" || el.parentElement.id === "staffroom") {
+                el.dataset.scale = el.dataset.originalScale || "1";
+                applyTransform(el);
+            }
         }
 
         const parentRect = el.parentElement.getBoundingClientRect();
         const newLeft = e.clientX - offsetX - parentRect.left;
         const newTop = e.clientY - offsetY - parentRect.top;
 
-        el.style.left = newLeft + "px";
-        el.style.top = newTop + "px";
+        el.style.left = `${newLeft}px`;
+        el.style.top = `${newTop}px`;
     });
 
-    // Drag end
     document.addEventListener("mouseup", () => {
+        if (!dragStarted) return;
+
         dragStarted = false;
         isDragging = false;
+
+        const theatreWrapper = document.getElementById("theatreWrapper");
+        const equipmentContainer = document.getElementById("equipmentContainer");
+
+        const store = document.getElementById("storeroom");
+        const staff = document.getElementById("staffroom");
+
+        const elRect = el.getBoundingClientRect();
+        const theatreRect = theatreWrapper.getBoundingClientRect();
+        const storeRect = store.getBoundingClientRect();
+        const staffRect = staff.getBoundingClientRect();
+
+        function moveToRoom(roomElement) {
+            roomElement.appendChild(el);
+
+            el.style.position = "relative";
+            el.style.left = "";
+            el.style.top = "";
+            el.style.zIndex = 1;
+
+            updateRoomDisplay(roomElement);
+        }
+
+        // Store Room drop
+        if (
+            elRect.left >= storeRect.left &&
+            elRect.right <= storeRect.right &&
+            elRect.top >= storeRect.top &&
+            elRect.bottom <= storeRect.bottom
+        ) {
+            moveToRoom(store);
+            return;
+        }
+
+        // Staff Room drop
+        if (
+            elRect.left >= staffRect.left &&
+            elRect.right <= staffRect.right &&
+            elRect.top >= staffRect.top &&
+            elRect.bottom <= staffRect.bottom
+        ) {
+            moveToRoom(staff);
+            return;
+        }
+
+        // Theatre drop
+        if (
+            elRect.left >= theatreRect.left &&
+            elRect.right <= theatreRect.right &&
+            elRect.top >= theatreRect.top &&
+            elRect.bottom <= theatreRect.bottom
+        ) {
+            equipmentContainer.appendChild(el);
+
+            const newParentRect = equipmentContainer.getBoundingClientRect();
+            const left = elRect.left - newParentRect.left;
+            const top = elRect.top - newParentRect.top;
+
+            el.style.position = "absolute";
+            el.style.left = `${left}px`;
+            el.style.top = `${top}px`;
+
+            // Restore full scale
+            el.dataset.scale = el.dataset.originalScale || "1";
+            applyTransform(el);
+
+            updateRoomDisplay(store);
+            updateRoomDisplay(staff);
+        }
     });
 
-    // ⭐ Flip (now works because dragging no longer triggers)
+    // Flip
     el.addEventListener("dblclick", () => {
         const flipped = el.dataset.flipped === "true";
         el.dataset.flipped = flipped ? "false" : "true";
         applyTransform(el);
     });
 
-    // ⭐ Slow zoom (scale transform)
+    // Resize (scale)
     el.addEventListener("wheel", (e) => {
         if (isDragging) return;
         e.preventDefault();
 
         let scale = parseFloat(el.dataset.scale || "1");
-        const delta = e.deltaY < 0 ? 1.01 : 0.99; // your slow zoom
+        const delta = e.deltaY < 0 ? 1.01 : 0.99;
 
         scale = Math.max(0.3, Math.min(3, scale * delta));
         el.dataset.scale = scale;
@@ -156,7 +256,7 @@ function makeDraggable(el) {
     });
 }
 
-// ⭐ Combine flip + scale every time
+// Combine flip + scale
 function applyTransform(el) {
     const scale = parseFloat(el.dataset.scale || "1");
     const flipped = el.dataset.flipped === "true";
@@ -183,4 +283,3 @@ window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
         item.style.display = "none";
     });
-};
