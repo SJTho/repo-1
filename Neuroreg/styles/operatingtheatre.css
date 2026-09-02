@@ -60,34 +60,66 @@
   width: 100%;
   max-width: 900px;
   height: 80px;
-  /* 50% smaller */
+  /* reduced height */
 }
 
 /* Shared room panel styling */
 .roomPanel {
   flex: 1;
   height: 80px;
+  /* reduced height */
   background: #0d1628;
   border-radius: 10px;
   border: 2px solid #1f355c;
   position: relative;
   overflow: hidden;
   color: white;
-  text-align: center;
-  padding-top: 10px;
-  z-index: 1;
-}
 
-.roomPanel h3 {
-  font-size: 14px;
-  margin-top: 2px;
+  /* ⭐ New inline layout for heading + thumbnails */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 6px 10px;
+  gap: 8px;
+
+  z-index: 1;
 }
 
 /* Emoji inside rooms */
 .roomEmoji {
   font-size: 28px;
-  margin-top: 4px;
+  /* smaller */
+  margin: 0 auto;
   opacity: 0.9;
+  display: block;
+  /* centred when visible */
+}
+
+/* Room heading inline */
+.roomPanel h3 {
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+
+/* Thumbnails inside rooms */
+.storeThumb {
+  width: 26px;
+  /* smaller */
+  height: auto;
+  margin: 2px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Drag-over highlight */
+#storeroom.drag-over,
+#staffroom.drag-over {
+  background: #1f355c;
+  border-color: #4a6ea8;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 /* Category button container */
@@ -119,20 +151,8 @@
   background: #1f355c;
 }
 
+/* Legacy rule for items inside rooms */
 #storeroom .equipmentItem,
 #staffroom .equipmentItem {
   margin: 4px;
-}
-
-.storeThumb {
-  width: 26px;
-  height: auto;
-  margin: 2px;
-  border-radius: 4px;
-}
-
-#storeroom.drag-over,
-#staffroom.drag-over {
-  background: #1f355c;
-  border-color: #4a6ea8;
 }
