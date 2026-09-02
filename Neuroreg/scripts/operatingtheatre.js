@@ -46,6 +46,11 @@ function revealNextItem(category) {
     if (index >= items.length) return;
 
     const item = items[index];
+
+    // ⭐ ALWAYS place new items inside the theatre
+    const equipmentContainer = document.getElementById("equipmentContainer");
+    equipmentContainer.appendChild(item);
+
     item.style.display = "block";
 
     // Force layout so width/height are valid
@@ -168,12 +173,18 @@ function makeDraggable(el) {
         }
     });
 
-    // Flip via class
+    // Flip
     el.addEventListener("dblclick", () => {
-        el.classList.toggle("flipped");
+        const current = el.style.transform;
+
+        if (current.includes("scaleX(-1)")) {
+            el.style.transform = "scaleX(1)";
+        } else {
+            el.style.transform = "scaleX(-1)";
+        }
     });
 
-    // Resize (no transform changes)
+    // Resize
     el.addEventListener("wheel", (e) => {
         if (isDragging) return;
         e.preventDefault();
@@ -206,3 +217,4 @@ window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
         item.style.display = "none";
     });
+};
