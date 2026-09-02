@@ -1,11 +1,34 @@
+/* Background + storeroom layout */
+#theatreAndStore {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+/* Theatre wrapper: 75% width, clipped */
+#theatreWrapper {
+  flex: 0 0 75%;
+  position: relative;
+  overflow: hidden;
+  /* hides parts of items outside theatre */
+  border-radius: 10px;
+}
+
 /* Background theatre image */
 #theatreBackground {
-  width: 50%;
-  border-radius: 10px;
-  margin-top: 10px;
+  width: 100%;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
+  border-radius: 10px;
+}
+
+/* Equipment overlay container */
+#equipmentContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* Hide all equipment by default */
@@ -16,11 +39,28 @@
   cursor: grab;
   user-select: none;
   -webkit-user-drag: none;
+  transform-origin: center;
 }
 
-/* Operating table should always be in front */
+/* Operating table should always be in front (if you use this class) */
 .operatingTable {
   z-index: 99999;
+}
+
+/* Storeroom: 25% width, clipped */
+#storeroom {
+  flex: 0 0 25%;
+  height: 100%;
+  min-height: 250px;
+  background: #0d1628;
+  border-radius: 10px;
+  border: 2px solid #1f355c;
+  position: relative;
+  overflow: hidden;
+  /* hides parts of items outside storeroom */
+  color: white;
+  text-align: center;
+  padding-top: 10px;
 }
 
 /* Category button container */
@@ -35,7 +75,6 @@
 .categoryBtn {
   width: 120px;
   height: 120px;
-  /* ensures perfect square */
   background: #14233d;
   color: white;
   border: none;
@@ -51,8 +90,4 @@
 
 .categoryBtn:hover {
   background: #1f355c;
-}
-
-.equipmentItem {
-  transform-origin: center;
 }
