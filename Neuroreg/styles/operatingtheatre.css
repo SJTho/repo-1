@@ -51,3 +51,8 @@
 
 .categoryBtn:hover {
   background: #1f355c;
+}
+
+.equipmentItem {
+  transform-origin: center;
+}
