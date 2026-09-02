@@ -93,7 +93,6 @@ function makeDraggable(el) {
 
     el.addEventListener("mousedown", (e) => {
 
-        // If item is currently stored (hidden), restore it
         if (el.style.display === "none") {
             el.style.display = "block";
             removeItemFromRooms(el);
@@ -256,45 +255,6 @@ function attemptRoomDrop(el) {
 // ⭐ Thumbnail System (Both Rooms)
 // ------------------------------
 
-function makeThumbnailDraggable(thumb, originalEl, room) {
-    let dragStart = false;
-    let startX = 0;
-    let startY = 0;
-
-    thumb.addEventListener("mousedown", (e) => {
-        dragStart = true;
-        startX = e.clientX;
-        startY = e.clientY;
-    });
-
-    document.addEventListener("mousemove", (e) => {
-        if (!dragStart) return;
-
-        const dx = Math.abs(e.clientX - startX);
-        const dy = Math.abs(e.clientY - startY);
-
-        if (dx < 3 && dy < 3) return;
-
-        thumb.remove();
-
-        originalEl.style.display = "block";
-
-        const equipmentContainer = document.getElementById("equipmentContainer");
-        equipmentContainer.appendChild(originalEl);
-
-        centerItemOnBackground(originalEl);
-
-        updateRoomEmoji(room);
-        scaleRoomContents();
-
-        dragStart = false;
-    });
-
-    document.addEventListener("mouseup", () => {
-        dragStart = false;
-    });
-}
-
 function moveItemToRoom(el, room) {
     const thumb = document.createElement("img");
     thumb.src = el.src;
@@ -303,8 +263,6 @@ function moveItemToRoom(el, room) {
     room.appendChild(thumb);
 
     el.style.display = "none";
-
-    makeThumbnailDraggable(thumb, el, room);
 
     updateRoomEmoji(room);
     scaleRoomContents();
@@ -359,3 +317,4 @@ window.onload = () => {
     });
 
     scaleRoomContents();
+};
