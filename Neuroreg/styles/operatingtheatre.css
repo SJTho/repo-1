@@ -44,6 +44,12 @@
   user-select: none;
   -webkit-user-drag: none;
   transform-origin: center;
+  transition: transform 0.15s ease;
+}
+
+/* Flipped state */
+.equipmentItem.flipped {
+  transform: scaleX(-1);
 }
 
 /* Rooms row */
