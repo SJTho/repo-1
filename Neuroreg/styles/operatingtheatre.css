@@ -113,3 +113,8 @@
 .categoryBtn:hover {
   background: #1f355c;
 }
+
+#storeroom .equipmentItem,
+#staffroom .equipmentItem {
+  margin: 4px;
+}
