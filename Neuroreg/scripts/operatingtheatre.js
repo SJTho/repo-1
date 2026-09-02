@@ -96,10 +96,16 @@ function makeDraggable(el) {
 
     // Drag start (but not yet dragging)
     el.addEventListener("mousedown", (e) => {
+
+        // ⭐ Ensure bounding box matches rendered transform
+        applyTransform(el);
+        el.getBoundingClientRect(); // force reflow
+
+        const rect = el.getBoundingClientRect();
+
         startX = e.clientX;
         startY = e.clientY;
 
-        const rect = el.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
 
@@ -183,4 +189,3 @@ window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
         item.style.display = "none";
     });
-};
