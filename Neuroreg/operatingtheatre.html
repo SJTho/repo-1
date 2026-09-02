@@ -41,8 +41,6 @@
     <div id="profileContainer">
         <h2>My Theatre</h2>
 
-        <img id="theatreBackground" src="./images/holdingbackground.png" alt="Operating Theatre Background">
-
         <!-- Category Buttons -->
         <div id="categoryButtons">
             <button class="categoryBtn">Room</button>
@@ -51,28 +49,39 @@
             <button class="categoryBtn">Staff</button>
         </div>
 
-        <!-- Equipment items (initially hidden) -->
-        <div id="equipmentContainer">
+        <!-- Theatre + Storeroom layout -->
+        <div id="theatreAndStore">
+            <!-- Theatre wrapper (clipped) -->
+            <div id="theatreWrapper">
+                <img id="theatreBackground" src="./images/holdingbackground.png" alt="Operating Theatre Background">
 
-            <!-- ROOM -->
-            <img class="equipmentItem roomItem" src="./images/operatinglights.png">
-            <img class="equipmentItem roomItem" src="./images/operatingtable.png">
+                <!-- Equipment items (initially hidden, overlayed on theatre) -->
+                <div id="equipmentContainer">
+                    <!-- ROOM -->
+                    <img class="equipmentItem roomItem" src="./images/operatinglights.png">
+                    <img class="equipmentItem roomItem" src="./images/operatingtable.png">
 
-            <!-- ANAESTHETIC -->
-            <img class="equipmentItem anaestheticItem" src="./images/anaestheticmachine.png">
-            <img class="equipmentItem anaestheticItem" src="./images/ECG.png">
+                    <!-- ANAESTHETIC -->
+                    <img class="equipmentItem anaestheticItem" src="./images/anaestheticmachine.png">
+                    <img class="equipmentItem anaestheticItem" src="./images/ECG.png">
 
-            <!-- SURGICAL -->
-            <img class="equipmentItem surgicalItem" src="./images/microscope.png">
-            <img class="equipmentItem surgicalItem" src="./images/imageguidancepart1.png">
-            <img class="equipmentItem surgicalItem" src="./images/imageguidancepart2.png">
+                    <!-- SURGICAL -->
+                    <img class="equipmentItem surgicalItem" src="./images/microscope.png">
+                    <img class="equipmentItem surgicalItem" src="./images/imageguidancepart1.png">
+                    <img class="equipmentItem surgicalItem" src="./images/imageguidancepart2.png">
 
-            <!-- STAFF (placeholder for future rewards) -->
-            <img class="equipmentItem staffItem" src="./images/scrubnurse.png">
-            <img class="equipmentItem staffItem" src="./images/nurse2.png">
-            <img class="equipmentItem staffItem" src="./images/anaesthetist.png">
-            <img class="equipmentItem staffItem" src="./images/ODA.png">
+                    <!-- STAFF -->
+                    <img class="equipmentItem staffItem" src="./images/scrubnurse.png">
+                    <img class="equipmentItem staffItem" src="./images/nurse2.png">
+                    <img class="equipmentItem staffItem" src="./images/anaesthetist.png">
+                    <img class="equipmentItem staffItem" src="./images/ODA.png">
+                </div>
+            </div>
 
+            <!-- Storeroom (narrow right panel) -->
+            <div id="storeroom">
+                <h3>Storeroom</h3>
+            </div>
         </div>
     </div>
 
