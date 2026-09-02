@@ -47,20 +47,14 @@ function revealNextItem(category) {
     const items = categoryMap[category];
     const index = revealIndex[category];
 
-    // If all items already revealed, do nothing
     if (index >= items.length) return;
 
-    // Reveal the next item
     const item = items[index];
     item.style.display = "block";
 
-    // Position it in the centre of the background image
     centerItemOnBackground(item);
-
-    // Prepare it for dragging
     makeDraggable(item);
 
-    // Move to next item for future clicks
     revealIndex[category]++;
 }
 
@@ -74,27 +68,24 @@ function centerItemOnBackground(item) {
     const itemWidth = item.offsetWidth;
     const itemHeight = item.offsetHeight;
 
-    // Calculate centre position
     const left = bgRect.left + (bgRect.width / 2) - (itemWidth / 2);
     const top = bgRect.top + (bgRect.height / 2) - (itemHeight / 2);
 
-    // Apply position
     item.style.left = `${left}px`;
     item.style.top = `${top}px`;
 }
 
 // ------------------------------
-// Drag & Drop System
+// Drag, Resize, Flip System
 // ------------------------------
 function makeDraggable(el) {
     let offsetX = 0;
     let offsetY = 0;
     let isDragging = false;
 
+    // --- Dragging ---
     el.addEventListener("mousedown", (e) => {
         isDragging = true;
-
-        // Bring this item to the front
         el.style.zIndex = getNextZIndex();
 
         offsetX = e.clientX - el.getBoundingClientRect().left;
@@ -109,6 +100,28 @@ function makeDraggable(el) {
 
     document.addEventListener("mouseup", () => {
         isDragging = false;
+    });
+
+    // --- Resize with mouse wheel ---
+    el.addEventListener("wheel", (e) => {
+        e.preventDefault();
+
+        const currentWidth = el.offsetWidth;
+        const delta = e.deltaY < 0 ? 1.1 : 0.9;
+        const newWidth = Math.max(80, Math.min(600, currentWidth * delta));
+
+        el.style.width = newWidth + "px";
+    });
+
+    // --- Flip left/right on double-click ---
+    el.addEventListener("dblclick", () => {
+        const current = el.style.transform;
+
+        if (current.includes("scaleX(-1)")) {
+            el.style.transform = "scaleX(1)";
+        } else {
+            el.style.transform = "scaleX(-1)";
+        }
     });
 }
 
@@ -130,6 +143,6 @@ function getNextZIndex() {
 // ------------------------------
 window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
-        item.style.display = "none"; // start hidden
+        item.style.display = "none";
     });
 };
