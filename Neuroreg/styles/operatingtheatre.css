@@ -53,12 +53,14 @@
   gap: 20px;
   width: 100%;
   max-width: 900px;
+  height: 125px;
+  /* 50% smaller */
 }
 
 /* Shared room panel styling */
 .roomPanel {
   flex: 1;
-  height: 250px;
+  height: 125px;
   background: #0d1628;
   border-radius: 10px;
   border: 2px solid #1f355c;
@@ -67,6 +69,14 @@
   color: white;
   text-align: center;
   padding-top: 10px;
+  z-index: 1;
+}
+
+/* Emoji inside rooms */
+.roomEmoji {
+  font-size: 48px;
+  margin-top: 10px;
+  opacity: 0.9;
 }
 
 /* Category button container */
@@ -96,12 +106,4 @@
 
 .categoryBtn:hover {
   background: #1f355c;
-}
-
-#roomsRow {
-  width: 100%;
-  max-width: 900px;
-  display: flex;
-  gap: 20px;
-  height: 250px
 }
