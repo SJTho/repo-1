@@ -48,7 +48,7 @@ function revealNextItem(category) {
     const item = items[index];
     item.style.display = "block";
 
-    // ⭐ Force browser to calculate width/height before centering
+    // Force layout so width/height are valid
     item.getBoundingClientRect();
 
     centerItemOnBackground(item);
@@ -81,9 +81,6 @@ function makeDraggable(el) {
     let offsetX = 0;
     let offsetY = 0;
     let isDragging = false;
-
-    // Track flip state
-    el.dataset.flipped = "false";
 
     // Drag start
     el.addEventListener("mousedown", (e) => {
@@ -133,7 +130,7 @@ function makeDraggable(el) {
             el.style.zIndex = 1;
         }
 
-        // Storeroom drop
+        // Store Room drop
         if (
             elRect.left >= storeRect.left &&
             elRect.right <= storeRect.right &&
@@ -144,7 +141,7 @@ function makeDraggable(el) {
             return;
         }
 
-        // Staff room drop
+        // Staff Room drop
         if (
             elRect.left >= staffRect.left &&
             elRect.right <= staffRect.right &&
@@ -171,22 +168,15 @@ function makeDraggable(el) {
         }
     });
 
-    // ⭐ Flip (now stored in dataset)
+    // Flip via class
     el.addEventListener("dblclick", () => {
-        const flipped = el.dataset.flipped === "true";
-
-        el.dataset.flipped = flipped ? "false" : "true";
-
-        const scaleX = flipped ? "scaleX(1)" : "scaleX(-1)";
-        el.style.transform = scaleX;
+        el.classList.toggle("flipped");
     });
 
-    // ⭐ Flip-safe Resize
+    // Resize (no transform changes)
     el.addEventListener("wheel", (e) => {
         if (isDragging) return;
         e.preventDefault();
-
-        const currentTransform = el.style.transform; // preserve flip
 
         if (Math.abs(e.deltaY) < 5) return;
 
@@ -195,7 +185,6 @@ function makeDraggable(el) {
         const newWidth = Math.max(80, Math.min(600, currentWidth * delta));
 
         el.style.width = newWidth + "px";
-        el.style.transform = currentTransform; // restore flip
     });
 }
 
@@ -217,4 +206,3 @@ window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
         item.style.display = "none";
     });
-};
