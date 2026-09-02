@@ -75,7 +75,7 @@
   overflow: hidden;
   color: white;
 
-  /* ⭐ New inline layout for heading + thumbnails */
+  /* Inline layout for heading + thumbnails */
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -86,14 +86,9 @@
   z-index: 1;
 }
 
-/* Emoji inside rooms */
+/* REMOVE EMOJIS COMPLETELY */
 .roomEmoji {
-  font-size: 28px;
-  /* smaller */
-  margin: 0 auto;
-  opacity: 0.9;
-  display: block;
-  /* centred when visible */
+  display: none !important;
 }
 
 /* Room heading inline */
@@ -107,7 +102,6 @@
 /* Thumbnails inside rooms */
 .storeThumb {
   width: 26px;
-  /* smaller */
   height: auto;
   margin: 2px;
   border-radius: 4px;
