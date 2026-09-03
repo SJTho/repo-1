@@ -213,11 +213,10 @@ window.addEventListener("DOMContentLoaded", () => {
       let newPoints = Math.max(0, currentPoints + scalpelDelta);
       localStorage.setItem("scalpelPoints", String(newPoints));
 
-      /* Score display */
+      /* Score display (NEW TOTAL REMOVED) */
       document.getElementById("scoreDisplay").innerHTML =
         `<p><strong>Score:</strong> ${score}/${questions.length}</p>
-         <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>
-         <p><strong>New total:</strong> ${newPoints}</p>`;
+         <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>`;
 
       storeScore(score, questions.length, topic, level);
     };
@@ -227,7 +226,7 @@ window.addEventListener("DOMContentLoaded", () => {
     /* Progress button */
     const scoresBtn = document.createElement("button");
     scoresBtn.textContent = "Progress";
-    scoresBtn.className = "progressBtn";   /* <-- NEW */
+    scoresBtn.className = "progressBtn";
     scoresBtn.style.display = "none";
     scoresBtn.onclick = () => window.location.href = "scores.html";
 
