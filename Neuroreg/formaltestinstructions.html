@@ -3,10 +3,12 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta-name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Instructions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Instructions</title>
 
-    <link rel="stylesheet" href="mcqcore.css">
+  <!-- Updated styles -->
+  <link rel="stylesheet" href="./styles/global.css">
+  <link rel="stylesheet" href="./styles/formaltestinstructions.css">
 </head>
 
 <body>
@@ -19,76 +21,12 @@
     }
   </script>
 
-  <!-- Top-left hamburger -->
+  <!-- Hamburger -->
   <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
-
-  <!-- Dropdown Menu -->
-  <div id="hamburgerMenuDropdown" class="dropdownMenu">
-    <div class="dropdownItem" data-target="mcqcore.html">🧠 Test yourself</div>
-
-    <div class="dropdownSeparator"></div>
-
-    <div class="dropdownItem" data-target="index.html">🏠 Home</div>
-    <div class="dropdownItem" data-target="profile.html">🧑‍⚕️ Profile</div>
-    <div class="dropdownItem" data-target="rank.html">🏅 Rank</div>
-
-    <div class="dropdownSeparator"></div>
-
-    <div class="dropdownItem" data-target="login.html">🚪 Logout</div>
-  </div>
+  <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
   <!-- Top-right icons -->
-  <div id="topRightIcons">
-    <div class="topRightIcon" data-target="rank.html">🏅</div>
-    <div class="topRightIcon" data-target="index.html">🏠</div>
-    <div class="topRightIcon" data-target="profile.html">🧑‍⚕️</div>
-    <div class="topRightIcon" data-target="help.html">❔</div>
-  </div>
-
-  <script>
-    /* Dropdown toggle */
-    const hamburger = document.getElementById("hamburgerMenu");
-    const dropdown = document.getElementById("hamburgerMenuDropdown");
-
-    hamburger.addEventListener("click", () => {
-      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
-    });
-
-    document.addEventListener("click", (event) => {
-      if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.style.display = "none";
-      }
-    });
-
-    /* Exit warning */
-    function confirmExitExam() {
-      return confirm(
-        "If you leave this page you may not be allowed back into the examination.\n\nDo you want to continue?"
-      );
-    }
-
-    /* Apply exit warning to hamburger links */
-    document.querySelectorAll("#hamburgerMenuDropdown .dropdownItem")
-      .forEach(item => {
-        item.addEventListener("click", () => {
-          const target = item.dataset.target;
-          if (confirmExitExam()) {
-            window.location.href = target;
-          }
-        });
-      });
-
-    /* Apply exit warning to top-right icons */
-    document.querySelectorAll("#topRightIcons .topRightIcon")
-      .forEach(icon => {
-        icon.addEventListener("click", () => {
-          const target = icon.dataset.target;
-          if (confirmExitExam()) {
-            window.location.href = target;
-          }
-        });
-      });
-  </script>
+  <div id="topRightIcons"></div>
 
   <!-- Event Title Heading -->
   <h1 id="combinedHeading"></h1>
@@ -125,58 +63,11 @@
   <div id="buttonRow">
     <button id="startNowBtn" class="actionBtn">Start Now</button>
     <button id="closeBtn" class="actionBtn">Back</button>
-
   </div>
 
-  <!-- MAIN LOGIC -->
-  <script type="module">
-    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    /* EVENT TITLE HEADING */
-    const storedTitle = localStorage.getItem("currentEventTitle");
-    document.getElementById("combinedHeading").textContent = storedTitle;
-
-    /* EVENT TIME WINDOW */
-    const start = localStorage.getItem("currentEventStart");
-    const finish = localStorage.getItem("currentEventFinish");
-
-    if (start && finish) {
-      document.getElementById("timeWindowText").textContent =
-        `You must begin your attempt between ${start} and ${finish}.`;
-    }
-
-    /* PARTICIPANT NAME */
-    const nameInput = document.getElementById("participantName");
-    const storedName = localStorage.getItem("participantName");
-    if (storedName) nameInput.value = storedName;
-
-    nameInput.addEventListener("input", () => {
-      localStorage.setItem("participantName", nameInput.value);
-    });
-
-    /* START NOW → examination.html */
-    document.getElementById("startNowBtn").addEventListener("click", async () => {
-
-      // Local lock
-      localStorage.setItem("examLocked", "true");
-
-      // Supabase lock
-      const userId = parseInt(localStorage.getItem("userId"));
-      const eventId = parseInt(localStorage.getItem("currentEventId"));
-
-      // Go to exam
-      window.location.href = "examination.html";
-    });
-
-    /* BACK BUTTON with exit warning */
-    document.getElementById("closeBtn").addEventListener("click", () => {
-      if (confirmExitExam()) {
-        window.history.back();
-      }
-    });
-  </script>
+  <!-- Page-specific JS -->
+  <script type="module" src="./scripts/formaltestinstructions.js"></script>
 
 </body>
+
+</html>
