@@ -70,9 +70,7 @@
   background-color: #357ABD;
 }
 
-/* Ensure MCQ question text is visible and left-aligned */
-#mcqCorePage #mcqquestions,
-#mcqCorePage #mcqquestions * {
+#mcqCorePage #mcqquestions {
   color: black;
   text-align: left;
 }
@@ -151,7 +149,7 @@
 /* Correct/Wrong result tags */
 #mcqCorePage .resultTag {
   font-weight: bold;
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 /* Correct = green */
