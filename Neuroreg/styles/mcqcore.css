@@ -50,12 +50,6 @@
   background-color: #357ABD;
 }
 
-/* Ensure MCQ question text is visible */
-#mcqCorePage #mcqquestions,
-#mcqCorePage #mcqquestions * {
-  color: black;
-}
-
 /* Close button — match Submit button */
 #mcqCorePage #closeBtn {
   padding: 10px 15px;
@@ -65,7 +59,6 @@
   border-radius: 6px;
   cursor: pointer;
   margin-top: 32px;
-  /* match spacing */
   width: 120px;
   font-size: 1.1rem;
   display: block;
@@ -78,6 +71,13 @@
   background-color: #357ABD;
 }
 
+/* Ensure MCQ question text is visible and left-aligned */
+#mcqCorePage #mcqquestions,
+#mcqCorePage #mcqquestions * {
+  color: black;
+  text-align: left;
+}
+
 /* Question block */
 #mcqCorePage .questionBlock {
   border: 1px solid #ccc;
@@ -87,7 +87,13 @@
   background: #fff;
 }
 
-/* Options */
+/* Stem (the question text) */
+#mcqCorePage .questionBlock p {
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+/* Answer options — left aligned but slightly indented */
 #mcqCorePage .optionLabel {
   display: block;
   padding: 6px;
@@ -95,18 +101,21 @@
   border-radius: 4px;
   cursor: pointer;
   background: #f9f9f9;
+  padding-left: 12px;
+  /* indent */
 }
 
 #mcqCorePage .optionLabel.selected {
   background-color: #eef;
 }
 
-/* Explanation */
+/* Explanation — left aligned */
 #mcqCorePage .explanation {
   margin-top: 10px;
   padding: 10px;
   background: #f7f7f7;
   border-left: 3px solid #999;
+  text-align: left;
 }
 
 /* Flag button */
@@ -118,4 +127,3 @@
 #scoreDisplay {
   margin-top: 20px;
   font-size: 1.1em;
-}
