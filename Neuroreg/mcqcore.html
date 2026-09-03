@@ -151,42 +151,46 @@
     });
   </script>
 
-  <!-- MCQ UI -->
-  <h1>Practice MCQs</h1>
+  <!-- MCQ PAGE WRAPPER -->
+  <div id="mcqCorePage">
 
-  <div id="mcqSetup">
-    <label for="mcqCount">How many questions?</label>
-    <input type="number" id="mcqCount" min="1" value="20">
+    <h1>Practice MCQs</h1>
 
-    <label for="mcqAreas">Which subspecialty?</label>
-    <select id="mcqAreas">
-      <option value="all">All</option>
-      <option value="Vascular">Vascular</option>
-      <option value="Oncology">Oncology</option>
-      <option value="Skull Base">Skull base</option>
-      <option value="Trauma">Trauma</option>
-      <option value="CSF">CSF</option>
-      <option value="Spine">Spine</option>
-      <option value="Paediatrics">Paediatrics</option>
-      <option value="Peripheral Nerve">Peripheral Nerve</option>
-      <option value="Functional">Functional & Pain</option>
-      <option value="Epilepsy">Epilepsy</option>
-    </select>
+    <div id="mcqSetup">
+      <label for="mcqCount">How many questions?</label>
+      <input type="number" id="mcqCount" min="1" value="20">
 
-    <label for="mcqLevel">Level</label>
-    <select id="mcqLevel">
-      <option value="all">All</option>
-      <option value="MRCS">MRCS</option>
-      <option value="FRCS">FRCS</option>
-    </select>
+      <label for="mcqAreas">Which subspecialty?</label>
+      <select id="mcqAreas">
+        <option value="all">All</option>
+        <option value="Vascular">Vascular</option>
+        <option value="Oncology">Oncology</option>
+        <option value="Skull Base">Skull base</option>
+        <option value="Trauma">Trauma</option>
+        <option value="CSF">CSF</option>
+        <option value="Spine">Spine</option>
+        <option value="Paediatrics">Paediatrics</option>
+        <option value="Peripheral Nerve">Peripheral Nerve</option>
+        <option value="Functional">Functional & Pain</option>
+        <option value="Epilepsy">Epilepsy</option>
+      </select>
 
-    <button id="startSubmitBtn">Submit</button>
+      <label for="mcqLevel">Level</label>
+      <select id="mcqLevel">
+        <option value="all">All</option>
+        <option value="MRCS">MRCS</option>
+        <option value="FRCS">FRCS</option>
+      </select>
+
+      <button id="startSubmitBtn">Submit</button>
+    </div>
+
+    <div id="mcqquestions"></div>
+    <div id="scoreDisplay"></div>
+
+    <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
+
   </div>
-
-  <div id="mcqquestions"></div>
-  <div id="scoreDisplay"></div>
-
-  <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
 
   <!-- Page logic -->
   <script src="./scripts/mcqcore.js"></script>
