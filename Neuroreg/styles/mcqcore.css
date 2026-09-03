@@ -40,7 +40,6 @@
   border-radius: 6px;
   cursor: pointer;
   margin-top: 32px;
-  /* increased spacing above the button */
   width: 120px;
   font-size: 1.1rem;
   text-align: center;
@@ -93,18 +92,33 @@
   margin-bottom: 10px;
 }
 
-/* Answer options — left aligned but slightly indented */
+/* Answer options — left aligned, slightly indented, with a/b/c/d labels */
 #mcqCorePage .optionLabel {
-  display: block;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   padding: 6px;
   margin: 4px 0;
   border-radius: 4px;
   cursor: pointer;
   background: #f9f9f9;
   padding-left: 12px;
-  /* indent */
+  position: relative;
 }
 
+/* Generate a/b/c/d labels */
+#mcqCorePage .questionBlock {
+  counter-reset: optionCounter;
+}
+
+#mcqCorePage .optionLabel::before {
+  counter-increment: optionCounter;
+  content: counter(optionCounter, lower-alpha) ".";
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+/* Selected option */
 #mcqCorePage .optionLabel.selected {
   background-color: #eef;
 }
@@ -127,3 +141,4 @@
 #scoreDisplay {
   margin-top: 20px;
   font-size: 1.1em;
+}
