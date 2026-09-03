@@ -1,6 +1,10 @@
 /* Page layout */
 body {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* ⭐ centres everything */
 }
 
 /* Center the events container */
