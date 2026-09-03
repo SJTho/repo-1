@@ -39,8 +39,11 @@
   color: white;
   border-radius: 6px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 32px;
+  /* increased spacing above the button */
   width: 120px;
+  font-size: 1.1rem;
+  text-align: center;
 }
 
 #mcqSetup #startSubmitBtn:hover {
@@ -55,8 +58,14 @@
   color: white;
   border-radius: 6px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 32px;
+  /* match spacing */
   width: 120px;
+  font-size: 1.1rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 #mcqCorePage #closeBtn:hover {
