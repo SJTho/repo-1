@@ -1,0 +1,12 @@
+#topRightClock {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  font-size: 1.6rem;
+  font-weight: bold;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  z-index: 999;
+}
