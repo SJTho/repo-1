@@ -3,8 +3,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 70px;
-  /* avoids overlap with hamburger + icons */
+  padding-top: 20px;
+  /* reduced from 70px → moves heading up */
 }
 
 /* Center the main heading */
