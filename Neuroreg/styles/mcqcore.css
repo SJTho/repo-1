@@ -33,21 +33,14 @@
 
 /* Submit button — narrow, tall, bold */
 #mcqSetup #startSubmitBtn {
-  width: 120px;
-  /* narrower */
-  padding: 14px 0;
-  /* taller */
-  font-size: 1.2rem;
-  /* larger text */
-  background-color: #4A90E2;
-  /* modern blue */
-  color: white;
+  padding: 10px 15px;
   border: none;
+  background: #1f3b6f;
+  color: white;
   border-radius: 6px;
   cursor: pointer;
-  margin-top: 28px;
-  /* bigger gap above */
-  text-align: center;
+  margin-top: 10px;
+  width: 120px;
 }
 
 #mcqSetup #startSubmitBtn:hover {
@@ -56,19 +49,14 @@
 
 /* Close button — match Submit button */
 #mcqCorePage #closeBtn {
-  width: 120px;
-  padding: 14px 0;
-  font-size: 1.2rem;
-  background-color: #4A90E2;
-  color: white;
+  padding: 10px 15px;
   border: none;
+  background: #1f3b6f;
+  color: white;
   border-radius: 6px;
   cursor: pointer;
-  margin-top: 30px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  /* centre it */
+  margin-top: 10px;
+  width: 120px;
 }
 
 #mcqCorePage #closeBtn:hover {
