@@ -45,6 +45,31 @@ h1 {
   margin: 30px;
 }
 
+/* Override global button rules */
+#buttonRow .actionBtn {
+  width: auto !important;
+  /* stop full-width stretching */
+  margin-top: 0 !important;
+  /* remove forced vertical offset */
+  font-size: 16px !important;
+  /* normalise text size */
+  padding: 12px 20px !important;
+  /* normalise padding */
+  border-radius: 8px !important;
+  /* match your page style */
+
+  height: 48px;
+  /* identical height */
+  display: flex;
+  /* flex container */
+  align-items: center;
+  /* vertical centering */
+  justify-content: center;
+  /* horizontal centering */
+  line-height: 1 !important;
+  /* remove baseline drift */
+}
+
 /* Perfectly aligned buttons */
 .actionBtn {
   background: #1e3a5f;
