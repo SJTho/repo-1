@@ -227,6 +227,7 @@ window.addEventListener("DOMContentLoaded", () => {
     /* Progress button */
     const scoresBtn = document.createElement("button");
     scoresBtn.textContent = "Progress";
+    scoresBtn.className = "progressBtn";   /* <-- NEW */
     scoresBtn.style.display = "none";
     scoresBtn.onclick = () => window.location.href = "scores.html";
 
