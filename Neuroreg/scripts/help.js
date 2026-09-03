@@ -149,6 +149,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+   document.getElementById("closeBtn").addEventListener("click", () => {
+            window.history.back();
+   
+    });
+
 });
 
 /* -----------------------------------------
