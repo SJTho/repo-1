@@ -29,6 +29,14 @@
   /* keeps it nicely narrow */
 }
 
+#mcqSetup input,
+#mcqSetup select,
+#mcqSetup button {
+  width: 100%;
+  max-width: 300px;
+  /* or 400px if you prefer */
+}
+
 /* Question block */
 #mcqCorePage .questionBlock {
   border: 1px solid #ccc;
