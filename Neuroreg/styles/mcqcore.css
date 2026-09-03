@@ -149,7 +149,7 @@
 /* Correct/Wrong result tags */
 #mcqCorePage .resultTag {
   font-weight: bold;
-  margin-top: 12px;
+  margin-top: 16px;
 }
 
 /* Correct = green */
@@ -187,4 +187,10 @@
 
 #mcqCorePage #mcqquestions button:hover {
   background-color: #357ABD;
+}
+
+#mcqCorePage #mcqquestions .progressBtn {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
