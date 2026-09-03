@@ -11,7 +11,6 @@
 #mcqCorePage button,
 #mcqCorePage label {
   width: auto;
-  max-width: 400px;
 }
 
 /* Setup section */
@@ -20,44 +19,59 @@
   flex-direction: column;
   gap: 12px;
   margin: 0 auto 25px auto;
-  /* centres the whole block */
   align-items: center;
-  /* centres all child elements */
   text-align: left;
-  /* prevents labels from being centre-aligned */
   max-width: 400px;
-  /* keeps it nicely narrow */
 }
 
+/* Make all form elements the same width */
 #mcqSetup input,
-#mcqSetup select,
-#mcqSetup button {
+#mcqSetup select {
   width: 100%;
   max-width: 300px;
-  /* or 400px if you prefer */
 }
 
-/* Submit button styling */
+/* Submit button — narrow, tall, bold */
 #mcqSetup #startSubmitBtn {
-  width: 100%;
-  max-width: 300px;
-  /* narrower than full width */
+  width: 120px;
+  /* narrower */
   padding: 14px 0;
-  /* taller button */
+  /* taller */
   font-size: 1.2rem;
   /* larger text */
   background-color: #4A90E2;
-  /* new background colour */
+  /* modern blue */
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  margin-top: 20px;
-  /* larger gap above the button */
+  margin-top: 28px;
+  /* bigger gap above */
+  text-align: center;
 }
 
-/* Optional: hover effect */
 #mcqSetup #startSubmitBtn:hover {
+  background-color: #357ABD;
+}
+
+/* Close button — match Submit button */
+#mcqCorePage #closeBtn {
+  width: 120px;
+  padding: 14px 0;
+  font-size: 1.2rem;
+  background-color: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 30px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  /* centre it */
+}
+
+#mcqCorePage #closeBtn:hover {
   background-color: #357ABD;
 }
 
