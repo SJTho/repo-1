@@ -19,7 +19,14 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 25px;
+  margin: 0 auto 25px auto;
+  /* centres the whole block */
+  align-items: center;
+  /* centres all child elements */
+  text-align: left;
+  /* prevents labels from being centre-aligned */
+  max-width: 400px;
+  /* keeps it nicely narrow */
 }
 
 /* Question block */
