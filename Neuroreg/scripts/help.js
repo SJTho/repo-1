@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
-import { logout } from "./scripts/logout.js";
+import { logout } from "./logout.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 window.logout = logout;
