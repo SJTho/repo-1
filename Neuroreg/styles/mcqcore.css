@@ -1,36 +1,65 @@
+/* Scope all MCQ styling inside the page wrapper */
+#mcqCorePage {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Prevent global.css from forcing 100% width */
+#mcqCorePage input,
+#mcqCorePage select,
+#mcqCorePage button,
+#mcqCorePage label {
+  width: auto;
+  max-width: 400px;
+}
+
+/* Setup section */
 #mcqSetup {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 25px;
 }
 
-.questionBlock {
+/* Question block */
+#mcqCorePage .questionBlock {
   border: 1px solid #ccc;
   padding: 15px;
   margin-bottom: 20px;
   border-radius: 6px;
+  background: #fff;
 }
 
-.optionLabel {
+/* Options */
+#mcqCorePage .optionLabel {
   display: block;
   padding: 6px;
   margin: 4px 0;
   border-radius: 4px;
   cursor: pointer;
+  background: #f9f9f9;
 }
 
-.optionLabel.selected {
+#mcqCorePage .optionLabel.selected {
   background-color: #eef;
 }
 
-.explanation {
+/* Explanation */
+#mcqCorePage .explanation {
   margin-top: 10px;
   padding: 10px;
   background: #f7f7f7;
   border-left: 3px solid #999;
 }
 
-.flagBtn {
+/* Flag button */
+#mcqCorePage .flagBtn {
   margin-top: 10px;
+}
+
+/* Score display */
+#scoreDisplay {
+  margin-top: 20px;
+  font-size: 1.1em;
 }
