@@ -1,6 +1,7 @@
 // ------------------------------
-// Hamburger Menu
+// Hamburger Menu + Admin Link Loader
 // ------------------------------
+
 const hamburger = document.getElementById("hamburgerMenu");
 const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -13,6 +14,52 @@ document.addEventListener("click", (event) => {
         dropdown.style.display = "none";
     }
 });
+
+// Populate menu links (admin + standard)
+async function loadHamburgerLinks() {
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+    dropdown.innerHTML = ""; // Clear existing
+
+    const userId = parseInt(localStorage.getItem("userId"));
+    if (!userId) return;
+
+    // Check admin status
+    const { data, error } = await window.supabase
+        .from("users")
+        .select("isadmin")
+        .eq("id", userId)
+        .single();
+
+    const isAdmin = data?.isadmin === true;
+
+    // Standard links
+    const links = [
+        { text: "Home", href: "index.html" },
+        { text: "MCQs", href: "mcq.html" },
+        { text: "Operating Theatre", href: "operatingtheatre.html" },
+        { text: "Scores", href: "scores.html" }
+    ];
+
+    // Admin-only links
+    if (isAdmin) {
+        links.push(
+            { text: "Admin Panel", href: "admin.html" },
+            { text: "Manage Questions", href: "adminquestions.html" },
+            { text: "User Scores", href: "adminscores.html" }
+        );
+    }
+
+    // Render links
+    links.forEach(link => {
+        const a = document.createElement("a");
+        a.textContent = link.text;
+        a.href = link.href;
+        dropdown.appendChild(a);
+    });
+}
+
+loadHamburgerLinks();
+
 
 // ------------------------------
 // CATEGORY SYSTEM
@@ -63,9 +110,11 @@ function revealNextItem(category) {
     revealIndex[category]++;
 }
 
+
 // ------------------------------
 // Center new items
 // ------------------------------
+
 function centerItemOnBackground(item) {
     const wrapper = document.getElementById("theatreWrapper");
     const wrapperRect = wrapper.getBoundingClientRect();
@@ -80,9 +129,11 @@ function centerItemOnBackground(item) {
     item.style.top = `${top}px`;
 }
 
+
 // ------------------------------
 // Drag, Resize (scale), Flip System
 // ------------------------------
+
 function makeDraggable(el) {
     let offsetX = 0;
     let offsetY = 0;
@@ -180,6 +231,7 @@ function getNextZIndex() {
     return maxZ + 1;
 }
 
+
 // ------------------------------
 // ⭐ ROOM DROP LOGIC (Store + Staff)
 // ------------------------------
@@ -251,6 +303,7 @@ function attemptRoomDrop(el) {
     }
 }
 
+
 // ------------------------------
 // ⭐ Thumbnail System (Both Rooms)
 // ------------------------------
@@ -289,9 +342,11 @@ function updateRoomEmoji(room) {
     emoji.style.display = thumbs.length === 0 ? "block" : "none";
 }
 
+
 // ------------------------------
 // ⭐ Scale room contents
 // ------------------------------
+
 function scaleRoomContents() {
     const rooms = document.querySelectorAll(".roomPanel");
 
@@ -309,6 +364,7 @@ function scaleRoomContents() {
         });
     });
 }
+
 
 // Initialise
 window.onload = () => {
