@@ -3,6 +3,13 @@ body {
     padding: 20px;
 }
 
+/* Center the events container */
+#eventsContainer {
+    max-width: 800px;
+    margin: 0 auto;
+    /* centers horizontally */
+}
+
 /* Event cards */
 .eventCard {
     background: #fff;
