@@ -142,3 +142,22 @@
   margin-top: 20px;
   font-size: 1.1em;
 }
+
+/* MCQ Submit button (after questions are generated) — match other buttons */
+#mcqCorePage #mcqquestions button {
+  padding: 10px 15px;
+  border: none;
+  background: #1f3b6f;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 20px auto;
+  width: 120px;
+  font-size: 1.1rem;
+  display: block;
+  text-align: center;
+}
+
+#mcqCorePage #mcqquestions button:hover {
+  background-color: #357ABD;
+}
