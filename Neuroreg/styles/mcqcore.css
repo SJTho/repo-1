@@ -50,6 +50,12 @@
   background-color: #357ABD;
 }
 
+/* Ensure MCQ question text is visible */
+#mcqCorePage #mcqquestions,
+#mcqCorePage #mcqquestions * {
+  color: black;
+}
+
 /* Close button — match Submit button */
 #mcqCorePage #closeBtn {
   padding: 10px 15px;
