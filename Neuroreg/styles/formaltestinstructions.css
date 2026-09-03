@@ -56,3 +56,26 @@ h1 {
 .actionBtn:hover {
   background: #2a4f7a;
 }
+
+/* Ensure both buttons align perfectly */
+#buttonRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* <-- THIS fixes the vertical misalignment */
+  gap: 20px;
+  margin: 30px;
+}
+
+/* Normalise button height */
+.actionBtn {
+  background: #1e3a5f;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1.2;
+  /* <-- Ensures consistent baseline */
+}
