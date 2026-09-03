@@ -149,11 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    document.getElementById("closeBtn").addEventListener("click", () => {
-        window.history.length > 1
-            ? window.history.back()
-            : window.location.href = "index.html";
-    });
 });
 
 /* -----------------------------------------
