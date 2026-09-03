@@ -1,0 +1,39 @@
+/* Page layout */
+body {
+    padding: 20px;
+}
+
+/* Event cards */
+.eventCard {
+    background: #fff;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.closedMsg {
+    color: red;
+    font-weight: bold;
+}
+
+.registerBtn,
+.startBtn {
+    padding: 10px 15px;
+    border: none;
+    background: #1f3b6f;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.registerBtn:hover,
+.startBtn:hover {
+    background: #14233d;
+}
+
+.alreadyRegisteredMsg {
+    font-weight: bold;
+    color: #444;
+}
