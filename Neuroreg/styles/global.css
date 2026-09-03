@@ -143,8 +143,8 @@ select {
   display: none;
 }
 
-/* GLOBAL BUTTON STYLE (we override this later) */
-button {
+/* MCQ-only button style */
+#mcqArea button {
   margin-top: 20px;
   padding: 14px 20px;
   font-size: 1.1rem;
@@ -161,7 +161,8 @@ button:hover {
 }
 
 /* Back button (old style overridden later) */
-#closeBtn {
+/* MCQ-only back button */
+#mcqArea #closeBtn {
   background: #8a2a2a;
   margin-top: 30px;
   margin: 30px auto;
