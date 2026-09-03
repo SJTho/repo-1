@@ -47,11 +47,20 @@ async function loadHelpContent() {
 }
 
 /* -----------------------------------------
-   Close button
+   Close button + click-outside-to-close
 ----------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
+
+    // Close button
     document.getElementById("closeBtn").addEventListener("click", () => {
-        window.history.back();
+        window.location.href = document.referrer || "index.html";
+    });
+
+    // Click outside popup to close
+    document.getElementById("popupOverlay").addEventListener("click", (e) => {
+        if (e.target.id === "popupOverlay") {
+            window.location.href = document.referrer || "index.html";
+        }
     });
 });
 
