@@ -46,6 +46,7 @@ window.addEventListener("DOMContentLoaded", () => {
           {text: q.option4, correct: false}
         ];
 
+        /* Shuffle options */
         for (let i = options.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [options[i], options[j]] = [options[j], options[i]];
@@ -63,16 +64,20 @@ window.addEventListener("DOMContentLoaded", () => {
         };
       });
 
+      /* Remove over-flagged questions */
       pool = pool.filter(q => (q.flaggedset || 0) < 5);
 
+      /* Topic filter */
       if (topic !== "all") {
         pool = pool.filter(q => q.topic.toLowerCase() === topic.toLowerCase());
       }
 
+      /* Level filter */
       if (level !== "all") {
         pool = pool.filter(q => q.level.toLowerCase() === level.toLowerCase());
       }
 
+      /* Shuffle pool */
       for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -128,6 +133,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let questions = await window.copilot.generateMCQs({count, topic, level});
     if (!questions.length) return alert("No questions available.");
 
+    /* Render questions */
     questions.forEach((q, index) => {
       const block = document.createElement("div");
       block.className = "questionBlock";
@@ -149,6 +155,7 @@ window.addEventListener("DOMContentLoaded", () => {
       container.appendChild(block);
     });
 
+    /* Submit button */
     const submitBtn = document.createElement("button");
     submitBtn.textContent = "Submit";
 
@@ -168,37 +175,45 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const isCorrect = selected && selected.value === correct;
 
+        /* Correct */
         if (isCorrect) {
           score++;
           scalpelDelta += 2;
-          block.style.border = "2px solid #4CAF50";
+          block.style.border = "2px solid #2e8b57";
           block.insertAdjacentHTML("beforeend",
-            `<p class="resultTag" style="color:#4CAF50;"><strong>Correct (+2)</strong></p>`
-          );
-        } else {
-          scalpelDelta -= 1;
-          block.style.border = "2px solid #b30000";
-          block.insertAdjacentHTML("beforeend",
-            `<p class="resultTag" style="color:#b30000;"><strong>Wrong (-1)</strong></p>`
+            `<p class="resultTag correct"><strong>Correct (+2)</strong></p>`
           );
         }
 
+        /* Wrong */
+        else {
+          scalpelDelta -= 1;
+          block.style.border = "2px solid #b30000";
+          block.insertAdjacentHTML("beforeend",
+            `<p class="resultTag wrong"><strong>Wrong (-1)</strong></p>`
+          );
+        }
+
+        /* Explanation */
         const explanationDiv = document.createElement("div");
         explanationDiv.className = "explanation";
         explanationDiv.innerHTML = `<strong>Explanation:</strong> ${explanation}`;
         block.appendChild(explanationDiv);
 
+        /* Flag button */
         const flagBtn = document.createElement("button");
-        flagBtn.textContent = "Flag Question";
+        flagBtn.textContent = "Flag";
         flagBtn.className = "flagBtn";
         flagBtn.onclick = () => flagQuestion(block.dataset.id, flagBtn);
         block.appendChild(flagBtn);
       });
 
+      /* Update scalpel points */
       let currentPoints = parseInt(localStorage.getItem("scalpelPoints")) || 0;
       let newPoints = Math.max(0, currentPoints + scalpelDelta);
       localStorage.setItem("scalpelPoints", String(newPoints));
 
+      /* Score display */
       document.getElementById("scoreDisplay").innerHTML =
         `<p><strong>Score:</strong> ${score}/${questions.length}</p>
          <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>
@@ -209,6 +224,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     container.appendChild(submitBtn);
 
+    /* Progress button */
     const scoresBtn = document.createElement("button");
     scoresBtn.textContent = "Progress";
     scoresBtn.style.display = "none";
