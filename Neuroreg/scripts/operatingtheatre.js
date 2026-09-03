@@ -58,7 +58,9 @@ async function loadHamburgerLinks() {
     });
 }
 
-loadHamburgerLinks();
+window.addEventListener("DOMContentLoaded", () => {
+    loadHamburgerLinks();
+});
 
 
 // ------------------------------
