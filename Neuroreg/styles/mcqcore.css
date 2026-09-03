@@ -37,6 +37,30 @@
   /* or 400px if you prefer */
 }
 
+/* Submit button styling */
+#mcqSetup #startSubmitBtn {
+  width: 100%;
+  max-width: 300px;
+  /* narrower than full width */
+  padding: 14px 0;
+  /* taller button */
+  font-size: 1.2rem;
+  /* larger text */
+  background-color: #4A90E2;
+  /* new background colour */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 20px;
+  /* larger gap above the button */
+}
+
+/* Optional: hover effect */
+#mcqSetup #startSubmitBtn:hover {
+  background-color: #357ABD;
+}
+
 /* Question block */
 #mcqCorePage .questionBlock {
   border: 1px solid #ccc;
