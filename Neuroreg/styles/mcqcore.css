@@ -132,9 +132,39 @@
   text-align: left;
 }
 
-/* Flag button */
+/* Flag button — match other buttons */
 #mcqCorePage .flagBtn {
+  padding: 6px 12px;
+  background: #1f3b6f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
   margin-top: 10px;
+  width: 80px;
+  text-align: center;
+}
+
+#mcqCorePage .flagBtn:hover {
+  background-color: #357ABD;
+}
+
+/* Correct/Wrong result tags */
+#mcqCorePage .resultTag {
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+/* Correct = green */
+#mcqCorePage .resultTag.correct {
+  color: #2e8b57;
+  /* deep green */
+}
+
+/* Wrong = red */
+#mcqCorePage .resultTag.wrong {
+  color: #b30000;
+  /* deep red */
 }
 
 /* Score display */
