@@ -292,3 +292,5 @@ window.addEventListener("DOMContentLoaded", () => {
     await window.loadScalpelPoints();
     window.generateMCQs();
   };
+  
+});
