@@ -6,35 +6,49 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 window.logout = logout;
 
 /* -----------------------------------------
-   Load all public links
+   Load all public links + user selections
 ----------------------------------------- */
 async function loadLinksTable() {
     const container = document.getElementById("linksContainer");
     container.innerHTML = "";
 
-    // Fetch all links where ispublic != false
-    const { data, error } = await supabase
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+        container.innerHTML = "<p>No user logged in.</p>";
+        return;
+    }
+
+    // 1️⃣ Load all public links
+    const { data: links, error: linksError } = await supabase
         .from("indexpagelinks")
         .select("id, name, url, icon, ispublic")
         .neq("ispublic", "false")
         .order("id", { ascending: true });
 
-    if (error) {
-        console.error("Error loading links:", error);
+    if (linksError) {
+        console.error("Error loading links:", linksError);
         container.innerHTML = "<p>Failed to load links.</p>";
         return;
     }
 
-    if (!data || data.length === 0) {
-        container.innerHTML = "<p>No links available.</p>";
+    // 2️⃣ Load user-selected link IDs
+    const { data: selected, error: selectedError } = await supabase
+        .from("mapuserstolinks")
+        .select("linkid")
+        .eq("userid", userId);
+
+    if (selectedError) {
+        console.error("Error loading user selections:", selectedError);
+        container.innerHTML = "<p>Failed to load selections.</p>";
         return;
     }
 
-    // Create table
+    const selectedIds = new Set(selected.map(row => row.linkid));
+
+    // 3️⃣ Build table
     const table = document.createElement("table");
     table.className = "links-table";
 
-    // Header
     const header = document.createElement("tr");
     header.innerHTML = `
         <th>Link</th>
@@ -42,19 +56,46 @@ async function loadLinksTable() {
     `;
     table.appendChild(header);
 
-    // Rows
-    data.forEach(row => {
+    // 4️⃣ Render rows
+    links.forEach(link => {
         const tr = document.createElement("tr");
+
+        const isChecked = selectedIds.has(link.id);
 
         tr.innerHTML = `
             <td class="link-cell">
-                <span class="icon">${row.icon || ""}</span>
-                <span class="name">${row.name}</span>
+                <span class="icon">${link.icon || ""}</span>
+                <span class="name">${link.name}</span>
             </td>
             <td class="checkbox-cell">
-                <input type="checkbox" disabled />
+                <input type="checkbox" ${isChecked ? "checked" : ""} />
             </td>
         `;
+
+        // 5️⃣ Checkbox behaviour
+        const checkbox = tr.querySelector("input[type='checkbox']");
+        checkbox.addEventListener("change", async () => {
+            if (checkbox.checked) {
+                // Add mapping
+                const { error } = await supabase
+                    .from("mapuserstolinks")
+                    .insert({
+                        userid: userId,
+                        linkid: link.id
+                    });
+
+                if (error) console.error("Insert error:", error);
+            } else {
+                // Remove mapping
+                const { error } = await supabase
+                    .from("mapuserstolinks")
+                    .delete()
+                    .eq("userid", userId)
+                    .eq("linkid", link.id);
+
+                if (error) console.error("Delete error:", error);
+            }
+        });
 
         table.appendChild(tr);
     });
