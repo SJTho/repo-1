@@ -166,7 +166,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const submitBtn = document.createElement("button");
     submitBtn.textContent = "Submit";
 
-    submitBtn.onclick = () => {
+    submitBtn.onclick = async () => {
       submitBtn.remove();
       scoresBtn.style.display = "inline-block";
 
@@ -220,6 +220,19 @@ window.addEventListener("DOMContentLoaded", () => {
       let newPoints = Math.max(0, currentPoints + scalpelDelta);
       localStorage.setItem("scalpelPoints", String(newPoints));
 
+      /* Sync scalpel points to Supabase */
+      const userId = parseInt(localStorage.getItem("userId"));
+      if (userId) {
+        const { error: updatePointsError } = await window.supabase
+          .from("profiles")
+          .update({ scalpel_points: newPoints })
+          .eq("id", userId);
+
+        if (updatePointsError) {
+          console.error("Failed to update scalpel points:", updatePointsError);
+        }
+      }
+
       /* Score display */
       document.getElementById("scoreDisplay").innerHTML =
         `<p><strong>Score:</strong> ${score}/${questions.length}</p>
@@ -233,4 +246,3 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   document.getElementById("startSubmitBtn").onclick = window.generateMCQs;
-});
