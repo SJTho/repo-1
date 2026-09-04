@@ -18,7 +18,7 @@ async function loadLinksTable() {
         return;
     }
 
-    // 1️⃣ Load all public links
+    // Load all public links
     const { data: links, error: linksError } = await supabase
         .from("indexpagelinks")
         .select("id, name, url, icon, ispublic")
@@ -31,7 +31,7 @@ async function loadLinksTable() {
         return;
     }
 
-    // 2️⃣ Load user-selected link IDs
+    // Load user-selected link IDs
     const { data: selected, error: selectedError } = await supabase
         .from("mapuserstolinks")
         .select("linkid")
@@ -45,7 +45,7 @@ async function loadLinksTable() {
 
     const selectedIds = new Set(selected.map(row => row.linkid));
 
-    // 3️⃣ Build table
+    // Build table
     const table = document.createElement("table");
     table.className = "links-table";
 
@@ -56,10 +56,9 @@ async function loadLinksTable() {
     `;
     table.appendChild(header);
 
-    // 4️⃣ Render rows
+    // Render rows
     links.forEach(link => {
         const tr = document.createElement("tr");
-
         const isChecked = selectedIds.has(link.id);
 
         tr.innerHTML = `
@@ -74,10 +73,8 @@ async function loadLinksTable() {
 
         const checkbox = tr.querySelector("input[type='checkbox']");
 
-        // 5️⃣ Checkbox behaviour
         checkbox.addEventListener("change", async () => {
             if (checkbox.checked) {
-                // Insert mapping
                 const { error } = await supabase
                     .from("mapuserstolinks")
                     .insert({
@@ -90,7 +87,6 @@ async function loadLinksTable() {
                     checkbox.checked = false;
                 }
             } else {
-                // Delete mapping
                 const { error } = await supabase
                     .from("mapuserstolinks")
                     .delete()
@@ -111,6 +107,74 @@ async function loadLinksTable() {
 }
 
 /* -----------------------------------------
+   Add Link Form
+----------------------------------------- */
+function renderAddLinkForm() {
+    const formContainer = document.getElementById("addLinkContainer");
+
+    formContainer.innerHTML = `
+        <h2>Add a New Link</h2>
+
+        <label>Name</label>
+        <input id="newLinkName" type="text" placeholder="e.g. My Dashboard">
+
+        <label>URL</label>
+        <input id="newLinkUrl" type="text" placeholder="https://example.com">
+
+        <label>Icon (emoji)</label>
+        <input id="newLinkIcon" type="text" placeholder="🔗">
+
+        <label>Public?</label>
+        <select id="newLinkPublic">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select>
+
+        <button id="saveNewLinkBtn">Save Link</button>
+    `;
+
+    document.getElementById("saveNewLinkBtn").addEventListener("click", saveNewLink);
+}
+
+/* -----------------------------------------
+   Save new link into indexpagelinks
+----------------------------------------- */
+async function saveNewLink() {
+    const name = document.getElementById("newLinkName").value.trim();
+    const url = document.getElementById("newLinkUrl").value.trim();
+    const icon = document.getElementById("newLinkIcon").value.trim();
+    const ispublic = document.getElementById("newLinkPublic").value;
+
+    if (!name || !url) {
+        alert("Name and URL are required.");
+        return;
+    }
+
+    const { error } = await supabase
+        .from("indexpagelinks")
+        .insert({
+            name,
+            url,
+            icon,
+            ispublic
+        });
+
+    if (error) {
+        console.error("Insert link error:", error);
+        alert("Failed to save link.");
+        return;
+    }
+
+    // Refresh table
+    loadLinksTable();
+
+    // Clear form
+    document.getElementById("newLinkName").value = "";
+    document.getElementById("newLinkUrl").value = "";
+    document.getElementById("newLinkIcon").value = "";
+}
+
+/* -----------------------------------------
    Close button
 ----------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
@@ -122,4 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /* -----------------------------------------
    Init
 ----------------------------------------- */
-window.addEventListener("DOMContentLoaded", loadLinksTable);
+window.addEventListener("DOMContentLoaded", () => {
+    loadLinksTable();
+    renderAddLinkForm();
+});
