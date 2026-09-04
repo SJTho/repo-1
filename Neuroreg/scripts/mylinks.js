@@ -239,7 +239,7 @@ async function saveOrUpdateLink() {
         /* -----------------------------------------
            INSERT MODE
         ----------------------------------------- */
-        const { error } = await supabase
+        const { data: inserted, error } = await supabase
             .from("indexpagelinks")
             .insert({
                 name,
@@ -247,13 +247,25 @@ async function saveOrUpdateLink() {
                 icon,
                 ispublic,
                 addedby: userId
-            });
+            })
+            .select();   // return inserted row
 
         if (error) {
             console.error("Insert link error:", error);
             alert("Failed to save link.");
             return;
         }
+
+        const newLink = inserted[0];
+
+        // Auto-select the newly added link
+        await supabase
+            .from("mapuserstolinks")
+            .insert({
+                userid: userId,
+                linkid: newLink.id
+            });
+
     } else {
         /* -----------------------------------------
            UPDATE MODE
