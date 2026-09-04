@@ -72,11 +72,12 @@ async function loadLinksTable() {
             </td>
         `;
 
-        // 5️⃣ Checkbox behaviour
         const checkbox = tr.querySelector("input[type='checkbox']");
+
+        // 5️⃣ Checkbox behaviour
         checkbox.addEventListener("change", async () => {
             if (checkbox.checked) {
-                // Add mapping
+                // Insert mapping
                 const { error } = await supabase
                     .from("mapuserstolinks")
                     .insert({
@@ -84,16 +85,22 @@ async function loadLinksTable() {
                         linkid: link.id
                     });
 
-                if (error) console.error("Insert error:", error);
+                if (error) {
+                    console.error("Insert error:", error);
+                    checkbox.checked = false;
+                }
             } else {
-                // Remove mapping
+                // Delete mapping
                 const { error } = await supabase
                     .from("mapuserstolinks")
                     .delete()
                     .eq("userid", userId)
                     .eq("linkid", link.id);
 
-                if (error) console.error("Delete error:", error);
+                if (error) {
+                    console.error("Delete error:", error);
+                    checkbox.checked = true;
+                }
             }
         });
 
