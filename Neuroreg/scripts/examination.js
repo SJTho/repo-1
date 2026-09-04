@@ -6,7 +6,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Correct UUID handling
 const sessionToken = localStorage.getItem("sessionToken");
-const userId = localStorage.getItem("userId");               // UUID (fixed)
+const userId = localStorage.getItem("userId");               // UUID
 const eventId = parseInt(localStorage.getItem("currentEventId"));  // integer
 
 if (!sessionToken) {
@@ -14,16 +14,9 @@ if (!sessionToken) {
 }
 
 /* ----------------------------------------------------
-   CHECK ACCESS (Supabase + localStorage)
+   CHECK ACCESS (Supabase ONLY)
 ---------------------------------------------------- */
 async function checkAccess() {
-  // Local lock: prevents refresh/back-button re-entry
-  if (localStorage.getItem("examStarted") === "true") {
-    window.location.href = "formaltestinstructions.html";
-    return false;
-  }
-
-  // Server lock: prevents multi-device re-entry
   const { data, error } = await supabase
     .from("eventregistration")
     .select("examstarted")
@@ -31,11 +24,13 @@ async function checkAccess() {
     .eq("eventid", eventId)
     .maybeSingle();
 
+  // No registration row → redirect
   if (error || !data) {
     window.location.href = "formaltestinstructions.html";
     return false;
   }
 
+  // Already started → redirect
   if (data.examstarted === true) {
     window.location.href = "formaltestinstructions.html";
     return false;
@@ -45,13 +40,9 @@ async function checkAccess() {
 }
 
 /* ----------------------------------------------------
-   LOCK EXAM (Supabase + localStorage)
+   LOCK EXAM (Supabase ONLY)
 ---------------------------------------------------- */
 async function lockExam() {
-  // Local lock
-  localStorage.setItem("examStarted", "true");
-
-  // Server lock
   await supabase
     .from("eventregistration")
     .update({ examstarted: true })
