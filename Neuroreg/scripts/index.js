@@ -1,8 +1,8 @@
 /* ----------------------------------------------------
    Supabase Connection
 ---------------------------------------------------- */
-import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -19,19 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "login.html";
         return;
     }
-
-    /* ----------------------------------------------------
-       Logout
-    ---------------------------------------------------- */
-    function logout() {
-        localStorage.removeItem("sessionToken");
-        localStorage.removeItem("nickname");
-        localStorage.removeItem("scalpel_points");
-        localStorage.removeItem("rank");
-        localStorage.removeItem("userId");
-        window.location.reload();
-    }
-    window.logout = logout;
 
     /* ----------------------------------------------------
        Hamburger Toggle
@@ -58,12 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const isAdmin = localStorage.getItem("isAdmin") === "true";
         const currentPage = window.location.pathname.split("/").pop();
 
-        const {data, error} = await supabase
+        const { data, error } = await supabase
             .from("menuitems")
             .select("*")
             .eq("hamburger", true)
-            .order("hamburgersection", {ascending: true})
-            .order("hamburgerorder", {ascending: true});
+            .order("hamburgersection", { ascending: true })
+            .order("hamburgerorder", { ascending: true });
 
         if (error) {
             console.error("Menu load error:", error);
@@ -90,8 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
             div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
 
             div.onclick = () => {
-                if (item.url === "logout") logout();
-                else window.location.href = item.url;
+                window.location.href = item.url;
             };
 
             dropdown.appendChild(div);
@@ -106,11 +92,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const isAdmin = localStorage.getItem("isAdmin") === "true";
         const currentPage = window.location.pathname.split("/").pop();
 
-        const {data, error} = await supabase
+        const { data, error } = await supabase
             .from("menuitems")
             .select("*")
             .eq("topright", true)
-            .order("toprightorder", {ascending: true});
+            .order("toprightorder", { ascending: true });
 
         if (error) {
             console.error("Top-right load error:", error);
@@ -128,8 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon.innerText = item.emoji;
 
             icon.onclick = () => {
-                if (item.url === "logout") logout();
-                else window.location.href = item.url;
+                window.location.href = item.url;
             };
 
             container.appendChild(icon);
@@ -140,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
        Rank System
     ---------------------------------------------------- */
     async function fetchRankForPoints(points) {
-        const {data, error} = await supabase.rpc("get_rank_for_points", {points});
+        const { data, error } = await supabase.rpc("get_rank_for_points", { points });
         if (error) return null;
         return data;
     }
@@ -158,10 +143,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function updateSupabasePoints(newPoints) {
-        let userId = parseInt(localStorage.getItem("userId"));
+        let userId = localStorage.getItem("userId");   // UUID (fixed)
         if (!userId) return;
 
-        const {error} = await supabase.rpc("update_points", {
+        const { error } = await supabase.rpc("update_points", {
             user_id: userId,
             new_points: newPoints
         });
@@ -274,33 +259,51 @@ document.addEventListener("DOMContentLoaded", () => {
         deletePopup.style.display = "none";
     });
 
-    function createAddLinkButton() {
-        const card = document.createElement("div");
-        card.className = "iconCard";
-
-        card.addEventListener("click", () => {
-            window.location.href = "custom_button.html";
-        });
-
-        card.innerHTML = `
-            <div class="icon smallIcon">🔗</div>
-            <p class="iconLabel">Add Link</p>
-        `;
-        return card;
-    }
-
-    function renderLinks() {
+    /* ----------------------------------------------------
+       NEW: Render user-mapped links from Supabase
+    ---------------------------------------------------- */
+    async function renderLinks() {
         linksContainer.innerHTML = "";
 
-        linksContainer.appendChild(createIconCard("📘", "ISCP", "https://www.iscp.ac.uk"));
-        linksContainer.appendChild(createIconCard("📊", "eLogbook", "https://client.elogbook.org/"));
-        linksContainer.appendChild(createIconCard("📝", "MRCS", "https://www.intercollegiatemrcsexams.org.uk/"));
-        linksContainer.appendChild(createIconCard("🎓", "JCIE", "https://www.jcie.org.uk"));
-        linksContainer.appendChild(createIconCard("🏛️", "JCST", "https://www.jcst.org"));
-        linksContainer.appendChild(createIconCard("📒", "Gold Guide", "https://www.copmed.org.uk/publications/gold-guide"));
-        linksContainer.appendChild(createIconCard("🧑‍🤝‍🧑", "SBNS", "https://www.sbns.org.uk"));
-        linksContainer.appendChild(createIconCard("🩺", "BNTA", "https://www.e1v1m1.com"));
+        const userId = localStorage.getItem("userId");
 
+        // 1️⃣ Get mapped link IDs
+        const { data: mappings, error: mapError } = await supabase
+            .from("mapuserstolinks")
+            .select("linkid")
+            .eq("userid", userId);
+
+        if (mapError) {
+            console.error("Failed to load user link mappings:", mapError);
+            return;
+        }
+
+        const linkIds = mappings.map(m => m.linkid);
+
+        if (linkIds.length === 0) {
+            linksContainer.innerHTML = "<p>No links selected yet.</p>";
+            return;
+        }
+
+        // 2️⃣ Fetch link definitions
+        const { data: links, error: linkError } = await supabase
+            .from("indexpagelinks")
+            .select("*")
+            .in("id", linkIds);
+
+        if (linkError) {
+            console.error("Failed to load index page links:", linkError);
+            return;
+        }
+
+        // 3️⃣ Render each link
+        links.forEach(link => {
+            linksContainer.appendChild(
+                createIconCard(link.icon, link.name, link.url)
+            );
+        });
+
+        // 4️⃣ Custom buttons still work
         linksContainer.appendChild(renderCustomButtons());
 
         if (loadCustomButtons().length < 3) {
