@@ -3,7 +3,15 @@ body {
     font-family: Arial, sans-serif;
     padding: 20px;
     background: #f7f7f9;
-    color: #333;
+    color: #000 !important;
+    /* 1. Force all text to black */
+}
+
+/* Override global full‑width button rule */
+button {
+    width: auto !important;
+    /* 2. Stop global.css from forcing full width */
+    display: inline-block !important;
 }
 
 /* Container spacing */
@@ -16,7 +24,8 @@ body {
 #formTitle {
     font-size: 22px;
     margin-bottom: 15px;
-    color: #444;
+    color: #fff !important;
+    /* 4. Heading should be white */
 }
 
 /* Inputs */
@@ -29,6 +38,8 @@ select {
     border-radius: 6px;
     font-size: 15px;
     background: #fff;
+    color: #000;
+    /* ensure text is visible */
 }
 
 input[type="text"]:focus,
@@ -48,7 +59,21 @@ select:focus {
     font-size: 15px;
 }
 
-#saveNewLinkBtn:hover {
+/* 3. Style Close button like Save Link */
+#closeBtn {
+    background: #0078ff !important;
+    color: white !important;
+    padding: 10px 16px !important;
+    border: none !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-size: 15px !important;
+    width: auto !important;
+    display: inline-block !important;
+}
+
+#saveNewLinkBtn:hover,
+#closeBtn:hover {
     background: #005fcc;
 }
 
@@ -60,6 +85,8 @@ select:focus {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    color: #000;
+    /* ensure table text is black */
 }
 
 .links-table th {
@@ -74,6 +101,7 @@ select:focus {
     padding: 12px;
     border-bottom: 1px solid #eee;
     vertical-align: middle;
+    color: #000;
 }
 
 /* Icon + name cell */
@@ -100,11 +128,12 @@ select:focus {
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    color: #fff;
 }
 
 .editBtn {
     background: #ffc107;
-    color: #333;
+    color: #000;
 }
 
 .editBtn:hover {
@@ -113,7 +142,6 @@ select:focus {
 
 .deleteBtn {
     background: #dc3545;
-    color: white;
 }
 
 .deleteBtn:hover {
@@ -137,6 +165,7 @@ select:focus {
     cursor: pointer;
     font-size: 20px;
     border-radius: 4px;
+    color: #000;
 }
 
 .emoji-suggestion:hover {
