@@ -69,15 +69,15 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* MCQ BUILDER */
   window.copilot = {
-    generateMCQs: async ({count, topic, level}) => {
+    generateMCQs: async ({ count, topic, level }) => {
       let pool = await window.fetchQuestionsFromDB();
 
       pool = pool.map(q => {
         const options = [
-          {text: q.option1, correct: true},
-          {text: q.option2, correct: false},
-          {text: q.option3, correct: false},
-          {text: q.option4, correct: false}
+          { text: q.option1, correct: true },
+          { text: q.option2, correct: false },
+          { text: q.option3, correct: false },
+          { text: q.option4, correct: false }
         ];
 
         /* Shuffle options */
@@ -123,7 +123,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* FLAG QUESTION */
   window.flagQuestion = async function (questionId, buttonElement) {
-    const {data, error} = await window.supabase
+    const { data, error } = await window.supabase
       .from("mcqquestions")
       .select("flaggedset")
       .eq("id", questionId)
@@ -136,9 +136,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const updated = current + 1;
 
-    const {error: updateError} = await window.supabase
+    const { error: updateError } = await window.supabase
       .from("mcqquestions")
-      .update({flaggedset: updated})
+      .update({ flaggedset: updated })
       .eq("id", questionId);
 
     if (updateError) return alert("Could not update flag count.");
@@ -164,8 +164,11 @@ window.addEventListener("DOMContentLoaded", () => {
     container.innerHTML = "";
     document.getElementById("scoreDisplay").innerHTML = "";
 
-    let questions = await window.copilot.generateMCQs({count, topic, level});
-    if (!questions.length) return alert("No questions available.");
+    let questions = await window.copilot.generateMCQs({ count, topic, level });
+    if (!questions.length) {
+      alert("No questions available.");
+      return;
+    }
 
     /* Progress button (created BEFORE submit button) */
     const scoresBtn = document.createElement("button");
@@ -181,12 +184,16 @@ window.addEventListener("DOMContentLoaded", () => {
 
       block.innerHTML = `
         <p><strong>Q${index + 1} (${q.level}):</strong> ${q.stem}</p>
-        ${q.options.map((opt, j) => `
+        ${q.options
+          .map(
+            (opt, j) => `
           <label class="optionLabel" data-q="${index}" onclick="selectOption(${index}, ${j}, this)">
             <input type="radio" name="q${index}" value="${j}">
             ${opt}
           </label>
-        `).join("")}
+        `
+          )
+          .join("")}
       `;
 
       block.dataset.correct = q.correctIndex;
@@ -222,7 +229,8 @@ window.addEventListener("DOMContentLoaded", () => {
           score += 1;
           scalpelDelta += 1;
           block.style.border = "2px solid #2e8b57";
-          block.insertAdjacentHTML("beforeend",
+          block.insertAdjacentHTML(
+            "beforeend",
             `<p class="resultTag correct"><strong>Correct (+1)</strong></p>`
           );
         }
@@ -230,7 +238,8 @@ window.addEventListener("DOMContentLoaded", () => {
         /* Wrong: 0 score, 0 scalpel points */
         else if (isAnswered) {
           block.style.border = "2px solid #b30000";
-          block.insertAdjacentHTML("beforeend",
+          block.insertAdjacentHTML(
+            "beforeend",
             `<p class="resultTag wrong"><strong>Wrong (0)</strong></p>`
           );
         }
@@ -238,7 +247,8 @@ window.addEventListener("DOMContentLoaded", () => {
         /* Not answered: 0 score, 0 scalpel points */
         else {
           block.style.border = "2px solid #b30000";
-          block.insertAdjacentHTML("beforeend",
+          block.insertAdjacentHTML(
+            "beforeend",
             `<p class="resultTag wrong"><strong>Not answered (0)</strong></p>`
           );
         }
