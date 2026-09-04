@@ -330,10 +330,9 @@ function resetForm() {
 /* -----------------------------------------
    Close button
 ----------------------------------------- */
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("closeBtn").addEventListener("click", () => {
-        window.history.back();
-    });
+document.getElementById("closeBtn").addEventListener("click", () => {
+    window.location.href = "index.html";   // go back
+    window.location.reload();              // force refresh
 });
 
 /* -----------------------------------------
