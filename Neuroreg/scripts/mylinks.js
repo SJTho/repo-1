@@ -27,7 +27,7 @@ async function loadLinksTable() {
         return;
     }
 
-    // Load public links + user's private links
+    // Load public links OR private links owned by the user
     const { data: links, error: linksError } = await supabase
         .from("indexpagelinks")
         .select("id, name, url, icon, ispublic, addedby")
@@ -71,8 +71,9 @@ async function loadLinksTable() {
         const tr = document.createElement("tr");
         const isChecked = selectedIds.has(link.id);
 
+        // Correct boolean check
         const isPrivateOwned =
-            link.ispublic === "false" && link.addedby === userId;
+            link.ispublic === false && link.addedby === userId;
 
         tr.innerHTML = `
             <td class="link-cell">
@@ -197,7 +198,9 @@ async function saveNewLink() {
     const name = document.getElementById("newLinkName").value.trim();
     const url = document.getElementById("newLinkUrl").value.trim();
     const icon = document.getElementById("newLinkIcon").value.trim();
-    const ispublic = document.getElementById("newLinkPublic").value;
+
+    // Convert string → boolean
+    const ispublic = document.getElementById("newLinkPublic").value === "true";
 
     const userId = localStorage.getItem("userId");
 
