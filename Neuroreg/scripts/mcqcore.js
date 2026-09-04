@@ -35,16 +35,23 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* UPDATE SCALPEL POINTS IN SUPABASE (fire-and-forget) */
   window.updateScalpelPoints = async function (newPoints) {
-    const userId = parseInt(localStorage.getItem("userId"));
-    if (!userId) return;
+    const userId = localStorage.getItem("userId");   // no parseInt
 
-    const { error } = await window.supabase
-      .from("profiles")
+    if (!userId) {
+      console.warn("No userId in localStorage, cannot update scalpel points.");
+      return;
+    }
+
+    const { data, error } = await window.supabase
+      .from("profiles")                              // ensure this matches your actual table name
       .update({ scalpel_points: newPoints })
-      .eq("id", userId);
+      .eq("id", userId)
+      .select();
 
     if (error) {
       console.error("Failed to update scalpel points:", error);
+    } else {
+      console.log("Scalpel points updated:", data);
     }
   };
 
