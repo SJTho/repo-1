@@ -129,7 +129,7 @@ function renderAddLinkForm() {
         <label>URL</label>
         <input id="newLinkUrl" type="text" placeholder="https://example.com">
 
-        <label>Icon (emoji)</label>
+        <label>Icon</label>
         <select id="newLinkIcon">
             <option value="">-- choose an emoji --</option>
             ${emojiOptions}
