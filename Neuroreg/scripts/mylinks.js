@@ -15,7 +15,7 @@ const EMOJI_LIST = [
 ];
 
 /* -----------------------------------------
-   Load all public links + user selections
+   Load public links + user's private links
 ----------------------------------------- */
 async function loadLinksTable() {
     const container = document.getElementById("linksContainer");
@@ -27,11 +27,11 @@ async function loadLinksTable() {
         return;
     }
 
-    // Load all public links
+    // Load public links + user's private links
     const { data: links, error: linksError } = await supabase
         .from("indexpagelinks")
-        .select("id, name, url, icon, ispublic")
-        .neq("ispublic", "false")
+        .select("id, name, url, icon, ispublic, addedby")
+        .or(`ispublic.eq.true,addedby.eq.${userId}`)
         .order("id", { ascending: true });
 
     if (linksError) {
@@ -62,6 +62,7 @@ async function loadLinksTable() {
     header.innerHTML = `
         <th>Link</th>
         <th>Select</th>
+        <th>Action</th>
     `;
     table.appendChild(header);
 
@@ -69,6 +70,9 @@ async function loadLinksTable() {
     links.forEach(link => {
         const tr = document.createElement("tr");
         const isChecked = selectedIds.has(link.id);
+
+        const isPrivateOwned =
+            link.ispublic === "false" && link.addedby === userId;
 
         tr.innerHTML = `
             <td class="link-cell">
@@ -78,10 +82,15 @@ async function loadLinksTable() {
             <td class="checkbox-cell">
                 <input type="checkbox" ${isChecked ? "checked" : ""} />
             </td>
+            <td class="action-cell">
+                ${isPrivateOwned ? `<button class="deleteBtn">Delete</button>` : ""}
+            </td>
         `;
 
+        /* -----------------------------------------
+           Checkbox behaviour
+        ----------------------------------------- */
         const checkbox = tr.querySelector("input[type='checkbox']");
-
         checkbox.addEventListener("change", async () => {
             if (checkbox.checked) {
                 const { error } = await supabase
@@ -109,6 +118,37 @@ async function loadLinksTable() {
             }
         });
 
+        /* -----------------------------------------
+           Delete button behaviour (private links only)
+        ----------------------------------------- */
+        if (isPrivateOwned) {
+            const deleteBtn = tr.querySelector(".deleteBtn");
+            deleteBtn.addEventListener("click", async () => {
+                if (!confirm("Delete this private link?")) return;
+
+                // Remove from mapuserstolinks first
+                await supabase
+                    .from("mapuserstolinks")
+                    .delete()
+                    .eq("linkid", link.id);
+
+                // Remove from indexpagelinks
+                const { error } = await supabase
+                    .from("indexpagelinks")
+                    .delete()
+                    .eq("id", link.id)
+                    .eq("addedby", userId);
+
+                if (error) {
+                    console.error("Delete error:", error);
+                    alert("Failed to delete link.");
+                    return;
+                }
+
+                loadLinksTable();
+            });
+        }
+
         table.appendChild(tr);
     });
 
@@ -121,7 +161,6 @@ async function loadLinksTable() {
 function renderAddLinkForm() {
     const formContainer = document.getElementById("addLinkContainer");
 
-    // Build emoji dropdown options
     const emojiOptions = EMOJI_LIST.map(e => `<option value="${e}">${e}</option>`).join("");
 
     formContainer.innerHTML = `
@@ -160,7 +199,7 @@ async function saveNewLink() {
     const icon = document.getElementById("newLinkIcon").value.trim();
     const ispublic = document.getElementById("newLinkPublic").value;
 
-    const userId = localStorage.getItem("userId");   // ← NEW
+    const userId = localStorage.getItem("userId");
 
     if (!name || !url) {
         alert("Name and URL are required.");
@@ -174,7 +213,7 @@ async function saveNewLink() {
             url,
             icon,
             ispublic,
-            addedby: userId      // ← NEW
+            addedby: userId
         });
 
     if (error) {
