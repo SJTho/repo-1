@@ -142,7 +142,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (updateError) return alert("Could not update flag count.");
 
     alert(`Question flagged (${updated}/5)`);
-    buttonElement.disabled = true;
+    buttonElement.style.display = "none"
   };
 
   /* RENDER + MARK MCQs */
