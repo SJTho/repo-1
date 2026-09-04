@@ -84,12 +84,14 @@ async function loadLinksTable() {
             <td class="checkbox-cell">
                 <input type="checkbox" ${isChecked ? "checked" : ""} />
             </td>
-            <td class="action-cell">
-                ${isPrivateOwned ? `
-                    <button class="editBtn">Edit</button>
-                    <button class="deleteBtn">Delete</button>
-                ` : ""}
-            </td>
+          <td class="action-cell">
+    ${isPrivateOwned ? `
+        <button class="editBtn">Edit</button>
+        <button class="deleteBtn">Delete</button>
+    ` : `
+        <span class="public-note">Public links can't be edited</span>
+    `}
+</td>
         `;
 
         /* -----------------------------------------
