@@ -23,14 +23,12 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!userId) return;
 
     await window.supabase
-      .from("userpracticemcqscores")
-      .insert({
-        userid: userId,
-        score,
-        numberofquestions: numberOfQuestions,
-        topic,
-        level
-      });
+  .from("userpracticemcqscores")
+  .insert({
+    userid: userId,
+    score,
+    numberofquestions: numberOfQuestions
+  });
   };
 
   /* LOAD EXISTING SCALPEL POINTS FROM SUPABASE */
