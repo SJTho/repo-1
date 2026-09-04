@@ -1,8 +1,8 @@
 /* ----------------------------------------------------
    Supabase Connection
 ---------------------------------------------------- */
-import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -10,15 +10,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
    MAIN PAGE LOGIC
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
-
-    /* ----------------------------------------------------
-       Exit Warning
-    ---------------------------------------------------- */
-    function confirmExitExam() {
-        return confirm(
-            "If you leave this page you may not be allowed back into the examination.\n\nDo you want to continue?"
-        );
-    }
 
     /* ----------------------------------------------------
        Event Title
@@ -52,18 +43,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ----------------------------------------------------
        Start Now → examination.html
+       (No local exam lock)
     ---------------------------------------------------- */
     document.getElementById("startNowBtn").addEventListener("click", () => {
-        localStorage.setItem("examLocked", "true");
         window.location.href = "examination.html";
     });
 
     /* ----------------------------------------------------
-       Back Button
+       Back Button → formaltest.html
+       (No pop-up)
     ---------------------------------------------------- */
     document.getElementById("closeBtn").addEventListener("click", () => {
-        if (confirmExitExam()) {
-            window.history.back();
-        }
+        window.location.href = "formaltest.html";
     });
 });
