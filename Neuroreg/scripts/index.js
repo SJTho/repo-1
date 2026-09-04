@@ -76,9 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
             div.className = "dropdownItem";
             div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
 
-            /* ----------------------------------------------------
-               FIXED: Logout item triggers named export logout()
-            ---------------------------------------------------- */
             if (item.url === "logout") {
                 div.onclick = () => {
                     import("./logout.js").then(module => module.logout());
@@ -152,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function updateSupabasePoints(newPoints) {
-        let userId = localStorage.getItem("userId");   // UUID (fixed)
+        let userId = localStorage.getItem("userId");
         if (!userId) return;
 
         const { error } = await supabase.rpc("update_points", {
@@ -196,14 +193,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ----------------------------------------------------
-       Icon Grid + Custom Buttons
+       Icon Grid (Supabase Links Only)
     ---------------------------------------------------- */
     const linksContainer = document.getElementById("linksContainer");
-    const deletePopup = document.getElementById("deletePopup");
-    const confirmDelete = document.getElementById("confirmDelete");
-    const cancelDelete = document.getElementById("cancelDelete");
-
-    let deleteIndex = null;
 
     function createIconCard(icon, label, url) {
         const card = document.createElement("div");
@@ -216,57 +208,20 @@ document.addEventListener("DOMContentLoaded", () => {
         return card;
     }
 
-    function loadCustomButtons() {
-        return JSON.parse(localStorage.getItem("customButtons") || "[]").slice(0, 3);
-    }
+    function createAddLinkButton() {
+        const card = document.createElement("div");
+        card.className = "iconCard";
 
-    function saveCustomButtons(buttons) {
-        localStorage.setItem("customButtons", JSON.stringify(buttons));
-    }
-
-    function renderCustomButtons() {
-        const buttons = loadCustomButtons();
-        const fragment = document.createDocumentFragment();
-
-        buttons.forEach((btn, index) => {
-            const card = document.createElement("div");
-            card.className = "iconCard";
-
-            card.addEventListener("click", () => window.open(btn.url, "_blank"));
-
-            const iconHTML = btn.image
-                ? `<img src="${btn.image}" class="customIcon">`
-                : `<div class="icon smallIcon">🔗</div>`;
-
-            card.innerHTML = `
-                ${iconHTML}
-                <p class="iconLabel">${btn.name}</p>
-                <div class="customDeleteBtn">❌</div>
-            `;
-
-            card.querySelector(".customDeleteBtn").addEventListener("click", (event) => {
-                event.stopPropagation();
-                deleteIndex = index;
-                deletePopup.style.display = "flex";
-            });
-
-            fragment.appendChild(card);
+        card.addEventListener("click", () => {
+            window.location.href = "mylinks.html";
         });
 
-        return fragment;
+        card.innerHTML = `
+            <div class="icon smallIcon">🔗</div>
+            <p class="iconLabel">Manage Links</p>
+        `;
+        return card;
     }
-
-    confirmDelete.addEventListener("click", () => {
-        const buttons = loadCustomButtons();
-        buttons.splice(deleteIndex, 1);
-        saveCustomButtons(buttons);
-        deletePopup.style.display = "none";
-        renderLinks();
-    });
-
-    cancelDelete.addEventListener("click", () => {
-        deletePopup.style.display = "none";
-    });
 
     /* ----------------------------------------------------
        Render user-mapped links from Supabase
@@ -276,7 +231,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const userId = localStorage.getItem("userId");
 
-        // 1️⃣ Get mapped link IDs
         const { data: mappings, error: mapError } = await supabase
             .from("mapuserstolinks")
             .select("linkid")
@@ -291,10 +245,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (linkIds.length === 0) {
             linksContainer.innerHTML = "<p>No links selected yet.</p>";
+            linksContainer.appendChild(createAddLinkButton());
             return;
         }
 
-        // 2️⃣ Fetch link definitions
         const { data: links, error: linkError } = await supabase
             .from("indexpagelinks")
             .select("*")
@@ -305,34 +259,13 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // 3️⃣ Render each link
         links.forEach(link => {
             linksContainer.appendChild(
                 createIconCard(link.icon, link.name, link.url)
             );
         });
 
-        // 4️⃣ Custom buttons still work
-        linksContainer.appendChild(renderCustomButtons());
-
-        if (loadCustomButtons().length < 3) {
-            linksContainer.appendChild(createAddLinkButton());
-        }
-    }
-
-    function createAddLinkButton() {
-        const card = document.createElement("div");
-        card.className = "iconCard";
-
-        card.addEventListener("click", () => {
-            window.location.href = "custom_button.html";
-        });
-
-        card.innerHTML = `
-            <div class="icon smallIcon">🔗</div>
-            <p class="iconLabel">Add Link</p>
-        `;
-        return card;
+        linksContainer.appendChild(createAddLinkButton());
     }
 
     /* ----------------------------------------------------
@@ -341,5 +274,3 @@ document.addEventListener("DOMContentLoaded", () => {
     loadHamburgerMenu();
     loadTopRightIcons();
     renderLinks();
-
-    });
