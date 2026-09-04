@@ -113,3 +113,5 @@ document.getElementById("closeBtn").addEventListener("click", () => {
   if (confirmExitExam()) {
     window.history.back();
   }
+
+});
