@@ -209,7 +209,7 @@ function renderAddLinkForm() {
             ${emojiOptions}
         </select>
 
-        <label>Make link available to all users</label>
+        <label>Make link available to all users?</label>
         <select id="newLinkPublic">
             <option value="false">No</option>
             <option value="true">Yes</option>
