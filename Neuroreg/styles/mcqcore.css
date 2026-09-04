@@ -194,3 +194,11 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+/* Force Progress button to be centred and not full-width */
+#mcqCorePage #mcqquestions .progressBtn {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: auto !important;
+}
