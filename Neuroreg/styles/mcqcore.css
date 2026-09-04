@@ -202,3 +202,17 @@
   margin-right: auto;
   width: auto !important;
 }
+
+/* Ensure MCQ question container allows centring */
+#mcqCorePage #mcqquestions {
+  display: block !important;
+  text-align: center !important;
+}
+
+/* Force Progress button to be centred */
+#mcqCorePage #mcqquestions .progressBtn {
+  display: inline-block !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: auto !important;
+}
