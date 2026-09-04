@@ -231,7 +231,7 @@ window.addEventListener("DOMContentLoaded", () => {
           block.style.border = "2px solid #2e8b57";
           block.insertAdjacentHTML(
             "beforeend",
-            `<p class="resultTag correct"><strong>Correct (+1)</strong></p>`
+            `<p class="resultTag correct"><strong>Correct</strong></p>`
           );
         }
 
@@ -239,7 +239,7 @@ window.addEventListener("DOMContentLoaded", () => {
         else if (isAnswered) {
            block.style.border = "2px solid #b30000";
            block.insertAdjacentHTML("beforeend",
-            `<p class="resultTag wrong"><strong>Incorrect (0)</strong></p>`
+            `<p class="resultTag wrong"><strong>Incorrect</strong></p>`
           );
         }
         
@@ -247,7 +247,7 @@ window.addEventListener("DOMContentLoaded", () => {
         else {
           block.style.border = "2px solid #2f1bb0";
           block.insertAdjacentHTML("beforeend",
-            `<p class="resultTag wrong"><strong>Not answered (0)</strong></p>`
+            `<p class="resultTag wrong"><strong>Not answered</strong></p>`
           );
         }
         
