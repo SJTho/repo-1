@@ -4,14 +4,24 @@ body {
     padding: 20px;
     background: #f7f7f9;
     color: #000 !important;
-    /* 1. Force all text to black */
+    /* Force all text black */
 }
 
-/* Override global full‑width button rule */
-button {
+/* 2. Override global full-width rule */
+* {
     width: auto !important;
-    /* 2. Stop global.css from forcing full width */
-    display: inline-block !important;
+    /* Stop global.css from forcing full width */
+    max-width: none !important;
+    /* Prevent stretching */
+    box-sizing: border-box;
+    /* Keep layout sane */
+}
+
+/* But restore full width ONLY where needed */
+input[type="text"],
+select {
+    width: 100% !important;
+    /* Inputs should stay full width */
 }
 
 /* Container spacing */
@@ -25,13 +35,12 @@ button {
     font-size: 22px;
     margin-bottom: 15px;
     color: #fff !important;
-    /* 4. Heading should be white */
+    /* Heading should be white */
 }
 
 /* Inputs */
 input[type="text"],
 select {
-    width: 100%;
     padding: 10px;
     margin: 6px 0 15px 0;
     border: 1px solid #ccc;
@@ -39,7 +48,6 @@ select {
     font-size: 15px;
     background: #fff;
     color: #000;
-    /* ensure text is visible */
 }
 
 input[type="text"]:focus,
@@ -57,6 +65,7 @@ select:focus {
     border-radius: 6px;
     cursor: pointer;
     font-size: 15px;
+    width: auto !important;
 }
 
 /* 3. Style Close button like Save Link */
@@ -69,7 +78,6 @@ select:focus {
     cursor: pointer !important;
     font-size: 15px !important;
     width: auto !important;
-    display: inline-block !important;
 }
 
 #saveNewLinkBtn:hover,
@@ -79,19 +87,21 @@ select:focus {
 
 /* Table styling */
 .links-table {
-    width: 100%;
+    width: 100% !important;
+    /* Table should stay full width */
     border-collapse: collapse;
     background: white;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     color: #000;
-    /* ensure table text is black */
 }
 
+/* 1. Links header should be white */
 .links-table th {
     background: #0078ff;
-    color: white;
+    color: #fff !important;
+    /* Force white header text */
     padding: 12px;
     text-align: left;
     font-size: 15px;
@@ -128,7 +138,8 @@ select:focus {
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    color: #fff;
+    width: auto !important;
+    /* Prevent full width */
 }
 
 .editBtn {
@@ -142,6 +153,7 @@ select:focus {
 
 .deleteBtn {
     background: #dc3545;
+    color: #fff;
 }
 
 .deleteBtn:hover {
