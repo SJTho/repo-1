@@ -3,3 +3,22 @@ body {
     font-family: Arial, sans-serif;
     padding: 20px;
 }
+
+.emoji-suggestions {
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 4px;
+    margin-top: 4px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.emoji-suggestion {
+    padding: 6px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.emoji-suggestion:hover {
+    background: #f0f0f0;
+}
