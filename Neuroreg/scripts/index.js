@@ -77,11 +77,11 @@ document.addEventListener("DOMContentLoaded", () => {
             div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
 
             /* ----------------------------------------------------
-               FIXED: Logout item triggers logout.js
+               FIXED: Logout item triggers named export logout()
             ---------------------------------------------------- */
             if (item.url === "logout") {
                 div.onclick = () => {
-                    import("./logout.js").then(module => module.default());
+                    import("./logout.js").then(module => module.logout());
                 };
             } else {
                 div.onclick = () => {
@@ -342,4 +342,4 @@ document.addEventListener("DOMContentLoaded", () => {
     loadTopRightIcons();
     renderLinks();
 
-});
+    });
