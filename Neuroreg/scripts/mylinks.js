@@ -6,7 +6,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 window.logout = logout;
 
 /* -----------------------------------------
-   Emoji lookup list
+   Emoji list for dropdown
 ----------------------------------------- */
 const EMOJI_LIST = [
     "🔗", "⭐", "📁", "📄", "📊", "📈", "📉", "⚙️", "🧭",
@@ -27,7 +27,6 @@ async function loadLinksTable() {
         return;
     }
 
-    // Load all public links
     const { data: links, error: linksError } = await supabase
         .from("indexpagelinks")
         .select("id, name, url, icon, ispublic")
@@ -40,7 +39,6 @@ async function loadLinksTable() {
         return;
     }
 
-    // Load user-selected link IDs
     const { data: selected, error: selectedError } = await supabase
         .from("mapuserstolinks")
         .select("linkid")
@@ -54,7 +52,6 @@ async function loadLinksTable() {
 
     const selectedIds = new Set(selected.map(row => row.linkid));
 
-    // Build table
     const table = document.createElement("table");
     table.className = "links-table";
 
@@ -65,7 +62,6 @@ async function loadLinksTable() {
     `;
     table.appendChild(header);
 
-    // Render rows
     links.forEach(link => {
         const tr = document.createElement("tr");
         const isChecked = selectedIds.has(link.id);
@@ -121,6 +117,9 @@ async function loadLinksTable() {
 function renderAddLinkForm() {
     const formContainer = document.getElementById("addLinkContainer");
 
+    // Build emoji dropdown options
+    const emojiOptions = EMOJI_LIST.map(e => `<option value="${e}">${e}</option>`).join("");
+
     formContainer.innerHTML = `
         <h2>Add a New Link</h2>
 
@@ -131,8 +130,10 @@ function renderAddLinkForm() {
         <input id="newLinkUrl" type="text" placeholder="https://example.com">
 
         <label>Icon (emoji)</label>
-        <input id="newLinkIcon" type="text" placeholder="🔗">
-        <div id="emojiSuggestions" class="emoji-suggestions"></div>
+        <select id="newLinkIcon">
+            <option value="">-- choose an emoji --</option>
+            ${emojiOptions}
+        </select>
 
         <label>Public?</label>
         <select id="newLinkPublic">
@@ -144,40 +145,6 @@ function renderAddLinkForm() {
     `;
 
     document.getElementById("saveNewLinkBtn").addEventListener("click", saveNewLink);
-
-    setupEmojiLookup();
-}
-
-/* -----------------------------------------
-   Emoji lookup behaviour
------------------------------------------ */
-function setupEmojiLookup() {
-    const input = document.getElementById("newLinkIcon");
-    const suggestions = document.getElementById("emojiSuggestions");
-
-    input.addEventListener("input", () => {
-        const query = input.value.trim().toLowerCase();
-        suggestions.innerHTML = "";
-
-        if (!query) return;
-
-        const matches = EMOJI_LIST.filter(e =>
-            e.toLowerCase().includes(query)
-        );
-
-        matches.forEach(emoji => {
-            const div = document.createElement("div");
-            div.className = "emoji-suggestion";
-            div.textContent = emoji;
-
-            div.addEventListener("click", () => {
-                input.value = emoji;
-                suggestions.innerHTML = "";
-            });
-
-            suggestions.appendChild(div);
-        });
-    });
 }
 
 /* -----------------------------------------
@@ -209,10 +176,8 @@ async function saveNewLink() {
         return;
     }
 
-    // Refresh table
     loadLinksTable();
 
-    // Clear form
     document.getElementById("newLinkName").value = "";
     document.getElementById("newLinkUrl").value = "";
     document.getElementById("newLinkIcon").value = "";
