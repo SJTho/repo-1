@@ -167,7 +167,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let questions = await window.copilot.generateMCQs({count, topic, level});
     if (!questions.length) return alert("No questions available.");
 
-    /* Progress button */
+    /* Progress button (created BEFORE submit button) */
     const scoresBtn = document.createElement("button");
     scoresBtn.textContent = "Progress";
     scoresBtn.className = "progressBtn";
@@ -217,7 +217,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const isCorrect = selected && selected.value === correct;
         const isAnswered = !!selected;
 
-        /* Correct */
+        /* Correct: +1 score, +1 scalpel point */
         if (isCorrect) {
           score += 1;
           scalpelDelta += 1;
@@ -227,7 +227,7 @@ window.addEventListener("DOMContentLoaded", () => {
           );
         }
 
-        /* Wrong */
+        /* Wrong: 0 score, 0 scalpel points */
         else if (isAnswered) {
           block.style.border = "2px solid #b30000";
           block.insertAdjacentHTML("beforeend",
@@ -235,7 +235,7 @@ window.addEventListener("DOMContentLoaded", () => {
           );
         }
 
-        /* Not answered */
+        /* Not answered: 0 score, 0 scalpel points */
         else {
           block.style.border = "2px solid #b30000";
           block.insertAdjacentHTML("beforeend",
@@ -257,12 +257,12 @@ window.addEventListener("DOMContentLoaded", () => {
         block.appendChild(flagBtn);
       });
 
-      /* Update scalpel points (local) */
+      /* Update scalpel points */
       let currentPoints = parseInt(localStorage.getItem("scalpelPoints")) || 0;
       let newPoints = Math.max(0, currentPoints + scalpelDelta);
       localStorage.setItem("scalpelPoints", String(newPoints));
 
-      /* Sync to Supabase */
+      /* Sync scalpel points to Supabase */
       window.updateScalpelPoints(newPoints);
 
       /* Score display */
