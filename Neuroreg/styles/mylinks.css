@@ -12,22 +12,29 @@ h1,
     color: #fff !important;
 }
 
-/* Containers: stop them being full width */
-#linksContainer,
-#addLinkContainer {
+/* Stop containers being full width */
+#addLinkContainer,
+#linksContainer {
     width: auto !important;
     max-width: 700px;
     margin: 0 auto 30px auto;
-    /* centered, not full width */
 }
 
-/* Inputs: stop global full-width, make them a nice size */
-input[type="text"],
-select {
-    width: auto !important;
-    min-width: 300px;
+/* Inputs tidy: one label + one input per row */
+#addLinkContainer label {
+    display: block;
+    font-weight: bold;
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+#addLinkContainer input[type="text"],
+#addLinkContainer select {
+    display: block;
+    width: 100% !important;
+    max-width: 400px;
     padding: 10px;
-    margin: 6px 0 15px 0;
+    margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 15px;
@@ -41,7 +48,7 @@ select:focus {
     outline: none;
 }
 
-/* Buttons: override global full-width */
+/* Override global full-width buttons */
 button {
     width: auto !important;
     display: inline-block !important;
@@ -69,7 +76,6 @@ button {
     font-size: 15px !important;
 }
 
-/* Hover states */
 #saveNewLinkBtn:hover,
 #closeBtn:hover {
     background: #005fcc;
@@ -91,8 +97,13 @@ button {
     background: #0078ff;
     color: #fff !important;
     padding: 12px;
-    text-align: left;
     font-size: 15px;
+}
+
+/* Center Select and Actions headers */
+.links-table th:nth-child(2),
+.links-table th:nth-child(3) {
+    text-align: center !important;
 }
 
 .links-table td {
@@ -113,9 +124,14 @@ button {
     font-size: 22px;
 }
 
-/* Checkbox cell */
+/* Center Select column */
 .checkbox-cell {
-    text-align: center;
+    text-align: center !important;
+}
+
+/* Center Actions column */
+.action-cell {
+    text-align: center !important;
 }
 
 /* Action buttons */
@@ -169,3 +185,4 @@ button {
 
 .emoji-suggestion:hover {
     background: #f0f0f0;
+}
