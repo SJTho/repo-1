@@ -19,7 +19,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   /* STORE SCORE */
   window.storeScore = async function (score, numberOfQuestions, topic, level) {
-    const userId = parseInt(localStorage.getItem("userId"));
+    const userId = localStorage.getItem("userId");
     if (!userId) return;
 
     await window.supabase
