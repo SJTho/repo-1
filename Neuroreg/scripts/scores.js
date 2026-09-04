@@ -220,11 +220,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadScores();
 
-  /* -----------------------------
-     Back Button
-  ----------------------------- */
-  document.getElementById("closeBtn").addEventListener("click", () => {
-    window.location.href = "index.html";
-  });
-
 });
