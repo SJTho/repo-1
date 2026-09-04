@@ -235,24 +235,22 @@ window.addEventListener("DOMContentLoaded", () => {
           );
         }
 
-        /* Wrong: 0 score, 0 scalpel points */
+        /* Wrong (answered but incorrect) */
         else if (isAnswered) {
-          block.style.border = "2px solid #b30000";
-          block.insertAdjacentHTML(
-            "beforeend",
-            `<p class="resultTag wrong"><strong>Wrong (0)</strong></p>`
+           block.style.border = "2px solid #b30000";
+           block.insertAdjacentHTML("beforeend",
+            `<p class="resultTag wrong"><strong>Incorrect (0)</strong></p>`
           );
         }
-
-        /* Not answered: 0 score, 0 scalpel points */
+        
+        /* Not answered */
         else {
-          block.style.border = "2px solid #b30000";
-          block.insertAdjacentHTML(
-            "beforeend",
+          block.style.border = "2px solid #2f1bb0";
+          block.insertAdjacentHTML("beforeend",
             `<p class="resultTag wrong"><strong>Not answered (0)</strong></p>`
           );
         }
-
+        
         /* Explanation */
         const explanationDiv = document.createElement("div");
         explanationDiv.className = "explanation";
