@@ -235,6 +235,16 @@ async function saveOrUpdateLink() {
         return;
     }
 
+    /* -----------------------------------------
+       Public link warning
+    ----------------------------------------- */
+    if (ispublic) {
+        const proceed = confirm(
+            "Public links are available to all users and cannot be deleted or edited.\n\nDo you want to continue?"
+        );
+        if (!proceed) return;
+    }
+
     if (!editMode) {
         /* -----------------------------------------
            INSERT MODE
@@ -248,7 +258,7 @@ async function saveOrUpdateLink() {
                 ispublic,
                 addedby: userId
             })
-            .select();   // return inserted row
+            .select();
 
         if (error) {
             console.error("Insert link error:", error);
