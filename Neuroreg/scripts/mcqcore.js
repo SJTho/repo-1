@@ -133,6 +133,13 @@ window.addEventListener("DOMContentLoaded", () => {
     let questions = await window.copilot.generateMCQs({count, topic, level});
     if (!questions.length) return alert("No questions available.");
 
+    /* Progress button (created BEFORE submit button) */
+    const scoresBtn = document.createElement("button");
+    scoresBtn.textContent = "Progress";
+    scoresBtn.className = "progressBtn";
+    scoresBtn.style.display = "none";
+    scoresBtn.onclick = () => window.location.href = "scores.html";
+
     /* Render questions */
     questions.forEach((q, index) => {
       const block = document.createElement("div");
@@ -213,7 +220,7 @@ window.addEventListener("DOMContentLoaded", () => {
       let newPoints = Math.max(0, currentPoints + scalpelDelta);
       localStorage.setItem("scalpelPoints", String(newPoints));
 
-      /* Score display (NEW TOTAL REMOVED) */
+      /* Score display */
       document.getElementById("scoreDisplay").innerHTML =
         `<p><strong>Score:</strong> ${score}/${questions.length}</p>
          <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>`;
@@ -222,14 +229,6 @@ window.addEventListener("DOMContentLoaded", () => {
     };
 
     container.appendChild(submitBtn);
-
-    /* Progress button */
-    const scoresBtn = document.createElement("button");
-    scoresBtn.textContent = "Progress";
-    scoresBtn.className = "progressBtn";
-    scoresBtn.style.display = "none";
-    scoresBtn.onclick = () => window.location.href = "scores.html";
-
     container.appendChild(scoresBtn);
   };
 
