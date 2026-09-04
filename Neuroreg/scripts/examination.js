@@ -4,15 +4,26 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Correct UUID handling
 const sessionToken = localStorage.getItem("sessionToken");
-const userId = parseInt(localStorage.getItem("userId"));
-const eventId = parseInt(localStorage.getItem("currentEventId"));
+const userId = localStorage.getItem("userId");               // UUID (fixed)
+const eventId = parseInt(localStorage.getItem("currentEventId"));  // integer
 
 if (!sessionToken) {
   window.location.href = "login.html";
 }
 
+/* ----------------------------------------------------
+   CHECK ACCESS (Supabase + localStorage)
+---------------------------------------------------- */
 async function checkAccess() {
+  // Local lock: prevents refresh/back-button re-entry
+  if (localStorage.getItem("examStarted") === "true") {
+    window.location.href = "formaltestinstructions.html";
+    return false;
+  }
+
+  // Server lock: prevents multi-device re-entry
   const { data, error } = await supabase
     .from("eventregistration")
     .select("examstarted")
@@ -33,7 +44,14 @@ async function checkAccess() {
   return true;
 }
 
+/* ----------------------------------------------------
+   LOCK EXAM (Supabase + localStorage)
+---------------------------------------------------- */
 async function lockExam() {
+  // Local lock
+  localStorage.setItem("examStarted", "true");
+
+  // Server lock
   await supabase
     .from("eventregistration")
     .update({ examstarted: true })
@@ -41,6 +59,9 @@ async function lockExam() {
     .eq("eventid", eventId);
 }
 
+/* ----------------------------------------------------
+   INIT: CHECK ACCESS + LOCK EXAM
+---------------------------------------------------- */
 (async () => {
   const allowed = await checkAccess();
   if (!allowed) return;
@@ -58,7 +79,9 @@ async function lockExam() {
   }, 7000);
 })();
 
-// Hamburger menu logic
+/* ----------------------------------------------------
+   HAMBURGER MENU LOGIC
+---------------------------------------------------- */
 const hamburger = document.getElementById("hamburgerMenu");
 const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -72,6 +95,9 @@ document.addEventListener("click", (event) => {
   }
 });
 
+/* ----------------------------------------------------
+   EXIT CONFIRMATION
+---------------------------------------------------- */
 function confirmExitExam() {
   return confirm(
     "If you leave this page you will NOT be allowed back into the examination.\n\nDo you want to continue?"
@@ -88,11 +114,15 @@ document.querySelectorAll("#hamburgerMenuDropdown .dropdownItem")
     });
   });
 
-// Heading
+/* ----------------------------------------------------
+   HEADING
+---------------------------------------------------- */
 const storedTitle = localStorage.getItem("currentEventTitle");
 document.getElementById("combinedHeading").textContent = storedTitle;
 
-// Countdown clock
+/* ----------------------------------------------------
+   COUNTDOWN CLOCK (3 hours)
+---------------------------------------------------- */
 let remainingSeconds = 3 * 60 * 60;
 
 function updateClock() {
@@ -108,10 +138,11 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// Back button
+/* ----------------------------------------------------
+   BACK BUTTON
+---------------------------------------------------- */
 document.getElementById("closeBtn").addEventListener("click", () => {
   if (confirmExitExam()) {
     window.history.back();
   }
-
 });
