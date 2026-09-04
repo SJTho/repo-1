@@ -163,6 +163,15 @@ button {
     background: #b52a37;
 }
 
+/* Public note styling */
+.public-note {
+    font-size: 14px;
+    color: #555;
+    font-style: italic;
+    display: inline-block;
+    padding: 4px 0;
+}
+
 /* Emoji suggestions */
 .emoji-suggestions {
     border: 1px solid #ccc;
