@@ -76,9 +76,18 @@ document.addEventListener("DOMContentLoaded", () => {
             div.className = "dropdownItem";
             div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
 
-            div.onclick = () => {
-                window.location.href = item.url;
-            };
+            /* ----------------------------------------------------
+               FIXED: Logout item triggers logout.js
+            ---------------------------------------------------- */
+            if (item.url === "logout") {
+                div.onclick = () => {
+                    import("./logout.js").then(module => module.default());
+                };
+            } else {
+                div.onclick = () => {
+                    window.location.href = item.url;
+                };
+            }
 
             dropdown.appendChild(div);
         });
@@ -260,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* ----------------------------------------------------
-       NEW: Render user-mapped links from Supabase
+       Render user-mapped links from Supabase
     ---------------------------------------------------- */
     async function renderLinks() {
         linksContainer.innerHTML = "";
@@ -311,10 +320,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function createAddLinkButton() {
+        const card = document.createElement("div");
+        card.className = "iconCard";
+
+        card.addEventListener("click", () => {
+            window.location.href = "custom_button.html";
+        });
+
+        card.innerHTML = `
+            <div class="icon smallIcon">🔗</div>
+            <p class="iconLabel">Add Link</p>
+        `;
+        return card;
+    }
+
     /* ----------------------------------------------------
        INITIAL LOAD
     ---------------------------------------------------- */
     loadHamburgerMenu();
     loadTopRightIcons();
     renderLinks();
-});
