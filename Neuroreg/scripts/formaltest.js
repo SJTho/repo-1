@@ -13,7 +13,7 @@ if (!sessionToken) {
   window.location.href = "login.html";
 }
 
-const userId = parseInt(localStorage.getItem("userId"));
+const userId = localStorage.getItem("userId");
 
 /* ----------------------------------------------------
    TIME FORMATTER (HH:MM)
