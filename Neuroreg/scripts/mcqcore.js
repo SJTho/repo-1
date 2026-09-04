@@ -33,17 +33,32 @@ window.addEventListener("DOMContentLoaded", () => {
       });
   };
 
-  /* UPDATE SCALPEL POINTS IN SUPABASE (fire-and-forget) */
-  window.updateScalpelPoints = async function (newPoints) {
-    const userId = localStorage.getItem("userId");   // no parseInt
+  /* LOAD EXISTING SCALPEL POINTS FROM SUPABASE */
+  window.loadScalpelPoints = async function () {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
 
-    if (!userId) {
-      console.warn("No userId in localStorage, cannot update scalpel points.");
+    const { data, error } = await window.supabase
+      .from("profiles")
+      .select("scalpel_points")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Could not load scalpel points:", error);
       return;
     }
 
+    localStorage.setItem("scalpelPoints", String(data.scalpel_points || 0));
+  };
+
+  /* UPDATE SCALPEL POINTS IN SUPABASE */
+  window.updateScalpelPoints = async function (newPoints) {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+
     const { data, error } = await window.supabase
-      .from("profiles")                              // ensure this matches your actual table name
+      .from("profiles")
       .update({ scalpel_points: newPoints })
       .eq("id", userId)
       .select();
@@ -242,7 +257,7 @@ window.addEventListener("DOMContentLoaded", () => {
       let newPoints = Math.max(0, currentPoints + scalpelDelta);
       localStorage.setItem("scalpelPoints", String(newPoints));
 
-      /* Sync to Supabase (non-blocking) */
+      /* Sync to Supabase */
       window.updateScalpelPoints(newPoints);
 
       /* Score display */
@@ -257,5 +272,9 @@ window.addEventListener("DOMContentLoaded", () => {
     container.appendChild(scoresBtn);
   };
 
-  document.getElementById("startSubmitBtn").onclick = window.generateMCQs;
+  /* LOAD SCALPEL POINTS BEFORE STARTING MCQs */
+  document.getElementById("startSubmitBtn").onclick = async () => {
+    await window.loadScalpelPoints();
+    window.generateMCQs();
+  };
 });
