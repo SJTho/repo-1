@@ -6,6 +6,12 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 window.logout = logout;
 
 /* -----------------------------------------
+   State: Are we editing a link?
+----------------------------------------- */
+let editMode = false;
+let editLinkId = null;
+
+/* -----------------------------------------
    Emoji list for dropdown
 ----------------------------------------- */
 const EMOJI_LIST = [
@@ -27,7 +33,6 @@ async function loadLinksTable() {
         return;
     }
 
-    // Load public links OR private links owned by the user
     const { data: links, error: linksError } = await supabase
         .from("indexpagelinks")
         .select("id, name, url, icon, ispublic, addedby")
@@ -40,7 +45,6 @@ async function loadLinksTable() {
         return;
     }
 
-    // Load user-selected link IDs
     const { data: selected, error: selectedError } = await supabase
         .from("mapuserstolinks")
         .select("linkid")
@@ -54,7 +58,6 @@ async function loadLinksTable() {
 
     const selectedIds = new Set(selected.map(row => row.linkid));
 
-    // Build table
     const table = document.createElement("table");
     table.className = "links-table";
 
@@ -62,16 +65,14 @@ async function loadLinksTable() {
     header.innerHTML = `
         <th>Link</th>
         <th>Select</th>
-        <th>Action</th>
+        <th>Actions</th>
     `;
     table.appendChild(header);
 
-    // Render rows
     links.forEach(link => {
         const tr = document.createElement("tr");
         const isChecked = selectedIds.has(link.id);
 
-        // Correct boolean check
         const isPrivateOwned =
             link.ispublic === false && link.addedby === userId;
 
@@ -84,7 +85,10 @@ async function loadLinksTable() {
                 <input type="checkbox" ${isChecked ? "checked" : ""} />
             </td>
             <td class="action-cell">
-                ${isPrivateOwned ? `<button class="deleteBtn">Delete</button>` : ""}
+                ${isPrivateOwned ? `
+                    <button class="editBtn">Edit</button>
+                    <button class="deleteBtn">Delete</button>
+                ` : ""}
             </td>
         `;
 
@@ -120,20 +124,28 @@ async function loadLinksTable() {
         });
 
         /* -----------------------------------------
-           Delete button behaviour (private links only)
+           Edit button behaviour
+        ----------------------------------------- */
+        if (isPrivateOwned) {
+            const editBtn = tr.querySelector(".editBtn");
+            editBtn.addEventListener("click", () => {
+                enterEditMode(link);
+            });
+        }
+
+        /* -----------------------------------------
+           Delete button behaviour
         ----------------------------------------- */
         if (isPrivateOwned) {
             const deleteBtn = tr.querySelector(".deleteBtn");
             deleteBtn.addEventListener("click", async () => {
                 if (!confirm("Delete this private link?")) return;
 
-                // Remove from mapuserstolinks first
                 await supabase
                     .from("mapuserstolinks")
                     .delete()
                     .eq("linkid", link.id);
 
-                // Remove from indexpagelinks
                 const { error } = await supabase
                     .from("indexpagelinks")
                     .delete()
@@ -157,6 +169,22 @@ async function loadLinksTable() {
 }
 
 /* -----------------------------------------
+   Enter Edit Mode
+----------------------------------------- */
+function enterEditMode(link) {
+    editMode = true;
+    editLinkId = link.id;
+
+    document.getElementById("formTitle").innerText = "Edit Your Private Link";
+    document.getElementById("saveNewLinkBtn").innerText = "Update Link";
+
+    document.getElementById("newLinkName").value = link.name;
+    document.getElementById("newLinkUrl").value = link.url;
+    document.getElementById("newLinkIcon").value = link.icon;
+    document.getElementById("newLinkPublic").value = link.ispublic ? "true" : "false";
+}
+
+/* -----------------------------------------
    Add Link Form
 ----------------------------------------- */
 function renderAddLinkForm() {
@@ -165,7 +193,7 @@ function renderAddLinkForm() {
     const emojiOptions = EMOJI_LIST.map(e => `<option value="${e}">${e}</option>`).join("");
 
     formContainer.innerHTML = `
-        <h2>Add a New Link</h2>
+        <h2 id="formTitle">Add a New Link</h2>
 
         <label>Name</label>
         <input id="newLinkName" type="text" placeholder="e.g. My Dashboard">
@@ -188,18 +216,16 @@ function renderAddLinkForm() {
         <button id="saveNewLinkBtn">Save Link</button>
     `;
 
-    document.getElementById("saveNewLinkBtn").addEventListener("click", saveNewLink);
+    document.getElementById("saveNewLinkBtn").addEventListener("click", saveOrUpdateLink);
 }
 
 /* -----------------------------------------
-   Save new link into indexpagelinks
+   Save OR Update link
 ----------------------------------------- */
-async function saveNewLink() {
+async function saveOrUpdateLink() {
     const name = document.getElementById("newLinkName").value.trim();
     const url = document.getElementById("newLinkUrl").value.trim();
     const icon = document.getElementById("newLinkIcon").value.trim();
-
-    // Convert string → boolean
     const ispublic = document.getElementById("newLinkPublic").value === "true";
 
     const userId = localStorage.getItem("userId");
@@ -209,27 +235,72 @@ async function saveNewLink() {
         return;
     }
 
-    const { error } = await supabase
-        .from("indexpagelinks")
-        .insert({
-            name,
-            url,
-            icon,
-            ispublic,
-            addedby: userId
-        });
+    if (!editMode) {
+        /* -----------------------------------------
+           INSERT MODE
+        ----------------------------------------- */
+        const { error } = await supabase
+            .from("indexpagelinks")
+            .insert({
+                name,
+                url,
+                icon,
+                ispublic,
+                addedby: userId
+            });
 
-    if (error) {
-        console.error("Insert link error:", error);
-        alert("Failed to save link.");
-        return;
+        if (error) {
+            console.error("Insert link error:", error);
+            alert("Failed to save link.");
+            return;
+        }
+    } else {
+        /* -----------------------------------------
+           UPDATE MODE
+        ----------------------------------------- */
+        const { error } = await supabase
+            .from("indexpagelinks")
+            .update({
+                name,
+                url,
+                icon,
+                ispublic
+            })
+            .eq("id", editLinkId)
+            .eq("addedby", userId);
+
+        if (error) {
+            console.error("Update link error:", error);
+            alert("Failed to update link.");
+            return;
+        }
+
+        exitEditMode();
     }
 
     loadLinksTable();
+    resetForm();
+}
 
+/* -----------------------------------------
+   Exit Edit Mode
+----------------------------------------- */
+function exitEditMode() {
+    editMode = false;
+    editLinkId = null;
+
+    document.getElementById("formTitle").innerText = "Add a New Link";
+    document.getElementById("saveNewLinkBtn").innerText = "Save Link";
+}
+
+/* -----------------------------------------
+   Reset form fields
+----------------------------------------- */
+function resetForm() {
     document.getElementById("newLinkName").value = "";
     document.getElementById("newLinkUrl").value = "";
     document.getElementById("newLinkIcon").value = "";
+    document.getElementById("newLinkPublic").value = "true";
 }
 
 /* -----------------------------------------
