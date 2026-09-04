@@ -27,6 +27,7 @@ async function loadLinksTable() {
         return;
     }
 
+    // Load all public links
     const { data: links, error: linksError } = await supabase
         .from("indexpagelinks")
         .select("id, name, url, icon, ispublic")
@@ -39,6 +40,7 @@ async function loadLinksTable() {
         return;
     }
 
+    // Load user-selected link IDs
     const { data: selected, error: selectedError } = await supabase
         .from("mapuserstolinks")
         .select("linkid")
@@ -52,6 +54,7 @@ async function loadLinksTable() {
 
     const selectedIds = new Set(selected.map(row => row.linkid));
 
+    // Build table
     const table = document.createElement("table");
     table.className = "links-table";
 
@@ -62,6 +65,7 @@ async function loadLinksTable() {
     `;
     table.appendChild(header);
 
+    // Render rows
     links.forEach(link => {
         const tr = document.createElement("tr");
         const isChecked = selectedIds.has(link.id);
@@ -156,6 +160,8 @@ async function saveNewLink() {
     const icon = document.getElementById("newLinkIcon").value.trim();
     const ispublic = document.getElementById("newLinkPublic").value;
 
+    const userId = localStorage.getItem("userId");   // ← NEW
+
     if (!name || !url) {
         alert("Name and URL are required.");
         return;
@@ -167,7 +173,8 @@ async function saveNewLink() {
             name,
             url,
             icon,
-            ispublic
+            ispublic,
+            addedby: userId      // ← NEW
         });
 
     if (error) {
