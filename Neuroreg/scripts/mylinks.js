@@ -6,6 +6,15 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 window.logout = logout;
 
 /* -----------------------------------------
+   Emoji lookup list
+----------------------------------------- */
+const EMOJI_LIST = [
+    "🔗", "⭐", "📁", "📄", "📊", "📈", "📉", "⚙️", "🧭",
+    "🏥", "💡", "📚", "🧪", "🧬", "🛠️", "🧰", "🚀", "🎯",
+    "💻", "🖥️", "📱", "🌐", "🔍", "📝", "📦"
+];
+
+/* -----------------------------------------
    Load all public links + user selections
 ----------------------------------------- */
 async function loadLinksTable() {
@@ -123,6 +132,7 @@ function renderAddLinkForm() {
 
         <label>Icon (emoji)</label>
         <input id="newLinkIcon" type="text" placeholder="🔗">
+        <div id="emojiSuggestions" class="emoji-suggestions"></div>
 
         <label>Public?</label>
         <select id="newLinkPublic">
@@ -134,6 +144,40 @@ function renderAddLinkForm() {
     `;
 
     document.getElementById("saveNewLinkBtn").addEventListener("click", saveNewLink);
+
+    setupEmojiLookup();
+}
+
+/* -----------------------------------------
+   Emoji lookup behaviour
+----------------------------------------- */
+function setupEmojiLookup() {
+    const input = document.getElementById("newLinkIcon");
+    const suggestions = document.getElementById("emojiSuggestions");
+
+    input.addEventListener("input", () => {
+        const query = input.value.trim().toLowerCase();
+        suggestions.innerHTML = "";
+
+        if (!query) return;
+
+        const matches = EMOJI_LIST.filter(e =>
+            e.toLowerCase().includes(query)
+        );
+
+        matches.forEach(emoji => {
+            const div = document.createElement("div");
+            div.className = "emoji-suggestion";
+            div.textContent = emoji;
+
+            div.addEventListener("click", () => {
+                input.value = emoji;
+                suggestions.innerHTML = "";
+            });
+
+            suggestions.appendChild(div);
+        });
+    });
 }
 
 /* -----------------------------------------
