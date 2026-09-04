@@ -2,8 +2,125 @@
 body {
     font-family: Arial, sans-serif;
     padding: 20px;
+    background: #f7f7f9;
+    color: #333;
 }
 
+/* Container spacing */
+#linksContainer,
+#addLinkContainer {
+    margin-bottom: 30px;
+}
+
+/* Section titles */
+#formTitle {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #444;
+}
+
+/* Inputs */
+input[type="text"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    background: #fff;
+}
+
+input[type="text"]:focus,
+select:focus {
+    border-color: #0078ff;
+    outline: none;
+}
+
+/* Save / Update button */
+#saveNewLinkBtn {
+    background: #0078ff;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+#saveNewLinkBtn:hover {
+    background: #005fcc;
+}
+
+/* Table styling */
+.links-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.links-table th {
+    background: #0078ff;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-size: 15px;
+}
+
+.links-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+/* Icon + name cell */
+.link-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.link-cell .icon {
+    font-size: 22px;
+}
+
+/* Checkbox cell */
+.checkbox-cell {
+    text-align: center;
+}
+
+/* Action buttons */
+.action-cell button {
+    margin-right: 8px;
+    padding: 6px 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.editBtn {
+    background: #ffc107;
+    color: #333;
+}
+
+.editBtn:hover {
+    background: #e0a800;
+}
+
+.deleteBtn {
+    background: #dc3545;
+    color: white;
+}
+
+.deleteBtn:hover {
+    background: #b52a37;
+}
+
+/* Emoji suggestions */
 .emoji-suggestions {
     border: 1px solid #ccc;
     background: #fff;
@@ -11,12 +128,15 @@ body {
     margin-top: 4px;
     max-height: 120px;
     overflow-y: auto;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .emoji-suggestion {
     padding: 6px;
     cursor: pointer;
     font-size: 20px;
+    border-radius: 4px;
 }
 
 .emoji-suggestion:hover {
