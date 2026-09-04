@@ -33,6 +33,21 @@ window.addEventListener("DOMContentLoaded", () => {
       });
   };
 
+  /* UPDATE SCALPEL POINTS IN SUPABASE (fire-and-forget) */
+  window.updateScalpelPoints = async function (newPoints) {
+    const userId = parseInt(localStorage.getItem("userId"));
+    if (!userId) return;
+
+    const { error } = await window.supabase
+      .from("profiles")
+      .update({ scalpel_points: newPoints })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Failed to update scalpel points:", error);
+    }
+  };
+
   /* MCQ BUILDER */
   window.copilot = {
     generateMCQs: async ({count, topic, level}) => {
@@ -133,7 +148,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let questions = await window.copilot.generateMCQs({count, topic, level});
     if (!questions.length) return alert("No questions available.");
 
-    /* Progress button (created BEFORE submit button) */
+    /* Progress button */
     const scoresBtn = document.createElement("button");
     scoresBtn.textContent = "Progress";
     scoresBtn.className = "progressBtn";
@@ -166,7 +181,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const submitBtn = document.createElement("button");
     submitBtn.textContent = "Submit";
 
-    submitBtn.onclick = async () => {
+    submitBtn.onclick = () => {
       submitBtn.remove();
       scoresBtn.style.display = "inline-block";
 
@@ -215,23 +230,13 @@ window.addEventListener("DOMContentLoaded", () => {
         block.appendChild(flagBtn);
       });
 
-      /* Update scalpel points */
+      /* Update scalpel points (local) */
       let currentPoints = parseInt(localStorage.getItem("scalpelPoints")) || 0;
       let newPoints = Math.max(0, currentPoints + scalpelDelta);
       localStorage.setItem("scalpelPoints", String(newPoints));
 
-      /* Sync scalpel points to Supabase */
-      const userId = parseInt(localStorage.getItem("userId"));
-      if (userId) {
-        const { error: updatePointsError } = await window.supabase
-          .from("profiles")
-          .update({ scalpel_points: newPoints })
-          .eq("id", userId);
-
-        if (updatePointsError) {
-          console.error("Failed to update scalpel points:", updatePointsError);
-        }
-      }
+      /* Sync to Supabase (non-blocking) */
+      window.updateScalpelPoints(newPoints);
 
       /* Score display */
       document.getElementById("scoreDisplay").innerHTML =
@@ -246,3 +251,4 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   document.getElementById("startSubmitBtn").onclick = window.generateMCQs;
+});
