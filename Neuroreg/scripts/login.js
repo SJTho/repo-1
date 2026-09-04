@@ -81,7 +81,7 @@ window.login = async function (email, password) {
     localStorage.setItem("sessionToken", data.session.access_token);
     localStorage.setItem("nickname", profile.nickname);
     localStorage.setItem("scalpel_points", profile.scalpel_points);
-    localStorage.setItem("userId", user.id);
+    localStorage.setItem("userId", data.user.id);
     localStorage.setItem("isAdmin", profile.isadmin ? "true" : "false");
 
     window.location.href = "index.html";
