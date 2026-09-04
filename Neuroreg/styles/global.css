@@ -75,6 +75,10 @@ body {
   overflow-x: hidden;
 }
 
+/* ============================
+   OLD MCQ SYSTEM (SCOPED)
+   ============================ */
+
 #mcqArea {
   background: #14233d;
   padding: 15px;
@@ -83,21 +87,14 @@ body {
   margin: auto;
 }
 
-#mcqCount {
-  padding: 12px;
-  font-size: 1rem;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-label {
+#mcqArea label {
   display: block;
   margin-top: 12px;
   font-size: 1rem;
 }
 
-input,
-select {
+#mcqArea input,
+#mcqArea select {
   width: 100%;
   padding: 12px;
   margin-top: 6px;
@@ -106,19 +103,19 @@ select {
   border: none;
 }
 
-.questionBlock {
+#mcqArea .questionBlock {
   background: #1f3b6f;
   padding: 15px;
   border-radius: 12px;
   margin-bottom: 18px;
 }
 
-.questionBlock p {
+#mcqArea .questionBlock p {
   margin-bottom: 10px;
   font-size: 1rem;
 }
 
-.optionLabel {
+#mcqArea .optionLabel {
   display: block;
   background: #1a2f55;
   padding: 12px;
@@ -130,20 +127,19 @@ select {
   transition: 0.2s;
 }
 
-.optionLabel:hover {
+#mcqArea .optionLabel:hover {
   background: #223b6d;
 }
 
-.optionLabel.selected {
+#mcqArea .optionLabel.selected {
   background: #2a4c8a;
   border-color: #6fa8ff;
 }
 
-.optionLabel input[type="radio"] {
+#mcqArea .optionLabel input[type="radio"] {
   display: none;
 }
 
-/* MCQ-only button style */
 #mcqArea button {
   margin-top: 20px;
   padding: 14px 20px;
@@ -156,12 +152,10 @@ select {
   width: 100%;
 }
 
-button:hover {
+#mcqArea button:hover {
   background: #3b5ca3;
 }
 
-/* Back button (old style overridden later) */
-/* MCQ-only back button */
 #mcqArea #closeBtn {
   background: #8a2a2a;
   margin-top: 30px;
@@ -170,11 +164,11 @@ button:hover {
   display: block;
 }
 
-#closeBtn:hover {
+#mcqArea #closeBtn:hover {
   background: #a33b3b;
 }
 
-.explanation {
+#mcqArea .explanation {
   margin-top: 12px;
   font-size: 0.95rem;
   background: #0e1d33;
@@ -182,26 +176,9 @@ button:hover {
   border-radius: 10px;
 }
 
-@media (max-width: 480px) {
-  h1 {
-    font-size: 1.5rem;
-  }
-
-  input,
-  select {
-    font-size: 1rem;
-    padding: 10px;
-  }
-
-  button {
-    font-size: 1rem;
-    padding: 12px;
-  }
-
-  .questionBlock {
-    padding: 12px;
-  }
-}
+/* ============================
+   CARDS, ICONS, GRIDS
+   ============================ */
 
 .card {
   background: #1f3b6f;
@@ -287,7 +264,6 @@ a {
   font-size: 1rem;
 }
 
-/* Make MCQ + Examination cards smaller on mobile */
 @media (max-width: 480px) {
   .mcqCard {
     width: 90px;
@@ -349,6 +325,10 @@ a {
   font-size: 1.2rem;
 }
 
+/* ============================
+   RANK-UP BANNER + CONFETTI
+   ============================ */
+
 #rankUpBanner {
   position: fixed;
   top: 20%;
@@ -401,22 +381,19 @@ a {
   vertical-align: middle;
 }
 
-/* Help icon (top-right corner) */
+/* ============================
+   HELP BUTTON
+   ============================ */
+
 #helpButton {
   position: static;
-  /* remove fixed positioning */
   font-size: 26px;
-  /* match other icons */
   background: none;
-  /* remove button background */
   padding: 0;
-  /* remove button padding */
   border-radius: 0;
-  /* remove rounded button shape */
   cursor: pointer;
   user-select: none;
   line-height: 1;
-  /* keeps emoji aligned */
   transition: transform 0.15s ease;
 }
 
@@ -425,6 +402,10 @@ a {
   margin-bottom: 20px;
   font-weight: bold;
 }
+
+/* ============================
+   EVENT CARDS
+   ============================ */
 
 .eventCard {
   background: white;
@@ -467,16 +448,18 @@ a {
   text-align: center;
 }
 
-/* ================================
+/* ============================
    Startsession.html — Combined H1
-   ================================ */
+   ============================ */
+
 #combinedHeading {
   margin-bottom: 0.5em;
 }
 
-/* ================================
+/* ============================
    Instructions list formatting
-   ================================ */
+   ============================ */
+
 .instructionsList {
   margin-left: 1.2em;
   line-height: 1.6;
@@ -484,7 +467,10 @@ a {
   text-align: left;
 }
 
-/* Final alignment fix — make both buttons identical */
+/* ============================
+   Action buttons
+   ============================ */
+
 .actionBtn {
   padding: 12px 22px;
   border-radius: 6px;
@@ -493,124 +479,97 @@ a {
   color: white;
   min-width: 140px;
   text-align: center;
-
-  /* override global button rules */
   width: auto !important;
-  /* display: inline-block !important;/*
   margin: 0 !important;
-  /* identical margin */
   vertical-align: middle;
-  /* ensures perfect alignment */
 }
 
-/* Red Start button */
 #startNowBtn {
   background-color: rgb(103, 8, 8);
 }
 
-/* Blue Back button */
 #closeBtn {
   background-color: #1f3b6f;
 }
 
-/* Centre both buttons next to each other */
 #buttonRow {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* vertical alignment */
   gap: 12px;
   margin-top: 20px;
 }
 
-/* Fix the certificate name box size + centring */
+/* ============================
+   Certificate name box
+   ============================ */
+
 #participantName {
   width: 70% !important;
-  /* smaller box */
   max-width: 250px !important;
-  /* prevents huge width */
   margin: 10px auto !important;
-  /* centres inside the card */
   display: block !important;
-  /* ensures centring works */
 }
 
 /* ------------------------------
    Header Icons (Corrected Layout)
 ------------------------------ */
 
-/* Hamburger menu — fixed top-left */
 .hamburgerIcon {
   position: absolute;
   top: 10px;
   left: 10px;
   font-size: 24px;
-  /* MATCH index.html */
   cursor: pointer;
   user-select: none;
   z-index: 1000;
 }
 
-/* Right-side icon row */
 #topRightIcons {
   position: absolute;
   top: 10px;
   right: 10px;
-
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 15px;
-
   z-index: 1000;
 }
 
-/* Individual icons */
 .topRightIcon {
   font-size: 22px;
-  /* MATCH index.html */
   line-height: 1;
   cursor: pointer;
   user-select: none;
   transition: transform 0.15s ease;
 }
 
-/* Hover animation */
 .topRightIcon:hover,
 .hamburgerIcon:hover {
   transform: scale(1.15);
 }
 
-/* Dropdown menu container */
 .dropdownMenu {
   position: absolute;
   top: 45px;
   left: 10px;
-
   background: #14233d;
   border: 1px solid #1f3b6f;
   border-radius: 8px;
-
   width: 200px;
-
   display: none;
   flex-direction: column;
-
   z-index: 2000;
 }
 
-/* Dropdown items */
 .dropdownItem {
   padding: 10px 15px;
   font-size: 16px;
-  /* MATCH index.html */
   color: white;
-
   text-align: left;
   width: 100%;
   cursor: pointer;
   user-select: none;
-
   display: flex;
   gap: 10px;
   align-items: center;
@@ -620,7 +579,6 @@ a {
   background: #1f3b6f;
 }
 
-/* Separator line */
 .dropdownSeparator {
   height: 1px;
   background: #2a3f66;
