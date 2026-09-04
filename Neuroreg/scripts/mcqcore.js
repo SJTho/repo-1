@@ -57,16 +57,13 @@ window.addEventListener("DOMContentLoaded", () => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    const { data, error } = await window.supabase
+    const { error } = await window.supabase
       .from("profiles")
       .update({ scalpel_points: newPoints })
-      .eq("id", userId)
-      .select();
+      .eq("id", userId);
 
     if (error) {
       console.error("Failed to update scalpel points:", error);
-    } else {
-      console.log("Scalpel points updated:", data);
     }
   };
 
@@ -208,7 +205,6 @@ window.addEventListener("DOMContentLoaded", () => {
       scoresBtn.style.display = "inline-block";
 
       let score = 0;
-      let scalpelDelta = 0;
 
       const blocks = document.querySelectorAll(".questionBlock");
 
@@ -218,23 +214,30 @@ window.addEventListener("DOMContentLoaded", () => {
         const explanation = block.dataset.explanation;
 
         const isCorrect = selected && selected.value === correct;
+        const isAnswered = !!selected;
 
         /* Correct */
         if (isCorrect) {
-          score++;
-          scalpelDelta += 2;
+          score += 1;
           block.style.border = "2px solid #2e8b57";
           block.insertAdjacentHTML("beforeend",
-            `<p class="resultTag correct"><strong>Correct (+2)</strong></p>`
+            `<p class="resultTag correct"><strong>Correct (+1)</strong></p>`
           );
         }
 
         /* Wrong */
-        else {
-          scalpelDelta -= 1;
+        else if (isAnswered) {
           block.style.border = "2px solid #b30000";
           block.insertAdjacentHTML("beforeend",
-            `<p class="resultTag wrong"><strong>Wrong (-1)</strong></p>`
+            `<p class="resultTag wrong"><strong>Wrong (0)</strong></p>`
+          );
+        }
+
+        /* Not answered */
+        else {
+          block.style.border = "2px solid #b30000";
+          block.insertAdjacentHTML("beforeend",
+            `<p class="resultTag wrong"><strong>Not answered (0)</strong></p>`
           );
         }
 
@@ -254,7 +257,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       /* Update scalpel points (local) */
       let currentPoints = parseInt(localStorage.getItem("scalpelPoints")) || 0;
-      let newPoints = Math.max(0, currentPoints + scalpelDelta);
+      let newPoints = currentPoints + score;
       localStorage.setItem("scalpelPoints", String(newPoints));
 
       /* Sync to Supabase */
@@ -262,10 +265,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
       /* Score display */
       document.getElementById("scoreDisplay").innerHTML =
-        `<p><strong>Score:</strong> ${score}/${questions.length}</p>
-         <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>`;
+        `<p><strong>Score:</strong> ${score}/${blocks.length}</p>`;
 
-      storeScore(score, questions.length, topic, level);
+      storeScore(score, blocks.length, topic, level);
     };
 
     container.appendChild(submitBtn);
@@ -277,4 +279,3 @@ window.addEventListener("DOMContentLoaded", () => {
     await window.loadScalpelPoints();
     window.generateMCQs();
   };
-});
