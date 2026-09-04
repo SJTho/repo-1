@@ -331,8 +331,7 @@ function resetForm() {
    Close button
 ----------------------------------------- */
 document.getElementById("closeBtn").addEventListener("click", () => {
-    window.location.href = "index.html";   // go back
-    window.location.reload();              // force refresh
+    window.location.href = "index.html";
 });
 
 /* -----------------------------------------
