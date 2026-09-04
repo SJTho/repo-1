@@ -341,3 +341,5 @@ document.addEventListener("DOMContentLoaded", () => {
     loadHamburgerMenu();
     loadTopRightIcons();
     renderLinks();
+
+});
