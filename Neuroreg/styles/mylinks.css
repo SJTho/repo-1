@@ -3,44 +3,29 @@ body {
     font-family: Arial, sans-serif;
     padding: 20px;
     background: #f7f7f9;
-    color: #000 !important;
-    /* Force all text black */
+    color: #000;
 }
 
-/* 2. Override global full-width rule */
-* {
-    width: auto !important;
-    /* Stop global.css from forcing full width */
-    max-width: none !important;
-    /* Prevent stretching */
-    box-sizing: border-box;
-    /* Keep layout sane */
+/* Make page titles white (including any h1) */
+h1,
+#formTitle {
+    color: #fff !important;
 }
 
-/* But restore full width ONLY where needed */
-input[type="text"],
-select {
-    width: 100% !important;
-    /* Inputs should stay full width */
-}
-
-/* Container spacing */
+/* Containers: stop them being full width */
 #linksContainer,
 #addLinkContainer {
-    margin-bottom: 30px;
+    width: auto !important;
+    max-width: 700px;
+    margin: 0 auto 30px auto;
+    /* centered, not full width */
 }
 
-/* Section titles */
-#formTitle {
-    font-size: 22px;
-    margin-bottom: 15px;
-    color: #fff !important;
-    /* Heading should be white */
-}
-
-/* Inputs */
+/* Inputs: stop global full-width, make them a nice size */
 input[type="text"],
 select {
+    width: auto !important;
+    min-width: 300px;
     padding: 10px;
     margin: 6px 0 15px 0;
     border: 1px solid #ccc;
@@ -56,6 +41,12 @@ select:focus {
     outline: none;
 }
 
+/* Buttons: override global full-width */
+button {
+    width: auto !important;
+    display: inline-block !important;
+}
+
 /* Save / Update button */
 #saveNewLinkBtn {
     background: #0078ff;
@@ -65,10 +56,9 @@ select:focus {
     border-radius: 6px;
     cursor: pointer;
     font-size: 15px;
-    width: auto !important;
 }
 
-/* 3. Style Close button like Save Link */
+/* Close button styled like Save Link */
 #closeBtn {
     background: #0078ff !important;
     color: white !important;
@@ -77,9 +67,9 @@ select:focus {
     border-radius: 6px !important;
     cursor: pointer !important;
     font-size: 15px !important;
-    width: auto !important;
 }
 
+/* Hover states */
 #saveNewLinkBtn:hover,
 #closeBtn:hover {
     background: #005fcc;
@@ -87,8 +77,7 @@ select:focus {
 
 /* Table styling */
 .links-table {
-    width: 100% !important;
-    /* Table should stay full width */
+    width: 100%;
     border-collapse: collapse;
     background: white;
     border-radius: 8px;
@@ -97,11 +86,10 @@ select:focus {
     color: #000;
 }
 
-/* 1. Links header should be white */
+/* Links header should be white */
 .links-table th {
     background: #0078ff;
     color: #fff !important;
-    /* Force white header text */
     padding: 12px;
     text-align: left;
     font-size: 15px;
@@ -139,7 +127,6 @@ select:focus {
     border-radius: 6px;
     cursor: pointer;
     width: auto !important;
-    /* Prevent full width */
 }
 
 .editBtn {
@@ -182,4 +169,3 @@ select:focus {
 
 .emoji-suggestion:hover {
     background: #f0f0f0;
-}
