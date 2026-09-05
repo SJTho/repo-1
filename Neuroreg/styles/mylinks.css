@@ -18,43 +18,33 @@ h1,
     width: auto !important;
     max-width: 700px;
     margin: 0 auto 30px auto;
-    text-align: center;
-    /* center contents */
 }
 
-/* Inputs tidy: one label + one input per row */
+/* --- FORM LAYOUT FIX --- */
+/* Wrap form in a centered column layout */
+#addLinkContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* center labels + inputs */
+}
+
+/* Labels centered and tidy */
 #addLinkContainer label {
-    display: block;
+    width: 100%;
+    max-width: 450px;
+    text-align: left;
     font-weight: bold;
     margin-top: 12px;
     margin-bottom: 4px;
-    text-align: left;
-    /* keep labels readable */
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 450px;
 }
 
-/* Input widths:
-   - URL box = full width (max 450px)
-   - Other inputs = 2/3 width (max 300px)
-*/
-#newLinkUrl {
-    width: 100% !important;
-    max-width: 450px;
-}
-
-#newLinkName,
-#newLinkIcon,
-#newLinkPublic {
-    width: 66% !important;
-    max-width: 300px;
-}
-
-/* Shared input styling */
+/* All inputs EXACT SAME WIDTH and centered */
 #addLinkContainer input[type="text"],
 #addLinkContainer select {
-    display: block;
+    width: 100% !important;
+    max-width: 450px;
+    /* uniform width */
     padding: 10px;
     margin: 0 auto 15px auto;
     border: 1px solid #ccc;
@@ -181,7 +171,7 @@ button {
     color: #fff;
 }
 
-deleteBtn:hover {
+.deleteBtn:hover {
     background: #b52a37;
 }
 
@@ -216,4 +206,8 @@ deleteBtn:hover {
 
 .emoji-suggestion:hover {
     background: #f0f0f0;
+}
+
+#addLinkContainer {
+    display: none;
 }
