@@ -24,7 +24,7 @@ const EMOJI_LIST = [
    Show / Hide Form
 ----------------------------------------- */
 function showForm() {
-    document.getElementById("addLinkContainer").style.display = "block";
+    document.getElementById("addLinkContainer").style.display = "flex";
     document.getElementById("showAddFormBtn").style.display = "none";
 }
 
@@ -263,9 +263,17 @@ function renderAddLinkForm() {
         </select>
 
         <button id="saveNewLinkBtn">Save Link</button>
+        <button id="closeFormBtn">Close</button>
     `;
 
     document.getElementById("saveNewLinkBtn").addEventListener("click", saveOrUpdateLink);
+
+    // NEW: close form without saving
+    document.getElementById("closeFormBtn").addEventListener("click", () => {
+        resetForm();
+        exitEditMode();
+        hideForm();
+    });
 }
 
 /* -----------------------------------------
