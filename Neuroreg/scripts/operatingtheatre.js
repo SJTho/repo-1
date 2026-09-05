@@ -245,8 +245,9 @@ function makeDraggable(el) {
         isDragging = false;
     });
 
+    /* ⭐ Correct flip toggle */
     el.addEventListener("dblclick", () => {
-        el.dataset.flipped = "false"; // RESET FLIP STATE ALWAYS
+        el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
         applyTransform(el);
     });
 
@@ -255,7 +256,7 @@ function makeDraggable(el) {
         e.preventDefault();
 
         let scale = parseFloat(el.dataset.scale || "1");
-        const delta = e.deltaY < 0 ? 1.01 : 0.99;
+        const delta = e.deltaY < 0 ? 1.005 : 0.995;
 
         scale = Math.max(0.3, Math.min(3, scale * delta));
         el.dataset.scale = scale;
@@ -266,7 +267,7 @@ function makeDraggable(el) {
 
 function applyTransform(el) {
     const scale = parseFloat(el.dataset.scale || "1");
-    const flipped = false; // ALWAYS RESET FLIP STATE
+    const flipped = (el.dataset.flipped === "true");
 
     const flipPart = flipped ? "scaleX(-1)" : "scaleX(1)";
     el.style.transform = `${flipPart} scale(${scale})`;
@@ -437,6 +438,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         originalEl.style.display = "block";
 
+        /* ⭐ Reset flip state ONLY on restore */
         originalEl.dataset.scale = "1";
         originalEl.dataset.flipped = "false";
 
