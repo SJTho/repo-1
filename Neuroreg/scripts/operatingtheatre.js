@@ -11,18 +11,14 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ----------------------------------------------------
-       Redirect if not logged in
-    ---------------------------------------------------- */
+    /* Redirect if not logged in */
     const nickname = localStorage.getItem("nickname");
     if (!nickname) {
         window.location.href = "login.html";
         return;
     }
 
-    /* ----------------------------------------------------
-       Hamburger Toggle
-    ---------------------------------------------------- */
+    /* Hamburger Toggle */
     const hamburger = document.getElementById("hamburgerMenu");
     const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -38,9 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    /* ----------------------------------------------------
-       ⭐ Load Hamburger Menu (Supabase)
-    ---------------------------------------------------- */
+    /* Load Hamburger Menu (Supabase) */
     async function loadHamburgerMenu() {
         dropdown.innerHTML = "";
 
@@ -92,9 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /* ----------------------------------------------------
-       ⭐ Load Top-Right Icons (Supabase)
-    ---------------------------------------------------- */
+    /* Load Top-Right Icons (Supabase) */
     async function loadTopRightIcons() {
         const container = document.getElementById("topRightIcons");
         const isAdmin = localStorage.getItem("isAdmin") === "true";
@@ -129,16 +121,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /* ----------------------------------------------------
-       INITIAL LOAD
-    ---------------------------------------------------- */
+    /* Initial load */
     loadHamburgerMenu();
     loadTopRightIcons();
 
 });
 
 /* ----------------------------------------------------
-   ⭐ CATEGORY SYSTEM
+   CATEGORY SYSTEM
 ---------------------------------------------------- */
 const categoryMap = {
     Room: Array.from(document.querySelectorAll(".roomItem")),
@@ -186,7 +176,7 @@ function revealNextItem(category) {
 }
 
 /* ----------------------------------------------------
-   ⭐ Center new items
+   Center new items
 ---------------------------------------------------- */
 function centerItemOnBackground(item) {
     const wrapper = document.getElementById("theatreWrapper");
@@ -203,7 +193,7 @@ function centerItemOnBackground(item) {
 }
 
 /* ----------------------------------------------------
-   ⭐ Drag, Resize, Flip System
+   Drag, Resize, Flip System
 ---------------------------------------------------- */
 function makeDraggable(el) {
     let offsetX = 0;
@@ -303,7 +293,7 @@ function getNextZIndex() {
 }
 
 /* ----------------------------------------------------
-   ⭐ ROOM DROP LOGIC
+   ROOM DROP LOGIC
 ---------------------------------------------------- */
 function highlightRoomOnHover(el) {
     const rooms = document.querySelectorAll(".roomPanel");
@@ -373,7 +363,7 @@ function attemptRoomDrop(el) {
 }
 
 /* ----------------------------------------------------
-   ⭐ Thumbnail Drag-Out System (restricted to theatre)
+   Thumbnail Drag-Out System (restricted to theatre)
 ---------------------------------------------------- */
 function makeThumbnailDraggable(thumb, originalEl, room) {
     let dragging = false;
@@ -387,6 +377,10 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
     thumb.addEventListener("mousedown", (e) => {
         dragging = true;
 
+        // Hide original thumbnail immediately
+        thumb.style.visibility = "hidden";
+
+        // Create floating ghost thumbnail
         ghost = document.createElement("img");
         ghost.src = thumb.src;
         ghost.classList.add("storeThumb");
@@ -411,6 +405,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         const x = e.clientX - offsetX;
         const y = e.clientY - offsetY;
 
+        // Restrict movement to theatre area
         if (
             x >= theatreRect.left &&
             x <= theatreRect.right - ghost.offsetWidth &&
@@ -428,10 +423,27 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         if (ghost) ghost.remove();
 
+        const dropX = e.clientX;
+        const dropY = e.clientY;
+
+        const insideTheatre =
+            dropX >= theatreRect.left &&
+            dropX <= theatreRect.right &&
+            dropY >= theatreRect.top &&
+            dropY <= theatreRect.bottom;
+
+        // If dropped outside theatre → restore thumbnail
+        if (!insideTheatre) {
+            thumb.style.visibility = "visible";
+            return;
+        }
+
+        // Remove thumbnail from room
         thumb.remove();
         updateRoomEmoji(room);
         scaleRoomContents();
 
+        // Restore full-size item
         originalEl.style.display = "block";
 
         if (!originalEl.dataset.scale) originalEl.dataset.scale = "1";
@@ -444,15 +456,15 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         const parentRect = equipmentContainer.getBoundingClientRect();
 
-        originalEl.style.left = `${e.clientX - parentRect.left - (originalEl.offsetWidth / 2)}px`;
-        originalEl.style.top = `${e.clientY - parentRect.top - (originalEl.offsetHeight / 2)}px`;
+        originalEl.style.left = `${dropX - parentRect.left - (originalEl.offsetWidth / 2)}px`;
+        originalEl.style.top = `${dropY - parentRect.top - (originalEl.offsetHeight / 2)}px`;
 
         makeDraggable(originalEl);
     });
 }
 
 /* ----------------------------------------------------
-   ⭐ Thumbnail System
+   Thumbnail System
 ---------------------------------------------------- */
 function moveItemToRoom(el, room) {
     const thumb = document.createElement("img");
@@ -491,7 +503,7 @@ function updateRoomEmoji(room) {
 }
 
 /* ----------------------------------------------------
-   ⭐ Scale room contents
+   Scale room contents
 ---------------------------------------------------- */
 function scaleRoomContents() {
     const rooms = document.querySelectorAll(".roomPanel");
