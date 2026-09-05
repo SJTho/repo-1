@@ -21,16 +21,16 @@ const EMOJI_LIST = [
 ];
 
 /* -----------------------------------------
-   Show / Hide Form
+   Show / Hide Form + Top Buttons
 ----------------------------------------- */
 function showForm() {
     document.getElementById("addLinkContainer").style.display = "flex";
-    document.getElementById("showAddFormBtn").style.display = "none";
+    document.getElementById("topButtons").style.display = "none";
 }
 
 function hideForm() {
     document.getElementById("addLinkContainer").style.display = "none";
-    document.getElementById("showAddFormBtn").style.display = "inline-block";
+    document.getElementById("topButtons").style.display = "flex";
 }
 
 /* -----------------------------------------
@@ -370,7 +370,7 @@ function resetForm() {
 }
 
 /* -----------------------------------------
-   Close button
+   Close button (top right)
 ----------------------------------------- */
 document.getElementById("closeBtn").addEventListener("click", () => {
     window.location.replace("index.html");
