@@ -247,7 +247,8 @@ button {
     align-items: center;
 
     /* NEW: visual styling */
-    background: #ffffff;
+    background: #ffffff57;
+    color: #000;
     border: 2px solid #d9e2f3;
     border-radius: 10px;
     padding: 25px;
