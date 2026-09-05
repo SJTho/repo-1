@@ -21,6 +21,19 @@ const EMOJI_LIST = [
 ];
 
 /* -----------------------------------------
+   Show / Hide Form
+----------------------------------------- */
+function showForm() {
+    document.getElementById("addLinkContainer").style.display = "block";
+    document.getElementById("showAddFormBtn").style.display = "none";
+}
+
+function hideForm() {
+    document.getElementById("addLinkContainer").style.display = "none";
+    document.getElementById("showAddFormBtn").style.display = "inline-block";
+}
+
+/* -----------------------------------------
    Load public links + user's private links
 ----------------------------------------- */
 async function loadLinksTable() {
@@ -211,6 +224,8 @@ function enterEditMode(link) {
     editMode = true;
     editLinkId = link.id;
 
+    showForm();
+
     document.getElementById("formTitle").innerText = "Edit Your Private Link";
     document.getElementById("saveNewLinkBtn").innerText = "Update Link";
 
@@ -323,6 +338,7 @@ async function saveOrUpdateLink() {
 
     loadLinksTable();
     resetForm();
+    hideForm();
 }
 
 /* -----------------------------------------
@@ -358,4 +374,13 @@ document.getElementById("closeBtn").addEventListener("click", () => {
 window.addEventListener("DOMContentLoaded", () => {
     loadLinksTable();
     renderAddLinkForm();
+
+    // Add Link button
+    document.getElementById("showAddFormBtn").addEventListener("click", () => {
+        resetForm();
+        exitEditMode();
+        showForm();
+    });
+
+    hideForm(); // hide form on initial load
 });
