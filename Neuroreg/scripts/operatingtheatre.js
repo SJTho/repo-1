@@ -1,72 +1,145 @@
-// ------------------------------
-// Hamburger Menu + Admin Link Loader
-// ------------------------------
+/* ----------------------------------------------------
+   Supabase Connection
+---------------------------------------------------- */
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 
-const hamburger = document.getElementById("hamburgerMenu");
-const dropdown = document.getElementById("hamburgerMenuDropdown");
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-hamburger.addEventListener("click", () => {
-    dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
-});
+/* ----------------------------------------------------
+   MAIN INITIALISATION
+---------------------------------------------------- */
+document.addEventListener("DOMContentLoaded", () => {
 
-document.addEventListener("click", (event) => {
-    if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.style.display = "none";
+    /* ----------------------------------------------------
+       Redirect if not logged in
+    ---------------------------------------------------- */
+    const nickname = localStorage.getItem("nickname");
+    if (!nickname) {
+        window.location.href = "login.html";
+        return;
     }
-});
 
-// Populate menu links (admin + standard)
-async function loadHamburgerLinks() {
+    /* ----------------------------------------------------
+       Hamburger Toggle
+    ---------------------------------------------------- */
+    const hamburger = document.getElementById("hamburgerMenu");
     const dropdown = document.getElementById("hamburgerMenuDropdown");
-    dropdown.innerHTML = ""; // Clear existing
 
-    const userId = parseInt(localStorage.getItem("userId"));
-    if (!userId) return;
+    hamburger.addEventListener("click", () => {
+        dropdown.style.display =
+            dropdown.style.display === "flex" ? "none" : "flex";
+    });
 
-    // Check admin status
-    const { data, error } = await window.supabase
-        .from("users")
-        .select("isadmin")
-        .eq("id", userId)
-        .single();
+    document.addEventListener("click", (event) => {
+        if (!hamburger.contains(event.target) &&
+            !dropdown.contains(event.target)) {
+            dropdown.style.display = "none";
+        }
+    });
 
-    const isAdmin = data?.isadmin === true;
+    /* ----------------------------------------------------
+       ⭐ Load Hamburger Menu (Supabase)
+    ---------------------------------------------------- */
+    async function loadHamburgerMenu() {
+        dropdown.innerHTML = ""; // Clear existing
 
-    // Standard links
-    const links = [
-        { text: "Home", href: "index.html" },
-        { text: "MCQs", href: "mcq.html" },
-        { text: "Operating Theatre", href: "operatingtheatre.html" },
-        { text: "Scores", href: "scores.html" }
-    ];
+        const isAdmin = localStorage.getItem("isAdmin") === "true";
+        const currentPage = window.location.pathname.split("/").pop();
 
-    // Admin-only links
-    if (isAdmin) {
-        links.push(
-            { text: "Admin Panel", href: "admin.html" },
-            { text: "Manage Questions", href: "adminquestions.html" },
-            { text: "User Scores", href: "adminscores.html" }
-        );
+        const { data, error } = await supabase
+            .from("menuitems")
+            .select("*")
+            .eq("hamburger", true)
+            .order("hamburgersection", { ascending: true })
+            .order("hamburgerorder", { ascending: true });
+
+        if (error) {
+            console.error("Menu load error:", error);
+            dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+            return;
+        }
+
+        let currentSection = null;
+
+        data.forEach(item => {
+            if (item.admin && !isAdmin) return;
+            if (item.url === currentPage) return;
+
+            if (currentSection !== null && item.hamburgersection !== currentSection) {
+                const separator = document.createElement("div");
+                separator.className = "dropdownSeparator";
+                dropdown.appendChild(separator);
+            }
+
+            currentSection = item.hamburgersection;
+
+            const div = document.createElement("div");
+            div.className = "dropdownItem";
+            div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
+
+            if (item.url === "logout") {
+                div.onclick = () => {
+                    import("./logout.js").then(module => module.logout());
+                };
+            } else {
+                div.onclick = () => {
+                    window.location.href = item.url;
+                };
+            }
+
+            dropdown.appendChild(div);
+        });
     }
 
-    // Render links
-    links.forEach(link => {
-        const a = document.createElement("a");
-        a.textContent = link.text;
-        a.href = link.href;
-        dropdown.appendChild(a);
-    });
-}
+    /* ----------------------------------------------------
+       ⭐ Load Top-Right Icons (Supabase)
+    ---------------------------------------------------- */
+    async function loadTopRightIcons() {
+        const container = document.getElementById("topRightIcons");
+        const isAdmin = localStorage.getItem("isAdmin") === "true";
+        const currentPage = window.location.pathname.split("/").pop();
 
-window.addEventListener("DOMContentLoaded", () => {
-    loadHamburgerLinks();
+        const { data, error } = await supabase
+            .from("menuitems")
+            .select("*")
+            .eq("topright", true)
+            .order("toprightorder", { ascending: true });
+
+        if (error) {
+            console.error("Top-right load error:", error);
+            return;
+        }
+
+        container.innerHTML = "";
+
+        data.forEach(item => {
+            if (item.admin && !isAdmin) return;
+            if (item.url === currentPage) return;
+
+            const icon = document.createElement("div");
+            icon.className = "topRightIcon";
+            icon.innerText = item.emoji;
+
+            icon.onclick = () => {
+                window.location.href = item.url;
+            };
+
+            container.appendChild(icon);
+        });
+    }
+
+    /* ----------------------------------------------------
+       INITIAL LOAD
+    ---------------------------------------------------- */
+    loadHamburgerMenu();
+    loadTopRightIcons();
+
 });
 
-
-// ------------------------------
-// CATEGORY SYSTEM
-// ------------------------------
-
+/* ----------------------------------------------------
+   ⭐ CATEGORY SYSTEM
+---------------------------------------------------- */
 const categoryMap = {
     Room: Array.from(document.querySelectorAll(".roomItem")),
     Anaesthetic: Array.from(document.querySelectorAll(".anaestheticItem")),
@@ -112,11 +185,9 @@ function revealNextItem(category) {
     revealIndex[category]++;
 }
 
-
-// ------------------------------
-// Center new items
-// ------------------------------
-
+/* ----------------------------------------------------
+   ⭐ Center new items
+---------------------------------------------------- */
 function centerItemOnBackground(item) {
     const wrapper = document.getElementById("theatreWrapper");
     const wrapperRect = wrapper.getBoundingClientRect();
@@ -131,11 +202,9 @@ function centerItemOnBackground(item) {
     item.style.top = `${top}px`;
 }
 
-
-// ------------------------------
-// Drag, Resize (scale), Flip System
-// ------------------------------
-
+/* ----------------------------------------------------
+   ⭐ Drag, Resize, Flip System
+---------------------------------------------------- */
 function makeDraggable(el) {
     let offsetX = 0;
     let offsetY = 0;
@@ -233,11 +302,9 @@ function getNextZIndex() {
     return maxZ + 1;
 }
 
-
-// ------------------------------
-// ⭐ ROOM DROP LOGIC (Store + Staff)
-// ------------------------------
-
+/* ----------------------------------------------------
+   ⭐ ROOM DROP LOGIC
+---------------------------------------------------- */
 function highlightRoomOnHover(el) {
     const rooms = document.querySelectorAll(".roomPanel");
     const elRect = el.getBoundingClientRect();
@@ -305,11 +372,9 @@ function attemptRoomDrop(el) {
     }
 }
 
-
-// ------------------------------
-// ⭐ Thumbnail System (Both Rooms)
-// ------------------------------
-
+/* ----------------------------------------------------
+   ⭐ Thumbnail System
+---------------------------------------------------- */
 function moveItemToRoom(el, room) {
     const thumb = document.createElement("img");
     thumb.src = el.src;
@@ -344,11 +409,9 @@ function updateRoomEmoji(room) {
     emoji.style.display = thumbs.length === 0 ? "block" : "none";
 }
 
-
-// ------------------------------
-// ⭐ Scale room contents
-// ------------------------------
-
+/* ----------------------------------------------------
+   ⭐ Scale room contents
+---------------------------------------------------- */
 function scaleRoomContents() {
     const rooms = document.querySelectorAll(".roomPanel");
 
@@ -367,8 +430,9 @@ function scaleRoomContents() {
     });
 }
 
-
-// Initialise
+/* ----------------------------------------------------
+   INITIALISE
+---------------------------------------------------- */
 window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
         item.style.display = "none";
