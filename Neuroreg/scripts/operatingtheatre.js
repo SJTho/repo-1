@@ -254,8 +254,16 @@ function makeDraggable(el) {
         if (isDragging) return;
         e.preventDefault();
 
+        // Dead zone for tiny movements
+        if (Math.abs(e.deltaY) < 5) return;
+
+        // Cooldown to prevent rapid-fire zooming
+        const now = Date.now();
+        if (now - (el._lastWheelTime || 0) < 40) return;
+        el._lastWheelTime = now;
+
         let scale = parseFloat(el.dataset.scale || "1");
-        const delta = e.deltaY < 0 ? 1.01 : 0.99;
+        const delta = e.deltaY < 0 ? 1.005 : 0.995;
 
         scale = Math.max(0.3, Math.min(3, scale * delta));
         el.dataset.scale = scale;
@@ -440,6 +448,8 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         const equipmentContainer = document.getElementById("equipmentContainer");
         equipmentContainer.appendChild(originalEl);
 
+        // Reset transform completely before applying new state
+        originalEl.style.transform = "";
         originalEl.dataset.scale = "1";
         originalEl.dataset.flipped = "false";
         applyTransform(originalEl);
@@ -521,5 +531,5 @@ window.onload = () => {
         item.style.display = "none";
     });
 
-    scaleRoomContents();
+scaleRoomContents();
 };
