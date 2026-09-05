@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Links</title>
+    <title>My Links</title>
 
     <link rel="stylesheet" href="./styles/mylinks.css">
     <link rel="stylesheet" href="./styles/global.css">
@@ -14,14 +14,17 @@
 
     <h1>My Links</h1>
 
+    <!-- Add Link + Close buttons -->
+    <div id="topButtons">
+        <button id="showAddFormBtn">Add Link</button>
+        <button id="closeBtn">Close</button>
+    </div>
+
     <!-- Table of links -->
     <div id="linksContainer" class="links-container"></div>
 
-    <!-- Add link form -->
-    <button id="showAddFormBtn">Add Link</button>
+    <!-- Add/Edit Link Form (hidden by default) -->
     <div id="addLinkContainer" class="add-link-container"></div>
-
-    <button id="closeBtn">Close</button>
 
     <script type="module" src="./scripts/mylinks.js"></script>
 
