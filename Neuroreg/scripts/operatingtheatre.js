@@ -263,7 +263,7 @@ function makeDraggable(el) {
         el._lastWheelTime = now;
 
         let scale = parseFloat(el.dataset.scale || "1");
-        const delta = e.deltaY < 0 ? 1.005 : 0.995;
+        const delta = e.deltaY < 0 ? 1.02 : 0.98;
 
         scale = Math.max(0.3, Math.min(3, scale * delta));
         el.dataset.scale = scale;
