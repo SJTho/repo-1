@@ -11,14 +11,12 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* Redirect if not logged in */
     const nickname = localStorage.getItem("nickname");
     if (!nickname) {
         window.location.href = "login.html";
         return;
     }
 
-    /* Hamburger Toggle */
     const hamburger = document.getElementById("hamburgerMenu");
     const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -34,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    /* Load Hamburger Menu (Supabase) */
     async function loadHamburgerMenu() {
         dropdown.innerHTML = "";
 
@@ -86,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /* Load Top-Right Icons (Supabase) */
     async function loadTopRightIcons() {
         const container = document.getElementById("topRightIcons");
         const isAdmin = localStorage.getItem("isAdmin") === "true";
@@ -121,7 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /* Initial load */
     loadHamburgerMenu();
     loadTopRightIcons();
 
@@ -363,7 +358,7 @@ function attemptRoomDrop(el) {
 }
 
 /* ----------------------------------------------------
-   Thumbnail Drag-Out System (restricted to theatre)
+   Thumbnail Drag-Out System (ghost + no-entry)
 ---------------------------------------------------- */
 function makeThumbnailDraggable(thumb, originalEl, room) {
     let dragging = false;
@@ -377,7 +372,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
     thumb.addEventListener("mousedown", (e) => {
         dragging = true;
 
-        // Hide original thumbnail immediately
+        // Hide original thumbnail while dragging
         thumb.style.visibility = "hidden";
 
         // Create floating ghost thumbnail
@@ -405,15 +400,20 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         const x = e.clientX - offsetX;
         const y = e.clientY - offsetY;
 
-        // Restrict movement to theatre area
-        if (
-            x >= theatreRect.left &&
-            x <= theatreRect.right - ghost.offsetWidth &&
-            y >= theatreRect.top &&
-            y <= theatreRect.bottom - ghost.offsetHeight
-        ) {
-            ghost.style.left = `${x}px`;
-            ghost.style.top = `${y}px`;
+        ghost.style.left = `${x}px`;
+        ghost.style.top = `${y}px`;
+
+        const insideTheatre =
+            e.clientX >= theatreRect.left &&
+            e.clientX <= theatreRect.right &&
+            e.clientY >= theatreRect.top &&
+            e.clientY <= theatreRect.bottom;
+
+        // Toggle no-entry visual when outside theatre
+        if (!insideTheatre) {
+            ghost.classList.add("noEntryGhost");
+        } else {
+            ghost.classList.remove("noEntryGhost");
         }
     });
 
@@ -432,7 +432,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
             dropY >= theatreRect.top &&
             dropY <= theatreRect.bottom;
 
-        // If dropped outside theatre → restore thumbnail
+        // If dropped outside theatre → restore thumbnail in room
         if (!insideTheatre) {
             thumb.style.visibility = "visible";
             return;
@@ -532,4 +532,3 @@ window.onload = () => {
     });
 
     scaleRoomContents();
-};
