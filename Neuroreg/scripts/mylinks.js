@@ -84,14 +84,15 @@ async function loadLinksTable() {
             <td class="checkbox-cell">
                 <input type="checkbox" ${isChecked ? "checked" : ""} />
             </td>
-          <td class="action-cell">
-    ${isPrivateOwned ? `
-        <button class="editBtn">Edit</button>
-        <button class="deleteBtn">Delete</button>
-    ` : `
-        <span class="public-note">Public links can't be edited</span>
-    `}
-</td>
+            <td class="action-cell">
+                ${isPrivateOwned ? `
+                    <button class="editBtn">Edit</button>
+                    <button class="deleteBtn">Delete</button>
+                    <button class="makePublicBtn">Make Public</button>
+                ` : `
+                    <span class="public-note">Public link</span>
+                `}
+            </td>
         `;
 
         /* -----------------------------------------
@@ -146,6 +147,7 @@ async function loadLinksTable() {
                 await supabase
                     .from("mapuserstolinks")
                     .delete()
+                    .eq("userid", userId)
                     .eq("linkid", link.id);
 
                 const { error } = await supabase
@@ -164,6 +166,34 @@ async function loadLinksTable() {
             });
         }
 
+        /* -----------------------------------------
+           Make Public button behaviour
+        ----------------------------------------- */
+        if (isPrivateOwned) {
+            const makePublicBtn = tr.querySelector(".makePublicBtn");
+            makePublicBtn.addEventListener("click", async () => {
+
+                const proceed = confirm(
+                    "Public links are available to all users and cannot be deleted or edited.\n\nDo you want to continue?"
+                );
+                if (!proceed) return;
+
+                const { error } = await supabase
+                    .from("indexpagelinks")
+                    .update({ ispublic: true })
+                    .eq("id", link.id)
+                    .eq("addedby", userId);
+
+                if (error) {
+                    console.error("Make public error:", error);
+                    alert("Failed to update link.");
+                    return;
+                }
+
+                loadLinksTable();
+            });
+        }
+
         table.appendChild(tr);
     });
 
@@ -174,6 +204,10 @@ async function loadLinksTable() {
    Enter Edit Mode
 ----------------------------------------- */
 function enterEditMode(link) {
+    if (!document.getElementById("newLinkName")) {
+        renderAddLinkForm();
+    }
+
     editMode = true;
     editLinkId = link.id;
 
@@ -182,8 +216,12 @@ function enterEditMode(link) {
 
     document.getElementById("newLinkName").value = link.name;
     document.getElementById("newLinkUrl").value = link.url;
-    document.getElementById("newLinkIcon").value = link.icon;
-    document.getElementById("newLinkPublic").value = link.ispublic ? "true" : "false";
+
+    const iconSelect = document.getElementById("newLinkIcon");
+    if (![...iconSelect.options].some(o => o.value === link.icon)) {
+        iconSelect.innerHTML += `<option value="${link.icon}">${link.icon}</option>`;
+    }
+    iconSelect.value = link.icon;
 }
 
 /* -----------------------------------------
@@ -209,12 +247,6 @@ function renderAddLinkForm() {
             ${emojiOptions}
         </select>
 
-        <label>Make link available to all users?</label>
-        <select id="newLinkPublic">
-            <option value="false">No</option>
-            <option value="true">Yes</option>
-        </select>
-
         <button id="saveNewLinkBtn">Save Link</button>
     `;
 
@@ -228,7 +260,6 @@ async function saveOrUpdateLink() {
     const name = document.getElementById("newLinkName").value.trim();
     const url = document.getElementById("newLinkUrl").value.trim();
     const icon = document.getElementById("newLinkIcon").value.trim();
-    const ispublic = document.getElementById("newLinkPublic").value === "true";
 
     const userId = localStorage.getItem("userId");
 
@@ -237,19 +268,9 @@ async function saveOrUpdateLink() {
         return;
     }
 
-    /* -----------------------------------------
-       Public link warning
-    ----------------------------------------- */
-    if (ispublic) {
-        const proceed = confirm(
-            "Public links are available to all users and cannot be deleted or edited.\n\nDo you want to continue?"
-        );
-        if (!proceed) return;
-    }
-
     if (!editMode) {
         /* -----------------------------------------
-           INSERT MODE
+           INSERT MODE (always private)
         ----------------------------------------- */
         const { data: inserted, error } = await supabase
             .from("indexpagelinks")
@@ -257,7 +278,7 @@ async function saveOrUpdateLink() {
                 name,
                 url,
                 icon,
-                ispublic,
+                ispublic: false,
                 addedby: userId
             })
             .select();
@@ -270,7 +291,6 @@ async function saveOrUpdateLink() {
 
         const newLink = inserted[0];
 
-        // Auto-select the newly added link
         await supabase
             .from("mapuserstolinks")
             .insert({
@@ -280,15 +300,14 @@ async function saveOrUpdateLink() {
 
     } else {
         /* -----------------------------------------
-           UPDATE MODE
+           UPDATE MODE (never touches ispublic)
         ----------------------------------------- */
         const { error } = await supabase
             .from("indexpagelinks")
             .update({
                 name,
                 url,
-                icon,
-                ispublic
+                icon
             })
             .eq("id", editLinkId)
             .eq("addedby", userId);
@@ -324,7 +343,6 @@ function resetForm() {
     document.getElementById("newLinkName").value = "";
     document.getElementById("newLinkUrl").value = "";
     document.getElementById("newLinkIcon").value = "";
-    document.getElementById("newLinkPublic").value = "true";
 }
 
 /* -----------------------------------------
