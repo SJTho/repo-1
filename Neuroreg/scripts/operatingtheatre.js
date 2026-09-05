@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
        ⭐ Load Hamburger Menu (Supabase)
     ---------------------------------------------------- */
     async function loadHamburgerMenu() {
-        dropdown.innerHTML = ""; // Clear existing
+        dropdown.innerHTML = "";
 
         const isAdmin = localStorage.getItem("isAdmin") === "true";
         const currentPage = window.location.pathname.split("/").pop();
@@ -373,6 +373,49 @@ function attemptRoomDrop(el) {
 }
 
 /* ----------------------------------------------------
+   ⭐ Thumbnail Drag-Out System
+---------------------------------------------------- */
+function makeThumbnailDraggable(thumb, originalEl, room) {
+    let dragStart = false;
+    let startX = 0;
+    let startY = 0;
+
+    thumb.addEventListener("mousedown", (e) => {
+        dragStart = true;
+        startX = e.clientX;
+        startY = e.clientY;
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (!dragStart) return;
+
+        const dx = Math.abs(e.clientX - startX);
+        const dy = Math.abs(e.clientY - startY);
+
+        if (dx < 3 && dy < 3) return;
+
+        thumb.remove();
+
+        originalEl.style.display = "block";
+
+        const equipmentContainer = document.getElementById("equipmentContainer");
+        equipmentContainer.appendChild(originalEl);
+
+        centerItemOnBackground(originalEl);
+        makeDraggable(originalEl);
+
+        updateRoomEmoji(room);
+        scaleRoomContents();
+
+        dragStart = false;
+    });
+
+    document.addEventListener("mouseup", () => {
+        dragStart = false;
+    });
+}
+
+/* ----------------------------------------------------
    ⭐ Thumbnail System
 ---------------------------------------------------- */
 function moveItemToRoom(el, room) {
@@ -383,6 +426,8 @@ function moveItemToRoom(el, room) {
     room.appendChild(thumb);
 
     el.style.display = "none";
+
+    makeThumbnailDraggable(thumb, el, room);
 
     updateRoomEmoji(room);
     scaleRoomContents();
