@@ -373,45 +373,81 @@ function attemptRoomDrop(el) {
 }
 
 /* ----------------------------------------------------
-   ⭐ Thumbnail Drag-Out System
+   ⭐ Thumbnail Drag-Out System (restricted to theatre)
 ---------------------------------------------------- */
 function makeThumbnailDraggable(thumb, originalEl, room) {
-    let dragStart = false;
-    let startX = 0;
-    let startY = 0;
+    let dragging = false;
+    let ghost = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const theatre = document.getElementById("theatreWrapper");
+    const theatreRect = theatre.getBoundingClientRect();
 
     thumb.addEventListener("mousedown", (e) => {
-        dragStart = true;
-        startX = e.clientX;
-        startY = e.clientY;
+        dragging = true;
+
+        ghost = document.createElement("img");
+        ghost.src = thumb.src;
+        ghost.classList.add("storeThumb");
+        ghost.style.position = "fixed";
+        ghost.style.pointerEvents = "none";
+        ghost.style.zIndex = "99999";
+        ghost.style.width = "40px";
+
+        document.body.appendChild(ghost);
+
+        const rect = thumb.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+
+        ghost.style.left = `${e.clientX - offsetX}px`;
+        ghost.style.top = `${e.clientY - offsetY}px`;
     });
 
     document.addEventListener("mousemove", (e) => {
-        if (!dragStart) return;
+        if (!dragging || !ghost) return;
 
-        const dx = Math.abs(e.clientX - startX);
-        const dy = Math.abs(e.clientY - startY);
+        const x = e.clientX - offsetX;
+        const y = e.clientY - offsetY;
 
-        if (dx < 3 && dy < 3) return;
+        if (
+            x >= theatreRect.left &&
+            x <= theatreRect.right - ghost.offsetWidth &&
+            y >= theatreRect.top &&
+            y <= theatreRect.bottom - ghost.offsetHeight
+        ) {
+            ghost.style.left = `${x}px`;
+            ghost.style.top = `${y}px`;
+        }
+    });
+
+    document.addEventListener("mouseup", (e) => {
+        if (!dragging) return;
+        dragging = false;
+
+        if (ghost) ghost.remove();
 
         thumb.remove();
+        updateRoomEmoji(room);
+        scaleRoomContents();
 
         originalEl.style.display = "block";
+
+        if (!originalEl.dataset.scale) originalEl.dataset.scale = "1";
+        if (!originalEl.dataset.flipped) originalEl.dataset.flipped = "false";
+
+        applyTransform(originalEl);
 
         const equipmentContainer = document.getElementById("equipmentContainer");
         equipmentContainer.appendChild(originalEl);
 
-        centerItemOnBackground(originalEl);
+        const parentRect = equipmentContainer.getBoundingClientRect();
+
+        originalEl.style.left = `${e.clientX - parentRect.left - (originalEl.offsetWidth / 2)}px`;
+        originalEl.style.top = `${e.clientY - parentRect.top - (originalEl.offsetHeight / 2)}px`;
+
         makeDraggable(originalEl);
-
-        updateRoomEmoji(room);
-        scaleRoomContents();
-
-        dragStart = false;
-    });
-
-    document.addEventListener("mouseup", () => {
-        dragStart = false;
     });
 }
 
