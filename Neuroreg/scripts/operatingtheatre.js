@@ -531,4 +531,5 @@ window.onload = () => {
         item.style.display = "none";
     });
 
-    scaleRoomContents();
+      scaleRoomContents();
+};
