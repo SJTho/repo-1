@@ -159,8 +159,6 @@ function revealNextItem(category) {
 
     item.style.display = "block";
 
-    item.getBoundingClientRect();
-
     item.dataset.scale = "1";
     item.dataset.flipped = "false";
 
@@ -248,8 +246,7 @@ function makeDraggable(el) {
     });
 
     el.addEventListener("dblclick", () => {
-        const flipped = el.dataset.flipped === "true";
-        el.dataset.flipped = flipped ? "false" : "true";
+        el.dataset.flipped = "false"; // RESET FLIP STATE ALWAYS
         applyTransform(el);
     });
 
@@ -269,7 +266,7 @@ function makeDraggable(el) {
 
 function applyTransform(el) {
     const scale = parseFloat(el.dataset.scale || "1");
-    const flipped = el.dataset.flipped === "true";
+    const flipped = false; // ALWAYS RESET FLIP STATE
 
     const flipPart = flipped ? "scaleX(-1)" : "scaleX(1)";
     el.style.transform = `${flipPart} scale(${scale})`;
@@ -372,10 +369,8 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
     thumb.addEventListener("mousedown", (e) => {
         dragging = true;
 
-        // Hide original thumbnail while dragging
         thumb.style.visibility = "hidden";
 
-        // Create floating ghost thumbnail
         ghost = document.createElement("img");
         ghost.src = thumb.src;
         ghost.classList.add("storeThumb");
@@ -409,7 +404,6 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
             e.clientY >= theatreRect.top &&
             e.clientY <= theatreRect.bottom;
 
-        // Toggle no-entry visual when outside theatre
         if (!insideTheatre) {
             ghost.classList.add("noEntryGhost");
         } else {
@@ -432,22 +426,19 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
             dropY >= theatreRect.top &&
             dropY <= theatreRect.bottom;
 
-        // If dropped outside theatre → restore thumbnail in room
         if (!insideTheatre) {
             thumb.style.visibility = "visible";
             return;
         }
 
-        // Remove thumbnail from room
         thumb.remove();
         updateRoomEmoji(room);
         scaleRoomContents();
 
-        // Restore full-size item
         originalEl.style.display = "block";
 
-        if (!originalEl.dataset.scale) originalEl.dataset.scale = "1";
-        if (!originalEl.dataset.flipped) originalEl.dataset.flipped = "false";
+        originalEl.dataset.scale = "1";
+        originalEl.dataset.flipped = "false";
 
         applyTransform(originalEl);
 
@@ -531,5 +522,5 @@ window.onload = () => {
         item.style.display = "none";
     });
 
-      scaleRoomContents();
+    scaleRoomContents();
 };
