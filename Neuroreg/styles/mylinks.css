@@ -232,6 +232,7 @@ button {
     border-radius: 6px !important;
     cursor: pointer !important;
     font-size: 15px !important;
+    width: 120px !important;
 }
 
 #showAddFormBtn:hover,
@@ -284,16 +285,17 @@ button {
 
 /* Close Form button */
 #closeFormBtn {
-    background: #6c757d !important;
+    background: #0078ff !important;
     color: white !important;
     padding: 10px 16px !important;
     border: none !important;
     border-radius: 6px !important;
     cursor: pointer !important;
     font-size: 15px !important;
-    margin-top: 10px;
+    margin-top: 10px !important;
+    width: 120px !important;
 }
 
 #closeFormBtn:hover {
-    background: #5a6268 !important;
+    background: #005fcc !important;
 }
