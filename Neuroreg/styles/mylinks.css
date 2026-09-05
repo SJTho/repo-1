@@ -210,9 +210,21 @@ button {
 
 #addLinkContainer {
     display: none;
+
 }
 
-#showAddFormBtn {
+/* Put Add Link and Close side-by-side with spacing */
+#topButtons {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    /* increase or decrease spacing here */
+    margin-bottom: 20px;
+}
+
+/* Ensure both buttons match styling */
+#showAddFormBtn,
+#closeBtn {
     background: #0078ff !important;
     color: white !important;
     padding: 10px 16px !important;
@@ -220,10 +232,9 @@ button {
     border-radius: 6px !important;
     cursor: pointer !important;
     font-size: 15px !important;
-    margin-bottom: 20px;
-    display: inline-block !important;
 }
 
-#showAddFormBtn:hover {
+#showAddFormBtn:hover,
+#closeBtn:hover {
     background: #005fcc !important;
 }
