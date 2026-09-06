@@ -23,45 +23,72 @@
 
     <div id="error-message" class="errorMessage"></div>
 
-    <div class="profileContainer">
+    <div id="profileContainer">
 
-        <p>Nickname:
-            <span id="nicknameDisplay"></span>
-            <input id="nicknameInput" class="editInput" style="display:none;">
-            <button id="editNicknameBtn" class="editBtn">Edit</button>
-            <button id="saveNicknameBtn" class="saveBtn" style="display:none;">Save</button>
-        </p>
+        <!-- Nickname -->
+        <div class="profileRow">
+            <strong>Nickname</strong>
+            <div class="profileFieldRow">
+                <span id="nicknameDisplay"></span>
+                <input id="nicknameInput" class="editField" style="display:none;">
+                <button id="editNicknameBtn" class="editBtn">Edit</button>
+                <button id="saveNicknameBtn" class="saveBtn" style="display:none;">Save</button>
+            </div>
+        </div>
 
-        <p>Email:
-            <span id="emailDisplay"></span>
-            <input id="emailInput" class="editInput" style="display:none;">
-            <button id="editEmailBtn" class="editBtn">Edit</button>
-            <button id="saveEmailBtn" class="saveBtn" style="display:none;">Save</button>
-        </p>
+        <!-- Email -->
+        <div class="profileRow">
+            <strong>Email</strong>
+            <div class="profileFieldRow">
+                <span id="emailDisplay"></span>
+                <input id="emailInput" class="editField" style="display:none;">
+                <button id="editEmailBtn" class="editBtn">Edit</button>
+                <button id="saveEmailBtn" class="saveBtn" style="display:none;">Save</button>
+            </div>
+        </div>
 
-        <p>Password:
-            <span id="passwordDisplay">********</span>
-            <input id="passwordInput" class="editInput" style="display:none;" type="password">
-            <button id="editPasswordBtn" class="editBtn">Edit</button>
-            <button id="savePasswordBtn" class="saveBtn" style="display:none;">Save</button>
-        </p>
+        <!-- Password -->
+        <div class="profileRow">
+            <strong>Password</strong>
+            <div class="profileFieldRow">
+                <span id="passwordDisplay">********</span>
+                <input id="passwordInput" class="editField" style="display:none;" type="password">
+                <button id="editPasswordBtn" class="editBtn">Edit</button>
+                <button id="savePasswordBtn" class="saveBtn" style="display:none;">Save</button>
+            </div>
+        </div>
 
-        <!-- ⭐ NEW STREAK ROWS -->
-        <p>Best streak:
-            <span id="longestStreakDisplay">0 days</span>
-        </p>
+        <!-- ⭐ Best Streak -->
+        <div class="profileRow">
+            <strong>Best streak</strong>
+            <div class="profileFieldRow">
+                <span id="longestStreakDisplay">0 days</span>
+            </div>
+        </div>
 
-        <p>Current streak:
-            <span id="currentStreakDisplay">0 days</span>
-        </p>
+        <!-- ⭐ Current Streak -->
+        <div class="profileRow">
+            <strong>Current streak</strong>
+            <div class="profileFieldRow">
+                <span id="currentStreakDisplay">0 days</span>
+            </div>
+        </div>
 
-        <p>Scalpel Points:
-            <span id="pointsDisplay"></span>
-        </p>
+        <!-- Scalpel Points -->
+        <div class="profileRow">
+            <strong>Scalpel Points</strong>
+            <div class="profileFieldRow">
+                <span id="pointsDisplay"></span>
+            </div>
+        </div>
 
-        <p>Rank:
-            <span id="rankDisplay"></span>
-        </p>
+        <!-- Rank -->
+        <div class="profileRow">
+            <strong>Rank</strong>
+            <div class="profileFieldRow">
+                <span id="rankDisplay"></span>
+            </div>
+        </div>
 
     </div>
 
