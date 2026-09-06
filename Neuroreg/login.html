@@ -7,8 +7,12 @@
 
     <link rel="stylesheet" href="./styles/global.css">
     <link rel="stylesheet" href="./styles/login.css">
-    <script type="module" src="./scripts/login.js"></script>
 
+    <!-- Google reCAPTCHA v2 Invisible -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+    <!-- Your login logic -->
+    <script type="module" src="./scripts/login.js"></script>
 </head>
 
 <body>
@@ -29,7 +33,6 @@
                 <input id="loginPassword" type="password">
             </div>
 
-            <!-- Forgot Password (new styling + placement) -->
             <div class="forgotPasswordLink" onclick="showForgotEmail()">Forgot your password?</div>
 
             <button onclick="handleLogin()">Login</button>
@@ -58,7 +61,12 @@
                 <input id="signupNickname" type="text">
             </div>
 
-            <button onclick="handleSignup()">Sign Up</button>
+            <!-- Invisible reCAPTCHA widget -->
+            <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY" data-callback="onSignupCaptcha" data-size="invisible">
+            </div>
+
+            <!-- Button triggers captcha programmatically -->
+            <button onclick="triggerSignupCaptcha()">Sign Up</button>
 
             <div class="switchLink" onclick="showLogin()">Already have an account?</div>
 
@@ -85,20 +93,31 @@
     </div>
 
     <script>
+        // Clear all error boxes
+        function clearErrors() {
+            document.querySelectorAll(".errorBox").forEach(box => {
+                box.style.display = "none";
+                box.textContent = "";
+            });
+        }
+
         // Toggle functions
         function showLogin() {
+            clearErrors();
             document.getElementById("loginForm").style.display = "block";
             document.getElementById("signupForm").style.display = "none";
             document.getElementById("forgotEmailForm").style.display = "none";
         }
 
         function showSignup() {
+            clearErrors();
             document.getElementById("loginForm").style.display = "none";
             document.getElementById("signupForm").style.display = "block";
             document.getElementById("forgotEmailForm").style.display = "none";
         }
 
         function showForgotEmail() {
+            clearErrors();
             document.getElementById("loginForm").style.display = "none";
             document.getElementById("signupForm").style.display = "none";
             document.getElementById("forgotEmailForm").style.display = "block";
@@ -111,22 +130,6 @@
             const errorBox = document.getElementById("login-error");
 
             const result = await login(email, password);
-
-            if (result.error) {
-                errorBox.textContent = result.error;
-                errorBox.style.display = "block";
-                return;
-            }
-        }
-
-        // Signup handler
-        async function handleSignup() {
-            const email = document.getElementById("signupEmail").value.trim();
-            const password = document.getElementById("signupPassword").value.trim();
-            const nickname = document.getElementById("signupNickname").value.trim();
-            const errorBox = document.getElementById("signup-error");
-
-            const result = await signup(email, password, nickname);
 
             if (result.error) {
                 errorBox.textContent = result.error;
