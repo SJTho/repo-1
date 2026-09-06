@@ -167,14 +167,7 @@ window.addEventListener("DOMContentLoaded", () => {
       alert("No questions available.");
       return;
     }
-
-    /* Progress button (created BEFORE submit button) */
-    const scoresBtn = document.createElement("button");
-    scoresBtn.textContent = "Progress";
-    scoresBtn.className = "progressBtn";
-    scoresBtn.style.display = "none";
-    scoresBtn.onclick = () => window.location.href = "scores.html";
-
+    
     /* Render questions */
     questions.forEach((q, index) => {
       const block = document.createElement("div");
