@@ -34,7 +34,7 @@
 .profileFieldRow {
     display: flex;
     align-items: flex-start;
-    /* ⭐ FIX: LEFT ALIGN SECOND COLUMN */
+    /* LEFT ALIGN SECOND COLUMN */
     gap: 12px;
     width: 100%;
 }
@@ -43,7 +43,7 @@
 .profileFieldRow input.editField {
     flex: 1;
     text-align: left;
-    /* ⭐ FIX: LEFT ALIGN TEXT */
+    /* LEFT ALIGN TEXT */
 }
 
 /* Buttons */
@@ -97,25 +97,26 @@ input.editField {
     .profileRow {
         flex-direction: row;
         align-items: flex-start;
-        /* LEFT ALIGN */
         justify-content: flex-start;
-        /* LEFT ALIGN */
         gap: 12px;
     }
 
     .profileRow strong {
         margin-bottom: 0;
         margin-right: 12px;
-        width: 140px;
+
+        /* ⭐ COLUMN 1: 15% wider */
+        width: 160px;
+        /* was 140px */
+
         text-align: left;
     }
 
     .profileFieldRow {
-        flex: 1;
+        /* ⭐ COLUMN 2: 15% narrower */
+        flex: 0 0 calc(100% - 160px);
         justify-content: flex-start;
-        /* LEFT ALIGN */
         align-items: flex-start;
-        /* LEFT ALIGN */
     }
 }
 
@@ -148,7 +149,6 @@ input.editField {
     .profileFieldRow input.editField {
         font-size: 16px;
         text-align: left;
-        /* LEFT ALIGN MOBILE TOO */
     }
 
     input.editField {
