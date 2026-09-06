@@ -1,19 +1,9 @@
 // login.js — ESM version using esm.sh (GitHub Pages compatible)
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SUPABASE_URL, SUPABASE_KEY, RECAPTCHA_SITE_KEY } from "../myenv.js";
+import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ----------------------------------------------------
-// APPLY SITE KEY TO CAPTCHA BUTTON
-// ----------------------------------------------------
-window.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("signupButton");
-  if (btn) {
-    btn.setAttribute("data-sitekey", RECAPTCHA_SITE_KEY);
-  }
-});
 
 // ----------------------------------------------------
 // CAPTCHA CALLBACK (Google calls this automatically)
