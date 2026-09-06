@@ -17,6 +17,10 @@
 
 <body>
 
+    <!-- GLOBAL INVISIBLE CAPTCHA WIDGET (ensures badge appears even if forms are hidden) -->
+    <div class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
+        data-callback="onPasswordResetCaptcha" data-size="invisible" style="display:none;"></div>
+
     <div id="authContainer">
 
         <!-- LOGIN FORM -->
@@ -96,6 +100,7 @@
     </div>
 
     <script>
+        // Clear all error boxes
         function clearErrors() {
             document.querySelectorAll(".errorBox").forEach(box => {
                 box.style.display = "none";
@@ -103,6 +108,7 @@
             });
         }
 
+        // Toggle functions
         function showLogin() {
             clearErrors();
             document.getElementById("loginForm").style.display = "block";
@@ -124,6 +130,7 @@
             document.getElementById("forgotEmailForm").style.display = "block";
         }
 
+        // Login handler
         async function handleLogin() {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
