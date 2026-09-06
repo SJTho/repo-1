@@ -287,3 +287,4 @@ window.addEventListener("DOMContentLoaded", () => {
     await window.loadScalpelPoints();
     window.generateMCQs();
   };
+});   // closes DOMContentLoaded listener
