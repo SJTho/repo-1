@@ -53,9 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     (async () => {
         const { data: { user }, error } = await supabase.auth.getUser();
 
-        if (error) {
-            console.error("Auth getUser error:", error);
-        }
+        if (error) console.error("Auth getUser error:", error);
 
         if (!user) {
             window.location.href = "login.html";
@@ -184,7 +182,7 @@ async function loadDraggableItemsFromSupabase() {
     if (!user) return;
 
     const { data: profile, error: profileError } = await supabase
-        .from("profile")
+        .from("profiles")
         .select("scalpel_points, streak_days")
         .eq("userid", user.id)
         .single();
