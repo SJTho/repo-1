@@ -9,7 +9,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 // CAPTCHA CALLBACK (Google calls this automatically)
 // ----------------------------------------------------
 window.onSignupCaptcha = async function (token) {
-  // token = captcha token from Google
   handleSignup(token);
 };
 
@@ -17,12 +16,11 @@ window.onSignupCaptcha = async function (token) {
 // PROGRAMMATIC CAPTCHA TRIGGER
 // ----------------------------------------------------
 window.triggerSignupCaptcha = function () {
-  // Runs the invisible captcha
   grecaptcha.execute();
 };
 
 // ----------------------------------------------------
-// SIGNUP (with captcha)
+// SIGNUP (with scalpel_points = 200 and link rows)
 // ----------------------------------------------------
 window.signup = async function (email, password, nickname) {
   try {
@@ -42,25 +40,37 @@ window.signup = async function (email, password, nickname) {
 
     const user = loginData.user;
 
-    // 3. Insert profile row (NOW allowed)
+    // 3. Insert profile row with scalpel_points = 200
     const { error: profileError } = await supabase.from("profiles").insert({
       id: user.id,
       nickname,
       email,
-      scalpel_points: 0,
+      scalpel_points: 200,
       isadmin: false
     });
 
     if (profileError) return { error: profileError.message };
 
-    // 4. Store session + profile info
+    // 4. Insert 8 default link mappings (linkid 1–8)
+    const linkRows = Array.from({ length: 8 }, (_, i) => ({
+      userid: user.id,
+      linkid: i + 1
+    }));
+
+    const { error: mapError } = await supabase
+      .from("mapuserstolinks")
+      .insert(linkRows);
+
+    if (mapError) return { error: mapError.message };
+
+    // 5. Store session + profile info
     localStorage.setItem("sessionToken", loginData.session.access_token);
     localStorage.setItem("nickname", nickname);
-    localStorage.setItem("scalpel_points", "0");
+    localStorage.setItem("scalpel_points", "200");
     localStorage.setItem("userId", user.id);
     localStorage.setItem("isAdmin", "false");
 
-    // 5. Redirect
+    // 6. Redirect
     window.location.href = "index.html";
 
     return { user };
@@ -87,7 +97,6 @@ window.handleSignup = async function (captchaToken) {
   }
 
   // 2. OPTIONAL: client-side captcha verification
-  // (Replace YOUR_SECRET_KEY with your Google secret key)
   const verify = await fetch(
     `https://www.google.com/recaptcha/api/siteverify?secret=YOUR_SECRET_KEY&response=${captchaToken}`,
     { method: "POST" }
@@ -136,7 +145,7 @@ window.login = async function (email, password) {
     localStorage.setItem("sessionToken", data.session.access_token);
     localStorage.setItem("nickname", profile.nickname);
     localStorage.setItem("scalpel_points", profile.scalpel_points);
-    localStorage.setItem("userId", user.id); // FIXED
+    localStorage.setItem("userId", user.id);
     localStorage.setItem("isAdmin", profile.isadmin ? "true" : "false");
 
     window.location.href = "index.html";
