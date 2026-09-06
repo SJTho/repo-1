@@ -24,9 +24,15 @@ const revealIndex = {
 };
 
 /* ----------------------------------------------------
-   MAIN INITIALISATION (AUTHENTICATED)
+   MAIN INITIALISATION
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
+    const nickname = localStorage.getItem("nickname");
+    if (!nickname) {
+        window.location.href = "login.html";
+        return;
+    }
+
     const hamburger = document.getElementById("hamburgerMenu");
     const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -44,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Auth gate: only authenticated users can access Supabase data
     (async () => {
         const { data: { user }, error } = await supabase.auth.getUser();
 
@@ -53,12 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (!user) {
-            // Not authenticated → send to login
             window.location.href = "login.html";
             return;
         }
 
-        // User is authenticated → proceed with menu + theatre
         loadHamburgerMenu();
         loadTopRightIcons();
         initTheatre();
@@ -66,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ----------------------------------------------------
-   Menu Loading (authenticated)
+   Menu Loading
 ---------------------------------------------------- */
 async function loadHamburgerMenu() {
     const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -159,7 +162,7 @@ async function loadTopRightIcons() {
 }
 
 /* ----------------------------------------------------
-   Theatre Initialisation (authenticated)
+   Theatre Initialisation
 ---------------------------------------------------- */
 async function initTheatre() {
     await loadDraggableItemsFromSupabase();
@@ -169,13 +172,30 @@ async function initTheatre() {
 }
 
 /* ----------------------------------------------------
-   Load draggable items from Supabase
+   Load draggable items from Supabase (reward‑gated)
 ---------------------------------------------------- */
 async function loadDraggableItemsFromSupabase() {
     const equipmentContainer = document.getElementById("equipmentContainer");
     if (!equipmentContainer) return;
 
     equipmentContainer.innerHTML = "";
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: profile, error: profileError } = await supabase
+        .from("profile")
+        .select("scalpel_points, streak_days")
+        .eq("userid", user.id)
+        .single();
+
+    if (profileError) {
+        console.error("Failed to load profile:", profileError);
+        return;
+    }
+
+    const scalpelPoints = profile?.scalpel_points ?? 0;
+    const streakDays = profile?.streak_days ?? 0;
 
     const { data, error } = await supabase
         .from("theatredragables")
@@ -192,6 +212,12 @@ async function loadDraggableItemsFromSupabase() {
         if (!["room", "anaesthetic", "surgical", "staff"].includes(category)) {
             return;
         }
+
+        const unlocked =
+            (streakDays >= (row.streak ?? 0)) ||
+            (scalpelPoints >= (row.points ?? 0));
+
+        if (!unlocked) return;
 
         const img = document.createElement("img");
 
@@ -633,5 +659,5 @@ window.onload = () => {
         item.style.display = "none";
     });
 
-      scaleRoomContents();
+    scaleRoomContents();
 };
