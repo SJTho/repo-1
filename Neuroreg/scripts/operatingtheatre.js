@@ -7,10 +7,26 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ----------------------------------------------------
+   GLOBAL STATE
+---------------------------------------------------- */
+let categoryMap = {
+    room: [],
+    anaesthetic: [],
+    surgical: [],
+    staff: []
+};
+
+const revealIndex = {
+    room: 0,
+    anaesthetic: 0,
+    surgical: 0,
+    staff: 0
+};
+
+/* ----------------------------------------------------
    MAIN INITIALISATION
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
-
     const nickname = localStorage.getItem("nickname");
     if (!nickname) {
         window.location.href = "login.html";
@@ -32,140 +48,205 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    async function loadHamburgerMenu() {
-        dropdown.innerHTML = "";
-
-        const isAdmin = localStorage.getItem("isAdmin") === "true";
-        const currentPage = window.location.pathname.split("/").pop();
-
-        const { data, error } = await supabase
-            .from("menuitems")
-            .select("*")
-            .eq("hamburger", true)
-            .order("hamburgersection", { ascending: true })
-            .order("hamburgerorder", { ascending: true });
-
-        if (error) {
-            console.error("Menu load error:", error);
-            dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
-            return;
-        }
-
-        let currentSection = null;
-
-        data.forEach(item => {
-            if (item.admin && !isAdmin) return;
-            if (item.url === currentPage) return;
-
-            if (currentSection !== null && item.hamburgersection !== currentSection) {
-                const separator = document.createElement("div");
-                separator.className = "dropdownSeparator";
-                dropdown.appendChild(separator);
-            }
-
-            currentSection = item.hamburgersection;
-
-            const div = document.createElement("div");
-            div.className = "dropdownItem";
-            div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
-
-            if (item.url === "logout") {
-                div.onclick = () => {
-                    import("./logout.js").then(module => module.logout());
-                };
-            } else {
-                div.onclick = () => {
-                    window.location.href = item.url;
-                };
-            }
-
-            dropdown.appendChild(div);
-        });
-    }
-
-    async function loadTopRightIcons() {
-        const container = document.getElementById("topRightIcons");
-        const isAdmin = localStorage.getItem("isAdmin") === "true";
-        const currentPage = window.location.pathname.split("/").pop();
-
-        const { data, error } = await supabase
-            .from("menuitems")
-            .select("*")
-            .eq("topright", true)
-            .order("toprightorder", { ascending: true });
-
-        if (error) {
-            console.error("Top-right load error:", error);
-            return;
-        }
-
-        container.innerHTML = "";
-
-        data.forEach(item => {
-            if (item.admin && !isAdmin) return;
-            if (item.url === currentPage) return;
-
-            const icon = document.createElement("div");
-            icon.className = "topRightIcon";
-            icon.innerText = item.emoji;
-
-            icon.onclick = () => {
-                window.location.href = item.url;
-            };
-
-            container.appendChild(icon);
-        });
-    }
-
     loadHamburgerMenu();
     loadTopRightIcons();
 
+    initTheatre();
 });
 
 /* ----------------------------------------------------
-   CATEGORY SYSTEM
+   Menu Loading
 ---------------------------------------------------- */
-const categoryMap = {
-    Room: Array.from(document.querySelectorAll(".roomItem")),
-    Anaesthetic: Array.from(document.querySelectorAll(".anaestheticItem")),
-    Surgical: Array.from(document.querySelectorAll(".surgicalItem")),
-    Staff: Array.from(document.querySelectorAll(".staffItem"))
-};
+async function loadHamburgerMenu() {
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+    dropdown.innerHTML = "";
 
-const revealIndex = {
-    Room: 0,
-    Anaesthetic: 0,
-    Surgical: 0,
-    Staff: 0
-};
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    const currentPage = window.location.pathname.split("/").pop();
 
-document.querySelectorAll(".categoryBtn").forEach(btn => {
-    btn.addEventListener("click", () => {
-        const category = btn.textContent.trim();
-        revealNextItem(category);
+    const { data, error } = await supabase
+        .from("menuitems")
+        .select("*")
+        .eq("hamburger", true)
+        .order("hamburgersection", { ascending: true })
+        .order("hamburgerorder", { ascending: true });
+
+    if (error) {
+        console.error("Menu load error:", error);
+        dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+        return;
+    }
+
+    let currentSection = null;
+
+    data.forEach(item => {
+        if (item.admin && !isAdmin) return;
+        if (item.url === currentPage) return;
+
+        if (currentSection !== null && item.hamburgersection !== currentSection) {
+            const separator = document.createElement("div");
+            separator.className = "dropdownSeparator";
+            dropdown.appendChild(separator);
+        }
+
+        currentSection = item.hamburgersection;
+
+        const div = document.createElement("div");
+        div.className = "dropdownItem";
+        div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
+
+        if (item.url === "logout") {
+            div.onclick = () => {
+                import("./logout.js").then(module => module.logout());
+            };
+        } else {
+            div.onclick = () => {
+                window.location.href = item.url;
+            };
+        }
+
+        dropdown.appendChild(div);
     });
-});
+}
 
-function revealNextItem(category) {
-    const items = categoryMap[category];
-    const index = revealIndex[category];
+async function loadTopRightIcons() {
+    const container = document.getElementById("topRightIcons");
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    const currentPage = window.location.pathname.split("/").pop();
+
+    const { data, error } = await supabase
+        .from("menuitems")
+        .select("*")
+        .eq("topright", true)
+        .order("toprightorder", { ascending: true });
+
+    if (error) {
+        console.error("Top-right load error:", error);
+        return;
+    }
+
+    container.innerHTML = "";
+
+    data.forEach(item => {
+        if (item.admin && !isAdmin) return;
+        if (item.url === currentPage) return;
+
+        const icon = document.createElement("div");
+        icon.className = "topRightIcon";
+        icon.innerText = item.emoji;
+
+        icon.onclick = () => {
+            window.location.href = item.url;
+        };
+
+        container.appendChild(icon);
+    });
+}
+
+/* ----------------------------------------------------
+   Theatre Initialisation
+---------------------------------------------------- */
+async function initTheatre() {
+    await loadDraggableItemsFromSupabase();
+    buildCategoryMap();
+    wireCategoryButtons();
+    scaleRoomContents();
+}
+
+/* ----------------------------------------------------
+   Load draggable items from Supabase
+---------------------------------------------------- */
+async function loadDraggableItemsFromSupabase() {
+    const equipmentContainer = document.getElementById("equipmentContainer");
+    if (!equipmentContainer) return;
+
+    // Clear any hard-coded items if present
+    equipmentContainer.innerHTML = "";
+
+    const { data, error } = await supabase
+        .from("theatredragables")
+        .select("*")
+        .order("id", { ascending: true });
+
+    if (error) {
+        console.error("Failed to load draggable items:", error);
+        return;
+    }
+
+    data.forEach(row => {
+        // Expect category values: room, anaesthetic, surgical, staff
+        const category = (row.category || "").toLowerCase();
+        if (!["room", "anaesthetic", "surgical", "staff"].includes(category)) {
+            return;
+        }
+
+        const img = document.createElement("img");
+
+        img.src = row.url;
+        img.dataset.category = category;
+        img.dataset.itemId = String(row.id);
+        img.dataset.scale = "1";
+        img.dataset.flipped = "false";
+
+        img.classList.add("equipmentItem", `${category}Item`);
+        img.style.display = "none";
+        img.style.position = "absolute";
+
+        equipmentContainer.appendChild(img);
+    });
+}
+
+/* ----------------------------------------------------
+   Category System
+---------------------------------------------------- */
+function buildCategoryMap() {
+    categoryMap = {
+        room: Array.from(document.querySelectorAll("[data-category='room']")),
+        anaesthetic: Array.from(document.querySelectorAll("[data-category='anaesthetic']")),
+        surgical: Array.from(document.querySelectorAll("[data-category='surgical']")),
+        staff: Array.from(document.querySelectorAll("[data-category='staff']"))
+    };
+
+    // Reset reveal indices in case of reload
+    revealIndex.room = 0;
+    revealIndex.anaesthetic = 0;
+    revealIndex.surgical = 0;
+    revealIndex.staff = 0;
+}
+
+function wireCategoryButtons() {
+    document.querySelectorAll(".categoryBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            // Prefer data-category; fallback to text
+            const raw = btn.dataset.category || btn.textContent.trim().toLowerCase();
+            revealNextItem(raw);
+        });
+    });
+}
+
+function revealNextItem(categoryKey) {
+    if (!categoryMap[categoryKey]) return;
+
+    const items = categoryMap[categoryKey];
+    const index = revealIndex[categoryKey];
 
     if (index >= items.length) return;
 
     const item = items[index];
 
     const equipmentContainer = document.getElementById("equipmentContainer");
+    if (!equipmentContainer) return;
+
     equipmentContainer.appendChild(item);
 
     item.style.display = "block";
-
-    item.dataset.scale = "1";
-    item.dataset.flipped = "false";
+    item.dataset.scale = item.dataset.scale || "1";
+    item.dataset.flipped = item.dataset.flipped || "false";
 
     centerItemOnBackground(item);
     makeDraggable(item);
 
-    revealIndex[category]++;
+    revealIndex[categoryKey]++;
 }
 
 /* ----------------------------------------------------
@@ -173,6 +254,8 @@ function revealNextItem(category) {
 ---------------------------------------------------- */
 function centerItemOnBackground(item) {
     const wrapper = document.getElementById("theatreWrapper");
+    if (!wrapper) return;
+
     const wrapperRect = wrapper.getBoundingClientRect();
 
     const itemWidth = item.offsetWidth;
@@ -197,7 +280,6 @@ function makeDraggable(el) {
     let startY = 0;
 
     el.addEventListener("mousedown", (e) => {
-
         if (el.style.display === "none") {
             el.style.display = "block";
             removeItemFromRooms(el);
@@ -254,10 +336,8 @@ function makeDraggable(el) {
         if (isDragging) return;
         e.preventDefault();
 
-        // Dead zone for tiny movements
         if (Math.abs(e.deltaY) < 5) return;
 
-        // Cooldown to prevent rapid-fire zooming
         const now = Date.now();
         if (now - (el._lastWheelTime || 0) < 40) return;
         el._lastWheelTime = now;
@@ -266,7 +346,7 @@ function makeDraggable(el) {
         const delta = e.deltaY < 0 ? 1.02 : 0.98;
 
         scale = Math.max(0.3, Math.min(3, scale * delta));
-        el.dataset.scale = scale;
+        el.dataset.scale = String(scale);
 
         applyTransform(el);
     });
@@ -328,10 +408,12 @@ function attemptRoomDrop(el) {
     const storeRoom = document.getElementById("storeroom");
     const staffRoom = document.getElementById("staffroom");
 
+    if (!storeRoom || !staffRoom) return;
+
     const storeRect = storeRoom.getBoundingClientRect();
     const staffRect = staffRoom.getBoundingClientRect();
 
-    const isStaff = el.classList.contains("staffItem");
+    const isStaff = el.dataset.category === "staff" || el.classList.contains("staffItem");
 
     const droppedInStore =
         elRect.right > storeRect.left &&
@@ -372,6 +454,8 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
     let offsetY = 0;
 
     const theatre = document.getElementById("theatreWrapper");
+    if (!theatre) return;
+
     const theatreRect = theatre.getBoundingClientRect();
 
     thumb.addEventListener("mousedown", (e) => {
@@ -446,9 +530,10 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.style.display = "block";
 
         const equipmentContainer = document.getElementById("equipmentContainer");
+        if (!equipmentContainer) return;
+
         equipmentContainer.appendChild(originalEl);
 
-        // Reset transform completely before applying new state
         originalEl.style.transform = "";
         originalEl.dataset.scale = "1";
         originalEl.dataset.flipped = "false";
@@ -499,6 +584,8 @@ function updateRoomEmoji(room) {
     const emoji = room.querySelector(".roomEmoji");
     const thumbs = room.querySelectorAll(".storeThumb");
 
+    if (!emoji) return;
+
     emoji.style.display = thumbs.length === 0 ? "block" : "none";
 }
 
@@ -513,8 +600,12 @@ function scaleRoomContents() {
         const title = room.querySelector("h3");
         const thumbs = room.querySelectorAll(".storeThumb");
 
-        title.style.fontSize = "14px";
-        emoji.style.fontSize = "32px";
+        if (title) {
+            title.style.fontSize = "14px";
+        }
+        if (emoji) {
+            emoji.style.fontSize = "32px";
+        }
 
         thumbs.forEach(t => {
             t.style.width = "30px";
@@ -524,12 +615,12 @@ function scaleRoomContents() {
 }
 
 /* ----------------------------------------------------
-   INITIALISE
+   Window onload (safety reset)
 ---------------------------------------------------- */
 window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
         item.style.display = "none";
     });
 
-scaleRoomContents();
+    scaleRoomContents();
 };
