@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        dropdown.innerHTML = "";
         let currentSection = null;
 
         data.forEach(item => {
@@ -149,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function updateSupabasePoints(newPoints) {
-        let userId = localStorage.getItem("userId");
+        const userId = localStorage.getItem("userId");
         if (!userId) return;
 
         const { error } = await supabase.rpc("update_points", {
@@ -161,26 +162,70 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ----------------------------------------------------
-       Daily Reward
+       Daily Streak System (NEW)
     ---------------------------------------------------- */
-    function giveDailyReward() {
+    async function handleDailyStreak() {
         const today = new Date().toLocaleDateString("en-CA");
-        const last = localStorage.getItem("lastDailyReward");
+        const lastLogin = localStorage.getItem("lastLoginDate");
+        const userId = localStorage.getItem("userId");
+        if (!userId) return;
 
-        if (last !== today) {
-            let pts = parseInt(localStorage.getItem("scalpel_points")) || 0;
-            pts += 10;
+        const { data: profile, error } = await supabase
+            .from("profiles")
+            .select("current_streak_days, streak_days, scalpel_points")
+            .eq("id", userId)
+            .single();
 
-            localStorage.setItem("scalpel_points", pts);
+        if (error || !profile) {
+            console.error("Failed to load streak profile:", error);
+            return;
+        }
+
+        let { current_streak_days, streak_days, scalpel_points } = profile;
+
+        if (!lastLogin) {
+            current_streak_days = 1;
+        } else {
+            const last = new Date(lastLogin);
+            const now = new Date(today);
+            const diff = (now - last) / (1000 * 60 * 60 * 24);
+
+            if (diff === 1) {
+                current_streak_days += 1;
+            } else if (diff > 1) {
+                current_streak_days = 1;
+            }
+        }
+
+        if (current_streak_days > streak_days) {
+            streak_days = current_streak_days;
+        }
+
+        const lastReward = localStorage.getItem("lastDailyReward");
+        if (lastReward !== today) {
+            scalpel_points += 10;
             localStorage.setItem("lastDailyReward", today);
-
-            updateSupabasePoints(pts);
-
             alert("Daily reward: +10 points!");
         }
-    }
 
-    giveDailyReward();
+        const { error: updateError } = await supabase
+            .from("profiles")
+            .update({
+                current_streak_days,
+                streak_days,
+                scalpel_points
+            })
+            .eq("id", userId);
+
+        if (updateError) {
+            console.error("Failed to update streak:", updateError);
+        }
+
+        localStorage.setItem("lastLoginDate", today);
+        localStorage.setItem("scalpel_points", scalpel_points);
+
+        updateRank(scalpel_points);
+    }
 
     /* ----------------------------------------------------
        Rank-Up Animation
@@ -273,6 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ---------------------------------------------------- */
     loadHamburgerMenu();
     loadTopRightIcons();
+    handleDailyStreak();
     renderLinks();
 
 });
