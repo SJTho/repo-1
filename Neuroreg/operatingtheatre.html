@@ -14,7 +14,6 @@
 
     <!-- Hamburger Menu -->
     <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
-
     <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
     <!-- Top Right Icons -->
@@ -24,14 +23,14 @@
     <div id="profileContainer">
         <h2>My Theatre</h2>
 
-        <!-- Theatre + Rooms -->
+        <!-- Theatre + Rooms (positioned area) -->
         <div id="theatreAndStore">
 
-            <!-- Theatre wrapper -->
+            <!-- Theatre wrapper (absolute-position zone) -->
             <div id="theatreWrapper">
                 <img id="theatreBackground" src="./images/holdingbackground.png" alt="Operating Theatre Background">
 
-                <!-- Dynamic equipment items will be injected here -->
+                <!-- Dynamic equipment items injected here -->
                 <div id="equipmentContainer"></div>
             </div>
 
@@ -50,14 +49,14 @@
 
             </div>
 
-            <!-- Category Buttons -->
-            <div id="categoryButtons">
-                <button class="categoryBtn" data-category="room">Room</button>
-                <button class="categoryBtn" data-category="anaesthetic">Anaesthetic</button>
-                <button class="categoryBtn" data-category="surgical">Surgical</button>
-                <button class="categoryBtn" data-category="staff">Staff</button>
-            </div>
+        </div>
 
+        <!-- Category Buttons (moved OUTSIDE positioned theatre area) -->
+        <div id="categoryButtons">
+            <button class="categoryBtn" data-category="room">Room</button>
+            <button class="categoryBtn" data-category="anaesthetic">Anaesthetic</button>
+            <button class="categoryBtn" data-category="surgical">Surgical</button>
+            <button class="categoryBtn" data-category="staff">Staff</button>
         </div>
 
     </div>
