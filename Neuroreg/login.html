@@ -61,12 +61,10 @@
                 <input id="signupNickname" type="text">
             </div>
 
-            <!-- Invisible reCAPTCHA widget -->
-            <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY" data-callback="onSignupCaptcha" data-size="invisible">
-            </div>
-
-            <!-- Button triggers captcha programmatically -->
-            <button onclick="triggerSignupCaptcha()">Sign Up</button>
+            <!-- Invisible reCAPTCHA button -->
+            <button id="signupButton" class="g-recaptcha" data-callback="onSignupCaptcha" data-size="invisible">
+                Sign Up
+            </button>
 
             <div class="switchLink" onclick="showLogin()">Already have an account?</div>
 
