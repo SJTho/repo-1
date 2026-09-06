@@ -23,7 +23,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    /* ⭐ LEFT ALIGN (mobile) */
+    /* LEFT ALIGN */
 }
 
 .profileRow strong {
@@ -33,7 +33,8 @@
 /* Horizontal field row */
 .profileFieldRow {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    /* ⭐ FIX: LEFT ALIGN SECOND COLUMN */
     gap: 12px;
     width: 100%;
 }
@@ -41,6 +42,8 @@
 .profileFieldRow span,
 .profileFieldRow input.editField {
     flex: 1;
+    text-align: left;
+    /* ⭐ FIX: LEFT ALIGN TEXT */
 }
 
 /* Buttons */
@@ -94,9 +97,9 @@ input.editField {
     .profileRow {
         flex-direction: row;
         align-items: flex-start;
-        /* ⭐ LEFT ALIGN */
+        /* LEFT ALIGN */
         justify-content: flex-start;
-        /* ⭐ LEFT ALIGN */
+        /* LEFT ALIGN */
         gap: 12px;
     }
 
@@ -105,13 +108,14 @@ input.editField {
         margin-right: 12px;
         width: 140px;
         text-align: left;
-        /* ⭐ LEFT ALIGN */
     }
 
     .profileFieldRow {
         flex: 1;
         justify-content: flex-start;
-        /* ⭐ LEFT ALIGN */
+        /* LEFT ALIGN */
+        align-items: flex-start;
+        /* LEFT ALIGN */
     }
 }
 
@@ -143,6 +147,8 @@ input.editField {
     .profileFieldRow span,
     .profileFieldRow input.editField {
         font-size: 16px;
+        text-align: left;
+        /* LEFT ALIGN MOBILE TOO */
     }
 
     input.editField {
@@ -170,7 +176,6 @@ input.editField {
         width: 100px;
     }
 
-    /* Dropdown items */
     .dropdownItem {
         font-size: 16px;
         padding: 10px;
@@ -181,7 +186,6 @@ input.editField {
         background: #f2f2f2;
     }
 
-    /* Separator */
     .dropdownSeparator {
         width: 100%;
         height: 1px;
@@ -189,7 +193,6 @@ input.editField {
         margin: 6px 0;
     }
 
-    /* Mobile ONLY: left-align nickname, email, password */
     #nicknameDisplay,
     #emailDisplay,
     #passwordDisplay {
