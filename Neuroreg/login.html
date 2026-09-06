@@ -61,7 +61,7 @@
                 <input id="signupNickname" type="text">
             </div>
 
-            <!-- Invisible reCAPTCHA button (site key MUST be here) -->
+            <!-- Invisible reCAPTCHA button -->
             <button class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
                 data-callback="onSignupCaptcha" data-size="invisible">
                 Sign Up
@@ -72,7 +72,7 @@
             <div id="signup-error" class="errorBox"></div>
         </div>
 
-        <!-- FORGOTTEN PASSWORD FORM -->
+        <!-- PASSWORD RESET FORM -->
         <div id="forgotEmailForm" style="display:none;">
             <h2>Recover Password</h2>
 
@@ -81,7 +81,11 @@
                 <input id="recoverNickname" type="text">
             </div>
 
-            <button onclick="handleRecoverEmail()">Send recovery email</button>
+            <!-- Invisible reCAPTCHA button for password reset -->
+            <button class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
+                data-callback="onPasswordResetCaptcha" data-size="invisible">
+                Send recovery email
+            </button>
 
             <div class="switchLink" onclick="showLogin()">Back to login</div>
 
@@ -92,7 +96,6 @@
     </div>
 
     <script>
-        // Clear all error boxes
         function clearErrors() {
             document.querySelectorAll(".errorBox").forEach(box => {
                 box.style.display = "none";
@@ -100,7 +103,6 @@
             });
         }
 
-        // Toggle functions
         function showLogin() {
             clearErrors();
             document.getElementById("loginForm").style.display = "block";
@@ -122,7 +124,6 @@
             document.getElementById("forgotEmailForm").style.display = "block";
         }
 
-        // Login handler
         async function handleLogin() {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
@@ -133,28 +134,7 @@
             if (result.error) {
                 errorBox.textContent = result.error;
                 errorBox.style.display = "block";
-                return;
             }
-        }
-
-        // Forgotten password handler
-        async function handleRecoverEmail() {
-            const nickname = document.getElementById("recoverNickname").value.trim();
-            const errorBox = document.getElementById("recover-error");
-            const successBox = document.getElementById("recover-success");
-
-            const result = await recoverEmail(nickname);
-
-            if (result.error) {
-                errorBox.textContent = result.error;
-                errorBox.style.display = "block";
-                successBox.style.display = "none";
-                return;
-            }
-
-            errorBox.style.display = "none";
-            successBox.textContent = result.message;
-            successBox.style.display = "block";
         }
     </script>
 
