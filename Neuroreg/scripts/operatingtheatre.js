@@ -225,6 +225,7 @@ async function loadDraggableItemsFromSupabase() {
         img.dataset.itemId = String(row.id);
         img.dataset.scale = "1";
         img.dataset.flipped = "false";
+        img.dataset.deployed = "false"; // ✅ not yet deployed anywhere
 
         img.classList.add("equipmentItem", `${category}Item`);
         img.style.display = "none";
@@ -279,6 +280,7 @@ function revealNextItem(categoryKey) {
     item.style.display = "block";
     item.dataset.scale = item.dataset.scale || "1";
     item.dataset.flipped = item.dataset.flipped || "false";
+    item.dataset.deployed = "true"; // ✅ now deployed (background or room)
 
     centerItemOnBackground(item);
     makeDraggable(item);
@@ -308,13 +310,15 @@ function centerItemOnBackground(item) {
 
 /* ----------------------------------------------------
    Category Button Colour Logic
+   Green = there exist items that are NOT YET DEPLOYED anywhere
 ---------------------------------------------------- */
 function updateCategoryButtonColours() {
     document.querySelectorAll(".categoryBtn").forEach(btn => {
         const category = btn.dataset.category;
         const items = categoryMap[category] || [];
 
-        const hasUndeployed = items.some(item => item.style.display === "none");
+        // Undeployed = dataset.deployed === "false"
+        const hasUndeployed = items.some(item => item.dataset.deployed === "false");
 
         if (hasUndeployed) {
             btn.style.backgroundColor = "green";
@@ -591,6 +595,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         equipmentContainer.appendChild(originalEl);
 
+        // Still deployed; do NOT reset dataset.deployed
         originalEl.style.transform = "";
         originalEl.dataset.scale = "1";
         originalEl.dataset.flipped = "false";
@@ -617,6 +622,7 @@ function moveItemToRoom(el, room) {
 
     el.style.display = "none";
 
+    // Item remains deployed; only its location changes
     makeThumbnailDraggable(thumb, el, room);
 
     updateRoomEmoji(room);
@@ -678,9 +684,10 @@ function scaleRoomContents() {
 ---------------------------------------------------- */
 window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
+        // Keep deployed flag; just hide visuals
         item.style.display = "none";
     });
 
     scaleRoomContents();
-       updateCategoryButtonColours();
+ updateCategoryButtonColours();
 };
