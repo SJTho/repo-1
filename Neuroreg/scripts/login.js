@@ -6,7 +6,23 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ----------------------------------------------------
-// SIGNUP (fixed: profile insert happens AFTER login)
+// CAPTCHA CALLBACK (Google calls this automatically)
+// ----------------------------------------------------
+window.onSignupCaptcha = async function (token) {
+  // token = captcha token from Google
+  handleSignup(token);
+};
+
+// ----------------------------------------------------
+// PROGRAMMATIC CAPTCHA TRIGGER
+// ----------------------------------------------------
+window.triggerSignupCaptcha = function () {
+  // Runs the invisible captcha
+  grecaptcha.execute();
+};
+
+// ----------------------------------------------------
+// SIGNUP (with captcha)
 // ----------------------------------------------------
 window.signup = async function (email, password, nickname) {
   try {
@@ -55,6 +71,45 @@ window.signup = async function (email, password, nickname) {
 };
 
 // ----------------------------------------------------
+// SIGNUP HANDLER (called after captcha)
+// ----------------------------------------------------
+window.handleSignup = async function (captchaToken) {
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value.trim();
+  const nickname = document.getElementById("signupNickname").value.trim();
+  const errorBox = document.getElementById("signup-error");
+
+  // 1. Ensure captcha ran
+  if (!captchaToken) {
+    errorBox.textContent = "Captcha failed. Please try again.";
+    errorBox.style.display = "block";
+    return;
+  }
+
+  // 2. OPTIONAL: client-side captcha verification
+  // (Replace YOUR_SECRET_KEY with your Google secret key)
+  const verify = await fetch(
+    `https://www.google.com/recaptcha/api/siteverify?secret=YOUR_SECRET_KEY&response=${captchaToken}`,
+    { method: "POST" }
+  ).then(r => r.json());
+
+  if (!verify.success) {
+    errorBox.textContent = "Captcha verification failed.";
+    errorBox.style.display = "block";
+    return;
+  }
+
+  // 3. Continue with Supabase signup
+  const result = await signup(email, password, nickname);
+
+  if (result.error) {
+    errorBox.textContent = result.error;
+    errorBox.style.display = "block";
+    return;
+  }
+};
+
+// ----------------------------------------------------
 // LOGIN
 // ----------------------------------------------------
 window.login = async function (email, password) {
@@ -81,7 +136,7 @@ window.login = async function (email, password) {
     localStorage.setItem("sessionToken", data.session.access_token);
     localStorage.setItem("nickname", profile.nickname);
     localStorage.setItem("scalpel_points", profile.scalpel_points);
-    localStorage.setItem("userId", data.user.id);
+    localStorage.setItem("userId", user.id); // FIXED
     localStorage.setItem("isAdmin", profile.isadmin ? "true" : "false");
 
     window.location.href = "index.html";
