@@ -201,13 +201,12 @@ async function loadDraggableItemsFromSupabase() {
 ---------------------------------------------------- */
 function buildCategoryMap() {
     categoryMap = {
-        room: Array.from(document.querySelectorAll("[data-category='room']")),
-        anaesthetic: Array.from(document.querySelectorAll("[data-category='anaesthetic']")),
-        surgical: Array.from(document.querySelectorAll("[data-category='surgical']")),
-        staff: Array.from(document.querySelectorAll("[data-category='staff']"))
+        room: Array.from(document.querySelectorAll(".equipmentItem[data-category='room']")),
+        anaesthetic: Array.from(document.querySelectorAll(".equipmentItem[data-category='anaesthetic']")),
+        surgical: Array.from(document.querySelectorAll(".equipmentItem[data-category='surgical']")),
+        staff: Array.from(document.querySelectorAll(".equipmentItem[data-category='staff']"))
     };
 
-    // Reset reveal indices in case of reload
     revealIndex.room = 0;
     revealIndex.anaesthetic = 0;
     revealIndex.surgical = 0;
