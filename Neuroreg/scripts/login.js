@@ -1,22 +1,25 @@
 // login.js — ESM version using esm.sh (GitHub Pages compatible)
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+import { SUPABASE_URL, SUPABASE_KEY, RECAPTCHA_SITE_KEY } from "../myenv.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ----------------------------------------------------
+// APPLY SITE KEY TO CAPTCHA BUTTON
+// ----------------------------------------------------
+window.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("signupButton");
+  if (btn) {
+    btn.setAttribute("data-sitekey", RECAPTCHA_SITE_KEY);
+  }
+});
 
 // ----------------------------------------------------
 // CAPTCHA CALLBACK (Google calls this automatically)
 // ----------------------------------------------------
 window.onSignupCaptcha = async function (token) {
   handleSignup(token);
-};
-
-// ----------------------------------------------------
-// PROGRAMMATIC CAPTCHA TRIGGER
-// ----------------------------------------------------
-window.triggerSignupCaptcha = function () {
-  grecaptcha.execute();
 };
 
 // ----------------------------------------------------
@@ -89,26 +92,13 @@ window.handleSignup = async function (captchaToken) {
   const nickname = document.getElementById("signupNickname").value.trim();
   const errorBox = document.getElementById("signup-error");
 
-  // 1. Ensure captcha ran
   if (!captchaToken) {
     errorBox.textContent = "Captcha failed. Please try again.";
     errorBox.style.display = "block";
     return;
   }
 
-  // 2. OPTIONAL: client-side captcha verification
-  const verify = await fetch(
-    `https://www.google.com/recaptcha/api/siteverify?secret=YOUR_SECRET_KEY&response=${captchaToken}`,
-    { method: "POST" }
-  ).then(r => r.json());
-
-  if (!verify.success) {
-    errorBox.textContent = "Captcha verification failed.";
-    errorBox.style.display = "block";
-    return;
-  }
-
-  // 3. Continue with Supabase signup
+  // Continue with Supabase signup
   const result = await signup(email, password, nickname);
 
   if (result.error) {
@@ -158,7 +148,7 @@ window.login = async function (email, password) {
 };
 
 // ----------------------------------------------------
-// RECOVER EMAIL (nickname → email lookup)
+// RECOVER EMAIL
 // ----------------------------------------------------
 window.recoverEmail = async function (nickname) {
   try {
