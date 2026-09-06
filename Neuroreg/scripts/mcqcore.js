@@ -17,20 +17,22 @@ window.addEventListener("DOMContentLoaded", () => {
     radio.checked = true;
   };
 
-  /* STORE SCORE */
-  window.storeScore = async function (score, numberOfQuestions, topic, level) {
+  /* STORE SCORE — topic + level removed */
+  window.storeScore = async function (score, numberOfQuestions) {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    await window.supabase
+    const { data, error } = await window.supabase
       .from("userpracticemcqscores")
       .insert({
         userid: userId,
         score,
-        numberofquestions: numberOfQuestions,
-        topic,
-        level
+        numberofquestions: numberOfQuestions
       });
+
+    if (error) {
+      console.error("Score insert failed:", error);
+    }
   };
 
   /* LOAD EXISTING SCALPEL POINTS FROM SUPABASE */
@@ -275,8 +277,8 @@ window.addEventListener("DOMContentLoaded", () => {
         `<p><strong>Score:</strong> ${score}/${blocks.length}</p>
          <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>`;
 
-      /* ⭐ THIS WAS THE FIX ⭐ */
-      storeScore(score, blocks.length, topic, level);
+      /* SCORE SAVING — FIXED */
+      storeScore(score, blocks.length);
     };
 
     container.appendChild(submitBtn);
@@ -287,4 +289,5 @@ window.addEventListener("DOMContentLoaded", () => {
     await window.loadScalpelPoints();
     window.generateMCQs();
   };
-});   // closes DOMContentLoaded listener
+
+});
