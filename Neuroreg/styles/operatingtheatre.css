@@ -1,4 +1,7 @@
-/* Main layout: theatre on top, rooms below */
+/* ----------------------------------------------------
+   MAIN LAYOUT
+---------------------------------------------------- */
+
 #theatreAndStore {
   display: flex;
   flex-direction: column;
@@ -7,7 +10,10 @@
   margin-top: 10px;
 }
 
-/* Theatre wrapper */
+/* ----------------------------------------------------
+   THEATRE WRAPPER
+---------------------------------------------------- */
+
 #theatreWrapper {
   width: 100%;
   max-width: 900px;
@@ -18,7 +24,6 @@
   border: 2px solid #1f355c;
 }
 
-/* Background image */
 #theatreBackground {
   width: 100%;
   height: 100%;
@@ -26,7 +31,10 @@
   border-radius: 10px;
 }
 
-/* Equipment overlay */
+/* ----------------------------------------------------
+   EQUIPMENT OVERLAY
+---------------------------------------------------- */
+
 #equipmentContainer {
   position: absolute;
   top: 0;
@@ -35,7 +43,6 @@
   height: 100%;
 }
 
-/* Equipment items */
 .equipmentItem {
   display: none;
   position: absolute;
@@ -47,12 +54,14 @@
   transition: transform 0.15s ease;
 }
 
-/* Flipped state */
 .equipmentItem.flipped {
   transform: scaleX(-1);
 }
 
-/* Rooms row */
+/* ----------------------------------------------------
+   ROOMS ROW
+---------------------------------------------------- */
+
 #roomsRow {
   display: flex;
   flex-direction: row;
@@ -60,14 +69,11 @@
   width: 100%;
   max-width: 900px;
   height: 80px;
-  /* reduced height */
 }
 
-/* Shared room panel styling */
 .roomPanel {
   flex: 1;
   height: 80px;
-  /* reduced height */
   background: #0d1628;
   border-radius: 10px;
   border: 2px solid #1f355c;
@@ -75,7 +81,6 @@
   overflow: hidden;
   color: white;
 
-  /* Inline layout for heading + thumbnails */
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -86,12 +91,11 @@
   z-index: 1;
 }
 
-/* REMOVE EMOJIS COMPLETELY */
+/* Emojis removed */
 .roomEmoji {
   display: none !important;
 }
 
-/* Room heading inline */
 .roomPanel h3 {
   font-size: 14px;
   margin: 0;
@@ -99,7 +103,6 @@
   white-space: nowrap;
 }
 
-/* Thumbnails inside rooms */
 .storeThumb {
   width: 26px;
   height: auto;
@@ -108,7 +111,6 @@
   display: inline-block;
 }
 
-/* Drag-over highlight */
 #storeroom.drag-over,
 #staffroom.drag-over {
   background: #1f355c;
@@ -116,27 +118,43 @@
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-/* Category button container */
+/* ----------------------------------------------------
+   CATEGORY BUTTONS — FINAL FIXED VERSION
+---------------------------------------------------- */
+
 #categoryButtons {
-  display: flex;
+  position: relative !important;
+  display: flex !important;
   justify-content: center;
   gap: 20px;
-  margin: 20px 0;
+  margin: 25px 0 0 0 !important;
+  z-index: 1000 !important;
+
+  /* Prevent global button rules from affecting layout */
+  left: auto !important;
+  top: auto !important;
 }
 
-/* Square category buttons */
 .categoryBtn {
-  width: 120px;
-  height: 120px;
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+
+  width: 120px !important;
+  height: 120px !important;
+
   background: #14233d;
   color: white;
   border: none;
   border-radius: 10px;
   font-size: 18px;
   cursor: pointer;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   user-select: none;
   transition: background 0.2s;
 }
@@ -145,11 +163,9 @@
   background: #1f355c;
 }
 
-/* Legacy rule for items inside rooms */
-#storeroom .equipmentItem,
-#staffroom .equipmentItem {
-  margin: 4px;
-}
+/* ----------------------------------------------------
+   GHOST EFFECT FOR INVALID DRAG
+---------------------------------------------------- */
 
 .noEntryGhost {
   filter: grayscale(1);
