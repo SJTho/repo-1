@@ -167,6 +167,7 @@ async function initTheatre() {
     buildCategoryMap();
     wireCategoryButtons();
     scaleRoomContents();
+    updateCategoryButtonColours();
 }
 
 /* ----------------------------------------------------
@@ -181,11 +182,11 @@ async function loadDraggableItemsFromSupabase() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("scalpel_points, streak_days")
-    .eq("id", user.id)   // ✅ correct column name
-    .single();
+    const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("scalpel_points, streak_days")
+        .eq("id", user.id)
+        .single();
 
     if (profileError) {
         console.error("Failed to load profile:", profileError);
@@ -248,6 +249,7 @@ function buildCategoryMap() {
     revealIndex.anaesthetic = 0;
     revealIndex.surgical = 0;
     revealIndex.staff = 0;
+    updateCategoryButtonColours();
 }
 
 function wireCategoryButtons() {
@@ -282,10 +284,11 @@ function revealNextItem(categoryKey) {
     makeDraggable(item);
 
     revealIndex[categoryKey]++;
+    updateCategoryButtonColours();
 }
 
 /* ----------------------------------------------------
-   Center new items
+   Center new items on theatre background
 ---------------------------------------------------- */
 function centerItemOnBackground(item) {
     const wrapper = document.getElementById("theatreWrapper");
@@ -301,6 +304,24 @@ function centerItemOnBackground(item) {
 
     item.style.left = `${left}px`;
     item.style.top = `${top}px`;
+}
+
+/* ----------------------------------------------------
+   Category Button Colour Logic
+---------------------------------------------------- */
+function updateCategoryButtonColours() {
+    document.querySelectorAll(".categoryBtn").forEach(btn => {
+        const category = btn.dataset.category;
+        const items = categoryMap[category] || [];
+
+        const hasUndeployed = items.some(item => item.style.display === "none");
+
+        if (hasUndeployed) {
+            btn.style.backgroundColor = "green";
+        } else {
+            btn.style.backgroundColor = "";
+        }
+    });
 }
 
 /* ----------------------------------------------------
@@ -561,6 +582,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         thumb.remove();
         updateRoomEmoji(room);
         scaleRoomContents();
+        updateCategoryButtonColours();
 
         originalEl.style.display = "block";
 
@@ -599,6 +621,7 @@ function moveItemToRoom(el, room) {
 
     updateRoomEmoji(room);
     scaleRoomContents();
+    updateCategoryButtonColours();
 }
 
 function removeItemFromRooms(el) {
@@ -613,6 +636,7 @@ function removeItemFromRooms(el) {
     });
 
     scaleRoomContents();
+    updateCategoryButtonColours();
 }
 
 function updateRoomEmoji(room) {
@@ -658,4 +682,5 @@ window.onload = () => {
     });
 
     scaleRoomContents();
+       updateCategoryButtonColours();
 };
