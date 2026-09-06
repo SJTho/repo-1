@@ -275,6 +275,7 @@ window.addEventListener("DOMContentLoaded", () => {
         `<p><strong>Score:</strong> ${score}/${blocks.length}</p>
          <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>`;
 
+      /* ⭐ THIS WAS THE FIX ⭐ */
       storeScore(score, blocks.length, topic, level);
     };
 
@@ -286,4 +287,3 @@ window.addEventListener("DOMContentLoaded", () => {
     await window.loadScalpelPoints();
     window.generateMCQs();
   };
-});
