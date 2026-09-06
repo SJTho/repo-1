@@ -8,7 +8,6 @@
 
     <link rel="stylesheet" href="./styles/global.css">
     <link rel="stylesheet" href="./styles/operatingtheatre.css">
-
 </head>
 
 <body>
@@ -16,26 +15,10 @@
     <!-- Hamburger Menu -->
     <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
 
-    <div id="hamburgerMenuDropdown" class="dropdownMenu">
-        <div class="dropdownItem" onclick="window.location.href='mcqcore.html'">🧠 Test yourself</div>
-
-        <div class="dropdownSeparator"></div>
-
-        <div class="dropdownItem" onclick="window.location.href='index.html'">🏠 Home</div>
-        <div class="dropdownItem" onclick="window.location.href='profile.html'">🧑‍⚕️ Profile</div>
-        <div class="dropdownItem" onclick="window.location.href='rank.html'">🏅 Rank</div>
-
-        <div class="dropdownSeparator"></div>
-
-        <div class="dropdownItem" onclick="window.location.href='login.html'">🚪 Logout</div>
-    </div>
+    <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
 
     <!-- Top Right Icons -->
-    <div id="topRightIcons">
-        <div id="rankIcon" class="topRightIcon" onclick="window.location.href='rank.html'">🏅</div>
-        <div id="profileIcon" class="topRightIcon" onclick="window.location.href='profile.html'">🧑‍⚕️</div>
-        <div id="helpButton" class="topRightIcon" onclick="window.location.href='help.html'">❔</div>
-    </div>
+    <div id="topRightIcons"></div>
 
     <!-- Main Container -->
     <div id="profileContainer">
@@ -48,54 +31,37 @@
             <div id="theatreWrapper">
                 <img id="theatreBackground" src="./images/holdingbackground.png" alt="Operating Theatre Background">
 
-                <div id="equipmentContainer">
-                    <!-- ROOM -->
-                    <img class="equipmentItem roomItem" src="./images/operatinglights.png">
-                    <img class="equipmentItem roomItem" src="./images/operatingtable.png">
-                    <img class="equipmentItem roomItem" src="./images/instrumenttrolley.png">
-
-                    <!-- ANAESTHETIC -->
-                    <img class="equipmentItem anaestheticItem" src="./images/anaestheticmachine.png">
-                    <img class="equipmentItem anaestheticItem" src="./images/ECG.png">
-
-                    <!-- SURGICAL -->
-                    <img class="equipmentItem surgicalItem" src="./images/microscope.png">
-                    <img class="equipmentItem surgicalItem" src="./images/imageguidancepart1.png">
-                    <img class="equipmentItem surgicalItem" src="./images/imageguidancepart2.png">
-
-                    <!-- STAFF -->
-                    <img class="equipmentItem staffItem" src="./images/scrubnurse.png">
-                    <img class="equipmentItem staffItem" src="./images/nurse2.png">
-                    <img class="equipmentItem staffItem" src="./images/anaesthetist.png">
-                    <img class="equipmentItem staffItem" src="./images/ODA.png">
-                </div>
+                <!-- Dynamic equipment items will be injected here -->
+                <div id="equipmentContainer"></div>
             </div>
 
             <!-- Store Room + Staff Room -->
             <div id="roomsRow">
-                <div id="storeroom" class="roomPanel">
+
+                <div id="storeroom" class="roomPanel" data-room="storeroom">
                     <h3>Store Room:</h3>
                     <div class="roomEmoji">📦</div>
-
                 </div>
 
-                <div id="staffroom" class="roomPanel">
+                <div id="staffroom" class="roomPanel" data-room="staffroom">
                     <h3>Staff Room:</h3>
                     <div class="roomEmoji">🧑‍⚕️</div>
                 </div>
+
             </div>
 
             <!-- Category Buttons -->
             <div id="categoryButtons">
-                <button class="categoryBtn">Room</button>
-                <button class="categoryBtn">Anaesthetic</button>
-                <button class="categoryBtn">Surgical</button>
-                <button class="categoryBtn">Staff</button>
+                <button class="categoryBtn" data-category="room">Room</button>
+                <button class="categoryBtn" data-category="anaesthetic">Anaesthetic</button>
+                <button class="categoryBtn" data-category="surgical">Surgical</button>
+                <button class="categoryBtn" data-category="staff">Staff</button>
             </div>
 
         </div>
 
     </div>
+
     <script type="module" src="./scripts/operatingtheatre.js"></script>
 </body>
 
