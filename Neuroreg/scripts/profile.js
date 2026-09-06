@@ -55,6 +55,16 @@ async function loadProfile() {
     document.getElementById("pointsDisplay").innerText = points;
     document.getElementById("rankDisplay").innerText = rankText;
     document.getElementById("passwordDisplay").innerText = "********";
+
+    // ⭐ NEW: Streak values with correct pluralisation
+    const current = profile.current_streak_days ?? 0;
+    const longest = profile.streak_days ?? 0;
+
+    document.getElementById("currentStreakDisplay").innerText =
+        current + (current === 1 ? " day" : " days");
+
+    document.getElementById("longestStreakDisplay").innerText =
+        longest + (longest === 1 ? " day" : " days");
 }
 
 // ----------------------------------------------------
@@ -181,6 +191,7 @@ async function loadHamburgerMenu() {
         return;
     }
 
+    dropdown.innerHTML = "";
     let currentSection = null;
 
     data.forEach(item => {
