@@ -181,11 +181,11 @@ async function loadDraggableItemsFromSupabase() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("scalpel_points, streak_days")
-        .eq("userid", user.id)
-        .single();
+const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("scalpel_points, streak_days")
+    .eq("id", user.id)   // ✅ correct column name
+    .single();
 
     if (profileError) {
         console.error("Failed to load profile:", profileError);
