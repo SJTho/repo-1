@@ -6,10 +6,14 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ----------------------------------------------------
-// CAPTCHA CALLBACK (Google calls this automatically)
+// CAPTCHA CALLBACKS
 // ----------------------------------------------------
-window.onSignupCaptcha = async function (token) {
+window.onSignupCaptcha = function (token) {
   handleSignup(token);
+};
+
+window.onPasswordResetCaptcha = function (token) {
+  handlePasswordReset(token);
 };
 
 // ----------------------------------------------------
@@ -17,7 +21,6 @@ window.onSignupCaptcha = async function (token) {
 // ----------------------------------------------------
 window.signup = async function (email, password, nickname) {
   try {
-    // 1. Create auth user
     const { data: signupData, error: signupError } = await supabase.auth.signUp({
       email,
       password
@@ -25,7 +28,6 @@ window.signup = async function (email, password, nickname) {
 
     if (signupError) return { error: signupError.message };
 
-    // 2. Log them in (now authenticated → RLS allows profile insert)
     const { data: loginData, error: loginError } =
       await supabase.auth.signInWithPassword({ email, password });
 
@@ -33,7 +35,6 @@ window.signup = async function (email, password, nickname) {
 
     const user = loginData.user;
 
-    // 3. Insert profile row with scalpel_points = 200
     const { error: profileError } = await supabase.from("profiles").insert({
       id: user.id,
       nickname,
@@ -44,7 +45,6 @@ window.signup = async function (email, password, nickname) {
 
     if (profileError) return { error: profileError.message };
 
-    // 4. Insert 8 default link mappings (linkid 1–8)
     const linkRows = Array.from({ length: 8 }, (_, i) => ({
       userid: user.id,
       linkid: i + 1
@@ -56,14 +56,12 @@ window.signup = async function (email, password, nickname) {
 
     if (mapError) return { error: mapError.message };
 
-    // 5. Store session + profile info
     localStorage.setItem("sessionToken", loginData.session.access_token);
     localStorage.setItem("nickname", nickname);
     localStorage.setItem("scalpel_points", "200");
     localStorage.setItem("userId", user.id);
     localStorage.setItem("isAdmin", "false");
 
-    // 6. Redirect
     window.location.href = "index.html";
 
     return { user };
@@ -74,7 +72,7 @@ window.signup = async function (email, password, nickname) {
 };
 
 // ----------------------------------------------------
-// SIGNUP HANDLER (called after captcha)
+// SIGNUP HANDLER
 // ----------------------------------------------------
 window.handleSignup = async function (captchaToken) {
   const email = document.getElementById("signupEmail").value.trim();
@@ -88,57 +86,44 @@ window.handleSignup = async function (captchaToken) {
     return;
   }
 
-  // Continue with Supabase signup
   const result = await signup(email, password, nickname);
 
   if (result.error) {
     errorBox.textContent = result.error;
     errorBox.style.display = "block";
+  }
+};
+
+// ----------------------------------------------------
+// PASSWORD RESET HANDLER (protected by captcha)
+// ----------------------------------------------------
+window.handlePasswordReset = async function (captchaToken) {
+  const nickname = document.getElementById("recoverNickname").value.trim();
+  const errorBox = document.getElementById("recover-error");
+  const successBox = document.getElementById("recover-success");
+
+  if (!captchaToken) {
+    errorBox.textContent = "Captcha failed. Please try again.";
+    errorBox.style.display = "block";
     return;
   }
-};
 
-// ----------------------------------------------------
-// LOGIN
-// ----------------------------------------------------
-window.login = async function (email, password) {
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+  const result = await recoverEmail(nickname);
 
-    if (error) return { error: error.message };
-
-    const user = data.user;
-
-    // Load profile
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    if (profileError) return { error: profileError.message };
-
-    // Store session + profile
-    localStorage.setItem("sessionToken", data.session.access_token);
-    localStorage.setItem("nickname", profile.nickname);
-    localStorage.setItem("scalpel_points", profile.scalpel_points);
-    localStorage.setItem("userId", user.id);
-    localStorage.setItem("isAdmin", profile.isadmin ? "true" : "false");
-
-    window.location.href = "index.html";
-
-    return { user, profile };
-
-  } catch (err) {
-    return { error: "Login failed. Please check your email and password." };
+  if (result.error) {
+    errorBox.textContent = result.error;
+    errorBox.style.display = "block";
+    successBox.style.display = "none";
+    return;
   }
+
+  errorBox.style.display = "none";
+  successBox.textContent = result.message;
+  successBox.style.display = "block";
 };
 
 // ----------------------------------------------------
-// RECOVER EMAIL
+// RECOVER EMAIL (nickname → email lookup)
 // ----------------------------------------------------
 window.recoverEmail = async function (nickname) {
   try {
@@ -164,6 +149,43 @@ window.recoverEmail = async function (nickname) {
 
   } catch (err) {
     return { error: "Unable to recover email right now." };
+  }
+};
+
+// ----------------------------------------------------
+// LOGIN
+// ----------------------------------------------------
+window.login = async function (email, password) {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) return { error: error.message };
+
+    const user = data.user;
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError) return { error: profileError.message };
+
+    localStorage.setItem("sessionToken", data.session.access_token);
+    localStorage.setItem("nickname", profile.nickname);
+    localStorage.setItem("scalpel_points", profile.scalpel_points);
+    localStorage.setItem("userId", user.id);
+    localStorage.setItem("isAdmin", profile.isadmin ? "true" : "false");
+
+    window.location.href = "index.html";
+
+    return { user, profile };
+
+  } catch (err) {
+    return { error: "Login failed. Please check your email and password." };
   }
 };
 
