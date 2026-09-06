@@ -24,41 +24,54 @@ const revealIndex = {
 };
 
 /* ----------------------------------------------------
-   MAIN INITIALISATION
+   MAIN INITIALISATION (AUTHENTICATED)
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
-    const nickname = localStorage.getItem("nickname");
-    if (!nickname) {
-        window.location.href = "login.html";
-        return;
-    }
-
     const hamburger = document.getElementById("hamburgerMenu");
     const dropdown = document.getElementById("hamburgerMenuDropdown");
 
-    hamburger.addEventListener("click", () => {
-        dropdown.style.display =
-            dropdown.style.display === "flex" ? "none" : "flex";
-    });
+    if (hamburger && dropdown) {
+        hamburger.addEventListener("click", () => {
+            dropdown.style.display =
+                dropdown.style.display === "flex" ? "none" : "flex";
+        });
 
-    document.addEventListener("click", (event) => {
-        if (!hamburger.contains(event.target) &&
-            !dropdown.contains(event.target)) {
-            dropdown.style.display = "none";
+        document.addEventListener("click", (event) => {
+            if (!hamburger.contains(event.target) &&
+                !dropdown.contains(event.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+    }
+
+    // Auth gate: only authenticated users can access Supabase data
+    (async () => {
+        const { data: { user }, error } = await supabase.auth.getUser();
+
+        if (error) {
+            console.error("Auth getUser error:", error);
         }
-    });
 
-    loadHamburgerMenu();
-    loadTopRightIcons();
+        if (!user) {
+            // Not authenticated → send to login
+            window.location.href = "login.html";
+            return;
+        }
 
-    initTheatre();
+        // User is authenticated → proceed with menu + theatre
+        loadHamburgerMenu();
+        loadTopRightIcons();
+        initTheatre();
+    })();
 });
 
 /* ----------------------------------------------------
-   Menu Loading
+   Menu Loading (authenticated)
 ---------------------------------------------------- */
 async function loadHamburgerMenu() {
     const dropdown = document.getElementById("hamburgerMenuDropdown");
+    if (!dropdown) return;
+
     dropdown.innerHTML = "";
 
     const isAdmin = localStorage.getItem("isAdmin") === "true";
@@ -111,6 +124,8 @@ async function loadHamburgerMenu() {
 
 async function loadTopRightIcons() {
     const container = document.getElementById("topRightIcons");
+    if (!container) return;
+
     const isAdmin = localStorage.getItem("isAdmin") === "true";
     const currentPage = window.location.pathname.split("/").pop();
 
@@ -144,7 +159,7 @@ async function loadTopRightIcons() {
 }
 
 /* ----------------------------------------------------
-   Theatre Initialisation
+   Theatre Initialisation (authenticated)
 ---------------------------------------------------- */
 async function initTheatre() {
     await loadDraggableItemsFromSupabase();
@@ -160,7 +175,6 @@ async function loadDraggableItemsFromSupabase() {
     const equipmentContainer = document.getElementById("equipmentContainer");
     if (!equipmentContainer) return;
 
-    // Clear any hard-coded items if present
     equipmentContainer.innerHTML = "";
 
     const { data, error } = await supabase
@@ -174,7 +188,6 @@ async function loadDraggableItemsFromSupabase() {
     }
 
     data.forEach(row => {
-        // Expect category values: room, anaesthetic, surgical, staff
         const category = (row.category || "").toLowerCase();
         if (!["room", "anaesthetic", "surgical", "staff"].includes(category)) {
             return;
@@ -216,7 +229,6 @@ function buildCategoryMap() {
 function wireCategoryButtons() {
     document.querySelectorAll(".categoryBtn").forEach(btn => {
         btn.addEventListener("click", () => {
-            // Prefer data-category; fallback to text
             const raw = btn.dataset.category || btn.textContent.trim().toLowerCase();
             revealNextItem(raw);
         });
@@ -621,5 +633,5 @@ window.onload = () => {
         item.style.display = "none";
     });
 
-    scaleRoomContents();
+      scaleRoomContents();
 };
