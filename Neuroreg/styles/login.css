@@ -2,12 +2,13 @@
 #authContainer {
     width: 90%;
     max-width: 420px;
-    /* balanced width for desktop */
     margin: 40px auto;
     background: #ffffff;
     padding: 24px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e6e6e6;
+    /* subtle border for better contrast */
 }
 
 /* Headings */
@@ -29,7 +30,7 @@
     color: #000;
 }
 
-/* INPUTS — match button width exactly */
+/* Inputs */
 .authRow input {
     width: 100%;
     max-width: 100%;
@@ -40,6 +41,13 @@
     border-radius: 6px;
     outline: none;
     color: #000;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Input focus styling */
+.authRow input:focus {
+    background: #e8e8e8;
+    box-shadow: 0 0 0 2px #c7d4ea;
 }
 
 /* Buttons */
@@ -53,10 +61,15 @@ button {
     cursor: pointer;
     font-size: 16px;
     margin-top: 10px;
+    transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
 button:hover {
     opacity: 0.9;
+}
+
+button:active {
+    transform: scale(0.98);
 }
 
 /* Toggle link */
@@ -68,7 +81,7 @@ button:hover {
     font-weight: 600;
 }
 
-/* Forgot password link — small, left aligned */
+/* Forgot password link */
 .forgotPasswordLink {
     font-size: 13px;
     font-weight: normal;
@@ -88,25 +101,55 @@ button:hover {
     text-align: center;
 }
 
+/* Smooth fade transitions for form switching */
+#loginForm,
+#signupForm,
+#forgotEmailForm {
+    transition: opacity 0.25s ease;
+}
+
+#loginForm[style*="none"],
+#signupForm[style*="none"],
+#forgotEmailForm[style*="none"] {
+    opacity: 0;
+}
+
+#loginForm:not([style*="none"]),
+#signupForm:not([style*="none"]),
+#forgotEmailForm:not([style*="none"]) {
+    opacity: 1;
+}
+
 /* Mobile improvements */
 @media (max-width: 600px) {
+
+    /* Full-width mobile layout */
     #authContainer {
-        width: 95%;
-        /* wider container */
-        max-width: 95%;
-        /* prevents tiny layout */
-        padding: 20px;
-        margin: 30px auto;
+        width: 100%;
+        max-width: 100%;
+        padding: 28px 20px;
+        margin: 0;
+        border-radius: 0;
+        /* native mobile feel */
+        box-shadow: none;
+        /* cleaner mobile look */
     }
 
+    /* Larger base font */
+    body {
+        font-size: 18px;
+    }
+
+    /* Larger buttons */
     button {
-        font-size: 15px;
-        padding: 14px 20px;
-        border-radius: 10px;
+        font-size: 17px;
+        padding: 16px;
+        border-radius: 8px;
     }
 
+    /* Larger inputs */
     .authRow input {
-        font-size: 15px;
-        padding: 12px;
+        font-size: 17px;
+        padding: 14px;
     }
 }
