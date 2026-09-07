@@ -8,7 +8,6 @@
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #e6e6e6;
-    /* subtle border for better contrast */
 }
 
 /* Headings */
@@ -33,7 +32,6 @@
 /* Inputs */
 .authRow input {
     width: 100%;
-    max-width: 100%;
     padding: 10px;
     font-size: 16px;
     border: none;
@@ -102,37 +100,31 @@ button:active {
 }
 
 /* Smooth fade transitions for form switching */
-#loginForm,
-#signupForm,
-#forgotEmailForm {
+.formSection {
+    opacity: 1;
     transition: opacity 0.25s ease;
 }
 
-#loginForm[style*="none"],
-#signupForm[style*="none"],
-#forgotEmailForm[style*="none"] {
+.formSection.hidden {
     opacity: 0;
+    pointer-events: none;
+    position: absolute;
 }
 
-#loginForm:not([style*="none"]),
-#signupForm:not([style*="none"]),
-#forgotEmailForm:not([style*="none"]) {
-    opacity: 1;
-}
+/* ============================================================
+   MOBILE IMPROVEMENTS — FULL WIDTH
+   ============================================================ */
 
-/* Mobile improvements */
 @media (max-width: 600px) {
 
     /* Full-width mobile layout */
     #authContainer {
         width: 100%;
         max-width: 100%;
-        padding: 28px 20px;
+        padding: 32px 24px;
         margin: 0;
         border-radius: 0;
-        /* native mobile feel */
         box-shadow: none;
-        /* cleaner mobile look */
     }
 
     /* Larger base font */
@@ -151,5 +143,10 @@ button:active {
     .authRow input {
         font-size: 17px;
         padding: 14px;
+    }
+
+    /* More spacing for readability */
+    .authRow {
+        margin-bottom: 20px;
     }
 }
