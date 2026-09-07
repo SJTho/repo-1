@@ -480,8 +480,8 @@ body.loginPage {
 }
 
 body.loginPage input {
-  width: 100% !important;
-  max-width: 100% !important;
+  width: 100%;
+  box-sizing: border-box;
   background: #f2f2f2 !important;
   color: #000 !important;
 }

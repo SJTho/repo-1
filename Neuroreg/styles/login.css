@@ -111,6 +111,11 @@ button:active {
     position: absolute;
 }
 
+body.loginPage {
+    background: #0b1526 !important;
+}
+
+
 /* ============================================================
    MOBILE IMPROVEMENTS — FULL WIDTH
    ============================================================ */
@@ -150,14 +155,12 @@ button:active {
         margin-bottom: 20px;
     }
 
-    body.loginPage {
-        background: red !important;
-    }
 }
+
 
 /* FINAL OVERRIDE */
 body.loginPage #authContainer {
-    width: 90% !important;
-    max-width: 90% !important;
+    width: 30% !important;
+    max-width: 30% !important;
     margin: 0 auto !important;
 }
