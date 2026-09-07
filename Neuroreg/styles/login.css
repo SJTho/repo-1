@@ -158,8 +158,8 @@ body.loginPage {
 }
 
 body.loginPage #authContainer {
-    width: 70% !important;
-    max-width: 70% !important;
+    width: 90% !important;
+    max-width: 90% !important;
     margin: 0 auto !important;
 }
 
