@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ----------------------------------------------------
-       Daily Streak System (NEW)
+       Daily Streak System (UPDATED FOR SUPABASE DAILY REWARD)
     ---------------------------------------------------- */
     async function handleDailyStreak() {
         const today = new Date().toLocaleDateString("en-CA");
@@ -172,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const { data: profile, error } = await supabase
             .from("profiles")
-            .select("current_streak_days, streak_days, scalpel_points")
+            .select("current_streak_days, streak_days, scalpel_points, last_daily_reward")
             .eq("id", userId)
             .single();
 
@@ -181,8 +181,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        let { current_streak_days, streak_days, scalpel_points } = profile;
+        let { current_streak_days, streak_days, scalpel_points, last_daily_reward } = profile;
 
+        /* ---- Streak calculation ---- */
         if (!lastLogin) {
             current_streak_days = 1;
         } else {
@@ -201,13 +202,19 @@ document.addEventListener("DOMContentLoaded", () => {
             streak_days = current_streak_days;
         }
 
-        const lastReward = localStorage.getItem("lastDailyReward");
-        if (lastReward !== today) {
+        /* ---- Daily reward (Supabase-based) ---- */
+        if (last_daily_reward !== today) {
             scalpel_points += 10;
-            localStorage.setItem("lastDailyReward", today);
+
+            await supabase
+                .from("profiles")
+                .update({ last_daily_reward: today })
+                .eq("id", userId);
+
             alert("Daily reward: +10 points!");
         }
 
+        /* ---- Update streak + points ---- */
         const { error: updateError } = await supabase
             .from("profiles")
             .update({
