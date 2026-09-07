@@ -1,69 +1,6 @@
-/* --- MOBILE OPTIMISATION --- */
-
-/* Top-left info pinned properly */
-#topLeftInfo {
-  position: fixed;
-  top: 8px;
-  left: 10px;
-  text-align: left;
-  z-index: 9999;
-}
-
-/* Tiny text for points + rank */
-.tinyText {
-  font-size: 0.75rem;
-  color: #ffffff;
-  line-height: 1rem;
-}
-
-/* Surgeon emoji sizing */
-#pointsValue {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Keep H1 centred and spaced */
-h1 {
-  text-align: center;
-  margin-top: 40px;
-  font-size: 1.8rem;
-}
-
-/* Icon cards scale nicely on mobile */
-.iconCard,
-.mcqCard {
-  padding: 8px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 0.9rem;
-}
-
-/* Make icons scale */
-.icon,
-.smallIcon {
-  font-size: 1.8rem;
-}
-
-/* Custom icons */
-.customIcon {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
-
-.mcqCardButtons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-/* Delete popup mobile-friendly */
-#deletePopup div {
-  width: 85%;
-  max-width: 300px;
-}
+/* ============================================================
+   GLOBAL BASE STYLES
+   ============================================================ */
 
 body {
   font-family: Arial, sans-serif;
@@ -75,9 +12,257 @@ body {
   overflow-x: hidden;
 }
 
-/* ============================
-   OLD MCQ SYSTEM (SCOPED)
-   ============================ */
+/* Tiny text used in top-left info */
+.tinyText {
+  font-size: 0.75rem;
+  color: #ffffff;
+  line-height: 1rem;
+  cursor: pointer;
+}
+
+/* Main headings */
+h1 {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 1.8rem;
+}
+
+/* ============================================================
+   TOP-LEFT & TOP-RIGHT UI ELEMENTS
+   ============================================================ */
+
+#topLeftInfo {
+  position: fixed;
+  top: 8px;
+  left: 10px;
+  text-align: left;
+  z-index: 9999;
+}
+
+#pointsValue {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Hamburger + top-right icons */
+.hamburgerIcon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 24px;
+  cursor: pointer;
+  user-select: none;
+  z-index: 1000;
+  transition: transform 0.15s ease;
+}
+
+#topRightIcons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  z-index: 1000;
+}
+
+.topRightIcon {
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease;
+}
+
+.topRightIcon:hover,
+.hamburgerIcon:hover {
+  transform: scale(1.15);
+}
+
+/* Dropdown menu */
+.dropdownMenu {
+  position: absolute;
+  top: 45px;
+  left: 10px;
+  background: #14233d;
+  border: 1px solid #1f3b6f;
+  border-radius: 8px;
+  width: 200px;
+  display: none;
+  flex-direction: column;
+  z-index: 2000;
+}
+
+.dropdownItem {
+  padding: 10px 15px;
+  font-size: 16px;
+  color: white;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.dropdownItem:hover {
+  background: #1f3b6f;
+}
+
+.dropdownSeparator {
+  height: 1px;
+  background: #2a3f66;
+  margin: 8px 0;
+}
+
+/* Mobile scaling for header icons */
+@media (max-width: 600px) {
+  .hamburgerIcon {
+    font-size: 28px;
+    padding: 10px;
+  }
+
+  .topRightIcon {
+    font-size: 26px;
+    padding: 8px;
+  }
+
+  .dropdownItem {
+    font-size: 18px;
+    padding: 12px 14px;
+  }
+}
+
+/* ============================================================
+   ICONS, CARDS & GRIDS
+   ============================================================ */
+
+.icon,
+.smallIcon {
+  font-size: 1.8rem;
+}
+
+.smallIcon {
+  font-size: 26px;
+  line-height: 32px;
+  margin-top: 14px;
+}
+
+.customIcon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.card {
+  background: #1f3b6f;
+  padding: 20px;
+  margin: 15px auto;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.card:hover {
+  background: #2a4c8a;
+}
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 15px;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.iconCard {
+  background: #1f3b6f;
+  padding: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  text-align: center;
+  font-size: 32px;
+  position: relative;
+}
+
+.iconCard:hover {
+  background: #2a4c8a;
+}
+
+.iconLabel {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.customDeleteBtn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 10px;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 3px;
+  border-radius: 3px;
+  z-index: 10;
+}
+
+/* MCQ cards */
+.mcqCard {
+  background: #2a4c8a;
+  padding: 20px;
+  border-radius: 8px;
+  width: 120px;
+  margin: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.2s;
+}
+
+.mcqCard:hover {
+  background: #3b5ca3;
+}
+
+.mcqCard .icon {
+  font-size: 40px;
+}
+
+.mcqCard p {
+  margin-top: 8px;
+  font-size: 1rem;
+}
+
+/* Mobile scaling for MCQ cards */
+@media (max-width: 480px) {
+  .mcqCard {
+    width: 90px;
+    padding: 14px;
+    border-radius: 6px;
+    transform: scale(0.9);
+  }
+
+  .mcqCard .icon {
+    font-size: 28px;
+  }
+
+  .mcqCard p {
+    font-size: 0.8rem;
+    margin-top: 6px;
+  }
+}
+
+/* ============================================================
+   OLD MCQ SYSTEM (LEGACY)
+   ============================================================ */
 
 #mcqArea {
   background: #14233d;
@@ -158,7 +343,6 @@ body {
 
 #mcqArea #closeBtn {
   background: #8a2a2a;
-  margin-top: 30px;
   margin: 30px auto;
   width: 150px;
   display: block;
@@ -176,158 +360,54 @@ body {
   border-radius: 10px;
 }
 
-/* ============================
-   CARDS, ICONS, GRIDS
-   ============================ */
+/* ============================================================
+   EVENT CARDS
+   ============================================================ */
 
-.card {
-  background: #1f3b6f;
-  padding: 20px;
-  margin: 15px auto;
+.eventCard {
+  background: white;
+  color: #000;
   border-radius: 10px;
-  width: 90%;
-  max-width: 400px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.card:hover {
-  background: #2a4c8a;
-}
-
-a {
-  color: #fff;
-  text-decoration: none;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-#specialtySelect {
-  margin-bottom: 20px;
-  background: #14233d;
-  padding: 8px 12px;
-  border-radius: 8px;
-  display: inline-block;
-}
-
-#specialtySelect select {
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 14px;
-  width: 180px;
-}
-
-.iconGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 15px;
-  max-width: 400px;
-  margin: 20px auto;
-}
-
-.iconCard {
-  background: #1f3b6f;
   padding: 15px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.2s;
-  text-align: center;
-  font-size: 32px;
-  position: relative;
+  margin: 15px auto;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-.iconCard:hover {
+.eventCard h3 {
+  margin-top: 0;
+}
+
+.registerBtn {
+  margin-top: 12px;
+  padding: 6px 10px;
   background: #2a4c8a;
-}
-
-.mcqCard {
-  background: #2a4c8a;
-  padding: 20px;
-  border-radius: 8px;
-  width: 120px;
-  margin: 10px;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  text-align: center;
-  transition: 0.2s;
+  font-size: 0.85rem;
+  width: 15%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.mcqCard:hover {
+.registerBtn:hover {
   background: #3b5ca3;
 }
 
-.mcqCard .icon {
-  font-size: 40px;
+.alreadyRegisteredMsg {
+  margin-top: 12px;
+  font-weight: bold;
+  color: #2a4c8a;
+  text-align: center;
 }
 
-.mcqCard p {
-  margin-top: 8px;
-  font-size: 1rem;
-}
-
-@media (max-width: 480px) {
-  .mcqCard {
-    width: 90px;
-    padding: 14px;
-    border-radius: 6px;
-    transform: scale(0.9);
-  }
-
-  .mcqCard .icon {
-    font-size: 28px;
-  }
-
-  .mcqCard p {
-    font-size: 0.8rem;
-    margin-top: 6px;
-  }
-}
-
-.iconLabel {
-  margin-top: 6px;
-  font-size: 0.9rem;
-  color: #fff;
-}
-
-.customIcon {
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
-  object-fit: cover;
-  margin-bottom: 6px;
-}
-
-.customDeleteBtn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  font-size: 10px;
-  cursor: pointer;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.35);
-  padding: 1px 3px;
-  border-radius: 3px;
-  z-index: 10;
-}
-
-.smallIcon {
-  font-size: 26px;
-  line-height: 32px;
-  margin-top: 14px;
-}
-
-.pointsBox {
-  background: #14233d;
-  color: #fff;
-  padding: 10px 15px;
-  border-radius: 8px;
-  display: inline-block;
-  margin-bottom: 20px;
-  font-size: 1.2rem;
-}
-
-/* ============================
+/* ============================================================
    RANK-UP BANNER + CONFETTI
-   ============================ */
+   ============================================================ */
 
 #rankUpBanner {
   position: fixed;
@@ -381,9 +461,30 @@ a {
   vertical-align: middle;
 }
 
-/* ============================
-   HELP BUTTON
-   ============================ */
+/* ============================================================
+   MISC COMPONENTS
+   ============================================================ */
+
+#specialtySelect {
+  margin-bottom: 20px;
+  background: #14233d;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+#specialtySelect select {
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 180px;
+}
+
+#specialtyDisplay {
+  font-size: 18px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
 
 #helpButton {
   position: static;
@@ -397,69 +498,6 @@ a {
   transition: transform 0.15s ease;
 }
 
-#specialtyDisplay {
-  font-size: 18px;
-  margin-bottom: 20px;
-  font-weight: bold;
-}
-
-/* ============================
-   EVENT CARDS
-   ============================ */
-
-.eventCard {
-  background: white;
-  color: #000;
-  border-radius: 10px;
-  padding: 15px;
-  margin: 15px auto;
-  width: 90%;
-  max-width: 450px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.eventCard h3 {
-  margin-top: 0;
-}
-
-.registerBtn {
-  margin-top: 12px;
-  padding: 6px 10px;
-  background: #2a4c8a;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  width: 15%;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.registerBtn:hover {
-  background: #3b5ca3;
-}
-
-.alreadyRegisteredMsg {
-  margin-top: 12px;
-  font-weight: bold;
-  color: #2a4c8a;
-  text-align: center;
-}
-
-/* ============================
-   Startsession.html — Combined H1
-   ============================ */
-
-#combinedHeading {
-  margin-bottom: 0.5em;
-}
-
-/* ============================
-   Instructions list formatting
-   ============================ */
-
 .instructionsList {
   margin-left: 1.2em;
   line-height: 1.6;
@@ -467,9 +505,9 @@ a {
   text-align: left;
 }
 
-/* ============================
-   Action buttons
-   ============================ */
+#combinedHeading {
+  margin-bottom: 0.5em;
+}
 
 .actionBtn {
   padding: 12px 22px;
@@ -500,108 +538,9 @@ a {
   margin-top: 20px;
 }
 
-/* ============================
-   Certificate name box
-   ============================ */
-
 #participantName {
   width: 70% !important;
   max-width: 250px !important;
   margin: 10px auto !important;
   display: block !important;
-}
-
-/* ------------------------------
-   Header Icons (Corrected Layout)
------------------------------- */
-
-.hamburgerIcon {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 24px;
-  cursor: pointer;
-  user-select: none;
-  z-index: 1000;
-}
-
-#topRightIcons {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 15px;
-  z-index: 1000;
-}
-
-.topRightIcon {
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-  user-select: none;
-  transition: transform 0.15s ease;
-}
-
-.topRightIcon:hover,
-.hamburgerIcon:hover {
-  transform: scale(1.15);
-}
-
-.dropdownMenu {
-  position: absolute;
-  top: 45px;
-  left: 10px;
-  background: #14233d;
-  border: 1px solid #1f3b6f;
-  border-radius: 8px;
-  width: 200px;
-  display: none;
-  flex-direction: column;
-  z-index: 2000;
-}
-
-.dropdownItem {
-  padding: 10px 15px;
-  font-size: 16px;
-  color: white;
-  text-align: left;
-  width: 100%;
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.dropdownItem:hover {
-  background: #1f3b6f;
-}
-
-.dropdownSeparator {
-  height: 1px;
-  background: #2a3f66;
-  margin: 8px 0;
-}
-
-@media (max-width: 600px) {
-  .hamburgerIcon {
-    font-size: 28px;
-    padding: 10px;
-  }
-
-  .topRightIcon {
-    font-size: 26px;
-    padding: 8px;
-  }
-
-  .dropdownItem {
-    font-size: 18px;
-    padding: 12px 14px;
-  }
-}
-
-#topLeftInfo .tinyText {
-  cursor: pointer;
 }
