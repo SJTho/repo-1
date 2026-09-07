@@ -495,7 +495,3 @@ body.loginPage #authContainer {
   box-shadow: none !important;
   background: #ffffff !important;
 }
-
-body.loginPage {
-  border: 10px solid red !important;
-}
