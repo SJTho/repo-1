@@ -1,0 +1,227 @@
+/* Container */
+#profileContainer {
+    width: 80%;
+    max-width: 500px;
+    margin: 40px auto 60px auto;
+    background: #ffffff;
+    padding: 18px 24px 24px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#profileContainer h2 {
+    color: #000;
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 28px;
+}
+
+/* Profile rows */
+.profileRow {
+    margin-bottom: 24px;
+    font-size: 16px;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Header row: label + buttons */
+.profileHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.profileHeader strong {
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Field row: value/input */
+.profileFieldRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+}
+
+.profileFieldRow span,
+.profileFieldRow input.editField {
+    flex: 1;
+    text-align: left;
+}
+
+/* Buttons */
+.editBtn,
+.saveBtn,
+.closeBtn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.editBtn {
+    background: #007bff;
+    color: white;
+    width: 100px;
+}
+
+.saveBtn {
+    background: #28a745;
+    color: white;
+    width: 100px;
+}
+
+.closeBtn {
+    background: #14233d;
+    color: white;
+    margin-top: 20px;
+    width: 200px;
+}
+
+/* Input fields */
+input.editField {
+    font-size: 16px;
+    padding: 10px 12px;
+    width: 100%;
+    box-sizing: border-box;
+    background: #e0e0e0;
+    border: 1px solid #b5b5b5;
+    border-radius: 6px;
+    color: #000;
+}
+
+/* Desktop layout */
+/* Desktop layout */
+@media (min-width: 601px) {
+
+    .profileRow {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .profileHeader {
+        flex-direction: column;
+        justify-content: flex-start;
+        width: 160px;
+        /* column 1 width */
+
+        /* NEW: allow children to stretch horizontally */
+        align-items: stretch;
+    }
+
+    .profileHeader strong {
+        margin-bottom: 6px;
+    }
+
+    /* NEW: push edit/save buttons to the right */
+    .profileHeader button {
+        align-self: flex-end;
+    }
+
+    .profileFieldRow {
+        flex: 1;
+        align-items: flex-start;
+    }
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+
+    #profileContainer {
+        width: 90%;
+        padding: 20px;
+        border-radius: 14px;
+        margin: 55px auto 20px auto;
+    }
+
+    #profileContainer h2 {
+        font-size: 26px;
+        margin-bottom: 28px;
+    }
+
+    .profileRow {
+        margin-bottom: 28px;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    /* Row 1: label left, buttons right */
+    .profileHeader {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .profileHeader strong {
+        font-size: 16px;
+        text-align: left;
+    }
+
+    /* Row 2: field full width under label */
+    .profileFieldRow {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .profileFieldRow span,
+    .profileFieldRow input.editField {
+        font-size: 16px;
+        text-align: left;
+    }
+
+    input.editField {
+        padding: 12px 14px;
+        background: #d6d6d6;
+        border: 1px solid #a8a8a8;
+    }
+
+    .editBtn,
+    .saveBtn {
+        font-size: 16px;
+        border-radius: 6px;
+        width: 100px;
+    }
+
+    .closeBtn {
+        font-size: 16px;
+        padding: 14px 20px;
+        border-radius: 10px;
+        margin-top: 30px;
+        width: 100px;
+    }
+
+    .dropdownItem {
+        font-size: 16px;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .dropdownItem:hover {
+        background: #f2f2f2;
+    }
+
+    .dropdownSeparator {
+        width: 100%;
+        height: 1px;
+        background: #ccc;
+        margin: 6px 0;
+    }
+
+    #nicknameDisplay,
+    #emailDisplay,
+    #passwordDisplay {
+        text-align: left;
+        margin-left: 0;
+    }
+}
