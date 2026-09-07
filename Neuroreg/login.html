@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login / Signup</title>
 
     <link rel="stylesheet" href="./styles/global.css">
@@ -61,7 +62,6 @@
                 <input id="signupNickname" type="text">
             </div>
 
-            <!-- Invisible reCAPTCHA button -->
             <button type="button" class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
                 data-callback="onSignupCaptcha" data-size="invisible">
                 Sign Up
@@ -81,7 +81,6 @@
                 <input id="recoverNickname" type="text">
             </div>
 
-            <!-- Invisible reCAPTCHA button -->
             <button type="button" class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
                 data-callback="onPasswordResetCaptcha" data-size="invisible">
                 Send recovery email
@@ -96,7 +95,6 @@
     </div>
 
     <script>
-        // Clear all error boxes
         function clearErrors() {
             document.querySelectorAll(".errorBox").forEach(box => {
                 box.style.display = "none";
@@ -104,7 +102,6 @@
             });
         }
 
-        // Toggle functions using .hidden class (matches login.css)
         function showLogin() {
             clearErrors();
             document.getElementById("loginForm").classList.remove("hidden");
@@ -126,7 +123,6 @@
             document.getElementById("forgotEmailForm").classList.remove("hidden");
         }
 
-        // Login handler
         async function handleLogin() {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
