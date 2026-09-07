@@ -14,11 +14,17 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ----------------------------------------------------
        Redirect if not logged in
     ---------------------------------------------------- */
-    const nickname = localStorage.getItem("nickname");
-    if (!nickname) {
-        window.location.href = "login.html";
-        return;
-    }
+const userId = localStorage.getItem("userId");
+if (!userId) {
+    window.location.href = "login.html";
+    return;
+}
+
+const { data: { session } } = await supabase.auth.getSession();
+if (!session) {
+    window.location.href = "login.html";
+    return;
+}
 
     /* ----------------------------------------------------
        Hamburger Toggle
