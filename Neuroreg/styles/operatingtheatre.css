@@ -32,6 +32,42 @@
 }
 
 /* ----------------------------------------------------
+   CATEGORY BUTTONS — LEFT VERTICAL OVERLAY
+---------------------------------------------------- */
+
+#categoryButtons {
+  position: absolute;
+  left: 10px;
+  top: 10%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 2000;
+}
+
+.categoryBtn {
+  width: 80px;
+  height: 80px;
+  background: #14233d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.categoryBtn:hover {
+  background: #1f355c;
+}
+
+/* ----------------------------------------------------
    EQUIPMENT OVERLAY
 ---------------------------------------------------- */
 
@@ -91,7 +127,6 @@
   z-index: 1;
 }
 
-/* Emojis removed */
 .roomEmoji {
   display: none !important;
 }
@@ -119,51 +154,6 @@
 }
 
 /* ----------------------------------------------------
-   CATEGORY BUTTONS — FINAL FIXED VERSION
----------------------------------------------------- */
-
-#categoryButtons {
-  position: relative !important;
-  display: flex !important;
-  justify-content: center;
-  gap: 20px;
-  margin: 25px 0 0 0 !important;
-  z-index: 1000 !important;
-
-  /* Prevent global button rules from affecting layout */
-  left: auto !important;
-  top: auto !important;
-}
-
-.categoryBtn {
-  position: static !important;
-  left: auto !important;
-  top: auto !important;
-  transform: none !important;
-
-  width: 120px !important;
-  height: 120px !important;
-
-  background: #14233d;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 18px;
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  user-select: none;
-  transition: background 0.2s;
-}
-
-.categoryBtn:hover {
-  background: #1f355c;
-}
-
-/* ----------------------------------------------------
    GHOST EFFECT FOR INVALID DRAG
 ---------------------------------------------------- */
 
@@ -179,8 +169,49 @@
 ---------------------------------------------------- */
 
 @media (max-width: 600px) {
+
+  /* Heading spacing */
   h2 {
-    margin-top: 40%;
-    /* increased gap above the heading */
+    margin-top: 60px;
+  }
+
+  /* Theatre height */
+  #theatreWrapper {
+    height: 350px;
+  }
+
+  /* Smaller equipment items */
+  .equipmentItem {
+    width: 90px;
+  }
+
+  /* Smaller room thumbnails */
+  .storeThumb {
+    width: 22px;
+    margin: 1px;
+  }
+
+  /* Allow rooms to wrap if needed */
+  #roomsRow {
+    flex-wrap: wrap;
+    height: auto;
+  }
+
+  .roomPanel {
+    width: 48%;
+    height: 70px;
+  }
+
+  /* Category buttons scaled down */
+  #categoryButtons {
+    left: 6px;
+    top: 8%;
+    gap: 8px;
+  }
+
+  .categoryBtn {
+    width: 65px;
+    height: 65px;
+    font-size: 12px;
   }
 }
