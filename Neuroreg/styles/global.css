@@ -465,3 +465,11 @@ h1 {
 #combinedHeading {
   margin-bottom: 0.5em;
 }
+
+/* LOGIN PAGE OVERRIDES */
+body.loginPage {
+  padding: 0 !important;
+  text-align: left !important;
+  background: #f5f5f5 !important;
+  overflow-x: visible !important;
+}
