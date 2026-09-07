@@ -153,6 +153,18 @@ input.editField {
         text-align: left;
     }
 
+    /* Mobile: keep Edit button aligned with the label */
+    .profileFieldRow {
+        flex-wrap: wrap;
+        /* allow wrapping */
+    }
+
+    .profileFieldRow .editBtn {
+        order: -1;
+        /* move Edit button to the top row */
+        margin-bottom: 10px;
+    }
+
     input.editField {
         padding: 12px 14px;
         background: #d6d6d6;
