@@ -14,7 +14,8 @@
 #authContainer h2 {
     color: #000;
     text-align: center;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 16px;
 }
 
 /* Form rows */
@@ -158,9 +159,10 @@ body.loginPage {
 }
 
 body.loginPage #authContainer {
-    width: 90% !important;
-    max-width: 90% !important;
+    width: 80% !important;
+    max-width: 80% !important;
     margin: 0 auto !important;
+    margin-top: 10px !important;
 }
 
 @media (min-width: 900px) {
@@ -168,5 +170,6 @@ body.loginPage #authContainer {
         width: 30% !important;
         max-width: 30% !important;
         margin: 0 auto !important;
+        margin-top: 40px !important;
     }
 }
