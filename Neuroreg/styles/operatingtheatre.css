@@ -173,3 +173,14 @@
   outline: 3px solid red;
   outline-offset: 2px;
 }
+
+/* ----------------------------------------------------
+   MOBILE ONLY SETTINGS
+---------------------------------------------------- */
+
+@media (max-width: 600px) {
+  h2 {
+    margin-top: 70px;
+    /* increased gap above the heading */
+  }
+}
