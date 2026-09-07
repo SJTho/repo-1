@@ -320,10 +320,12 @@ function updateCategoryButtonColours() {
         // Undeployed = dataset.deployed === "false"
         const hasUndeployed = items.some(item => item.dataset.deployed === "false");
 
-        if (hasUndeployed) {
-            btn.style.backgroundColor = "green";
-        } else {
-            btn.style.backgroundColor = "";
+        btn.style.backgroundColor = hasUndeployed ? "green" : "";
+
+        // ⭐ Update level badge number
+        const badge = btn.querySelector(".levelBadge");
+        if (badge) {
+            badge.textContent = revealIndex[category];
         }
     });
 }
