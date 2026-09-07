@@ -99,7 +99,7 @@ input.editField {
 }
 
 /* Desktop layout */
-/* Desktop layout */
+
 @media (min-width: 601px) {
 
     .profileRow {
@@ -111,10 +111,10 @@ input.editField {
     .profileHeader {
         flex-direction: column;
         justify-content: flex-start;
-        width: 220px;
-        /* column 1 width */
 
-        /* NEW: allow children to stretch horizontally */
+        /* Column 1 width */
+        width: 220px;
+
         align-items: stretch;
     }
 
@@ -122,9 +122,10 @@ input.editField {
         margin-bottom: 6px;
     }
 
-    /* NEW: push edit/save buttons to the right */
-    .profileHeader button {
-        align-self: flex-end;
+    /* ⭐ DESKTOP: align buttons LEFT */
+    .profileHeader .editBtn,
+    .profileHeader .saveBtn {
+        align-self: flex-start !important;
     }
 
     .profileFieldRow {
