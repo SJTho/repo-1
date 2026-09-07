@@ -21,16 +21,29 @@
     margin-bottom: 24px;
     font-size: 16px;
     color: #000;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
 }
 
-.profileRow strong {
+/* Header row: label + buttons */
+.profileHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     margin-bottom: 6px;
 }
 
-/* Field row */
+.profileHeader strong {
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Buttons container */
+.profileButtons {
+    display: flex;
+    gap: 8px;
+}
+
+/* Field row: value/input */
 .profileFieldRow {
     display: flex;
     align-items: flex-start;
@@ -42,12 +55,6 @@
 .profileFieldRow input.editField {
     flex: 1;
     text-align: left;
-}
-
-/* Buttons container */
-.profileButtons {
-    display: flex;
-    gap: 12px;
 }
 
 /* Buttons */
@@ -99,23 +106,31 @@ input.editField {
 @media (min-width: 601px) {
 
     .profileRow {
+        display: flex;
         flex-direction: row;
         align-items: flex-start;
+        gap: 12px;
     }
 
-    .profileRow strong {
+    .profileHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
         width: 160px;
+        /* column 1 width */
         margin-bottom: 0;
-        text-align: left;
+    }
+
+    .profileHeader strong {
+        margin-bottom: 6px;
+    }
+
+    .profileButtons {
+        justify-content: flex-start;
     }
 
     .profileFieldRow {
         flex: 1;
-    }
-
-    .profileButtons {
-        flex: 0 0 120px;
-        justify-content: flex-start;
         align-items: flex-start;
     }
 }
@@ -137,30 +152,31 @@ input.editField {
 
     .profileRow {
         margin-bottom: 28px;
-        flex-direction: column;
-        width: 100%;
     }
 
-    /* Row 1: label + edit button */
-    .profileRow strong {
-        margin-bottom: 0;
+    /* Row 1: label left, buttons right */
+    .profileHeader {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .profileHeader strong {
         font-size: 16px;
+        text-align: left;
     }
 
     .profileButtons {
-        display: flex;
         justify-content: flex-end;
-        /* keep Edit button aligned right */
-        width: 100%;
-        margin-top: -28px;
-        /* aligns vertically with the label */
     }
 
-    /* Row 2: field row */
+    /* Row 2: field full width under label */
     .profileFieldRow {
-        width: 100%;
-        margin-top: 12px;
         flex-direction: column;
+        width: 100%;
+        gap: 8px;
     }
 
     .profileFieldRow span,
@@ -214,4 +230,3 @@ input.editField {
         text-align: left;
         margin-left: 0;
     }
-}
