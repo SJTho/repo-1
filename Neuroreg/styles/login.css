@@ -123,7 +123,7 @@ button:active {
         max-width: 90%;
         padding: 20px 20px;
         margin: 0 auto;
-        border-radius: 8;
+        border-radius: 8px;
         box-shadow: none;
     }
 
@@ -150,14 +150,14 @@ button:active {
         margin-bottom: 20px;
     }
 
-    /* FINAL OVERRIDE */
-    body.loginPage #authContainer {
-        width: 90% !important;
-        max-width: 90% !important;
-        margin: 0 auto !important;
-    }
-
     body.loginPage {
         background: red !important;
     }
+}
+
+/* FINAL OVERRIDE */
+body.loginPage #authContainer {
+    width: 90% !important;
+    max-width: 90% !important;
+    margin: 0 auto !important;
 }
