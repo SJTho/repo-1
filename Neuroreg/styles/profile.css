@@ -5,7 +5,6 @@
     margin: 40px auto 60px auto;
     background: #ffffff;
     padding: 18px 24px 24px 24px;
-    /* reduced top padding */
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -24,19 +23,17 @@
     color: #000;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    /* LEFT ALIGN */
+    gap: 12px;
 }
 
 .profileRow strong {
     margin-bottom: 6px;
 }
 
-/* Horizontal field row */
+/* Field row */
 .profileFieldRow {
     display: flex;
     align-items: flex-start;
-    /* LEFT ALIGN SECOND COLUMN */
     gap: 12px;
     width: 100%;
 }
@@ -45,7 +42,12 @@
 .profileFieldRow input.editField {
     flex: 1;
     text-align: left;
-    /* LEFT ALIGN TEXT */
+}
+
+/* Buttons container */
+.profileButtons {
+    display: flex;
+    gap: 12px;
 }
 
 /* Buttons */
@@ -93,36 +95,32 @@ input.editField {
     color: #000;
 }
 
-/* Desktop ONLY: left-align everything */
+/* Desktop layout */
 @media (min-width: 601px) {
 
     .profileRow {
         flex-direction: row;
         align-items: flex-start;
-        justify-content: flex-start;
-        gap: 12px;
     }
 
     .profileRow strong {
-        margin-bottom: 0;
-        margin-right: 12px;
-
-        /* ⭐ COLUMN 1: 15% wider */
         width: 160px;
-        /* was 140px */
-
+        margin-bottom: 0;
         text-align: left;
     }
 
     .profileFieldRow {
-        /* ⭐ COLUMN 2: 15% narrower */
-        flex: 0 0 calc(100% - 160px);
+        flex: 1;
+    }
+
+    .profileButtons {
+        flex: 0 0 120px;
         justify-content: flex-start;
         align-items: flex-start;
     }
 }
 
-/* Responsive */
+/* Mobile layout */
 @media (max-width: 600px) {
 
     #profileContainer {
@@ -138,31 +136,37 @@ input.editField {
     }
 
     .profileRow {
-        font-size: 16px;
         margin-bottom: 28px;
+        flex-direction: column;
+        width: 100%;
     }
 
+    /* Row 1: label + edit button */
     .profileRow strong {
+        margin-bottom: 0;
         font-size: 16px;
-        margin-bottom: 10px;
+    }
+
+    .profileButtons {
+        display: flex;
+        justify-content: flex-end;
+        /* keep Edit button aligned right */
+        width: 100%;
+        margin-top: -28px;
+        /* aligns vertically with the label */
+    }
+
+    /* Row 2: field row */
+    .profileFieldRow {
+        width: 100%;
+        margin-top: 12px;
+        flex-direction: column;
     }
 
     .profileFieldRow span,
     .profileFieldRow input.editField {
         font-size: 16px;
         text-align: left;
-    }
-
-    /* Mobile: keep Edit button aligned with the label */
-    .profileFieldRow {
-        flex-wrap: wrap;
-        /* allow wrapping */
-    }
-
-    .profileFieldRow .editBtn {
-        order: -1;
-        /* move Edit button to the top row */
-        margin-bottom: 10px;
     }
 
     input.editField {
@@ -177,9 +181,6 @@ input.editField {
         padding: 10px 16px;
         border-radius: 8px;
         width: 100px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
     }
 
     .closeBtn {
