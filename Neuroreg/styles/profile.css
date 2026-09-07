@@ -181,8 +181,7 @@ input.editField {
     .editBtn,
     .saveBtn {
         font-size: 16px;
-        padding: 10px 16px;
-        border-radius: 8px;
+        border-radius: 6px;
         width: 100px;
     }
 
