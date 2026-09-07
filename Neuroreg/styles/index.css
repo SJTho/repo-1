@@ -72,12 +72,17 @@
   .iconCard {
     transform: scale(0.5);
     transform-origin: top center;
-    margin: -10px 0;
+    margin: -6px 0;
     /* pulls cards closer together after scaling */
   }
 
   .iconGrid {
+    max-width: 100% !important;
+    /* remove the 400px cap */
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 5px;
     padding: 10px;
   }
+
+}
 }
