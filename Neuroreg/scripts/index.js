@@ -14,17 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ----------------------------------------------------
        Redirect if not logged in
     ---------------------------------------------------- */
-const userId = localStorage.getItem("userId");
-if (!userId) {
-    window.location.href = "login.html";
-    return;
-}
-
-const { data: { session } } = await supabase.auth.getSession();
-if (!session) {
-    window.location.href = "login.html";
-    return;
-}
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+        window.location.href = "login.html";
+        return;
+    }
 
     /* ----------------------------------------------------
        Hamburger Toggle
@@ -194,7 +188,6 @@ if (!session) {
         let streakIncreased = false;
 
         if (!last_daily_reward) {
-            // First ever login
             current_streak_days = 1;
             streakIncreased = true;
         } else {
@@ -203,11 +196,9 @@ if (!session) {
             const diff = (now - last) / (1000 * 60 * 60 * 24);
 
             if (diff === 1) {
-                // Consecutive day
                 current_streak_days += 1;
                 streakIncreased = true;
             } else if (diff > 1) {
-                // Missed a day
                 current_streak_days = 1;
                 streakIncreased = true;
             }
@@ -239,7 +230,7 @@ if (!session) {
         }
 
         /* ----------------------------------------------------
-           STREAK ALERT (must run OUTSIDE reward block)
+           STREAK ALERT (runs independently)
         ---------------------------------------------------- */
         if (streakIncreased) {
             alert(`This is streak day ${current_streak_days}`);
