@@ -320,12 +320,13 @@ function updateCategoryButtonColours() {
         // Undeployed = dataset.deployed === "false"
         const hasUndeployed = items.some(item => item.dataset.deployed === "false");
 
+        // Button colour: green if there exist items not yet deployed anywhere
         btn.style.backgroundColor = hasUndeployed ? "green" : "";
 
-        // ⭐ Update level badge number
+        // ⭐ Badge number: total AVAILABLE items in this category
         const badge = btn.querySelector(".levelBadge");
         if (badge) {
-            badge.textContent = revealIndex[category];
+            badge.textContent = String(items.length);
         }
     });
 }
