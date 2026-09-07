@@ -38,7 +38,9 @@
 #categoryButtons {
   position: absolute;
   left: 10px;
-  top: 10%;
+  /* aligned to left edge of theatre */
+  top: 10px;
+  /* moved to top-left corner */
   display: flex;
   flex-direction: column;
   gap: 12px;
