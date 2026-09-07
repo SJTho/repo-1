@@ -21,6 +21,9 @@
     margin-bottom: 24px;
     font-size: 16px;
     color: #000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 /* Header row: label + buttons */
@@ -28,19 +31,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 6px;
+    width: 100%;
 }
 
 .profileHeader strong {
     font-weight: bold;
     text-align: left;
-}
-
-/* Buttons container */
-.profileButtons {
-    display: flex;
-    gap: 8px;
 }
 
 /* Field row: value/input */
@@ -106,7 +102,6 @@ input.editField {
 @media (min-width: 601px) {
 
     .profileRow {
-        display: flex;
         flex-direction: row;
         align-items: flex-start;
         gap: 12px;
@@ -118,15 +113,10 @@ input.editField {
         justify-content: flex-start;
         width: 160px;
         /* column 1 width */
-        margin-bottom: 0;
     }
 
     .profileHeader strong {
         margin-bottom: 6px;
-    }
-
-    .profileButtons {
-        justify-content: flex-start;
     }
 
     .profileFieldRow {
@@ -152,6 +142,8 @@ input.editField {
 
     .profileRow {
         margin-bottom: 28px;
+        flex-direction: column;
+        width: 100%;
     }
 
     /* Row 1: label left, buttons right */
@@ -160,16 +152,11 @@ input.editField {
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        margin-bottom: 8px;
     }
 
     .profileHeader strong {
         font-size: 16px;
         text-align: left;
-    }
-
-    .profileButtons {
-        justify-content: flex-end;
     }
 
     /* Row 2: field full width under label */
@@ -230,3 +217,4 @@ input.editField {
         text-align: left;
         margin-left: 0;
     }
+}
