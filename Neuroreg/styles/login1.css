@@ -164,10 +164,3 @@ body.loginPage {
     }
 
 }
-
-/* FINAL OVERRIDE */
-body.loginPage #authContainer {
-    width: 80% !important;
-    max-width: 80% !important;
-    margin: 0 auto !important;
-}
