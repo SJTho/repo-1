@@ -1,0 +1,497 @@
+/* ============================================================
+   GLOBAL BASE STYLES
+   ============================================================ */
+
+body {
+  font-family: Arial, sans-serif;
+  background: #0b1526;
+  color: #fff;
+  margin: 0;
+  padding: 10px;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+/* Main headings */
+h1 {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 1.8rem;
+}
+
+/* ============================================================
+   TOP-LEFT & TOP-RIGHT UI ELEMENTS
+   ============================================================ */
+
+/* Hamburger + top-right icons */
+.hamburgerIcon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 24px;
+  cursor: pointer;
+  user-select: none;
+  z-index: 1000;
+  transition: transform 0.15s ease;
+}
+
+#topRightIcons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  z-index: 1000;
+}
+
+.topRightIcon {
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease;
+}
+
+.topRightIcon:hover,
+.hamburgerIcon:hover {
+  transform: scale(1.15);
+}
+
+/* Dropdown menu */
+.dropdownMenu {
+  position: absolute;
+  top: 45px;
+  left: 10px;
+  background: #14233d;
+  border: 1px solid #1f3b6f;
+  border-radius: 8px;
+  width: 200px;
+  display: none;
+  flex-direction: column;
+  z-index: 2000;
+}
+
+.dropdownItem {
+  padding: 10px 15px;
+  font-size: 16px;
+  color: white;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.dropdownItem:hover {
+  background: #1f3b6f;
+}
+
+.dropdownSeparator {
+  height: 1px;
+  background: #2a3f66;
+  margin: 8px 0;
+}
+
+/* Mobile scaling for header icons */
+@media (max-width: 600px) {
+  .hamburgerIcon {
+    font-size: 28px;
+    padding: 10px;
+  }
+
+  .topRightIcon {
+    font-size: 26px;
+    padding: 8px;
+  }
+
+  .dropdownItem {
+    font-size: 18px;
+    padding: 12px 14px;
+  }
+}
+
+/* ============================================================
+   ICONS, CARDS & GRIDS
+   ============================================================ */
+
+.icon,
+.smallIcon {
+  font-size: 1.8rem;
+}
+
+.smallIcon {
+  font-size: 26px;
+  line-height: 32px;
+  margin-top: 14px;
+}
+
+.customIcon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.card {
+  background: #1f3b6f;
+  padding: 20px;
+  margin: 15px auto;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.card:hover {
+  background: #2a4c8a;
+}
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 15px;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.iconCard {
+  background: #1f3b6f;
+  padding: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  text-align: center;
+  font-size: 32px;
+  position: relative;
+}
+
+.iconCard:hover {
+  background: #2a4c8a;
+}
+
+.iconLabel {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.customDeleteBtn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 10px;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 3px;
+  border-radius: 3px;
+  z-index: 10;
+}
+
+/* MCQ cards */
+.mcqCard {
+  background: #2a4c8a;
+  padding: 20px;
+  border-radius: 8px;
+  width: 120px;
+  margin: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.2s;
+}
+
+.mcqCard:hover {
+  background: #3b5ca3;
+}
+
+.mcqCard .icon {
+  font-size: 40px;
+}
+
+.mcqCard p {
+  margin-top: 8px;
+  font-size: 1rem;
+}
+
+/* Mobile scaling for MCQ cards */
+@media (max-width: 480px) {
+  .mcqCard {
+    width: 90px;
+    padding: 14px;
+    border-radius: 6px;
+    transform: scale(0.9);
+  }
+
+  .mcqCard .icon {
+    font-size: 28px;
+  }
+
+  .mcqCard p {
+    font-size: 0.8rem;
+    margin-top: 6px;
+  }
+}
+
+/* ============================================================
+   OLD MCQ SYSTEM (LEGACY)
+   ============================================================ */
+
+#mcqArea {
+  background: #14233d;
+  padding: 15px;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: auto;
+}
+
+#mcqArea label {
+  display: block;
+  margin-top: 12px;
+  font-size: 1rem;
+}
+
+#mcqArea input,
+#mcqArea select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border-radius: 8px;
+  font-size: 1rem;
+  border: none;
+}
+
+#mcqArea .questionBlock {
+  background: #1f3b6f;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+
+#mcqArea .questionBlock p {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+#mcqArea .optionLabel {
+  display: block;
+  background: #1a2f55;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: 0.2s;
+}
+
+#mcqArea .optionLabel:hover {
+  background: #223b6d;
+}
+
+#mcqArea .optionLabel.selected {
+  background: #2a4c8a;
+  border-color: #6fa8ff;
+}
+
+#mcqArea .optionLabel input[type="radio"] {
+  display: none;
+}
+
+#mcqArea button {
+  margin-top: 20px;
+  padding: 14px 20px;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: #2a4c8a;
+  color: #fff;
+  width: 100%;
+}
+
+#mcqArea button:hover {
+  background: #3b5ca3;
+}
+
+#mcqArea #closeBtn {
+  background: #8a2a2a;
+  margin: 30px auto;
+  width: 150px;
+  display: block;
+}
+
+#mcqArea #closeBtn:hover {
+  background: #a33b3b;
+}
+
+#mcqArea .explanation {
+  margin-top: 12px;
+  font-size: 0.95rem;
+  background: #0e1d33;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+/* ============================================================
+   EVENT CARDS
+   ============================================================ */
+
+.eventCard {
+  background: white;
+  color: #000;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px auto;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.eventCard h3 {
+  margin-top: 0;
+}
+
+.registerBtn {
+  margin-top: 12px;
+  padding: 6px 10px;
+  background: #2a4c8a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  width: 15%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.registerBtn:hover {
+  background: #3b5ca3;
+}
+
+.alreadyRegisteredMsg {
+  margin-top: 12px;
+  font-weight: bold;
+  color: #2a4c8a;
+  text-align: center;
+}
+
+/* ============================================================
+   RANK-UP BANNER + CONFETTI
+   ============================================================ */
+
+#rankUpBanner {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #14233d;
+  color: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  text-align: center;
+  z-index: 9999;
+  display: none;
+  animation: popIn 0.4s ease-out;
+}
+
+@keyframes popIn {
+  from {
+    transform: translateX(-50%) scale(0.6);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: gold;
+  top: -10px;
+  left: 50%;
+  opacity: 0.9;
+  animation: fall 1s linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(300px) translateX(calc(-50vw + 100px));
+    opacity: 0;
+  }
+}
+
+.scalpelIcon {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   MISC COMPONENTS
+   ============================================================ */
+
+#helpButton {
+  position: static;
+  font-size: 26px;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.instructionsList {
+  margin-left: 1.2em;
+  line-height: 1.6;
+  padding-left: 0.5em;
+  text-align: left;
+}
+
+#combinedHeading {
+  margin-bottom: 0.5em;
+}
+
+/* ============================================================
+   LOGIN PAGE OVERRIDES — FINAL FIX
+   ============================================================ */
+
+body.loginPage {
+  background: #f5f5f5 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  text-align: left !important;
+  color: #000 !important;
+  overflow-x: visible !important;
+}
+
+body.loginPage input {
+  width: 100% !important;
+  max-width: 100% !important;
+  background: #f2f2f2 !important;
+  color: #000 !important;
+}
+
+body.loginPage #authContainer {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 32px 24px !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: #ffffff !important;
+}
