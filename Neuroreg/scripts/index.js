@@ -211,7 +211,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 .update({ last_daily_reward: today })
                 .eq("id", userId);
 
-            alert("Daily reward: +10 points!");
+          alert(`Daily reward: +10 points!\nTotal points now ${scalpel_points}`);
+
         }
 
         /* ---- Update streak + points ---- */
