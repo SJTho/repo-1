@@ -73,6 +73,7 @@
     transform: scale(0.9);
     transform-origin: top center;
     margin: -6px 0;
+    padding: 8px 6px;
     /* pulls cards closer together after scaling */
   }
 
@@ -85,5 +86,9 @@
     padding: 3px;
   }
 
-}
+  .icon {
+    font-size: 28px;
+    /* smaller icon = smaller card */
+  }
+
 }
