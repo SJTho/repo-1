@@ -91,4 +91,9 @@
     /* smaller icon = smaller card */
   }
 
+  h1 {
+    margin-top: 70px;
+    /* increased gap above the heading */
+  }
+
 }
