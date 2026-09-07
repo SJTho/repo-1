@@ -14,7 +14,8 @@
 #authContainer h2 {
     color: #000;
     text-align: center;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 16px;
 }
 
 /* Form rows */
@@ -111,6 +112,11 @@ button:active {
     position: absolute;
 }
 
+body.loginPage {
+    background: #0b1526 !important;
+}
+
+
 /* ============================================================
    MOBILE IMPROVEMENTS — FULL WIDTH
    ============================================================ */
@@ -119,11 +125,11 @@ button:active {
 
     /* Full-width mobile layout */
     #authContainer {
-        width: 90%;
-        max-width: 90%;
+        width: 80%;
+        max-width: 80%;
         padding: 20px 20px;
         margin: 0 auto;
-        border-radius: 8;
+        border-radius: 8px;
         box-shadow: none;
     }
 
@@ -149,11 +155,21 @@ button:active {
     .authRow {
         margin-bottom: 20px;
     }
+
 }
 
-/* FINAL OVERRIDE */
 body.loginPage #authContainer {
     width: 90% !important;
     max-width: 90% !important;
     margin: 0 auto !important;
+    margin-top: 10px !important;
+}
+
+@media (min-width: 900px) {
+    body.loginPage #authContainer {
+        width: 30% !important;
+        max-width: 30% !important;
+        margin: 0 auto !important;
+        margin-top: 40px !important;
+    }
 }
