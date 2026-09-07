@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login / Signup</title>
+
+    <link rel="stylesheet" href="./styles/global1.css">
+    <link rel="stylesheet" href="./styles/login1.css">
+
+    <!-- Google reCAPTCHA v2 Invisible -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+    <!-- Login logic -->
+    <script type="module" src="./scripts/login.js"></script>
+</head>
+
+<body class="loginPage">
+
+    <div id="authContainer">
+
+        <!-- LOGIN FORM -->
+        <div id="loginForm" class="formSection">
+            <h2>Login</h2>
+
+            <div class="authRow">
+                <label>Email</label>
+                <input id="loginEmail" type="email">
+            </div>
+
+            <div class="authRow">
+                <label>Password</label>
+                <input id="loginPassword" type="password">
+            </div>
+
+            <div class="forgotPasswordLink" onclick="showForgotEmail()">Forgot your password?</div>
+
+            <button type="button" onclick="handleLogin()">Login</button>
+
+            <div class="switchLink" onclick="showSignup()">Create an account</div>
+
+            <div id="login-error" class="errorBox"></div>
+        </div>
+
+        <!-- SIGNUP FORM -->
+        <div id="signupForm" class="formSection hidden">
+            <h2>Sign Up</h2>
+
+            <div class="authRow">
+                <label>Email</label>
+                <input id="signupEmail" type="email">
+            </div>
+
+            <div class="authRow">
+                <label>Password</label>
+                <input id="signupPassword" type="password">
+            </div>
+
+            <div class="authRow">
+                <label>Nickname</label>
+                <input id="signupNickname" type="text">
+            </div>
+
+            <button type="button" class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
+                data-callback="onSignupCaptcha" data-size="invisible">
+                Sign Up
+            </button>
+
+            <div class="switchLink" onclick="showLogin()">Already have an account?</div>
+
+            <div id="signup-error" class="errorBox"></div>
+        </div>
+
+        <!-- PASSWORD RESET FORM -->
+        <div id="forgotEmailForm" class="formSection hidden">
+            <h2>Recover Password</h2>
+
+            <div class="authRow">
+                <label>Enter your nickname</label>
+                <input id="recoverNickname" type="text">
+            </div>
+
+            <button type="button" class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
+                data-callback="onPasswordResetCaptcha" data-size="invisible">
+                Send recovery email
+            </button>
+
+            <div class="switchLink" onclick="showLogin()">Back to login</div>
+
+            <div id="recover-error" class="errorBox"></div>
+            <div id="recover-success" class="errorBox" style="color:green;"></div>
+        </div>
+
+    </div>
+
+    <script>
+        function clearErrors() {
+            document.querySelectorAll(".errorBox").forEach(box => {
+                box.style.display = "none";
+                box.textContent = "";
+            });
+        }
+
+        function showLogin() {
+            clearErrors();
+            document.getElementById("loginForm").classList.remove("hidden");
+            document.getElementById("signupForm").classList.add("hidden");
+            document.getElementById("forgotEmailForm").classList.add("hidden");
+        }
+
+        function showSignup() {
+            clearErrors();
+            document.getElementById("loginForm").classList.add("hidden");
+            document.getElementById("signupForm").classList.remove("hidden");
+            document.getElementById("forgotEmailForm").classList.add("hidden");
+        }
+
+        function showForgotEmail() {
+            clearErrors();
+            document.getElementById("loginForm").classList.add("hidden");
+            document.getElementById("signupForm").classList.add("hidden");
+            document.getElementById("forgotEmailForm").classList.remove("hidden");
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value.trim();
+            const errorBox = document.getElementById("login-error");
+
+            const result = await login(email, password);
+
+            if (result.error) {
+                errorBox.textContent = result.error;
+                errorBox.style.display = "block";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
