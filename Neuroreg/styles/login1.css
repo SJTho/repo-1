@@ -118,8 +118,8 @@ body.loginPage {
 /* Desktop width */
 @media (min-width: 900px) {
     body.loginPage #authContainer {
-        width: 50%;
-        max-width: 500px;
+        width: 30%;
+        max-width: 300px;
         margin: 60px auto;
     }
 }
