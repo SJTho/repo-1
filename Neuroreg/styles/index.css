@@ -81,6 +81,7 @@
     /* remove the 400px cap */
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 3px;
+    row-gap: 10px;
     padding: 3px;
   }
 
