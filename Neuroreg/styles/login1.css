@@ -150,14 +150,11 @@ button:active {
         margin-bottom: 20px;
     }
 
-    body.loginPage {
-        background: red !important;
-    }
 }
 
 /* FINAL OVERRIDE */
 body.loginPage #authContainer {
-    width: 90% !important;
-    max-width: 90% !important;
+    width: 20% !important;
+    max-width: 20% !important;
     margin: 0 auto !important;
 }
