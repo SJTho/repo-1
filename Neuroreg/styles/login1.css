@@ -111,6 +111,19 @@ button:active {
     position: absolute;
 }
 
+body.loginPage {
+    background: #0b1526 !important;
+}
+
+/* Desktop width */
+@media (min-width: 900px) {
+    body.loginPage #authContainer {
+        width: 50%;
+        max-width: 500px;
+        margin: 60px auto;
+    }
+}
+
 /* ============================================================
    MOBILE IMPROVEMENTS — FULL WIDTH
    ============================================================ */
