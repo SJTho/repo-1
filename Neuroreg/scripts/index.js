@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ----------------------------------------------------
-       Daily Streak System (UPDATED FOR SUPABASE DAILY REWARD)
+       Daily Streak System (UPDATED FOR SUPABASE DAILY REWARD + STREAK ALERT)
     ---------------------------------------------------- */
     async function handleDailyStreak() {
         const today = new Date().toLocaleDateString("en-CA");
@@ -198,8 +198,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        /* ---- Update longest streak ---- */
+        let streakIncreased = false;
+
         if (current_streak_days > streak_days) {
             streak_days = current_streak_days;
+            streakIncreased = true;
         }
 
         /* ---- Daily reward (Supabase-based) ---- */
@@ -211,8 +215,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 .update({ last_daily_reward: today })
                 .eq("id", userId);
 
-          alert(`Daily reward: +10 points!\nTotal points now ${scalpel_points}`);
+            alert(`Daily reward: +10 points!\nTotal points now ${scalpel_points}`);
 
+            if (streakIncreased) {
+                alert(`This is streak day ${current_streak_days}`);
+            }
         }
 
         /* ---- Update streak + points ---- */
