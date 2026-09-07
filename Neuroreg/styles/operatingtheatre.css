@@ -180,7 +180,7 @@
 
 @media (max-width: 600px) {
   h2 {
-    margin-top: 70px;
+    margin-top: 40%;
     /* increased gap above the heading */
   }
 }
