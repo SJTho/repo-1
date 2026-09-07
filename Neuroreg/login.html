@@ -11,7 +11,7 @@
     <!-- Google reCAPTCHA v2 Invisible -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-    <!-- Your login logic -->
+    <!-- Login logic -->
     <script type="module" src="./scripts/login.js"></script>
 </head>
 
@@ -20,7 +20,7 @@
     <div id="authContainer">
 
         <!-- LOGIN FORM -->
-        <div id="loginForm">
+        <div id="loginForm" class="formSection">
             <h2>Login</h2>
 
             <div class="authRow">
@@ -35,7 +35,7 @@
 
             <div class="forgotPasswordLink" onclick="showForgotEmail()">Forgot your password?</div>
 
-            <button onclick="handleLogin()">Login</button>
+            <button type="button" onclick="handleLogin()">Login</button>
 
             <div class="switchLink" onclick="showSignup()">Create an account</div>
 
@@ -43,7 +43,7 @@
         </div>
 
         <!-- SIGNUP FORM -->
-        <div id="signupForm" style="display:none;">
+        <div id="signupForm" class="formSection hidden">
             <h2>Sign Up</h2>
 
             <div class="authRow">
@@ -62,7 +62,7 @@
             </div>
 
             <!-- Invisible reCAPTCHA button -->
-            <button class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
+            <button type="button" class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
                 data-callback="onSignupCaptcha" data-size="invisible">
                 Sign Up
             </button>
@@ -73,7 +73,7 @@
         </div>
 
         <!-- PASSWORD RESET FORM -->
-        <div id="forgotEmailForm" style="display:none;">
+        <div id="forgotEmailForm" class="formSection hidden">
             <h2>Recover Password</h2>
 
             <div class="authRow">
@@ -81,8 +81,8 @@
                 <input id="recoverNickname" type="text">
             </div>
 
-            <!-- Invisible reCAPTCHA button for password reset -->
-            <button class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
+            <!-- Invisible reCAPTCHA button -->
+            <button type="button" class="g-recaptcha" data-sitekey="6LeqQqwtAAAAABsJvflDXP7PsiWkuGlCri-xUFMz"
                 data-callback="onPasswordResetCaptcha" data-size="invisible">
                 Send recovery email
             </button>
@@ -104,26 +104,26 @@
             });
         }
 
-        // Toggle functions
+        // Toggle functions using .hidden class (matches login.css)
         function showLogin() {
             clearErrors();
-            document.getElementById("loginForm").style.display = "block";
-            document.getElementById("signupForm").style.display = "none";
-            document.getElementById("forgotEmailForm").style.display = "none";
+            document.getElementById("loginForm").classList.remove("hidden");
+            document.getElementById("signupForm").classList.add("hidden");
+            document.getElementById("forgotEmailForm").classList.add("hidden");
         }
 
         function showSignup() {
             clearErrors();
-            document.getElementById("loginForm").style.display = "none";
-            document.getElementById("signupForm").style.display = "block";
-            document.getElementById("forgotEmailForm").style.display = "none";
+            document.getElementById("loginForm").classList.add("hidden");
+            document.getElementById("signupForm").classList.remove("hidden");
+            document.getElementById("forgotEmailForm").classList.add("hidden");
         }
 
         function showForgotEmail() {
             clearErrors();
-            document.getElementById("loginForm").style.display = "none";
-            document.getElementById("signupForm").style.display = "none";
-            document.getElementById("forgotEmailForm").style.display = "block";
+            document.getElementById("loginForm").classList.add("hidden");
+            document.getElementById("signupForm").classList.add("hidden");
+            document.getElementById("forgotEmailForm").classList.remove("hidden");
         }
 
         // Login handler
