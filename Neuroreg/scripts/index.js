@@ -162,11 +162,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ----------------------------------------------------
-       Daily Streak System (UPDATED FOR SUPABASE DAILY REWARD + STREAK ALERT)
+       Daily Streak System (FULLY FIXED)
     ---------------------------------------------------- */
     async function handleDailyStreak() {
         const today = new Date().toLocaleDateString("en-CA");
-        const lastLogin = localStorage.getItem("lastLoginDate");
         const userId = localStorage.getItem("userId");
         if (!userId) return;
 
@@ -183,30 +182,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let { current_streak_days, streak_days, scalpel_points, last_daily_reward } = profile;
 
-        /* ---- Streak calculation ---- */
-        if (!lastLogin) {
+        /* ----------------------------------------------------
+           STREAK CALCULATION (Supabase-based)
+        ---------------------------------------------------- */
+        let streakIncreased = false;
+
+        if (!last_daily_reward) {
+            // First ever login
             current_streak_days = 1;
+            streakIncreased = true;
         } else {
-            const last = new Date(lastLogin);
+            const last = new Date(last_daily_reward);
             const now = new Date(today);
             const diff = (now - last) / (1000 * 60 * 60 * 24);
 
             if (diff === 1) {
+                // Consecutive day
                 current_streak_days += 1;
+                streakIncreased = true;
             } else if (diff > 1) {
+                // Missed a day
                 current_streak_days = 1;
+                streakIncreased = true;
             }
         }
 
-        /* ---- Update longest streak ---- */
-        let streakIncreased = false;
-
+        /* ----------------------------------------------------
+           UPDATE LONGEST STREAK
+        ---------------------------------------------------- */
         if (current_streak_days > streak_days) {
             streak_days = current_streak_days;
-            streakIncreased = true;
         }
 
-        /* ---- Daily reward (Supabase-based) ---- */
+        /* ----------------------------------------------------
+           DAILY REWARD (Supabase-based)
+        ---------------------------------------------------- */
+        let rewardGiven = false;
+
         if (last_daily_reward !== today) {
             scalpel_points += 10;
 
@@ -215,14 +227,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 .update({ last_daily_reward: today })
                 .eq("id", userId);
 
-            alert(`Daily reward: +10 points!\nTotal points now ${scalpel_points}`);
+            rewardGiven = true;
 
-            if (streakIncreased) {
-                alert(`This is streak day ${current_streak_days}`);
-            }
+            alert(`Daily reward: +10 points!\nTotal points now ${scalpel_points}`);
         }
 
-        /* ---- Update streak + points ---- */
+        /* ----------------------------------------------------
+           STREAK ALERT (must run OUTSIDE reward block)
+        ---------------------------------------------------- */
+        if (streakIncreased) {
+            alert(`This is streak day ${current_streak_days}`);
+        }
+
+        /* ----------------------------------------------------
+           SAVE UPDATED VALUES
+        ---------------------------------------------------- */
         const { error: updateError } = await supabase
             .from("profiles")
             .update({
