@@ -70,7 +70,7 @@
 
 @media (max-width: 600px) {
   .iconCard {
-    transform: scale(0.5);
+    transform: scale(0.7);
     transform-origin: top center;
     margin: -6px 0;
     /* pulls cards closer together after scaling */
@@ -79,9 +79,9 @@
   .iconGrid {
     max-width: 100% !important;
     /* remove the 400px cap */
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 5px;
-    padding: 10px;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 2px;
+    padding: 5px;
   }
 
 }
