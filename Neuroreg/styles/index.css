@@ -67,3 +67,17 @@
   background: #8a2a2a;
   margin-bottom: 10px;
 }
+
+@media (max-width: 600px) {
+  .iconCard {
+    transform: scale(0.5);
+    transform-origin: top center;
+    margin: -10px 0;
+    /* pulls cards closer together after scaling */
+  }
+
+  .iconGrid {
+    gap: 5px;
+    padding: 10px;
+  }
+}
