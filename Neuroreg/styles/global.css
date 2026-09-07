@@ -12,14 +12,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Tiny text used in top-left info */
-.tinyText {
-  font-size: 0.75rem;
-  color: #ffffff;
-  line-height: 1rem;
-  cursor: pointer;
-}
-
 /* Main headings */
 h1 {
   text-align: center;
@@ -30,20 +22,6 @@ h1 {
 /* ============================================================
    TOP-LEFT & TOP-RIGHT UI ELEMENTS
    ============================================================ */
-
-#topLeftInfo {
-  position: fixed;
-  top: 8px;
-  left: 10px;
-  text-align: left;
-  z-index: 9999;
-}
-
-#pointsValue {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
 
 /* Hamburger + top-right icons */
 .hamburgerIcon {
@@ -465,27 +443,6 @@ h1 {
    MISC COMPONENTS
    ============================================================ */
 
-#specialtySelect {
-  margin-bottom: 20px;
-  background: #14233d;
-  padding: 8px 12px;
-  border-radius: 8px;
-  display: inline-block;
-}
-
-#specialtySelect select {
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 14px;
-  width: 180px;
-}
-
-#specialtyDisplay {
-  font-size: 18px;
-  margin-bottom: 20px;
-  font-weight: bold;
-}
-
 #helpButton {
   position: static;
   font-size: 26px;
@@ -507,40 +464,4 @@ h1 {
 
 #combinedHeading {
   margin-bottom: 0.5em;
-}
-
-.actionBtn {
-  padding: 12px 22px;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  color: white;
-  min-width: 140px;
-  text-align: center;
-  width: auto !important;
-  margin: 0 !important;
-  vertical-align: middle;
-}
-
-#startNowBtn {
-  background-color: rgb(103, 8, 8);
-}
-
-#closeBtn {
-  background-color: #1f3b6f;
-}
-
-#buttonRow {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-#participantName {
-  width: 70% !important;
-  max-width: 250px !important;
-  margin: 10px auto !important;
-  display: block !important;
 }
