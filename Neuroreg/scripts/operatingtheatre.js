@@ -277,6 +277,7 @@ async function restoreItemStates() {
         el.style.display = "block";
         el.style.left = `${state.left}px`;
         el.style.top = `${state.top}px`;
+el.style.zIndex = String(state.z ?? 1);
 
         el.dataset.deployed = "true";
 
@@ -303,8 +304,9 @@ async function saveItemState(el) {
     const scale = parseFloat(el.dataset.scale || "1");
     const flip = (el.dataset.flipped === "true");
 
-    // store = true if item is hidden (in a room)
     const store = (el.style.display === "none");
+
+    const z = parseInt(el.style.zIndex || "1");
 
     await supabase
         .from("per_user_theatre_state")
@@ -316,11 +318,13 @@ async function saveItemState(el) {
             scale,
             flip,
             store,
+            z,
             created_at: new Date().toISOString()
         }, {
             onConflict: "userid,itemId"
         });
 }
+
 /* ----------------------------------------------------
    Category System
 ---------------------------------------------------- */
