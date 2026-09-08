@@ -159,6 +159,48 @@ async function loadTopRightIcons() {
     });
 }
 
+async function loadOperationsMenu() {
+    const wrapper = document.getElementById("operationsMenuWrapper");
+    const button = document.getElementById("operationsMenuButton");
+    const dropdown = document.getElementById("operationsDropdown");
+
+    if (!wrapper || !button || !dropdown) return;
+
+    // Fetch all operation types
+    const { data, error } = await supabase
+        .from("operation_types")
+        .select("*")
+        .order("id", { ascending: true });
+
+    if (error) {
+        console.error("Failed to load operation types:", error);
+        dropdown.innerHTML = "<div class='operationItem'>Failed to load operations</div>";
+        return;
+    }
+
+    dropdown.innerHTML = "";
+
+    data.forEach(op => {
+        const div = document.createElement("div");
+        div.className = "operationItem";
+        div.textContent = op.name || op.operation_name || `Operation ${op.id}`;
+        dropdown.appendChild(div);
+    });
+
+    // Toggle dropdown on button click
+    button.addEventListener("click", () => {
+        dropdown.style.display =
+            dropdown.style.display === "block" ? "none" : "block";
+    });
+
+    // Close when clicking outside
+    document.addEventListener("click", (e) => {
+        if (!wrapper.contains(e.target)) {
+            dropdown.style.display = "none";
+        }
+    });
+}
+
 /* ----------------------------------------------------
    Theatre Initialisation
 ---------------------------------------------------- */
@@ -169,6 +211,7 @@ async function initTheatre() {
     wireCategoryButtons();
     scaleRoomContents();
     updateCategoryButtonColours();
+    loadOperationsMenu();
 }
 
 /* ----------------------------------------------------
