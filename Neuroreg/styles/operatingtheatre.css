@@ -135,6 +135,22 @@
   padding: 3px 0;
 }
 
+.operationItem.performable {
+  color: #00aa00;
+  /* green */
+  font-weight: bold;
+}
+
+.operationItem.incomplete {
+  color: #cc8800;
+  /* amber */
+}
+
+.operationItem.impossible {
+  color: #888888;
+  /* grey */
+}
+
 /* ----------------------------------------------------
    EQUIPMENT OVERLAY
 ---------------------------------------------------- */
