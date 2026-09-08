@@ -159,6 +159,10 @@ async function loadTopRightIcons() {
     });
 }
 
+/* ----------------------------------------------------
+   Operations Menu
+---------------------------------------------------- */
+
 async function loadOperationsMenu() {
     const wrapper = document.getElementById("operationsMenuWrapper");
     const button = document.getElementById("operationsMenuButton");
@@ -183,6 +187,7 @@ async function loadOperationsMenu() {
     data.forEach(op => {
         const div = document.createElement("div");
         div.className = "operationItem";
+        div.dataset.opId = op.id; 
         div.textContent = op.name || op.operation_name || `Operation ${op.id}`;
         dropdown.appendChild(div);
     });
@@ -199,7 +204,62 @@ async function loadOperationsMenu() {
             dropdown.style.display = "none";
         }
     });
+
+    evaluateOperations();
+
 }
+
+
+async function evaluateOperations() {
+    const dropdown = document.getElementById("operationsDropdown");
+    if (!dropdown) return;
+
+    // 1. Get deployed items (not in store/staff room)
+    const deployed = Array.from(document.querySelectorAll(".equipmentItem"))
+        .filter(el => el.style.display !== "none")
+        .map(el => Number(el.dataset.itemId));
+
+    // 2. Load operation → required item mappings
+    const { data: map, error: mapError } = await supabase
+        .from("itemid_operation_type_map")
+        .select("*");
+
+    if (mapError) {
+        console.error("Failed to load operation map:", mapError);
+        return;
+    }
+
+    // Build a map: operationId → [requiredItemIds]
+    const opReq = {};
+    map.forEach(row => {
+        if (!opReq[row.operation_type_id]) {
+            opReq[row.operation_type_id] = [];
+        }
+        opReq[row.operation_type_id].push(row.itemId);
+    });
+
+    // 3. Evaluate each operation item in the dropdown
+    dropdown.querySelectorAll(".operationItem").forEach(div => {
+        const opId = Number(div.dataset.opId);
+        const required = opReq[opId] || [];
+
+        const presentCount = required.filter(id => deployed.includes(id)).length;
+
+        if (required.length === 0) {
+            div.className = "operationItem impossible";
+            return;
+        }
+
+        if (presentCount === required.length) {
+            div.className = "operationItem performable";
+        } else if (presentCount > 0) {
+            div.className = "operationItem incomplete";
+        } else {
+            div.className = "operationItem impossible";
+        }
+    });
+}
+
 
 /* ----------------------------------------------------
    Theatre Initialisation
@@ -366,6 +426,9 @@ async function saveItemState(el) {
         }, {
             onConflict: "userid,itemId"
         });
+
+        evaluateOperations();
+
 }
 
 /* ----------------------------------------------------
@@ -420,6 +483,9 @@ function revealNextItem(categoryKey) {
 
     revealIndex[categoryKey]++;
     updateCategoryButtonColours();
+
+    evaluateOperations();
+
 }
 
 /* ----------------------------------------------------
@@ -748,6 +814,9 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         makeDraggable(originalEl);
         saveItemState(originalEl);
     });
+
+evaluateOperations();
+
 }
 
 /* ----------------------------------------------------
@@ -769,6 +838,7 @@ function moveItemToRoom(el, room) {
     scaleRoomContents();
     updateCategoryButtonColours();
     saveItemState(el);
+    evaluateOperations();
 
 }
 
@@ -785,6 +855,7 @@ function removeItemFromRooms(el) {
 
     scaleRoomContents();
     updateCategoryButtonColours();
+    evaluateOperations();
 }
 
 function updateRoomEmoji(room) {
