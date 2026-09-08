@@ -217,7 +217,7 @@ async function evaluateOperations() {
     // 1. Get deployed items (not in store/staff room)
     const deployed = Array.from(document.querySelectorAll(".equipmentItem"))
         .filter(el => el.style.display !== "none")
-        .map(el => Number(el.dataset.id));
+        .map(el => Number(el.dataset.itemid));
 
     // 2. Load operation → required item mappings
     const { data: map, error: mapError } = await supabase
@@ -231,15 +231,11 @@ async function evaluateOperations() {
 
     // Build a map: operationId → [requiredItemIds]
     const opReq = {};
-
     map.forEach(row => {
-    const opId = row.operation_type_id;   // correct
-    const itemId = row.itemid;            // correct
-
-    if (!opReq[opId]) {
-        opReq[opId] = [];
-    }
-    opReq[opId].push(itemId);
+        if (!opReq[row.operation_type_id]) {
+            opReq[row.operation_type_id] = [];
+        }
+        opReq[row.operation_type_id].push(row.itemId);
     });
 
     // 3. Evaluate each operation item in the dropdown
@@ -334,7 +330,7 @@ async function loadDraggableItemsFromSupabase() {
 
         img.src = row.url;
         img.dataset.category = category;
-       img.dataset.id = String(row.id);
+        img.dataset.itemId = String(row.id);
         img.dataset.scale = "1";
         img.dataset.flipped = "false";
         img.dataset.deployed = "false"; // ✅ not yet deployed anywhere
