@@ -258,6 +258,10 @@ async function evaluateOperations() {
             div.className = "operationItem impossible";
         }
     });
+
+    console.log("Deployed:", deployed);
+console.log("Operation requirements:", opReq);
+
 }
 
 
