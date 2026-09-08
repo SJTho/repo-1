@@ -164,6 +164,7 @@ async function loadTopRightIcons() {
 ---------------------------------------------------- */
 async function initTheatre() {
     await loadDraggableItemsFromSupabase();
+    await restoreItemStates();
     buildCategoryMap();
     wireCategoryButtons();
     scaleRoomContents();
@@ -235,6 +236,91 @@ async function loadDraggableItemsFromSupabase() {
     });
 }
 
+
+/* ----------------------------------------------------
+   Restore the saved location of dragable items
+---------------------------------------------------- */
+
+async function restoreItemStates() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+        .from("per_user_theatre_state")
+        .select("*")
+        .eq("userid", user.id);
+
+    if (error || !data) return;
+
+    data.forEach(state => {
+        const el = document.querySelector(
+            `.equipmentItem[data-item-id="${state.itemId}"]`
+        );
+        if (!el) return;
+
+        // Restore scale + flip
+        el.dataset.scale = String(state.scale);
+        el.dataset.flipped = state.flip ? "true" : "false";
+        applyTransform(el);
+
+        if (state.store) {
+            // Item belongs in a room → create thumbnail
+            const room = (el.dataset.category === "staff")
+                ? document.getElementById("staffroom")
+                : document.getElementById("storeroom");
+
+            if (room) moveItemToRoom(el, room);
+            return;
+        }
+
+        // Item belongs in theatre
+        el.style.display = "block";
+        el.style.left = `${state.left}px`;
+        el.style.top = `${state.top}px`;
+
+        el.dataset.deployed = "true";
+
+        makeDraggable(el);
+    });
+
+    scaleRoomContents();
+    updateCategoryButtonColours();
+}
+
+/* ----------------------------------------------------
+   Save the location of dragable items
+---------------------------------------------------- */
+
+async function saveItemState(el) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const itemId = Number(el.dataset.itemId);
+
+    const left = parseInt(el.style.left || "0");
+    const top = parseInt(el.style.top || "0");
+
+    const scale = parseFloat(el.dataset.scale || "1");
+    const flip = (el.dataset.flipped === "true");
+
+    // store = true if item is hidden (in a room)
+    const store = (el.style.display === "none");
+
+    await supabase
+        .from("per_user_theatre_state")
+        .upsert({
+            userid: user.id,
+            itemId,
+            left,
+            top,
+            scale,
+            flip,
+            store,
+            created_at: new Date().toISOString()
+        }, {
+            onConflict: "userid,itemId"
+        });
+}
 /* ----------------------------------------------------
    Category System
 ---------------------------------------------------- */
@@ -384,6 +470,7 @@ function makeDraggable(el) {
         if (dragStarted) {
             attemptRoomDrop(el);
             clearRoomHighlights();
+            saveItemState(el);
         }
 
         dragStarted = false;
@@ -393,6 +480,7 @@ function makeDraggable(el) {
     el.addEventListener("dblclick", () => {
         el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
         applyTransform(el);
+        saveItemState(el);
     });
 
     el.addEventListener("wheel", (e) => {
@@ -412,6 +500,7 @@ function makeDraggable(el) {
         el.dataset.scale = String(scale);
 
         applyTransform(el);
+        saveItemState(el);
     });
 }
 
@@ -610,6 +699,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.style.top = `${dropY - parentRect.top - (originalEl.offsetHeight / 2)}px`;
 
         makeDraggable(originalEl);
+        saveItemState(originalEl);
     });
 }
 
@@ -631,6 +721,8 @@ function moveItemToRoom(el, room) {
     updateRoomEmoji(room);
     scaleRoomContents();
     updateCategoryButtonColours();
+    saveItemState(el);
+
 }
 
 function removeItemFromRooms(el) {
