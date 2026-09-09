@@ -1119,6 +1119,9 @@ function removeItemFromRooms(el) {
         updateRoomEmoji(room);
     });
 
+    // ⭐ PATCH: item is now back on the theatre background
+    el.dataset.location = "theatre";
+
     scaleRoomContents();
     updateCategoryButtonColours();
     evaluateOperations();
