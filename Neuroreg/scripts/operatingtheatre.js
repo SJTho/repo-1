@@ -370,23 +370,16 @@ async function loadDraggableItemsFromSupabase() {
 /* ----------------------------------------------------
    Restore the saved location of dragable items
 ---------------------------------------------------- */
-if (state.store) {
-    const room = (el.dataset.category === "staff")
-        ? document.getElementById("staffroom")
-        : document.getElementById("storeroom");
+async function restoreItemStates() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-    if (room) {
-        // ⭐ PATCH: restored into a room
-        el.dataset.location = (room.id === "staffroom") ? "staffroom" : "storeroom";
-        el.dataset.deployed = "true";
-        moveItemToRoom(el, room);
-    }
-    return;
-}
+    const { data, error } = await supabase
+        .from("per_user_theatre_state")
+        .select("*")
+        .eq("userid", user.id);
 
-// ⭐ PATCH: restored into theatre
-el.dataset.location = "theatre";
-el.dataset.deployed = "true";
+    if (error || !data) return;
 
     data.forEach(state => {
         const el = document.querySelector(
@@ -399,23 +392,28 @@ el.dataset.deployed = "true";
         el.dataset.flipped = state.flip ? "true" : "false";
         applyTransform(el);
 
+        // ⭐ PATCH: item stored in a room
         if (state.store) {
-            // Item belongs in a room → create thumbnail
             const room = (el.dataset.category === "staff")
                 ? document.getElementById("staffroom")
                 : document.getElementById("storeroom");
 
-            if (room) moveItemToRoom(el, room);
-            return;
+            if (room) {
+                el.dataset.location = (room.id === "staffroom") ? "staffroom" : "storeroom";
+                el.dataset.deployed = "true";
+                moveItemToRoom(el, room);
+            }
+            return; // ← THIS IS NOW INSIDE THE FUNCTION
         }
 
-        // Item belongs in theatre
+        // ⭐ PATCH: item restored into theatre
+        el.dataset.location = "theatre";
+        el.dataset.deployed = "true";
+
         el.style.display = "block";
         el.style.left = `${state.left}px`;
         el.style.top = `${state.top}px`;
-el.style.zIndex = String(state.z ?? 1);
-
-        el.dataset.deployed = "true";
+        el.style.zIndex = String(state.z ?? 1);
 
         makeDraggable(el);
     });
