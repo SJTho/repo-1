@@ -556,11 +556,11 @@ function updateCategoryButtonColours() {
         }
     });
 }
-
 /* ----------------------------------------------------
    Drag, Resize, Flip System
 ---------------------------------------------------- */
 function makeDraggable(el) {
+
     let offsetX = 0;
     let offsetY = 0;
     let isDragging = false;
@@ -568,6 +568,11 @@ function makeDraggable(el) {
     let startX = 0;
     let startY = 0;
 
+    let pinchStartDist = 0;
+
+    /* ----------------------------------------------------
+       DESKTOP DRAG
+    ---------------------------------------------------- */
     el.addEventListener("mousedown", (e) => {
         if (el.style.display === "none") {
             el.style.display = "block";
@@ -590,18 +595,15 @@ function makeDraggable(el) {
         if (!isDragging) {
             const dx = Math.abs(e.clientX - startX);
             const dy = Math.abs(e.clientY - startY);
-
             if (dx < 3 && dy < 3) return;
+
             isDragging = true;
             el.style.zIndex = getNextZIndex();
         }
 
         const parentRect = el.parentElement.getBoundingClientRect();
-        const newLeft = e.clientX - offsetX - parentRect.left;
-        const newTop = e.clientY - offsetY - parentRect.top;
-
-        el.style.left = newLeft + "px";
-        el.style.top = newTop + "px";
+        el.style.left = (e.clientX - offsetX - parentRect.left) + "px";
+        el.style.top = (e.clientY - offsetY - parentRect.top) + "px";
 
         highlightRoomOnHover(el);
     });
@@ -618,65 +620,8 @@ function makeDraggable(el) {
     });
 
     /* ----------------------------------------------------
-   Mobile Touch Dragging
----------------------------------------------------- */
-el.addEventListener("touchstart", (e) => {
-    const touch = e.touches[0];
-
-    startX = touch.clientX;
-    startY = touch.clientY;
-
-    const rect = el.getBoundingClientRect();
-    offsetX = touch.clientX - rect.left;
-    offsetY = touch.clientY - rect.top;
-
-    dragStarted = true;
-}, { passive: false });
-
-el.addEventListener("touchmove", (e) => {
-    e.preventDefault();
-    if (!dragStarted) return;
-
-    const touch = e.touches[0];
-
-    if (!isDragging) {
-        const dx = Math.abs(touch.clientX - startX);
-        const dy = Math.abs(touch.clientY - startY);
-        if (dx < 3 && dy < 3) return;
-
-        isDragging = true;
-        el.style.zIndex = getNextZIndex();
-    }
-
-    const parentRect = el.parentElement.getBoundingClientRect();
-    const newLeft = touch.clientX - offsetX - parentRect.left;
-    const newTop = touch.clientY - offsetY - parentRect.top;
-
-    el.style.left = newLeft + "px";
-    el.style.top = newTop + "px";
-
-    highlightRoomOnHover(el);
-}, { passive: false });
-
-el.addEventListener("touchend", () => {
-    if (dragStarted) {
-        attemptRoomDrop(el);
-        clearRoomHighlights();
-        saveItemState(el);
-    }
-
-    dragStarted = false;
-    isDragging = false;
-}, 
-
-{ passive: false });
-
-    el.addEventListener("dblclick", () => {
-        el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
-        applyTransform(el);
-        saveItemState(el);
-    });
-
+       DESKTOP WHEEL ZOOM
+    ---------------------------------------------------- */
     el.addEventListener("wheel", (e) => {
         if (isDragging) return;
         e.preventDefault();
@@ -695,43 +640,100 @@ el.addEventListener("touchend", () => {
 
         applyTransform(el);
         saveItemState(el);
+    }, { passive: false });
 
-/* ----------------------------------------------------
-   Mobile Pinch-to-Zoom
----------------------------------------------------- */
-let pinchStartDist = 0;
+    /* ----------------------------------------------------
+       MOBILE TOUCH DRAG
+    ---------------------------------------------------- */
+    el.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 2) return; // pinch handler
 
-el.addEventListener("touchstart", (e) => {
-    if (e.touches.length === 2) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        pinchStartDist = Math.hypot(dx, dy);
-    }
-}, { passive: false });
+        const touch = e.touches[0];
 
-el.addEventListener("touchmove", (e) => {
-    if (e.touches.length === 2) {
+        startX = touch.clientX;
+        startY = touch.clientY;
+
+        const rect = el.getBoundingClientRect();
+        offsetX = touch.clientX - rect.left;
+        offsetY = touch.clientY - rect.top;
+
+        dragStarted = true;
+    }, { passive: false });
+
+    el.addEventListener("touchmove", (e) => {
+        if (e.touches.length === 2) return; // pinch handler
+
+        if (!dragStarted) return;
         e.preventDefault();
 
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const newDist = Math.hypot(dx, dy);
+        const touch = e.touches[0];
 
-        let scale = parseFloat(el.dataset.scale || "1");
-        const delta = newDist / pinchStartDist;
+        if (!isDragging) {
+            const dx = Math.abs(touch.clientX - startX);
+            const dy = Math.abs(touch.clientY - startY);
+            if (dx < 3 && dy < 3) return;
 
-        scale = Math.max(0.3, Math.min(3, scale * delta));
-        el.dataset.scale = String(scale);
+            isDragging = true;
+            el.style.zIndex = getNextZIndex();
+        }
 
+        const parentRect = el.parentElement.getBoundingClientRect();
+        el.style.left = (touch.clientX - offsetX - parentRect.left) + "px";
+        el.style.top = (touch.clientY - offsetY - parentRect.top) + "px";
+
+        highlightRoomOnHover(el);
+    }, { passive: false });
+
+    el.addEventListener("touchend", () => {
+        if (dragStarted) {
+            attemptRoomDrop(el);
+            clearRoomHighlights();
+            saveItemState(el);
+        }
+
+        dragStarted = false;
+        isDragging = false;
+    }, { passive: false });
+
+    /* ----------------------------------------------------
+       MOBILE PINCH-TO-ZOOM
+    ---------------------------------------------------- */
+    el.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            pinchStartDist = Math.hypot(dx, dy);
+        }
+    }, { passive: false });
+
+    el.addEventListener("touchmove", (e) => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const newDist = Math.hypot(dx, dy);
+
+            let scale = parseFloat(el.dataset.scale || "1");
+            const delta = newDist / pinchStartDist;
+
+            scale = Math.max(0.3, Math.min(3, scale * delta));
+            el.dataset.scale = String(scale);
+
+            applyTransform(el);
+            saveItemState(el);
+
+            pinchStartDist = newDist;
+        }
+    }, { passive: false });
+
+    /* ----------------------------------------------------
+       DOUBLE CLICK FLIP
+    ---------------------------------------------------- */
+    el.addEventListener("dblclick", () => {
+        el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
         applyTransform(el);
         saveItemState(el);
-
-        pinchStartDist = newDist;
-    }
-}, 
-
-{ passive: false });
-
     });
 }
 
