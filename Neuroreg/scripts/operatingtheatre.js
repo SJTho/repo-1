@@ -256,10 +256,13 @@ async function evaluateOperations() {
     // Build a map: operationId → [requiredItemIds]
     const opReq = {};
     map.forEach(row => {
-        if (!opReq[row.operation_type_id]) {
-            opReq[row.operation_type_id] = [];
-        }
-        opReq[row.operation_type_id].push(row.itemId);
+    const opId = row.operationTypeId;   // ⭐ match your actual column name
+const itemId = row.itemId;
+
+if (!opReq[opId]) {
+    opReq[opId] = [];
+}
+opReq[opId].push(itemId);
     });
 
     // 3. Evaluate each operation item in the dropdown
