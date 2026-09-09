@@ -900,6 +900,34 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         ghost.style.top = `${e.clientY - offsetY}px`;
     });
 
+    thumb.addEventListener("touchstart", (e) => {
+    if (e.touches.length !== 1) return;
+
+    dragging = true;
+
+    thumb.style.visibility = "hidden";
+
+    ghost = document.createElement("img");
+    ghost.src = thumb.src;
+    ghost.classList.add("storeThumb");
+    ghost.style.position = "fixed";
+    ghost.style.pointerEvents = "none";
+    ghost.style.zIndex = "99999";
+    ghost.style.width = "40px";
+
+    document.body.appendChild(ghost);
+
+    const rect = thumb.getBoundingClientRect();
+    const touch = e.touches[0];
+
+    offsetX = touch.clientX - rect.left;
+    offsetY = touch.clientY - rect.top;
+
+    ghost.style.left = `${touch.clientX - offsetX}px`;
+    ghost.style.top = `${touch.clientY - offsetY}px`;
+}, { passive: false });
+
+
     document.addEventListener("mousemove", (e) => {
         if (!dragging || !ghost) return;
 
@@ -921,6 +949,32 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
             ghost.classList.remove("noEntryGhost");
         }
     });
+
+document.addEventListener("touchmove", (e) => {
+    if (!dragging || !ghost) return;
+    const touch = e.touches[0];
+
+    const x = touch.clientX - offsetX;
+    const y = touch.clientY - offsetY;
+
+    ghost.style.left = `${x}px`;
+    ghost.style.top = `${y}px`;
+
+    const insideTheatre =
+        touch.clientX >= theatreRect.left &&
+        touch.clientX <= theatreRect.right &&
+        touch.clientY >= theatreRect.top &&
+        touch.clientY <= theatreRect.bottom;
+
+    if (!insideTheatre) {
+        ghost.classList.add("noEntryGhost");
+    } else {
+        ghost.classList.remove("noEntryGhost");
+    }
+
+    e.preventDefault();
+}, { passive: false });
+
 
     document.addEventListener("mouseup", (e) => {
         if (!dragging) return;
@@ -968,6 +1022,54 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         makeDraggable(originalEl);
         saveItemState(originalEl);
     });
+
+    document.addEventListener("touchend", (e) => {
+    if (!dragging) return;
+    dragging = false;
+
+    if (ghost) ghost.remove();
+
+    const touch = e.changedTouches[0];
+    const dropX = touch.clientX;
+    const dropY = touch.clientY;
+
+    const insideTheatre =
+        dropX >= theatreRect.left &&
+        dropX <= theatreRect.right &&
+        dropY >= theatreRect.top &&
+        dropY <= theatreRect.bottom;
+
+    if (!insideTheatre) {
+        thumb.style.visibility = "visible";
+        return;
+    }
+
+    // Same logic as your mouseup handler:
+    thumb.remove();
+    updateRoomEmoji(room);
+    scaleRoomContents();
+    updateCategoryButtonColours();
+
+    originalEl.style.display = "block";
+
+    const equipmentContainer = document.getElementById("equipmentContainer");
+    const parentRect = equipmentContainer.getBoundingClientRect();
+
+    equipmentContainer.appendChild(originalEl);
+
+    originalEl.dataset.scale = "1";
+    originalEl.dataset.flipped = "false";
+    applyTransform(originalEl);
+
+    originalEl.style.left =
+        `${dropX - parentRect.left - (originalEl.offsetWidth / 2)}px`;
+    originalEl.style.top =
+        `${dropY - parentRect.top - (originalEl.offsetHeight / 2)}px`;
+
+    makeDraggable(originalEl);
+    saveItemState(originalEl);
+    evaluateOperations();
+}, { passive: false });
 
 evaluateOperations();
 
