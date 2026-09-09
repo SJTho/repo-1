@@ -241,7 +241,7 @@ async function evaluateOperations() {
     // 1. Get deployed items (not in store/staff room)
     const deployed = Array.from(document.querySelectorAll(".equipmentItem"))
         .filter(el => el.style.display !== "none")
-        .map(el => Number(el.dataset.itemid));
+        .map(el => Number(el.dataset.itemId));
 
     // 2. Load operation → required item mappings
     const { data: map, error: mapError } = await supabase
