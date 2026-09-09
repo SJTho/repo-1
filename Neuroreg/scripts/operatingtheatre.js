@@ -239,8 +239,8 @@ async function evaluateOperations() {
     if (!dropdown) return;
 
     // 1. Get deployed items (not in store/staff room)
-    const deployed = Array.from(document.querySelectorAll(".equipmentItem"))
-    .filter(el => el.dataset.deployed === "true")
+   const deployed = Array.from(document.querySelectorAll(".equipmentItem"))
+    .filter(el => el.dataset.location === "theatre")
     .map(el => Number(el.dataset.itemId));
 
     // 2. Load operation → required item mappings
@@ -370,17 +370,23 @@ async function loadDraggableItemsFromSupabase() {
 /* ----------------------------------------------------
    Restore the saved location of dragable items
 ---------------------------------------------------- */
+if (state.store) {
+    const room = (el.dataset.category === "staff")
+        ? document.getElementById("staffroom")
+        : document.getElementById("storeroom");
 
-async function restoreItemStates() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (room) {
+        // ⭐ PATCH: restored into a room
+        el.dataset.location = (room.id === "staffroom") ? "staffroom" : "storeroom";
+        el.dataset.deployed = "true";
+        moveItemToRoom(el, room);
+    }
+    return;
+}
 
-    const { data, error } = await supabase
-        .from("per_user_theatre_state")
-        .select("*")
-        .eq("userid", user.id);
-
-    if (error || !data) return;
+// ⭐ PATCH: restored into theatre
+el.dataset.location = "theatre";
+el.dataset.deployed = "true";
 
     data.forEach(state => {
         const el = document.querySelector(
@@ -490,11 +496,9 @@ function revealNextItem(categoryKey) {
 
     const items = categoryMap[categoryKey];
     const index = revealIndex[categoryKey];
-
     if (index >= items.length) return;
 
     const item = items[index];
-
     const equipmentContainer = document.getElementById("equipmentContainer");
     if (!equipmentContainer) return;
 
@@ -503,16 +507,17 @@ function revealNextItem(categoryKey) {
     item.style.display = "block";
     item.dataset.scale = item.dataset.scale || "1";
     item.dataset.flipped = item.dataset.flipped || "false";
-    item.dataset.deployed = "true"; // ✅ now deployed (background or room)
+
+    // ⭐ PATCH: item is now on the background
+    item.dataset.deployed = "true";
+    item.dataset.location = "theatre";
 
     centerItemOnBackground(item);
     makeDraggable(item);
 
     revealIndex[categoryKey]++;
     updateCategoryButtonColours();
-
     evaluateOperations();
-
 }
 
 /* ----------------------------------------------------
@@ -846,21 +851,17 @@ function attemptRoomDrop(el) {
         elRect.bottom > staffRect.top &&
         elRect.top < staffRect.bottom;
 
-    if (droppedInStore) {
-        if (isStaff) {
-            alert("Staff must be placed in the Staff Room.");
-            return;
-        }
-        moveItemToRoom(el, storeRoom);
-    }
+  if (droppedInStore) {
+    el.dataset.location = "storeroom";   // ⭐ PATCH
+    el.dataset.deployed = "true";
+    moveItemToRoom(el, storeRoom);
+}
 
-    if (droppedInStaff) {
-        if (!isStaff) {
-            alert("Only staff can be placed in the Staff Room.");
-            return;
-        }
-        moveItemToRoom(el, staffRoom);
-    }
+if (droppedInStaff) {
+    el.dataset.location = "staffroom";   // ⭐ PATCH
+    el.dataset.deployed = "true";
+    moveItemToRoom(el, staffRoom);
+}
 }
 
 /* ----------------------------------------------------
@@ -1057,6 +1058,15 @@ document.addEventListener("touchmove", (e) => {
 
     equipmentContainer.appendChild(originalEl);
 
+    // ⭐ PATCH
+originalEl.dataset.location = "theatre";
+originalEl.dataset.deployed = "true";
+
+originalEl.style.transform = "";
+originalEl.dataset.scale = "1";
+originalEl.dataset.flipped = "false";
+applyTransform(originalEl);
+
     originalEl.dataset.scale = "1";
     originalEl.dataset.flipped = "false";
     applyTransform(originalEl);
@@ -1087,7 +1097,10 @@ function moveItemToRoom(el, room) {
 
     el.style.display = "none";
 
-    // Item remains deployed; only its location changes
+    // ⭐ PATCH: item is now in a room
+    el.dataset.location = (room.id === "staffroom") ? "staffroom" : "storeroom";
+    el.dataset.deployed = "true";
+
     makeThumbnailDraggable(thumb, el, room);
 
     updateRoomEmoji(room);
@@ -1095,7 +1108,6 @@ function moveItemToRoom(el, room) {
     updateCategoryButtonColours();
     saveItemState(el);
     evaluateOperations();
-
 }
 
 function removeItemFromRooms(el) {
