@@ -33,6 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    enforceLandscapeMessage();
+
     const hamburger = document.getElementById("hamburgerMenu");
     const dropdown = document.getElementById("hamburgerMenuDropdown");
 
@@ -65,6 +67,28 @@ document.addEventListener("DOMContentLoaded", () => {
         initTheatre();
     })();
 });
+
+/* ----------------------------------------------------
+   ROTATE PHONE MESSAGE
+---------------------------------------------------- */
+
+function enforceLandscapeMessage() {
+    const overlay = document.getElementById("orientationOverlay");
+
+    function checkOrientation() {
+        const isLandscape = window.innerWidth > window.innerHeight;
+
+        if (isLandscape) {
+            overlay.style.display = "none";
+        } else {
+            overlay.style.display = "flex";
+        }
+    }
+
+    checkOrientation();
+    window.addEventListener("resize", checkOrientation);
+    window.addEventListener("orientationchange", checkOrientation);
+}
 
 /* ----------------------------------------------------
    Menu Loading
