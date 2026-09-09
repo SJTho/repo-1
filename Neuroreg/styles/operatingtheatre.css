@@ -164,8 +164,8 @@
 }
 
 .operationItem.incomplete {
-  color: #cc8800;
-  /* amber */
+  color: #e2e0e054;
+  /* grey */
 }
 
 .operationItem.impossible {
