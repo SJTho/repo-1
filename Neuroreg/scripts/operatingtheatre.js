@@ -240,8 +240,8 @@ async function evaluateOperations() {
 
     // 1. Get deployed items (not in store/staff room)
     const deployed = Array.from(document.querySelectorAll(".equipmentItem"))
-        .filter(el => el.style.display !== "none")
-        .map(el => Number(el.dataset.itemId));
+    .filter(el => el.dataset.deployed === "true")
+    .map(el => Number(el.dataset.itemId));
 
     // 2. Load operation → required item mappings
     const { data: map, error: mapError } = await supabase
@@ -272,18 +272,18 @@ opReq[opId].push(itemId);
 
         const presentCount = required.filter(id => deployed.includes(id)).length;
 
+       div.classList.remove("performable", "incomplete", "impossible");
+
         if (required.length === 0) {
-            div.className = "operationItem impossible";
-            return;
+            div.classList.add("impossible");
+        } else if (presentCount === required.length) {
+            div.classList.add("performable");
+        } else if (presentCount > 0) {
+            div.classList.add("incomplete");
+        } else {
+            div.classList.add("impossible");
         }
 
-        if (presentCount === required.length) {
-            div.className = "operationItem performable";
-        } else if (presentCount > 0) {
-            div.className = "operationItem incomplete";
-        } else {
-            div.className = "operationItem impossible";
-        }
     });
 
 }
