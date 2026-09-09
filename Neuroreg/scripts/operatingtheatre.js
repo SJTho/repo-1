@@ -569,6 +569,10 @@ function makeDraggable(el) {
     let startY = 0;
 
     let pinchStartDist = 0;
+    let pinchActive = false;
+    let pinchSuppressUntil = 0;
+
+    let lastTapTime = 0;
 
     /* ----------------------------------------------------
        DESKTOP DRAG
@@ -684,17 +688,6 @@ function makeDraggable(el) {
         highlightRoomOnHover(el);
     }, { passive: false });
 
-    el.addEventListener("touchend", () => {
-        if (dragStarted) {
-            attemptRoomDrop(el);
-            clearRoomHighlights();
-            saveItemState(el);
-        }
-
-        dragStarted = false;
-        isDragging = false;
-    }, { passive: false });
-
     /* ----------------------------------------------------
        MOBILE PINCH-TO-ZOOM
     ---------------------------------------------------- */
@@ -703,6 +696,7 @@ function makeDraggable(el) {
             const dx = e.touches[0].clientX - e.touches[1].clientX;
             const dy = e.touches[0].clientY - e.touches[1].clientY;
             pinchStartDist = Math.hypot(dx, dy);
+            pinchActive = true;
         }
     }, { passive: false });
 
@@ -724,30 +718,50 @@ function makeDraggable(el) {
             saveItemState(el);
 
             pinchStartDist = newDist;
+            pinchActive = true;
         }
     }, { passive: false });
 
     /* ----------------------------------------------------
-      MOBILE DOUBLE‑TAP FLIP
+       MOBILE TOUCH END (drag end + pinch suppression + double‑tap flip)
     ---------------------------------------------------- */
-    let lastTapTime = 0;
-
     el.addEventListener("touchend", (e) => {
-    const now = Date.now();
-    const tapGap = now - lastTapTime;
 
-    // Must be a quick second tap, and not part of a drag
-    if (tapGap < 300 && !isDragging && e.touches.length === 0) {
-        el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
-        applyTransform(el);
-        saveItemState(el);
-    }
+        const now = Date.now();
 
-    lastTapTime = now;
-}, { passive: false });
+        /* ⭐ If pinch just ended, suppress double‑tap */
+        if (pinchActive && e.touches.length < 2) {
+            pinchActive = false;
+            pinchSuppressUntil = now + 300;
+        }
+
+        /* ⭐ Double‑tap flip (only when NOT dragging or pinching) */
+        if (now >= pinchSuppressUntil) {
+            const tapGap = now - lastTapTime;
+
+            if (tapGap < 300 && !isDragging && e.touches.length === 0) {
+                el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
+                applyTransform(el);
+                saveItemState(el);
+            }
+        }
+
+        lastTapTime = now;
+
+        /* ⭐ Drag end */
+        if (dragStarted) {
+            attemptRoomDrop(el);
+            clearRoomHighlights();
+            saveItemState(el);
+        }
+
+        dragStarted = false;
+        isDragging = false;
+
+    }, { passive: false });
 
     /* ----------------------------------------------------
-       DOUBLE CLICK FLIP
+       DESKTOP DOUBLE CLICK FLIP
     ---------------------------------------------------- */
     el.addEventListener("dblclick", () => {
         el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
@@ -755,6 +769,7 @@ function makeDraggable(el) {
         saveItemState(el);
     });
 }
+
 
 function applyTransform(el) {
     const scale = parseFloat(el.dataset.scale || "1");
