@@ -1,4 +1,26 @@
 /* ----------------------------------------------------
+   ROTATE DEVICE POPUP
+---------------------------------------------------- */
+
+#orientationOverlay {
+  position: fixed;
+  inset: 0;
+  background: #000000d0;
+  color: white;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  text-align: center;
+  padding: 20px;
+}
+
+#orientationOverlay .orientationMessage {
+  font-size: 1.6rem;
+  line-height: 1.4;
+}
+
+/* ----------------------------------------------------
    MAIN LAYOUT
 ---------------------------------------------------- */
 
