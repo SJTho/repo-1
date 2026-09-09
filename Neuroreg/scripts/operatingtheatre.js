@@ -286,9 +286,6 @@ opReq[opId].push(itemId);
         }
     });
 
-    console.log("Deployed:", deployed);
-console.log("Operation requirements:", opReq);
-
 }
 
 
