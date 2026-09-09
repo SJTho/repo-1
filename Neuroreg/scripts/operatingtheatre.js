@@ -826,62 +826,46 @@ function attemptRoomDrop(el) {
 
     const storeRoom = document.getElementById("storeroom");
     const staffRoom = document.getElementById("staffroom");
-
     if (!storeRoom || !staffRoom) return;
 
     const storeRect = storeRoom.getBoundingClientRect();
     const staffRect = staffRoom.getBoundingClientRect();
 
-    const isStaff = el.dataset.category === "staff" || el.classList.contains("staffItem");
+    const isStaff =
+        el.dataset.category === "staff" ||
+        el.classList.contains("staffItem");
 
-   const centerX = elRect.left + elRect.width / 2;
-const centerY = elRect.top + elRect.height / 2;
+    const centerX = elRect.left + elRect.width / 2;
+    const centerY = elRect.top + elRect.height / 2;
 
-const droppedInStore =
-    centerX >= storeRect.left &&
-    centerX <= storeRect.right &&
-    centerY >= storeRect.top &&
-    centerY <= storeRect.bottom;
+    let droppedInStore = false;
+    let droppedInStaff = false;
 
-const droppedInStaff =
-    centerX >= staffRect.left &&
-    centerX <= staffRect.right &&
-    centerY >= staffRect.top &&
-    centerY <= staffRect.bottom;
-
-if (droppedInStore && droppedInStaff) {
-    // Pick whichever room the centre is *more* inside
-    const storeOverlap =
-        Math.min(centerX - storeRect.left, storeRect.right - centerX) +
-        Math.min(centerY - storeRect.top, storeRect.bottom - centerY);
-
-    const staffOverlap =
-        Math.min(centerX - staffRect.left, staffRect.right - centerX) +
-        Math.min(centerY - staffRect.top, staffRect.bottom - centerY);
-
-    if (storeOverlap > staffOverlap) {
-        droppedInStaff = false;
+    if (isStaff) {
+        // ✅ Staff items: only consider Staff Room
+        droppedInStaff =
+            centerX >= staffRect.left &&
+            centerX <= staffRect.right &&
+            centerY >= staffRect.top &&
+            centerY <= staffRect.bottom;
     } else {
-        droppedInStore = false;
+        // ✅ Non‑staff items: only consider Store Room
+        droppedInStore =
+            centerX >= storeRect.left &&
+            centerX <= storeRect.right &&
+            centerY >= storeRect.top &&
+            centerY <= storeRect.bottom;
     }
-}
 
     if (droppedInStore) {
-        if (isStaff) {
-            alert("Staff must be placed in the Staff Room.");
-            return;
-        }
         moveItemToRoom(el, storeRoom);
+        return;
     }
 
     if (droppedInStaff) {
-        if (!isStaff) {
-            alert("Only staff can be placed in the Staff Room.");
-            return;
-        }
         moveItemToRoom(el, staffRoom);
+        return;
     }
-}
 
 /* ----------------------------------------------------
    Thumbnail Drag-Out System (ghost + no-entry)
