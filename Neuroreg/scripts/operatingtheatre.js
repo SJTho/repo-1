@@ -634,6 +634,7 @@ el.addEventListener("touchstart", (e) => {
 }, { passive: false });
 
 el.addEventListener("touchmove", (e) => {
+    e.preventDefault();
     if (!dragStarted) return;
 
     const touch = e.touches[0];
@@ -695,7 +696,7 @@ el.addEventListener("touchend", () => {
         applyTransform(el);
         saveItemState(el);
 
-        /* ----------------------------------------------------
+/* ----------------------------------------------------
    Mobile Pinch-to-Zoom
 ---------------------------------------------------- */
 let pinchStartDist = 0;
