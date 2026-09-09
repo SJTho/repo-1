@@ -577,27 +577,24 @@ function makeDraggable(el) {
 
     let lastTapTime = 0;
 
- /* ----------------------------------------------------
-   DESKTOP DRAG
----------------------------------------------------- */
-el.addEventListener("mousedown", (e) => {
+    /* ----------------------------------------------------
+       DESKTOP DRAG
+    ---------------------------------------------------- */
+    el.addEventListener("mousedown", (e) => {
+        if (el.style.display === "none") {
+            el.style.display = "block";
+            removeItemFromRooms(el);
+        }
 
-    // ⭐ PATCH: only remove from rooms if the item is actually in a room
-    if (el.dataset.location === "storeroom" || el.dataset.location === "staffroom") {
-        removeItemFromRooms(el);
-    }
+        startX = e.clientX;
+        startY = e.clientY;
 
-    el.style.display = "block";
+        const rect = el.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
 
-    startX = e.clientX;
-    startY = e.clientY;
-
-    const rect = el.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-
-    dragStarted = true;
-});
+        dragStarted = true;
+    });
 
     document.addEventListener("mousemove", (e) => {
         if (!dragStarted) return;
@@ -618,7 +615,7 @@ el.addEventListener("mousedown", (e) => {
         highlightRoomOnHover(el);
     });
 
-    Listener("mouseup", () => {
+    document.addEventListener("mouseup", () => {
         if (dragStarted) {
             attemptRoomDrop(el);
             clearRoomHighlights();
@@ -978,64 +975,52 @@ document.addEventListener("touchmove", (e) => {
 }, { passive: false });
 
 
-document.addEventListener("mouseup", (e) => {
-    if (!dragging) return;
-    dragging = false;
+    document.addEventListener("mouseup", (e) => {
+        if (!dragging) return;
+        dragging = false;
 
-    if (ghost) ghost.remove();
+        if (ghost) ghost.remove();
 
-    const dropX = e.clientX;
-    const dropY = e.clientY;
+        const dropX = e.clientX;
+        const dropY = e.clientY;
 
-    const insideTheatre =
-        dropX >= theatreRect.left &&
-        dropX <= theatreRect.right &&
-        dropY >= theatreRect.top &&
-        dropY <= theatreRect.bottom;
+        const insideTheatre =
+            dropX >= theatreRect.left &&
+            dropX <= theatreRect.right &&
+            dropY >= theatreRect.top &&
+            dropY <= theatreRect.bottom;
 
-    if (!insideTheatre) {
-        thumb.style.visibility = "visible";
-        return;
-    }
+        if (!insideTheatre) {
+            thumb.style.visibility = "visible";
+            return;
+        }
 
-    // Remove thumbnail from room
-    thumb.remove();
-    updateRoomEmoji(room);
-    scaleRoomContents();
-    updateCategoryButtonColours();
+        thumb.remove();
+        updateRoomEmoji(room);
+        scaleRoomContents();
+        updateCategoryButtonColours();
 
-    // Restore original item into theatre
-    originalEl.style.display = "block";
-    const equipmentContainer = document.getElementById("equipmentContainer");
-    if (!equipmentContainer) return;
+        originalEl.style.display = "block";
 
-    equipmentContainer.appendChild(originalEl);
+        const equipmentContainer = document.getElementById("equipmentContainer");
+        if (!equipmentContainer) return;
 
-    // ⭐ PATCH: item is now in theatre
-    originalEl.dataset.location = "theatre";
-    originalEl.dataset.deployed = "true";
+        equipmentContainer.appendChild(originalEl);
 
-    // Reset transforms
-    originalEl.style.transform = "";
-    originalEl.dataset.scale = "1";
-    originalEl.dataset.flipped = "false";
-    applyTransform(originalEl);
+        // Still deployed; do NOT reset dataset.deployed
+        originalEl.style.transform = "";
+        originalEl.dataset.scale = "1";
+        originalEl.dataset.flipped = "false";
+        applyTransform(originalEl);
 
-    // Position item at drop point
-    const parentRect = equipmentContainer.getBoundingClientRect();
-    originalEl.style.left =
-        `${dropX - parentRect.left - (originalEl.offsetWidth / 2)}px`;
-    originalEl.style.top =
-        `${dropY - parentRect.top - (originalEl.offsetHeight / 2)}px`;
+        const parentRect = equipmentContainer.getBoundingClientRect();
 
-    makeDraggable(originalEl);
-    saveItemState(originalEl);
+        originalEl.style.left = `${dropX - parentRect.left - (originalEl.offsetWidth / 2)}px`;
+        originalEl.style.top = `${dropY - parentRect.top - (originalEl.offsetHeight / 2)}px`;
 
-    // ⭐ CRITICAL PATCH: desktop highlight update
-    evaluateOperations();
-});
-
-
+        makeDraggable(originalEl);
+        saveItemState(originalEl);
+    });
 
     document.addEventListener("touchend", (e) => {
     if (!dragging) return;
