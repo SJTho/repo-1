@@ -728,6 +728,25 @@ function makeDraggable(el) {
     }, { passive: false });
 
     /* ----------------------------------------------------
+      MOBILE DOUBLE‑TAP FLIP
+    ---------------------------------------------------- */
+    let lastTapTime = 0;
+
+    el.addEventListener("touchend", (e) => {
+    const now = Date.now();
+    const tapGap = now - lastTapTime;
+
+    // Must be a quick second tap, and not part of a drag
+    if (tapGap < 300 && !isDragging && e.touches.length === 0) {
+        el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
+        applyTransform(el);
+        saveItemState(el);
+    }
+
+    lastTapTime = now;
+}, { passive: false });
+
+    /* ----------------------------------------------------
        DOUBLE CLICK FLIP
     ---------------------------------------------------- */
     el.addEventListener("dblclick", () => {
