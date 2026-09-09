@@ -44,6 +44,7 @@
   overflow: hidden;
   border-radius: 10px;
   border: 2px solid #1f355c;
+  touch-action: none;
 }
 
 #theatreBackground {
