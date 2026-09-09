@@ -288,7 +288,6 @@ opReq[opId].push(itemId);
 
 }
 
-
 /* ----------------------------------------------------
    Theatre Initialisation
 ---------------------------------------------------- */
@@ -618,6 +617,59 @@ function makeDraggable(el) {
         isDragging = false;
     });
 
+    /* ----------------------------------------------------
+   Mobile Touch Dragging
+---------------------------------------------------- */
+el.addEventListener("touchstart", (e) => {
+    const touch = e.touches[0];
+
+    startX = touch.clientX;
+    startY = touch.clientY;
+
+    const rect = el.getBoundingClientRect();
+    offsetX = touch.clientX - rect.left;
+    offsetY = touch.clientY - rect.top;
+
+    dragStarted = true;
+}, { passive: false });
+
+el.addEventListener("touchmove", (e) => {
+    if (!dragStarted) return;
+
+    const touch = e.touches[0];
+
+    if (!isDragging) {
+        const dx = Math.abs(touch.clientX - startX);
+        const dy = Math.abs(touch.clientY - startY);
+        if (dx < 3 && dy < 3) return;
+
+        isDragging = true;
+        el.style.zIndex = getNextZIndex();
+    }
+
+    const parentRect = el.parentElement.getBoundingClientRect();
+    const newLeft = touch.clientX - offsetX - parentRect.left;
+    const newTop = touch.clientY - offsetY - parentRect.top;
+
+    el.style.left = newLeft + "px";
+    el.style.top = newTop + "px";
+
+    highlightRoomOnHover(el);
+}, { passive: false });
+
+el.addEventListener("touchend", () => {
+    if (dragStarted) {
+        attemptRoomDrop(el);
+        clearRoomHighlights();
+        saveItemState(el);
+    }
+
+    dragStarted = false;
+    isDragging = false;
+}, 
+
+{ passive: false });
+
     el.addEventListener("dblclick", () => {
         el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
         applyTransform(el);
@@ -642,6 +694,43 @@ function makeDraggable(el) {
 
         applyTransform(el);
         saveItemState(el);
+
+        /* ----------------------------------------------------
+   Mobile Pinch-to-Zoom
+---------------------------------------------------- */
+let pinchStartDist = 0;
+
+el.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        pinchStartDist = Math.hypot(dx, dy);
+    }
+}, { passive: false });
+
+el.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 2) {
+        e.preventDefault();
+
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const newDist = Math.hypot(dx, dy);
+
+        let scale = parseFloat(el.dataset.scale || "1");
+        const delta = newDist / pinchStartDist;
+
+        scale = Math.max(0.3, Math.min(3, scale * delta));
+        el.dataset.scale = String(scale);
+
+        applyTransform(el);
+        saveItemState(el);
+
+        pinchStartDist = newDist;
+    }
+}, 
+
+{ passive: false });
+
     });
 }
 
