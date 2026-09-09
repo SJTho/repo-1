@@ -834,37 +834,17 @@ function attemptRoomDrop(el) {
 
     const isStaff = el.dataset.category === "staff" || el.classList.contains("staffItem");
 
-   const centerX = elRect.left + elRect.width / 2;
-const centerY = elRect.top + elRect.height / 2;
+    const droppedInStore =
+        elRect.right > storeRect.left &&
+        elRect.left < storeRect.right &&
+        elRect.bottom > storeRect.top &&
+        elRect.top < storeRect.bottom;
 
-const droppedInStore =
-    centerX >= storeRect.left &&
-    centerX <= storeRect.right &&
-    centerY >= storeRect.top &&
-    centerY <= storeRect.bottom;
-
-const droppedInStaff =
-    centerX >= staffRect.left &&
-    centerX <= staffRect.right &&
-    centerY >= staffRect.top &&
-    centerY <= staffRect.bottom;
-
-if (droppedInStore && droppedInStaff) {
-    // Pick whichever room the centre is *more* inside
-    const storeOverlap =
-        Math.min(centerX - storeRect.left, storeRect.right - centerX) +
-        Math.min(centerY - storeRect.top, storeRect.bottom - centerY);
-
-    const staffOverlap =
-        Math.min(centerX - staffRect.left, staffRect.right - centerX) +
-        Math.min(centerY - staffRect.top, staffRect.bottom - centerY);
-
-    if (storeOverlap > staffOverlap) {
-        droppedInStaff = false;
-    } else {
-        droppedInStore = false;
-    }
-}
+    const droppedInStaff =
+        elRect.right > staffRect.left &&
+        elRect.left < staffRect.right &&
+        elRect.bottom > staffRect.top &&
+        elRect.top < staffRect.bottom;
 
     if (droppedInStore) {
         if (isStaff) {
