@@ -711,7 +711,7 @@ el.addEventListener("touchstart", (e) => {
 
 el.addEventListener("touchmove", (e) => {
     if (e.touches.length === 2) {
-        e.preventDefault();
+        e.preventDefault();   // ⭐ stops page scroll + zoom
 
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -728,12 +728,8 @@ el.addEventListener("touchmove", (e) => {
 
         pinchStartDist = newDist;
     }
-}, 
+}, { passive: false });
 
-{ passive: false });
-
-    });
-}
 
 function applyTransform(el) {
     const scale = parseFloat(el.dataset.scale || "1");
