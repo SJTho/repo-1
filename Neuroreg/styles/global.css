@@ -70,7 +70,7 @@ h1 {
   width: 200px;
   display: none;
   flex-direction: column;
-  z-index: 2000;
+  z-index: 3500;
 }
 
 .dropdownItem {
