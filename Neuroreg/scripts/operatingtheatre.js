@@ -362,6 +362,7 @@ async function loadDraggableItemsFromSupabase() {
 
         const startingWidth = row.starting_width ?? 200;
         img.style.width = startingWidth + "px";
+        el.style.height = "auto";
         img.dataset.startingWidth = startingWidth;
 
         img.classList.add("equipmentItem", `${category}Item`);
@@ -398,6 +399,7 @@ async function restoreItemStates() {
 
         if (el.dataset.startingWidth) {
             el.style.width = el.dataset.startingWidth + "px";
+            el.style.height = "auto";
         }
 
         if (state.store) {
@@ -515,6 +517,7 @@ function revealNextItem(categoryKey) {
 
     if (item.dataset.startingWidth) {
         item.style.width = item.dataset.startingWidth + "px";
+        el.style.height = "auto";
     }
 
     item.dataset.deployed = "true";
@@ -999,6 +1002,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         if (originalEl.dataset.startingWidth) {
             originalEl.style.width = originalEl.dataset.startingWidth + "px";
+            el.style.height = "auto";
         }
 
         originalEl.style.transform = "";
@@ -1186,6 +1190,7 @@ function applyResponsiveLayout() {
         el.style.left = (left * factor) + "px";
         el.style.top = (top * factor) + "px";
         el.style.width = (baseWidth * factor) + "px";
+        el.style.height = "auto";
     });
 
     lastTheatreWidth = currentWidth;
