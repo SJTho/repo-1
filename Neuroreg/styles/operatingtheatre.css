@@ -13,6 +13,7 @@
   z-index: 99999;
   text-align: center;
   padding: 20px;
+  isolation: isolate;
 }
 
 #orientationOverlay .orientationMessage {
@@ -53,8 +54,30 @@
   border-radius: 10px;
 }
 
+/* ----------------------------------------------------
+   EQUIPMENT ITEMS (natural sizing)
+---------------------------------------------------- */
+
 .equipmentItem {
+  display: none;
+  position: absolute;
+
+  /* Natural size behaviour */
+  width: auto;
+  height: auto;
+  max-width: 180px;
+  max-height: 180px;
+
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: center;
+  transition: transform 0.15s ease;
   touch-action: none;
+}
+
+.equipmentItem.flipped {
+  transform: scaleX(-1);
 }
 
 /* ----------------------------------------------------
@@ -64,13 +87,11 @@
 #categoryButtons {
   position: absolute;
   left: 10px;
-  /* aligned to left edge of theatre */
   top: 10px;
-  /* moved to top-left corner */
   display: flex;
   flex-direction: column;
   gap: 12px;
-  z-index: 2000;
+  z-index: 3000;
 }
 
 .categoryBtn {
@@ -89,6 +110,7 @@
 
   user-select: none;
   transition: background 0.2s;
+  position: relative;
 }
 
 .categoryBtn:hover {
@@ -113,11 +135,6 @@
   pointer-events: none;
 }
 
-/* Ensure category buttons allow absolute children */
-.categoryBtn {
-  position: relative;
-}
-
 /* ----------------------------------------------------
   OPERATION LIST
 ---------------------------------------------------- */
@@ -126,7 +143,7 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  z-index: 60;
+  z-index: 3000;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -141,20 +158,22 @@
 #operationsDropdown {
   margin-top: 4px;
   background: rgba(0, 0, 0, 0.5);
-  /* lighter transparent background */
   color: grey;
   font-size: 13px;
   min-width: 180px;
 
-  /* remove scrollbar */
-  max-height: none;
-  overflow: hidden;
+  max-height: 240px;
+  overflow-y: auto;
+  scrollbar-width: none;
 
   border-radius: 4px;
   display: none;
-  /* hidden by default */
   text-align: right;
   padding: 6px 8px;
+}
+
+#operationsDropdown::-webkit-scrollbar {
+  display: none;
 }
 
 .operationItem {
@@ -163,22 +182,16 @@
 
 .operationItem.performable {
   color: #00aa00;
-  /* green */
   font-weight: bold;
 }
 
-.operationItem.incomplete {
-  color: #e2e0e054;
-  /* grey */
-}
-
+.operationItem.incomplete,
 .operationItem.impossible {
   color: #e2e0e054;
-  /* grey */
 }
 
 /* ----------------------------------------------------
-   EQUIPMENT OVERLAY
+   EQUIPMENT OVERLAY CONTAINER
 ---------------------------------------------------- */
 
 #equipmentContainer {
@@ -187,21 +200,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-}
-
-.equipmentItem {
-  display: none;
-  position: absolute;
-  width: 200px;
-  cursor: grab;
-  user-select: none;
-  -webkit-user-drag: none;
-  transform-origin: center;
-  transition: transform 0.15s ease;
-}
-
-.equipmentItem.flipped {
-  transform: scaleX(-1);
+  z-index: 1500;
 }
 
 /* ----------------------------------------------------
@@ -215,6 +214,7 @@
   width: 100%;
   max-width: 900px;
   height: 80px;
+  justify-content: space-between;
 }
 
 .roomPanel {
@@ -234,6 +234,7 @@
   padding: 6px 10px;
   gap: 8px;
 
+  box-sizing: border-box;
   z-index: 1;
 }
 
@@ -280,28 +281,24 @@
 
 @media (max-width: 600px) {
 
-  /* Heading spacing */
   h2 {
     margin-top: 20px;
   }
 
-  /* Theatre height */
   #theatreWrapper {
     height: 350px;
   }
 
-  /* Smaller equipment items */
   .equipmentItem {
-    width: 90px;
+    max-width: 90px;
+    max-height: 90px;
   }
 
-  /* Smaller room thumbnails */
   .storeThumb {
     width: 22px;
     margin: 1px;
   }
 
-  /* Allow rooms to wrap if needed */
   #roomsRow {
     flex-wrap: wrap;
     height: auto;
@@ -312,10 +309,9 @@
     height: 70px;
   }
 
-  /* Category buttons scaled down */
   #categoryButtons {
     left: 6px;
-    top: 8%;
+    top: min(8%, 40px);
     gap: 8px;
   }
 
