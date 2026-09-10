@@ -54,6 +54,7 @@ async function loadHamburgerMenu() {
         return;
     }
 
+    dropdown.innerHTML = "";
     let currentSection = null;
 
     data.forEach(item => {
@@ -128,19 +129,14 @@ async function loadRankPage() {
         return;
     }
 
-    // Load user profile
     const profile = await getUserProfile();
     if (!profile) return;
 
     const points = profile.scalpel_points ?? 0;
 
-    // Calculate rank dynamically
     const userRank = await getRankFromPoints(points);
-
-    // Update heading
     document.getElementById("rankHeading").innerText = userRank;
 
-    // Get rank range
     const { data: rankRows } = await supabase
         .from("rank")
         .select("minimum_score, maximum_score")
@@ -150,7 +146,6 @@ async function loadRankPage() {
     const rankData = rankRows?.[0];
     if (!rankData) return;
 
-    // Get users in this rank range
     const { data: users, error } = await supabase.rpc(
         "get_users_in_rank_range",
         {
@@ -180,7 +175,7 @@ async function loadRankPage() {
 }
 
 /* ----------------------------------------------------
-   Friends Logic
+   Friends Logic (Mutual friendships only after approval)
 ---------------------------------------------------- */
 async function loadFriends() {
     const userId = localStorage.getItem("userId");
@@ -193,6 +188,58 @@ async function loadFriends() {
     return friends ?? [];
 }
 
+/* ----------------------------------------------------
+   Friend Requests
+---------------------------------------------------- */
+async function loadFriendRequests() {
+    const userId = localStorage.getItem("userId");
+
+    const { data: requests, error } = await supabase.rpc(
+        "get_incoming_friend_requests",
+        { uid: userId }
+    );
+
+    const container = document.getElementById("friendRequestsList");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    if (error) {
+        container.innerHTML = "<p>Error loading requests.</p>";
+        return;
+    }
+
+    if (!requests || requests.length === 0) {
+        container.innerHTML = "<p>No pending requests.</p>";
+        return;
+    }
+
+    requests.forEach(req => {
+        const row = document.createElement("div");
+        row.className = "requestRow";
+        row.innerHTML = `
+            <span class="requestText">Friend request from: ${req.requester_id}</span>
+            <button onclick="approveRequest('${req.id}')">Approve</button>
+            <button onclick="rejectRequest('${req.id}')">Reject</button>
+        `;
+        container.appendChild(row);
+    });
+}
+
+window.approveRequest = async function (id) {
+    await supabase.rpc("approve_friend_request", { request_id: id });
+    loadFriendRequests();
+    renderFriendsList();
+};
+
+window.rejectRequest = async function (id) {
+    await supabase.rpc("reject_friend_request", { request_id: id });
+    loadFriendRequests();
+};
+
+/* ----------------------------------------------------
+   Send Friend Request (instead of auto-adding)
+---------------------------------------------------- */
 window.addFriend = async function () {
     const userId = localStorage.getItem("userId");
     const nickname = document.getElementById("friendInput").value.trim();
@@ -212,40 +259,25 @@ window.addFriend = async function () {
         return;
     }
 
-    const friendId = users[0].id;
+    const targetId = users[0].id;
 
-    if (friendId === userId) {
+    if (targetId === userId) {
         alert("You cannot add yourself.");
         return;
     }
 
-    const existingFriends = await loadFriends();
-    const alreadyFriends = existingFriends.some(f => f.id === friendId);
-
-    if (alreadyFriends) {
-        alert("This user is already your friend.");
-        return;
-    }
-
-    await supabase.rpc("add_friend_secure", {
+    await supabase.rpc("send_friend_request", {
         uid: userId,
-        fid: friendId
+        fid: targetId
     });
 
-    renderFriendsList();
+    alert("Friend request sent!");
+    document.getElementById("friendInput").value = "";
 };
 
-window.deleteFriend = async function (friendId) {
-    const userId = localStorage.getItem("userId");
-
-    await supabase.rpc("delete_friend_secure", {
-        uid: userId,
-        fid: friendId
-    });
-
-    renderFriendsList();
-};
-
+/* ----------------------------------------------------
+   Render Friends List
+---------------------------------------------------- */
 async function renderFriendsList() {
     const container = document.getElementById("rankList");
     container.innerHTML = "";
@@ -259,8 +291,6 @@ async function renderFriendsList() {
 
     for (let i = 0; i < friends.length; i++) {
         const f = friends[i];
-
-        // Calculate each friend's rank dynamically
         const friendRank = await getRankFromPoints(f.scalpel_points);
 
         const row = document.createElement("div");
@@ -275,6 +305,17 @@ async function renderFriendsList() {
         container.appendChild(row);
     }
 }
+
+window.deleteFriend = async function (friendId) {
+    const userId = localStorage.getItem("userId");
+
+    await supabase.rpc("delete_friend_secure", {
+        uid: userId,
+        fid: friendId
+    });
+
+    renderFriendsList();
+};
 
 /* ----------------------------------------------------
    Toggle League / Friends
@@ -293,12 +334,12 @@ window.toggleFriendMode = async function () {
         heading.innerText = "My Friends";
 
         renderFriendsList();
+        loadFriendRequests();
     } else {
         document.getElementById("friendsSection").style.display = "none";
         leagueLabel.classList.remove("hidden");
         friendsLabel.classList.add("hidden");
 
-        // Recalculate rank for heading
         const profile = await getUserProfile();
         const userRank = await getRankFromPoints(profile.scalpel_points);
 
