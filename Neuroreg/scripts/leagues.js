@@ -214,16 +214,32 @@ async function loadFriendRequests() {
         return;
     }
 
-    requests.forEach(req => {
+    for (const req of requests) {
+        // Lookup requester profile
+        const { data: requester } = await supabase
+            .from("profiles")
+            .select("nickname, scalpel_points")
+            .eq("id", req.requester_id)
+            .single();
+
+        const requesterRank = await getRankFromPoints(requester.scalpel_points);
+
         const row = document.createElement("div");
         row.className = "requestRow";
         row.innerHTML = `
-            <span class="requestText">Friend request from: ${req.requester_id}</span>
-            <button onclick="approveRequest('${req.id}')">Approve</button>
-            <button onclick="rejectRequest('${req.id}')">Reject</button>
+            <div class="requestInfo">
+                <strong>${requester.nickname}</strong>
+                <span>${requester.scalpel_points} points</span>
+                <span>${requesterRank}</span>
+            </div>
+
+            <div class="requestButtons">
+                <button onclick="approveRequest('${req.id}')">Approve</button>
+                <button onclick="rejectRequest('${req.id}')">Reject</button>
+            </div>
         `;
         container.appendChild(row);
-    });
+    }
 }
 
 window.approveRequest = async function (id) {
