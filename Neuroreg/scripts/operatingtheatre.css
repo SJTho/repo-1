@@ -1,0 +1,323 @@
+/* ----------------------------------------------------
+   ROTATE DEVICE POPUP
+---------------------------------------------------- */
+
+#orientationOverlay {
+  position: fixed;
+  inset: 0;
+  background: #000000d0;
+  color: white;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  text-align: center;
+  padding: 20px;
+  isolation: isolate;
+}
+
+#orientationOverlay .orientationMessage {
+  font-size: 1.6rem;
+  line-height: 1.4;
+}
+
+/* ----------------------------------------------------
+   MAIN LAYOUT
+---------------------------------------------------- */
+
+#theatreAndStore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+/* ----------------------------------------------------
+   THEATRE WRAPPER
+---------------------------------------------------- */
+
+#theatreWrapper {
+  width: 100%;
+  max-width: 900px;
+  height: 600px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 2px solid #1f355c;
+}
+
+#theatreBackground {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* ----------------------------------------------------
+   EQUIPMENT ITEMS (natural sizing)
+---------------------------------------------------- */
+
+.equipmentItem {
+  display: none;
+  position: absolute;
+
+  /* Natural size behaviour */
+  width: auto;
+  height: auto;
+  max-width: 180px;
+  max-height: 180px;
+
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: center;
+  transition: transform 0.15s ease;
+  touch-action: none;
+}
+
+.equipmentItem.flipped {
+  transform: scaleX(-1);
+}
+
+/* ----------------------------------------------------
+   CATEGORY BUTTONS — LEFT VERTICAL OVERLAY
+---------------------------------------------------- */
+
+#categoryButtons {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 3000;
+}
+
+.categoryBtn {
+  width: 80px;
+  height: 80px;
+  background: #14233d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  user-select: none;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.categoryBtn:hover {
+  background: #1f355c;
+}
+
+/* Level badge overlay */
+.levelBadge {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 22px;
+  height: 22px;
+  background: #ffcc00;
+  color: #000;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* ----------------------------------------------------
+  OPERATION LIST
+---------------------------------------------------- */
+
+#operationsMenuWrapper {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+#operationsMenuButton {
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#operationsDropdown {
+  margin-top: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  color: grey;
+  font-size: 13px;
+  min-width: 180px;
+
+  max-height: 240px;
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  border-radius: 4px;
+  display: none;
+  text-align: right;
+  padding: 6px 8px;
+}
+
+#operationsDropdown::-webkit-scrollbar {
+  display: none;
+}
+
+.operationItem {
+  padding: 3px 0;
+}
+
+.operationItem.performable {
+  color: #00aa00;
+  font-weight: bold;
+}
+
+.operationItem.incomplete,
+.operationItem.impossible {
+  color: #e2e0e054;
+}
+
+/* ----------------------------------------------------
+   EQUIPMENT OVERLAY CONTAINER
+---------------------------------------------------- */
+
+#equipmentContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1500;
+}
+
+/* ----------------------------------------------------
+   ROOMS ROW
+---------------------------------------------------- */
+
+#roomsRow {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+  max-width: 900px;
+  height: 80px;
+  justify-content: space-between;
+}
+
+.roomPanel {
+  flex: 1;
+  height: 80px;
+  background: #0d1628;
+  border-radius: 10px;
+  border: 2px solid #1f355c;
+  position: relative;
+  overflow: hidden;
+  color: white;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 6px 10px;
+  gap: 8px;
+
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.roomEmoji {
+  display: none !important;
+}
+
+.roomPanel h3 {
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.storeThumb {
+  width: 26px;
+  height: auto;
+  margin: 2px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+#storeroom.drag-over,
+#staffroom.drag-over {
+  background: #1f355c;
+  border-color: #4a6ea8;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* ----------------------------------------------------
+   GHOST EFFECT FOR INVALID DRAG
+---------------------------------------------------- */
+
+.noEntryGhost {
+  filter: grayscale(1);
+  opacity: 0.6;
+  outline: 3px solid red;
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------
+   MOBILE ONLY SETTINGS
+---------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+  h2 {
+    margin-top: 20px;
+  }
+
+  #theatreWrapper {
+    height: 350px;
+  }
+
+  .equipmentItem {
+    max-width: 90px;
+    max-height: 90px;
+  }
+
+  .storeThumb {
+    width: 22px;
+    margin: 1px;
+  }
+
+  #roomsRow {
+    flex-wrap: wrap;
+    height: auto;
+  }
+
+  .roomPanel {
+    width: 48%;
+    height: 70px;
+  }
+
+  #categoryButtons {
+    left: 6px;
+    top: min(8%, 40px);
+    gap: 8px;
+  }
+
+  .categoryBtn {
+    width: 65px;
+    height: 65px;
+    font-size: 12px;
+  }
+}
