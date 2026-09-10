@@ -172,7 +172,12 @@ input:checked+.slider:before {
     color: #fff;
 }
 
-
+#friendRequestsList,
+#friendRequestsList * {
+    position: relative !important;
+    z-index: 10 !important;
+    color: #000 !important;
+}
 
 
 
