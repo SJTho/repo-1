@@ -215,29 +215,49 @@ async function loadFriendRequests() {
     }
 
     for (const req of requests) {
-        // Lookup requester profile
+
+        // ⭐ FIXED: Safe requester lookup
         const { data: requester } = await supabase
             .from("profiles")
             .select("nickname, scalpel_points")
             .eq("id", req.requester_id)
-            .single();
+            .maybeSingle();
+
+        const row = document.createElement("div");
+        row.className = "requestRow";
+
+        if (!requester) {
+            // RLS blocked or requester deleted
+            row.innerHTML = `
+                <div class="requestInfo">
+                    <strong>Unknown user</strong>
+                    <span>Profile not accessible</span>
+                </div>
+                <div class="requestButtons">
+                    <button class="approveBtn" onclick="approveRequest('${req.id}')">Approve</button>
+                    <button class="rejectBtn" onclick="rejectRequest('${req.id}')">Reject</button>
+                </div>
+            `;
+            container.appendChild(row);
+            continue;
+        }
 
         const requesterRank = await getRankFromPoints(requester.scalpel_points);
 
-        const row = document.createElement("div");
-row.className = "requestRow";
-row.innerHTML = `
-    <div class="requestInfo">
-        <strong>${requester.nickname}</strong>
-        <span>${requester.scalpel_points} points</span>
-        <span>${requesterRank}</span>
-    </div>
-    <div class="requestButtons">
-        <button class="approveBtn" onclick="approveRequest('${req.id}')">Approve</button>
-        <button class="rejectBtn" onclick="rejectRequest('${req.id}')">Reject</button>
-    </div>
-`;
-container.appendChild(row);
+        row.innerHTML = `
+            <div class="requestInfo">
+                <strong>${requester.nickname}</strong>
+                <span>${requester.scalpel_points} points</span>
+                <span>${requesterRank}</span>
+            </div>
+
+            <div class="requestButtons">
+                <button class="approveBtn" onclick="approveRequest('${req.id}')">Approve</button>
+                <button class="rejectBtn" onclick="rejectRequest('${req.id}')">Reject</button>
+            </div>
+        `;
+
+        container.appendChild(row);
     }
 }
 
