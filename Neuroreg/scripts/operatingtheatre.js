@@ -23,6 +23,8 @@ const revealIndex = {
     staff: 0
 };
 
+let lastTheatreWidth = null;
+
 /* ----------------------------------------------------
    MAIN INITIALISATION
 ---------------------------------------------------- */
@@ -64,14 +66,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
         loadHamburgerMenu();
         loadTopRightIcons();
-        initTheatre();
+        await initTheatre();
+
+        const wrapper = document.getElementById("theatreWrapper");
+        if (wrapper) {
+            lastTheatreWidth = wrapper.clientWidth;
+        }
+
+        applyResponsiveLayout();
+
+        window.addEventListener("resize", applyResponsiveLayout);
+        window.addEventListener("orientationchange", applyResponsiveLayout);
     })();
 });
 
 /* ----------------------------------------------------
    ROTATE PHONE MESSAGE
 ---------------------------------------------------- */
-
 function enforceLandscapeMessage() {
     const overlay = document.getElementById("orientationOverlay");
 
@@ -186,7 +197,6 @@ async function loadTopRightIcons() {
 /* ----------------------------------------------------
    Operations Menu
 ---------------------------------------------------- */
-
 async function loadOperationsMenu() {
     const wrapper = document.getElementById("operationsMenuWrapper");
     const button = document.getElementById("operationsMenuButton");
@@ -194,7 +204,6 @@ async function loadOperationsMenu() {
 
     if (!wrapper || !button || !dropdown) return;
 
-    // Fetch all operation types
     const { data, error } = await supabase
         .from("operation_types")
         .select("*")
@@ -211,18 +220,16 @@ async function loadOperationsMenu() {
     data.forEach(op => {
         const div = document.createElement("div");
         div.className = "operationItem";
-        div.dataset.opId = op.id; 
+        div.dataset.opId = op.id;
         div.textContent = op.name || op.operation_name || `Operation ${op.id}`;
         dropdown.appendChild(div);
     });
 
-    // Toggle dropdown on button click
     button.addEventListener("click", () => {
         dropdown.style.display =
             dropdown.style.display === "block" ? "none" : "block";
     });
 
-    // Close when clicking outside
     document.addEventListener("click", (e) => {
         if (!wrapper.contains(e.target)) {
             dropdown.style.display = "none";
@@ -230,20 +237,19 @@ async function loadOperationsMenu() {
     });
 
     evaluateOperations();
-
 }
 
-
+/* ----------------------------------------------------
+   Operations Evaluation
+---------------------------------------------------- */
 async function evaluateOperations() {
     const dropdown = document.getElementById("operationsDropdown");
     if (!dropdown) return;
 
-    // 1. Get deployed items (not in store/staff room)
-   const deployed = Array.from(document.querySelectorAll(".equipmentItem"))
-    .filter(el => el.dataset.location === "theatre")
-    .map(el => Number(el.dataset.itemId));
+    const deployed = Array.from(document.querySelectorAll(".equipmentItem"))
+        .filter(el => el.dataset.location === "theatre")
+        .map(el => Number(el.dataset.itemId));
 
-    // 2. Load operation → required item mappings
     const { data: map, error: mapError } = await supabase
         .from("itemid_operation_type_map")
         .select("*");
@@ -253,26 +259,24 @@ async function evaluateOperations() {
         return;
     }
 
-    // Build a map: operationId → [requiredItemIds]
     const opReq = {};
     map.forEach(row => {
-    const opId = row.operationTypeId;   // ⭐ match your actual column name
-const itemId = row.itemId;
+        const opId = row.operationTypeId;
+        const itemId = row.itemId;
 
-if (!opReq[opId]) {
-    opReq[opId] = [];
-}
-opReq[opId].push(itemId);
+        if (!opReq[opId]) {
+            opReq[opId] = [];
+        }
+        opReq[opId].push(itemId);
     });
 
-    // 3. Evaluate each operation item in the dropdown
     dropdown.querySelectorAll(".operationItem").forEach(div => {
         const opId = Number(div.dataset.opId);
         const required = opReq[opId] || [];
 
         const presentCount = required.filter(id => deployed.includes(id)).length;
 
-       div.classList.remove("performable", "incomplete", "impossible");
+        div.classList.remove("performable", "incomplete", "impossible");
 
         if (required.length === 0) {
             div.classList.add("impossible");
@@ -283,9 +287,7 @@ opReq[opId].push(itemId);
         } else {
             div.classList.add("impossible");
         }
-
     });
-
 }
 
 /* ----------------------------------------------------
@@ -356,7 +358,11 @@ async function loadDraggableItemsFromSupabase() {
         img.dataset.itemId = String(row.id);
         img.dataset.scale = "1";
         img.dataset.flipped = "false";
-        img.dataset.deployed = "false"; // ✅ not yet deployed anywhere
+        img.dataset.deployed = "false";
+
+        const startingWidth = row.starting_width ?? 200;
+        img.style.width = startingWidth + "px";
+        img.dataset.startingWidth = startingWidth;
 
         img.classList.add("equipmentItem", `${category}Item`);
         img.style.display = "none";
@@ -366,9 +372,8 @@ async function loadDraggableItemsFromSupabase() {
     });
 }
 
-
 /* ----------------------------------------------------
-   Restore the saved location of dragable items
+   Restore the saved location of draggable items
 ---------------------------------------------------- */
 async function restoreItemStates() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -387,12 +392,14 @@ async function restoreItemStates() {
         );
         if (!el) return;
 
-        // Restore scale + flip
         el.dataset.scale = String(state.scale);
         el.dataset.flipped = state.flip ? "true" : "false";
         applyTransform(el);
 
-        // ⭐ PATCH: item stored in a room
+        if (el.dataset.startingWidth) {
+            el.style.width = el.dataset.startingWidth + "px";
+        }
+
         if (state.store) {
             const room = (el.dataset.category === "staff")
                 ? document.getElementById("staffroom")
@@ -403,10 +410,9 @@ async function restoreItemStates() {
                 el.dataset.deployed = "true";
                 moveItemToRoom(el, room);
             }
-            return; // ← THIS IS NOW INSIDE THE FUNCTION
+            return;
         }
 
-        // ⭐ PATCH: item restored into theatre
         el.dataset.location = "theatre";
         el.dataset.deployed = "true";
 
@@ -414,6 +420,9 @@ async function restoreItemStates() {
         el.style.left = `${state.left}px`;
         el.style.top = `${state.top}px`;
         el.style.zIndex = String(state.z ?? 1);
+
+        el.dataset.originalLeft = state.left;
+        el.dataset.originalTop = state.top;
 
         makeDraggable(el);
     });
@@ -423,9 +432,8 @@ async function restoreItemStates() {
 }
 
 /* ----------------------------------------------------
-   Save the location of dragable items
+   Save the location of draggable items
 ---------------------------------------------------- */
-
 async function saveItemState(el) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -458,8 +466,7 @@ async function saveItemState(el) {
             onConflict: "userid,itemId"
         });
 
-        evaluateOperations();
-
+    evaluateOperations();
 }
 
 /* ----------------------------------------------------
@@ -506,7 +513,10 @@ function revealNextItem(categoryKey) {
     item.dataset.scale = item.dataset.scale || "1";
     item.dataset.flipped = item.dataset.flipped || "false";
 
-    // ⭐ PATCH: item is now on the background
+    if (item.dataset.startingWidth) {
+        item.style.width = item.dataset.startingWidth + "px";
+    }
+
     item.dataset.deployed = "true";
     item.dataset.location = "theatre";
 
@@ -535,30 +545,30 @@ function centerItemOnBackground(item) {
 
     item.style.left = `${left}px`;
     item.style.top = `${top}px`;
+
+    item.dataset.originalLeft = left;
+    item.dataset.originalTop = top;
 }
 
 /* ----------------------------------------------------
    Category Button Colour Logic
-   Green = there exist items that are NOT YET DEPLOYED anywhere
 ---------------------------------------------------- */
 function updateCategoryButtonColours() {
     document.querySelectorAll(".categoryBtn").forEach(btn => {
         const category = btn.dataset.category;
         const items = categoryMap[category] || [];
 
-        // Undeployed = dataset.deployed === "false"
         const hasUndeployed = items.some(item => item.dataset.deployed === "false");
 
-        // Button colour: green if there exist items not yet deployed anywhere
         btn.style.backgroundColor = hasUndeployed ? "green" : "";
 
-        // ⭐ Badge number: total AVAILABLE items in this category
         const badge = btn.querySelector(".levelBadge");
         if (badge) {
             badge.textContent = String(items.length);
         }
     });
 }
+
 /* ----------------------------------------------------
    Drag, Resize, Flip System
 ---------------------------------------------------- */
@@ -577,9 +587,7 @@ function makeDraggable(el) {
 
     let lastTapTime = 0;
 
-    /* ----------------------------------------------------
-       DESKTOP DRAG
-    ---------------------------------------------------- */
+    /* DESKTOP DRAG */
     el.addEventListener("mousedown", (e) => {
         if (el.style.display === "none") {
             el.style.display = "block";
@@ -626,9 +634,7 @@ function makeDraggable(el) {
         isDragging = false;
     });
 
-    /* ----------------------------------------------------
-       DESKTOP WHEEL ZOOM
-    ---------------------------------------------------- */
+    /* DESKTOP WHEEL ZOOM */
     el.addEventListener("wheel", (e) => {
         if (isDragging) return;
         e.preventDefault();
@@ -649,11 +655,9 @@ function makeDraggable(el) {
         saveItemState(el);
     }, { passive: false });
 
-    /* ----------------------------------------------------
-       MOBILE TOUCH DRAG
-    ---------------------------------------------------- */
+    /* MOBILE TOUCH DRAG */
     el.addEventListener("touchstart", (e) => {
-        if (e.touches.length === 2) return; // pinch handler
+        if (e.touches.length === 2) return;
 
         const touch = e.touches[0];
 
@@ -668,7 +672,7 @@ function makeDraggable(el) {
     }, { passive: false });
 
     el.addEventListener("touchmove", (e) => {
-        if (e.touches.length === 2) return; // pinch handler
+        if (e.touches.length === 2) return;
 
         if (!dragStarted) return;
         e.preventDefault();
@@ -691,9 +695,7 @@ function makeDraggable(el) {
         highlightRoomOnHover(el);
     }, { passive: false });
 
-    /* ----------------------------------------------------
-       MOBILE PINCH-TO-ZOOM
-    ---------------------------------------------------- */
+    /* MOBILE PINCH-TO-ZOOM */
     el.addEventListener("touchstart", (e) => {
         if (e.touches.length === 2) {
             const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -725,20 +727,16 @@ function makeDraggable(el) {
         }
     }, { passive: false });
 
-    /* ----------------------------------------------------
-       MOBILE TOUCH END (drag end + pinch suppression + double‑tap flip)
-    ---------------------------------------------------- */
+    /* MOBILE TOUCH END */
     el.addEventListener("touchend", (e) => {
 
         const now = Date.now();
 
-        /* ⭐ If pinch just ended, suppress double‑tap */
         if (pinchActive && e.touches.length < 2) {
             pinchActive = false;
             pinchSuppressUntil = now + 300;
         }
 
-        /* ⭐ Double‑tap flip (only when NOT dragging or pinching) */
         if (now >= pinchSuppressUntil) {
             const tapGap = now - lastTapTime;
 
@@ -751,7 +749,6 @@ function makeDraggable(el) {
 
         lastTapTime = now;
 
-        /* ⭐ Drag end */
         if (dragStarted) {
             attemptRoomDrop(el);
             clearRoomHighlights();
@@ -763,16 +760,13 @@ function makeDraggable(el) {
 
     }, { passive: false });
 
-    /* ----------------------------------------------------
-       DESKTOP DOUBLE CLICK FLIP
-    ---------------------------------------------------- */
+    /* DESKTOP DOUBLE CLICK FLIP */
     el.addEventListener("dblclick", () => {
         el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
         applyTransform(el);
         saveItemState(el);
     });
 }
-
 
 function applyTransform(el) {
     const scale = parseFloat(el.dataset.scale || "1");
@@ -835,8 +829,6 @@ function attemptRoomDrop(el) {
     const storeRect = storeRoom.getBoundingClientRect();
     const staffRect = staffRoom.getBoundingClientRect();
 
-    const isStaff = el.dataset.category === "staff" || el.classList.contains("staffItem");
-
     const droppedInStore =
         elRect.right > storeRect.left &&
         elRect.left < storeRect.right &&
@@ -849,21 +841,21 @@ function attemptRoomDrop(el) {
         elRect.bottom > staffRect.top &&
         elRect.top < staffRect.bottom;
 
-  if (droppedInStore) {
-    el.dataset.location = "storeroom";   // ⭐ PATCH
-    el.dataset.deployed = "true";
-    moveItemToRoom(el, storeRoom);
-}
+    if (droppedInStore) {
+        el.dataset.location = "storeroom";
+        el.dataset.deployed = "true";
+        moveItemToRoom(el, storeRoom);
+    }
 
-if (droppedInStaff) {
-    el.dataset.location = "staffroom";   // ⭐ PATCH
-    el.dataset.deployed = "true";
-    moveItemToRoom(el, staffRoom);
-}
+    if (droppedInStaff) {
+        el.dataset.location = "staffroom";
+        el.dataset.deployed = "true";
+        moveItemToRoom(el, staffRoom);
+    }
 }
 
 /* ----------------------------------------------------
-   Thumbnail Drag-Out System (ghost + no-entry)
+   Thumbnail Drag-Out System
 ---------------------------------------------------- */
 function makeThumbnailDraggable(thumb, originalEl, room) {
     let dragging = false;
@@ -900,32 +892,31 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
     });
 
     thumb.addEventListener("touchstart", (e) => {
-    if (e.touches.length !== 1) return;
+        if (e.touches.length !== 1) return;
 
-    dragging = true;
+        dragging = true;
 
-    thumb.style.visibility = "hidden";
+        thumb.style.visibility = "hidden";
 
-    ghost = document.createElement("img");
-    ghost.src = thumb.src;
-    ghost.classList.add("storeThumb");
-    ghost.style.position = "fixed";
-    ghost.style.pointerEvents = "none";
-    ghost.style.zIndex = "99999";
-    ghost.style.width = "40px";
+        ghost = document.createElement("img");
+        ghost.src = thumb.src;
+        ghost.classList.add("storeThumb");
+        ghost.style.position = "fixed";
+        ghost.style.pointerEvents = "none";
+        ghost.style.zIndex = "99999";
+        ghost.style.width = "40px";
 
-    document.body.appendChild(ghost);
+        document.body.appendChild(ghost);
 
-    const rect = thumb.getBoundingClientRect();
-    const touch = e.touches[0];
+        const rect = thumb.getBoundingClientRect();
+        const touch = e.touches[0];
 
-    offsetX = touch.clientX - rect.left;
-    offsetY = touch.clientY - rect.top;
+        offsetX = touch.clientX - rect.left;
+        offsetY = touch.clientY - rect.top;
 
-    ghost.style.left = `${touch.clientX - offsetX}px`;
-    ghost.style.top = `${touch.clientY - offsetY}px`;
-}, { passive: false });
-
+        ghost.style.left = `${touch.clientX - offsetX}px`;
+        ghost.style.top = `${touch.clientY - offsetY}px`;
+    }, { passive: false });
 
     document.addEventListener("mousemove", (e) => {
         if (!dragging || !ghost) return;
@@ -949,31 +940,30 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         }
     });
 
-document.addEventListener("touchmove", (e) => {
-    if (!dragging || !ghost) return;
-    const touch = e.touches[0];
+    document.addEventListener("touchmove", (e) => {
+        if (!dragging || !ghost) return;
+        const touch = e.touches[0];
 
-    const x = touch.clientX - offsetX;
-    const y = touch.clientY - offsetY;
+        const x = touch.clientX - offsetX;
+        const y = touch.clientY - offsetY;
 
-    ghost.style.left = `${x}px`;
-    ghost.style.top = `${y}px`;
+        ghost.style.left = `${x}px`;
+        ghost.style.top = `${y}px`;
 
-    const insideTheatre =
-        touch.clientX >= theatreRect.left &&
-        touch.clientX <= theatreRect.right &&
-        touch.clientY >= theatreRect.top &&
-        touch.clientY <= theatreRect.bottom;
+        const insideTheatre =
+            touch.clientX >= theatreRect.left &&
+            touch.clientX <= theatreRect.right &&
+            touch.clientY >= theatreRect.top &&
+            touch.clientY <= theatreRect.bottom;
 
-    if (!insideTheatre) {
-        ghost.classList.add("noEntryGhost");
-    } else {
-        ghost.classList.remove("noEntryGhost");
-    }
+        if (!insideTheatre) {
+            ghost.classList.add("noEntryGhost");
+        } else {
+            ghost.classList.remove("noEntryGhost");
+        }
 
-    e.preventDefault();
-}, { passive: false });
-
+        e.preventDefault();
+    }, { passive: false });
 
     document.addEventListener("mouseup", (e) => {
         if (!dragging) return;
@@ -1007,7 +997,10 @@ document.addEventListener("touchmove", (e) => {
 
         equipmentContainer.appendChild(originalEl);
 
-        // Still deployed; do NOT reset dataset.deployed
+        if (originalEl.dataset.startingWidth) {
+            originalEl.style.width = originalEl.dataset.startingWidth + "px";
+        }
+
         originalEl.style.transform = "";
         originalEl.dataset.scale = "1";
         originalEl.dataset.flipped = "false";
@@ -1015,72 +1008,79 @@ document.addEventListener("touchmove", (e) => {
 
         const parentRect = equipmentContainer.getBoundingClientRect();
 
-        originalEl.style.left = `${dropX - parentRect.left - (originalEl.offsetWidth / 2)}px`;
-        originalEl.style.top = `${dropY - parentRect.top - (originalEl.offsetHeight / 2)}px`;
+        const left = dropX - parentRect.left - (originalEl.offsetWidth / 2);
+        const top = dropY - parentRect.top - (originalEl.offsetHeight / 2);
+
+        originalEl.style.left = `${left}px`;
+        originalEl.style.top = `${top}px`;
+
+        originalEl.dataset.originalLeft = left;
+        originalEl.dataset.originalTop = top;
 
         makeDraggable(originalEl);
         saveItemState(originalEl);
     });
 
     document.addEventListener("touchend", (e) => {
-    if (!dragging) return;
-    dragging = false;
+        if (!dragging) return;
+        dragging = false;
 
-    if (ghost) ghost.remove();
+        if (ghost) ghost.remove();
 
-    const touch = e.changedTouches[0];
-    const dropX = touch.clientX;
-    const dropY = touch.clientY;
+        const touch = e.changedTouches[0];
+        const dropX = touch.clientX;
+        const dropY = touch.clientY;
 
-    const insideTheatre =
-        dropX >= theatreRect.left &&
-        dropX <= theatreRect.right &&
-        dropY >= theatreRect.top &&
-        dropY <= theatreRect.bottom;
+        const insideTheatre =
+            dropX >= theatreRect.left &&
+            dropX <= theatreRect.right &&
+            dropY >= theatreRect.top &&
+            dropY <= theatreRect.bottom;
 
-    if (!insideTheatre) {
-        thumb.style.visibility = "visible";
-        return;
-    }
+        if (!insideTheatre) {
+            thumb.style.visibility = "visible";
+            return;
+        }
 
-    // Same logic as your mouseup handler:
-    thumb.remove();
-    updateRoomEmoji(room);
-    scaleRoomContents();
-    updateCategoryButtonColours();
+        thumb.remove();
+        updateRoomEmoji(room);
+        scaleRoomContents();
+        updateCategoryButtonColours();
 
-    originalEl.style.display = "block";
+        originalEl.style.display = "block";
 
-    const equipmentContainer = document.getElementById("equipmentContainer");
-    const parentRect = equipmentContainer.getBoundingClientRect();
+        const equipmentContainer = document.getElementById("equipmentContainer");
+        const parentRect = equipmentContainer.getBoundingClientRect();
 
-    equipmentContainer.appendChild(originalEl);
+        equipmentContainer.appendChild(originalEl);
 
-    // ⭐ PATCH
-originalEl.dataset.location = "theatre";
-originalEl.dataset.deployed = "true";
+        originalEl.dataset.location = "theatre";
+        originalEl.dataset.deployed = "true";
 
-originalEl.style.transform = "";
-originalEl.dataset.scale = "1";
-originalEl.dataset.flipped = "false";
-applyTransform(originalEl);
+        if (originalEl.dataset.startingWidth) {
+            originalEl.style.width = originalEl.dataset.startingWidth + "px";
+        }
 
-    originalEl.dataset.scale = "1";
-    originalEl.dataset.flipped = "false";
-    applyTransform(originalEl);
+        originalEl.style.transform = "";
+        originalEl.dataset.scale = "1";
+        originalEl.dataset.flipped = "false";
+        applyTransform(originalEl);
 
-    originalEl.style.left =
-        `${dropX - parentRect.left - (originalEl.offsetWidth / 2)}px`;
-    originalEl.style.top =
-        `${dropY - parentRect.top - (originalEl.offsetHeight / 2)}px`;
+        const left = dropX - parentRect.left - (originalEl.offsetWidth / 2);
+        const top = dropY - parentRect.top - (originalEl.offsetHeight / 2);
 
-    makeDraggable(originalEl);
-    saveItemState(originalEl);
+        originalEl.style.left = `${left}px`;
+        originalEl.style.top = `${top}px`;
+
+        originalEl.dataset.originalLeft = left;
+        originalEl.dataset.originalTop = top;
+
+        makeDraggable(originalEl);
+        saveItemState(originalEl);
+        evaluateOperations();
+    }, { passive: false });
+
     evaluateOperations();
-}, { passive: false });
-
-evaluateOperations();
-
 }
 
 /* ----------------------------------------------------
@@ -1095,7 +1095,6 @@ function moveItemToRoom(el, room) {
 
     el.style.display = "none";
 
-    // ⭐ PATCH: item is now in a room
     el.dataset.location = (room.id === "staffroom") ? "staffroom" : "storeroom";
     el.dataset.deployed = "true";
 
@@ -1119,7 +1118,6 @@ function removeItemFromRooms(el) {
         updateRoomEmoji(room);
     });
 
-    // ⭐ PATCH: item is now back on the theatre background
     el.dataset.location = "theatre";
 
     scaleRoomContents();
@@ -1162,14 +1160,45 @@ function scaleRoomContents() {
 }
 
 /* ----------------------------------------------------
+   Responsive scaling (width + coordinates)
+---------------------------------------------------- */
+function applyResponsiveLayout() {
+    const wrapper = document.getElementById("theatreWrapper");
+    if (!wrapper) return;
+
+    const currentWidth = wrapper.clientWidth;
+    if (!lastTheatreWidth) {
+        lastTheatreWidth = currentWidth;
+        return;
+    }
+
+    const factor = currentWidth / lastTheatreWidth;
+    if (factor === 1) return;
+
+    document.querySelectorAll(".equipmentItem").forEach(el => {
+        const left = parseFloat(el.style.left || "0");
+        const top = parseFloat(el.style.top || "0");
+
+        const baseWidth = el.style.width
+            ? parseFloat(el.style.width)
+            : (el.dataset.startingWidth ? parseFloat(el.dataset.startingWidth) : el.offsetWidth);
+
+        el.style.left = (left * factor) + "px";
+        el.style.top = (top * factor) + "px";
+        el.style.width = (baseWidth * factor) + "px";
+    });
+
+    lastTheatreWidth = currentWidth;
+}
+
+/* ----------------------------------------------------
    Window onload (safety reset)
 ---------------------------------------------------- */
 window.onload = () => {
     document.querySelectorAll(".equipmentItem").forEach(item => {
-        // Keep deployed flag; just hide visuals
         item.style.display = "none";
     });
 
     scaleRoomContents();
- updateCategoryButtonColours();
+    updateCategoryButtonColours();
 };
