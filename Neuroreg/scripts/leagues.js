@@ -221,18 +221,17 @@ async function loadFriendRequests() {
 
         const row = document.createElement("div");
         row.className = "requestRow";
-        row.innerHTML = `
-            <div class="requestInfo">
-                <strong>${requesterNickname}</strong>
-                <span>${requesterPoints} points</span>
-                <span>${requesterRank}</span>
-            </div>
+      row.innerHTML = `
+    <div class="requestInfo">
+        <strong>${requesterNickname}</strong>
+        <span>${requesterRank}</span>
+    </div>
 
-            <div class="requestButtons">
-                <button class="approveBtn" onclick="approveRequest('${req.id}')">Approve</button>
-                <button class="rejectBtn" onclick="rejectRequest('${req.id}')">Reject</button>
-            </div>
-        `;
+    <div class="requestButtons">
+        <button class="approveBtn" onclick="approveRequest('${req.id}')">Approve</button>
+        <button class="rejectBtn" onclick="rejectRequest('${req.id}')">Reject</button>
+    </div>
+`;
 
         container.appendChild(row);
     }
