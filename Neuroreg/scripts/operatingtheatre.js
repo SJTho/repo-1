@@ -301,10 +301,6 @@ async function initTheatre() {
     loadOperationsMenu();
 }
 
-if (window.innerWidth < 600) {
-  document.querySelectorAll(".equipmentItem").forEach(scaleItemPosition);
-}
-
 /* ----------------------------------------------------
    Load draggable items from Supabase (reward‑gated)
 ---------------------------------------------------- */
@@ -1163,25 +1159,6 @@ function scaleRoomContents() {
             t.style.margin = "2px";
         });
     });
-}
-
-/* ----------------------------------------------------
-   Scale dragable's position on small screens
----------------------------------------------------- */
-
-function scaleItemPosition(item) {
-  const theatre = document.getElementById("theatreWrapper");
-
-  const desktopWidth = 900;   // your max-width
-  const mobileWidth = theatre.clientWidth;
-
-  const scale = mobileWidth / desktopWidth;
-
-  const originalLeft = parseFloat(item.dataset.originalLeft);
-  const originalTop = parseFloat(item.dataset.originalTop);
-
-  item.style.left = (originalLeft * scale) + "px";
-  item.style.top = (originalTop * scale) + "px";
 }
 
 /* ----------------------------------------------------
