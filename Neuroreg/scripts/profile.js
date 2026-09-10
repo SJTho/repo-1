@@ -65,6 +65,10 @@ async function loadProfile() {
 
     document.getElementById("longestStreakDisplay").innerText =
         longest + (longest === 1 ? " day" : " days");
+
+    // ⭐ NEW: Load subscription toggle state
+    const emailQuestionToggle = document.getElementById("emailQuestionToggle");
+    emailQuestionToggle.checked = profile.subscribed === true;
 }
 
 // ----------------------------------------------------
@@ -159,6 +163,29 @@ function attachEditHandlers() {
 
     document.getElementById("savePasswordBtn").onclick = () =>
         saveField(document.getElementById("passwordInput"), "passwordDisplay", "password_hash");
+}
+
+// ----------------------------------------------------
+// ⭐ NEW: Subscription Toggle Handler
+// ----------------------------------------------------
+function attachSubscriptionToggle() {
+    const toggle = document.getElementById("emailQuestionToggle");
+    const userId = localStorage.getItem("userId");
+
+    toggle.addEventListener("change", async () => {
+        const newValue = toggle.checked;
+
+        const { error } = await supabase
+            .from("profiles")
+            .update({ subscribed: newValue })
+            .eq("id", userId);
+
+        if (error) {
+            console.error("Subscription update failed:", error);
+            alert("Failed to update subscription.");
+            toggle.checked = !newValue; // revert visual state
+        }
+    });
 }
 
 // ----------------------------------------------------
@@ -275,6 +302,7 @@ function attachHamburgerHandler() {
 window.addEventListener("DOMContentLoaded", () => {
     loadProfile();
     attachEditHandlers();
+    attachSubscriptionToggle();   // ⭐ NEW
     loadHamburgerMenu();
     loadTopRightIcons();
     attachHamburgerHandler();
