@@ -360,9 +360,10 @@ async function loadDraggableItemsFromSupabase() {
         img.dataset.flipped = "false";
         img.dataset.deployed = "false";
 
+        // ⭐ Individual starting width + preserved aspect ratio
         const startingWidth = row.starting_width ?? 200;
         img.style.width = startingWidth + "px";
-        el.style.height = "auto";
+        img.style.height = "auto";   // ⭐ FIXED — preserve proportions
         img.dataset.startingWidth = startingWidth;
 
         img.classList.add("equipmentItem", `${category}Item`);
