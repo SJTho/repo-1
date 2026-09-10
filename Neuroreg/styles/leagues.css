@@ -115,8 +115,6 @@ input:checked+.slider:before {
     padding: 10px;
 }
 
-
-
 /* ----------------------------------------------------
    FRIEND REQUESTS LIST
 ---------------------------------------------------- */
@@ -144,13 +142,11 @@ input:checked+.slider:before {
     flex-direction: column;
     gap: 4px;
     color: #14233d;
-    /* FIX: readable text */
 }
 
 .requestRow .requestInfo strong {
     font-size: 18px;
     color: #000;
-    /* FIX: nickname visible */
 }
 
 .requestRow .requestButtons button {
@@ -179,8 +175,6 @@ input:checked+.slider:before {
     color: #000 !important;
 }
 
-
-
 /* ----------------------------------------------------
    LEAGUE TABLE (3 columns)
 ---------------------------------------------------- */
@@ -207,29 +201,24 @@ input:checked+.slider:before {
     font-weight: 500;
     color: #000;
     padding-left: 6px;
-    /* slight right shift (full screen) */
 }
 
 .rankPoints {
     text-align: left;
-    /* keep aligned left */
     padding-left: 12px;
-    /* move whole column right (full screen) */
     font-weight: bold;
     color: #007bff;
 }
 
 /* ----------------------------------------------------
-   FRIENDS TABLE (4 evenly spaced columns)
+   FRIENDS TABLE (4 columns, fixed delete column)
 ---------------------------------------------------- */
 .rankRow.friendsRow {
     display: grid;
     grid-template-columns: 50px 1fr 1fr 70px;
-    /* fixed delete column */
     align-items: center;
 }
 
-/* Align columns 1–3 left */
 .rankRow.friendsRow> :nth-child(1),
 .rankRow.friendsRow> :nth-child(2),
 .rankRow.friendsRow> :nth-child(3) {
@@ -237,7 +226,7 @@ input:checked+.slider:before {
 }
 
 /* ----------------------------------------------------
-   DELETE BUTTON — PERFECT VERTICAL ALIGNMENT
+   DELETE BUTTON
 ---------------------------------------------------- */
 .deleteFriendBtn {
     background: #b33a3a;
@@ -247,15 +236,11 @@ input:checked+.slider:before {
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
-
     width: 67px;
-    /* widened by ~7px */
     justify-self: end;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     height: 28px;
     line-height: 14px;
 }
@@ -267,11 +252,9 @@ input:checked+.slider:before {
     padding: 4px 6px !important;
     font-size: 14px !important;
     border-radius: 6px !important;
-
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-
     height: 28px !important;
     line-height: 14px !important;
 }
@@ -288,12 +271,10 @@ input:checked+.slider:before {
         margin: 110px auto 20px auto;
     }
 
-    /* Smaller toggle labels */
     .toggleLabelText {
         font-size: 16px;
     }
 
-    /* Narrower toggle switch */
     .switch {
         width: 42px;
         height: 20px;
@@ -311,14 +292,13 @@ input:checked+.slider:before {
         transform: translateX(22px);
     }
 
-    /* Row sizes */
+    /* Mobile league + friends rows (fixed delete column preserved) */
     .rankRow,
     .rankRow.friendsRow {
         font-size: 16px;
         padding: 10px;
         display: grid;
         grid-template-columns: 40px 1fr 1fr 60px;
-        /* fixed delete column */
         align-items: center;
     }
 
@@ -335,15 +315,10 @@ input:checked+.slider:before {
         grid-template-columns: 50px 1fr 80px;
     }
 
-    .rankRow.friendsRow {
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-    }
-
     .rankPosition {
         font-size: 18px;
     }
 
-    /* Leagues table column 2: left aligned + moved right */
     .rankRow .rankNickname {
         text-align: left;
         padding-left: 14px;
@@ -354,67 +329,22 @@ input:checked+.slider:before {
         font-size: 16px;
     }
 
-    /* Friends table column 2 moved left */
     .rankRow.friendsRow> :nth-child(2) {
         padding-left: 0px;
     }
 
-    /* Friends table column 3 smaller + moved left */
     .rankRow.friendsRow> :nth-child(3) {
         font-size: 15px;
         padding-left: 4px;
         text-align: left;
     }
 
-    /* Mobile delete button */
     .deleteFriendBtn {
         font-size: 14px;
         width: 47px;
-        /* widened by ~7px */
         padding: 4px 4px;
         height: 26px;
         line-height: 14px;
-    }
-
-    /* ----------------------------------------------------
-   MOBILE — FRIEND REQUESTS
----------------------------------------------------- */
-    #friendRequestsList {
-        padding: 12px;
-        margin-top: 16px;
-    }
-
-    .requestRow {
-        flex-direction: column;
-        /* stack vertically */
-        align-items: flex-start;
-        /* left-align content */
-        gap: 10px;
-        /* spacing between info + buttons */
-        padding: 12px;
-    }
-
-    .requestInfo strong {
-        font-size: 17px;
-        /* slightly smaller for mobile */
-    }
-
-    .requestButtons {
-        width: 100%;
-        /* buttons take full width */
-        display: flex;
-        justify-content: flex-start;
-        /* align left */
-        gap: 10px;
-        /* spacing between buttons */
-    }
-
-    .requestButtons button {
-        flex: none;
-        /* prevent stretching */
-        padding: 8px 12px;
-        /* larger tap targets */
-        font-size: 14px;
     }
 
     .rankRow .deleteFriendBtn {
@@ -426,6 +356,36 @@ input:checked+.slider:before {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+    }
+
+    /* Mobile friend requests */
+    #friendRequestsList {
+        padding: 12px;
+        margin-top: 16px;
+    }
+
+    .requestRow {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .requestInfo strong {
+        font-size: 17px;
+    }
+
+    .requestButtons {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    .requestButtons button {
+        flex: none;
+        padding: 8px 12px;
+        font-size: 14px;
     }
 }
 
@@ -439,7 +399,6 @@ input:checked+.slider:before {
     padding: 12px;
     margin-top: 20px;
     color: #000 !important;
-    /* force text black */
 }
 
 .requestRow {
@@ -452,12 +411,10 @@ input:checked+.slider:before {
     margin-bottom: 8px;
     border-radius: 6px;
     color: #000 !important;
-    /* force text black */
 }
 
 .requestRow * {
     color: #000 !important;
-    /* nuke any inherited white */
 }
 
 .requestInfo {
