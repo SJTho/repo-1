@@ -189,7 +189,7 @@ async function loadFriends() {
 }
 
 /* ----------------------------------------------------
-   Friend Requests
+   Friend Requests (data comes directly from RPC)
 ---------------------------------------------------- */
 async function loadFriendRequests() {
     const userId = localStorage.getItem("userId");
@@ -215,39 +215,16 @@ async function loadFriendRequests() {
     }
 
     for (const req of requests) {
-
-        // ⭐ FIXED: Safe requester lookup
-        const { data: requester } = await supabase
-            .from("profiles")
-            .select("nickname, scalpel_points")
-            .eq("id", req.requester_id)
-            .maybeSingle();
+        const requesterNickname = req.nickname ?? "Unknown user";
+        const requesterPoints = req.scalpel_points ?? 0;
+        const requesterRank = await getRankFromPoints(requesterPoints);
 
         const row = document.createElement("div");
         row.className = "requestRow";
-
-        if (!requester) {
-            // RLS blocked or requester deleted
-            row.innerHTML = `
-                <div class="requestInfo">
-                    <strong>Unknown user</strong>
-                    <span>Profile not accessible</span>
-                </div>
-                <div class="requestButtons">
-                    <button class="approveBtn" onclick="approveRequest('${req.id}')">Approve</button>
-                    <button class="rejectBtn" onclick="rejectRequest('${req.id}')">Reject</button>
-                </div>
-            `;
-            container.appendChild(row);
-            continue;
-        }
-
-        const requesterRank = await getRankFromPoints(requester.scalpel_points);
-
         row.innerHTML = `
             <div class="requestInfo">
-                <strong>${requester.nickname}</strong>
-                <span>${requester.scalpel_points} points</span>
+                <strong>${requesterNickname}</strong>
+                <span>${requesterPoints} points</span>
                 <span>${requesterRank}</span>
             </div>
 
