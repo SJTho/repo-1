@@ -375,3 +375,64 @@ input:checked+.slider:before {
         justify-content: center !important;
     }
 }
+
+/* ----------------------------------------------------
+   HARD OVERRIDE: FRIEND REQUESTS VISIBILITY
+---------------------------------------------------- */
+#friendRequestsList {
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 20px;
+    color: #000 !important;
+    /* force text black */
+}
+
+.requestRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    color: #000 !important;
+    /* force text black */
+}
+
+.requestRow * {
+    color: #000 !important;
+    /* nuke any inherited white */
+}
+
+.requestInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.requestInfo strong {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.requestButtons button {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 6px;
+}
+
+.requestButtons button.approveBtn {
+    background: #28a745;
+    color: #fff !important;
+}
+
+.requestButtons button.rejectBtn {
+    background: #b33a3a;
+    color: #fff !important;
+}
