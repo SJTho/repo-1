@@ -225,20 +225,19 @@ async function loadFriendRequests() {
         const requesterRank = await getRankFromPoints(requester.scalpel_points);
 
         const row = document.createElement("div");
-        row.className = "requestRow";
-        row.innerHTML = `
-            <div class="requestInfo">
-                <strong>${requester.nickname}</strong>
-                <span>${requester.scalpel_points} points</span>
-                <span>${requesterRank}</span>
-            </div>
-
-            <div class="requestButtons">
-                <button onclick="approveRequest('${req.id}')">Approve</button>
-                <button onclick="rejectRequest('${req.id}')">Reject</button>
-            </div>
-        `;
-        container.appendChild(row);
+row.className = "requestRow";
+row.innerHTML = `
+    <div class="requestInfo">
+        <strong>${requester.nickname}</strong>
+        <span>${requester.scalpel_points} points</span>
+        <span>${requesterRank}</span>
+    </div>
+    <div class="requestButtons">
+        <button class="approveBtn" onclick="approveRequest('${req.id}')">Approve</button>
+        <button class="rejectBtn" onclick="rejectRequest('${req.id}')">Reject</button>
+    </div>
+`;
+container.appendChild(row);
     }
 }
 
