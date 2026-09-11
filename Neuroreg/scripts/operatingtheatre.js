@@ -302,6 +302,7 @@ async function initTheatre() {
     updateCategoryButtonColours();
     loadOperationsMenu();
 }
+
 /* ----------------------------------------------------
    Load draggable items from Supabase (reward‑gated)
 ---------------------------------------------------- */
@@ -351,8 +352,6 @@ async function loadDraggableItemsFromSupabase() {
         if (!unlocked) return;
 
         const img = document.createElement("img");
-
-        // ⭐ MUST be defined BEFORE img.onload
         const startingWidth = row.starting_width ?? 200;
 
         img.src = row.url;
@@ -361,13 +360,22 @@ async function loadDraggableItemsFromSupabase() {
         img.dataset.scale = "1";
         img.dataset.flipped = "false";
         img.dataset.deployed = "false";
-
         img.dataset.startingWidth = startingWidth;
 
-        // ⭐ Compute height from natural aspect ratio AFTER load
-        img.onload = () => {
-            const naturalWidth = img.naturalWidth;
-            const naturalHeight = img.naturalHeight;
+        img.classList.add("equipmentItem", `${category}Item`);
+        img.style.display = "none";
+        img.style.position = "absolute";
+
+        // ⭐ FULLY RELIABLE ASPECT RATIO COMPUTATION
+        img.onload = async () => {
+            try {
+                await img.decode(); // ensures naturalWidth & naturalHeight are valid
+            } catch (e) {
+                console.warn("decode() failed, falling back to naturalWidth", e);
+            }
+
+            const naturalWidth = img.naturalWidth || startingWidth;
+            const naturalHeight = img.naturalHeight || startingWidth;
 
             const aspectRatio = naturalHeight / naturalWidth;
             const computedHeight = startingWidth * aspectRatio;
@@ -375,14 +383,9 @@ async function loadDraggableItemsFromSupabase() {
             img.style.width = startingWidth + "px";
             img.style.height = computedHeight + "px";
 
-            // Store virtual dimensions for responsive scaling
             img.dataset.virtualWidth = String(startingWidth);
             img.dataset.virtualHeight = String(computedHeight);
         };
-
-        img.classList.add("equipmentItem", `${category}Item`);
-        img.style.display = "none";
-        img.style.position = "absolute";
 
         equipmentContainer.appendChild(img);
     });
