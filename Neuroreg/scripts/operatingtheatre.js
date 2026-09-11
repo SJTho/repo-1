@@ -302,7 +302,6 @@ async function initTheatre() {
     updateCategoryButtonColours();
     loadOperationsMenu();
 }
-
 /* ----------------------------------------------------
    Load draggable items from Supabase (reward‑gated)
 ---------------------------------------------------- */
@@ -353,6 +352,9 @@ async function loadDraggableItemsFromSupabase() {
 
         const img = document.createElement("img");
 
+        // ⭐ MUST be defined BEFORE img.onload
+        const startingWidth = row.starting_width ?? 200;
+
         img.src = row.url;
         img.dataset.category = category;
         img.dataset.itemId = String(row.id);
@@ -360,12 +362,23 @@ async function loadDraggableItemsFromSupabase() {
         img.dataset.flipped = "false";
         img.dataset.deployed = "false";
 
-      img.onload = () => {
-    img.style.width = startingWidth + "px";
-    img.style.height = "auto";   // correct proportional height
-};
         img.dataset.startingWidth = startingWidth;
-        img.dataset.virtualWidth = String(startingWidth);
+
+        // ⭐ Compute height from natural aspect ratio AFTER load
+        img.onload = () => {
+            const naturalWidth = img.naturalWidth;
+            const naturalHeight = img.naturalHeight;
+
+            const aspectRatio = naturalHeight / naturalWidth;
+            const computedHeight = startingWidth * aspectRatio;
+
+            img.style.width = startingWidth + "px";
+            img.style.height = computedHeight + "px";
+
+            // Store virtual dimensions for responsive scaling
+            img.dataset.virtualWidth = String(startingWidth);
+            img.dataset.virtualHeight = String(computedHeight);
+        };
 
         img.classList.add("equipmentItem", `${category}Item`);
         img.style.display = "none";
