@@ -360,9 +360,10 @@ async function loadDraggableItemsFromSupabase() {
         img.dataset.flipped = "false";
         img.dataset.deployed = "false";
 
-        const startingWidth = row.starting_width ?? 200;
-        img.style.width = startingWidth + "px";
-        img.style.height = "auto";
+      img.onload = () => {
+    img.style.width = startingWidth + "px";
+    img.style.height = "auto";   // correct proportional height
+};
         img.dataset.startingWidth = startingWidth;
         img.dataset.virtualWidth = String(startingWidth);
 
@@ -399,8 +400,13 @@ async function restoreItemStates() {
         applyTransform(el);
 
         if (el.dataset.startingWidth) {
-            el.style.width = el.dataset.startingWidth + "px";
-            el.style.height = "auto";
+            const applySize = () => {
+    el.style.width = el.dataset.startingWidth + "px";
+    el.style.height = "auto";
+};
+
+if (el.complete) applySize();
+else el.onload = applySize;
             el.dataset.virtualWidth = el.dataset.startingWidth;
         }
 
@@ -519,11 +525,18 @@ function revealNextItem(categoryKey) {
     item.dataset.scale = item.dataset.scale || "1";
     item.dataset.flipped = item.dataset.flipped || "false";
 
-    if (item.dataset.startingWidth) {
+   if (item.dataset.startingWidth) {
+    const applySize = () => {
         item.style.width = item.dataset.startingWidth + "px";
-        item.style.height = "auto";
-        item.dataset.virtualWidth = item.dataset.startingWidth;
+        item.style.height = "auto";   // proportional height AFTER load
+    };
+
+    if (item.complete) {
+        applySize();
+    } else {
+        item.onload = applySize;
     }
+}
 
     item.dataset.deployed = "true";
     item.dataset.location = "theatre";
