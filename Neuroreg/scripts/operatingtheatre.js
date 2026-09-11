@@ -23,7 +23,7 @@ const revealIndex = {
     staff: 0
 };
 
-let lastTheatreWidth = null;
+let initialTheatreWidth = null;
 
 /* ----------------------------------------------------
    MAIN INITIALISATION
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const wrapper = document.getElementById("theatreWrapper");
         if (wrapper) {
-            lastTheatreWidth = wrapper.clientWidth;
+            initialTheatreWidth = wrapper.clientWidth;
         }
 
         applyResponsiveLayout();
@@ -360,11 +360,11 @@ async function loadDraggableItemsFromSupabase() {
         img.dataset.flipped = "false";
         img.dataset.deployed = "false";
 
-        // ⭐ Individual starting width + preserved aspect ratio
         const startingWidth = row.starting_width ?? 200;
         img.style.width = startingWidth + "px";
-        img.style.height = "auto";   // ⭐ FIXED — preserve proportions
+        img.style.height = "auto";
         img.dataset.startingWidth = startingWidth;
+        img.dataset.virtualWidth = String(startingWidth);
 
         img.classList.add("equipmentItem", `${category}Item`);
         img.style.display = "none";
@@ -401,6 +401,7 @@ async function restoreItemStates() {
         if (el.dataset.startingWidth) {
             el.style.width = el.dataset.startingWidth + "px";
             el.style.height = "auto";
+            el.dataset.virtualWidth = el.dataset.startingWidth;
         }
 
         if (state.store) {
@@ -426,6 +427,8 @@ async function restoreItemStates() {
 
         el.dataset.originalLeft = state.left;
         el.dataset.originalTop = state.top;
+        el.dataset.virtualLeft = String(state.left);
+        el.dataset.virtualTop = String(state.top);
 
         makeDraggable(el);
     });
@@ -518,7 +521,8 @@ function revealNextItem(categoryKey) {
 
     if (item.dataset.startingWidth) {
         item.style.width = item.dataset.startingWidth + "px";
-        el.style.height = "auto";
+        item.style.height = "auto";
+        item.dataset.virtualWidth = item.dataset.startingWidth;
     }
 
     item.dataset.deployed = "true";
@@ -539,19 +543,29 @@ function centerItemOnBackground(item) {
     const wrapper = document.getElementById("theatreWrapper");
     if (!wrapper) return;
 
-    const wrapperRect = wrapper.getBoundingClientRect();
+    const center = () => {
+        const wrapperRect = wrapper.getBoundingClientRect();
 
-    const itemWidth = item.offsetWidth;
-    const itemHeight = item.offsetHeight;
+        const itemWidth = item.offsetWidth;
+        const itemHeight = item.offsetHeight;
 
-    const left = (wrapperRect.width / 2) - (itemWidth / 2);
-    const top = (wrapperRect.height / 2) - (itemHeight / 2);
+        const left = (wrapperRect.width / 2) - (itemWidth / 2);
+        const top = (wrapperRect.height / 2) - (itemHeight / 2);
 
-    item.style.left = `${left}px`;
-    item.style.top = `${top}px`;
+        item.style.left = `${left}px`;
+        item.style.top = `${top}px`;
 
-    item.dataset.originalLeft = left;
-    item.dataset.originalTop = top;
+        item.dataset.originalLeft = left;
+        item.dataset.originalTop = top;
+        item.dataset.virtualLeft = String(left);
+        item.dataset.virtualTop = String(top);
+    };
+
+    if (item.complete) {
+        center();
+    } else {
+        item.onload = center;
+    }
 }
 
 /* ----------------------------------------------------
@@ -593,6 +607,8 @@ function makeDraggable(el) {
 
     /* DESKTOP DRAG */
     el.addEventListener("mousedown", (e) => {
+        if (Date.now() < pinchSuppressUntil) return;
+
         if (el.style.display === "none") {
             el.style.display = "block";
             removeItemFromRooms(el);
@@ -629,6 +645,18 @@ function makeDraggable(el) {
 
     document.addEventListener("mouseup", () => {
         if (dragStarted) {
+            const wrapper = document.getElementById("theatreWrapper");
+            if (wrapper && initialTheatreWidth) {
+                const currentWidth = wrapper.clientWidth;
+                const factor = currentWidth / initialTheatreWidth;
+                const currentLeft = parseFloat(el.style.left || "0");
+                const currentTop = parseFloat(el.style.top || "0");
+                el.dataset.virtualLeft = String(currentLeft / factor);
+                el.dataset.virtualTop = String(currentTop / factor);
+                el.dataset.originalLeft = currentLeft / factor;
+                el.dataset.originalTop = currentTop / factor;
+            }
+
             attemptRoomDrop(el);
             clearRoomHighlights();
             saveItemState(el);
@@ -661,6 +689,7 @@ function makeDraggable(el) {
 
     /* MOBILE TOUCH DRAG */
     el.addEventListener("touchstart", (e) => {
+        if (Date.now() < pinchSuppressUntil) return;
         if (e.touches.length === 2) return;
 
         const touch = e.touches[0];
@@ -754,6 +783,18 @@ function makeDraggable(el) {
         lastTapTime = now;
 
         if (dragStarted) {
+            const wrapper = document.getElementById("theatreWrapper");
+            if (wrapper && initialTheatreWidth) {
+                const currentWidth = wrapper.clientWidth;
+                const factor = currentWidth / initialTheatreWidth;
+                const currentLeft = parseFloat(el.style.left || "0");
+                const currentTop = parseFloat(el.style.top || "0");
+                el.dataset.virtualLeft = String(currentLeft / factor);
+                el.dataset.virtualTop = String(currentTop / factor);
+                el.dataset.originalLeft = currentLeft / factor;
+                el.dataset.originalTop = currentTop / factor;
+            }
+
             attemptRoomDrop(el);
             clearRoomHighlights();
             saveItemState(el);
@@ -880,7 +921,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         ghost = document.createElement("img");
         ghost.src = thumb.src;
         ghost.classList.add("storeThumb");
-        ghost.style.position = "fixed";
+        ghost.style.position = "absolute";
         ghost.style.pointerEvents = "none";
         ghost.style.zIndex = "99999";
         ghost.style.width = "40px";
@@ -888,11 +929,11 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         document.body.appendChild(ghost);
 
         const rect = thumb.getBoundingClientRect();
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
+        offsetX = e.pageX - rect.left;
+        offsetY = e.pageY - rect.top;
 
-        ghost.style.left = `${e.clientX - offsetX}px`;
-        ghost.style.top = `${e.clientY - offsetY}px`;
+        ghost.style.left = `${e.pageX - offsetX}px`;
+        ghost.style.top = `${e.pageY - offsetY}px`;
     });
 
     thumb.addEventListener("touchstart", (e) => {
@@ -905,7 +946,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         ghost = document.createElement("img");
         ghost.src = thumb.src;
         ghost.classList.add("storeThumb");
-        ghost.style.position = "fixed";
+        ghost.style.position = "absolute";
         ghost.style.pointerEvents = "none";
         ghost.style.zIndex = "99999";
         ghost.style.width = "40px";
@@ -915,27 +956,27 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         const rect = thumb.getBoundingClientRect();
         const touch = e.touches[0];
 
-        offsetX = touch.clientX - rect.left;
-        offsetY = touch.clientY - rect.top;
+        offsetX = touch.pageX - rect.left;
+        offsetY = touch.pageY - rect.top;
 
-        ghost.style.left = `${touch.clientX - offsetX}px`;
-        ghost.style.top = `${touch.clientY - offsetY}px`;
+        ghost.style.left = `${touch.pageX - offsetX}px`;
+        ghost.style.top = `${touch.pageY - offsetY}px`;
     }, { passive: false });
 
     document.addEventListener("mousemove", (e) => {
         if (!dragging || !ghost) return;
 
-        const x = e.clientX - offsetX;
-        const y = e.clientY - offsetY;
+        const x = e.pageX - offsetX;
+        const y = e.pageY - offsetY;
 
         ghost.style.left = `${x}px`;
         ghost.style.top = `${y}px`;
 
         const insideTheatre =
-            e.clientX >= theatreRect.left &&
-            e.clientX <= theatreRect.right &&
-            e.clientY >= theatreRect.top &&
-            e.clientY <= theatreRect.bottom;
+            e.pageX >= theatreRect.left &&
+            e.pageX <= theatreRect.right &&
+            e.pageY >= theatreRect.top &&
+            e.pageY <= theatreRect.bottom;
 
         if (!insideTheatre) {
             ghost.classList.add("noEntryGhost");
@@ -948,17 +989,17 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         if (!dragging || !ghost) return;
         const touch = e.touches[0];
 
-        const x = touch.clientX - offsetX;
-        const y = touch.clientY - offsetY;
+        const x = touch.pageX - offsetX;
+        const y = touch.pageY - offsetY;
 
         ghost.style.left = `${x}px`;
         ghost.style.top = `${y}px`;
 
         const insideTheatre =
-            touch.clientX >= theatreRect.left &&
-            touch.clientX <= theatreRect.right &&
-            touch.clientY >= theatreRect.top &&
-            touch.clientY <= theatreRect.bottom;
+            touch.pageX >= theatreRect.left &&
+            touch.pageX <= theatreRect.right &&
+            touch.pageY >= theatreRect.top &&
+            touch.pageY <= theatreRect.bottom;
 
         if (!insideTheatre) {
             ghost.classList.add("noEntryGhost");
@@ -975,8 +1016,8 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         if (ghost) ghost.remove();
 
-        const dropX = e.clientX;
-        const dropY = e.clientY;
+        const dropX = e.pageX;
+        const dropY = e.pageY;
 
         const insideTheatre =
             dropX >= theatreRect.left &&
@@ -1003,7 +1044,8 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         if (originalEl.dataset.startingWidth) {
             originalEl.style.width = originalEl.dataset.startingWidth + "px";
-            el.style.height = "auto";
+            originalEl.style.height = "auto";
+            originalEl.dataset.virtualWidth = originalEl.dataset.startingWidth;
         }
 
         originalEl.style.transform = "";
@@ -1021,6 +1063,8 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         originalEl.dataset.originalLeft = left;
         originalEl.dataset.originalTop = top;
+        originalEl.dataset.virtualLeft = String(left);
+        originalEl.dataset.virtualTop = String(top);
 
         makeDraggable(originalEl);
         saveItemState(originalEl);
@@ -1033,8 +1077,8 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         if (ghost) ghost.remove();
 
         const touch = e.changedTouches[0];
-        const dropX = touch.clientX;
-        const dropY = touch.clientY;
+        const dropX = touch.pageX;
+        const dropY = touch.pageY;
 
         const insideTheatre =
             dropX >= theatreRect.left &&
@@ -1064,6 +1108,8 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         if (originalEl.dataset.startingWidth) {
             originalEl.style.width = originalEl.dataset.startingWidth + "px";
+            originalEl.style.height = "auto";
+            originalEl.dataset.virtualWidth = originalEl.dataset.startingWidth;
         }
 
         originalEl.style.transform = "";
@@ -1079,6 +1125,8 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         originalEl.dataset.originalLeft = left;
         originalEl.dataset.originalTop = top;
+        originalEl.dataset.virtualLeft = String(left);
+        originalEl.dataset.virtualTop = String(top);
 
         makeDraggable(originalEl);
         saveItemState(originalEl);
@@ -1172,29 +1220,37 @@ function applyResponsiveLayout() {
     if (!wrapper) return;
 
     const currentWidth = wrapper.clientWidth;
-    if (!lastTheatreWidth) {
-        lastTheatreWidth = currentWidth;
+    if (!initialTheatreWidth) {
+        initialTheatreWidth = currentWidth;
+
+        document.querySelectorAll(".equipmentItem").forEach(el => {
+            const left = parseFloat(el.style.left || "0");
+            const top = parseFloat(el.style.top || "0");
+
+            const baseWidth = el.style.width
+                ? parseFloat(el.style.width)
+                : (el.dataset.startingWidth ? parseFloat(el.dataset.startingWidth) : el.offsetWidth);
+
+            el.dataset.virtualLeft = String(left);
+            el.dataset.virtualTop = String(top);
+            el.dataset.virtualWidth = String(baseWidth);
+        });
+
         return;
     }
 
-    const factor = currentWidth / lastTheatreWidth;
-    if (factor === 1) return;
+    const factor = currentWidth / initialTheatreWidth;
 
     document.querySelectorAll(".equipmentItem").forEach(el => {
-        const left = parseFloat(el.style.left || "0");
-        const top = parseFloat(el.style.top || "0");
+        const vLeft = parseFloat(el.dataset.virtualLeft || "0");
+        const vTop = parseFloat(el.dataset.virtualTop || "0");
+        const vWidth = parseFloat(el.dataset.virtualWidth || (el.dataset.startingWidth || "200"));
 
-        const baseWidth = el.style.width
-            ? parseFloat(el.style.width)
-            : (el.dataset.startingWidth ? parseFloat(el.dataset.startingWidth) : el.offsetWidth);
-
-        el.style.left = (left * factor) + "px";
-        el.style.top = (top * factor) + "px";
-        el.style.width = (baseWidth * factor) + "px";
+        el.style.left = (vLeft * factor) + "px";
+        el.style.top = (vTop * factor) + "px";
+        el.style.width = (vWidth * factor) + "px";
         el.style.height = "auto";
     });
-
-    lastTheatreWidth = currentWidth;
 }
 
 /* ----------------------------------------------------
@@ -1207,4 +1263,3 @@ window.onload = () => {
 
     scaleRoomContents();
     updateCategoryButtonColours();
-};
