@@ -1263,3 +1263,4 @@ window.onload = () => {
 
     scaleRoomContents();
     updateCategoryButtonColours();
+    };
