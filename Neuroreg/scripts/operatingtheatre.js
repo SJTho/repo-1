@@ -9,6 +9,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 /* ----------------------------------------------------
    GLOBAL STATE
 ---------------------------------------------------- */
+const BASELINE_THEATRE_WIDTH = 1000;
+let initialTheatreWidth = null;
+let currentScaleFactor = 1;
+
 let categoryMap = {
     room: [],
     anaesthetic: [],
@@ -23,8 +27,7 @@ const revealIndex = {
     staff: 0
 };
 
-let initialTheatreWidth = null;
-const BASELINE_THEATRE_WIDTH = 1000;
+let saveQueue = new Map();
 
 /* ----------------------------------------------------
    MAIN INITIALISATION
@@ -61,6 +64,7 @@ async function initOperatingTheatre() {
     } else {
         initialTheatreWidth = BASELINE_THEATRE_WIDTH;
     }
+    currentScaleFactor = 1;
 
     applyResponsiveLayout();
     window.addEventListener("resize", applyResponsiveLayout);
@@ -76,16 +80,16 @@ function enforceLandscapeMessage() {
     const overlay = document.getElementById("orientationOverlay");
     if (!overlay) return;
 
-    function update() {
+    const update = () => {
         const isLandscape = window.innerWidth > window.innerHeight;
         overlay.style.display = isLandscape ? "none" : "flex";
-    }
+    };
 
     let timeout;
-    function debouncedUpdate() {
+    const debouncedUpdate = () => {
         clearTimeout(timeout);
         timeout = setTimeout(update, 120);
-    }
+    };
 
     update();
     window.addEventListener("resize", debouncedUpdate);
@@ -110,7 +114,7 @@ function setupHamburgerToggle() {
             !dropdown.contains(event.target)) {
             dropdown.style.display = "none";
         }
-    });
+    }, { capture: true });
 }
 
 /* ----------------------------------------------------
@@ -253,7 +257,7 @@ async function loadOperationsMenu() {
     ops.forEach(op => {
         const div = document.createElement("div");
         div.className = "operationItem";
-        div.dataset.opId = op.id;
+        div.dataset.opId = String(op.id);
         div.textContent = op.name || op.operation_name || `Operation ${op.id}`;
         frag.appendChild(div);
     });
@@ -270,6 +274,8 @@ async function loadOperationsMenu() {
         });
     }
 
+    dropdown.opReq = opReq;
+
     button.addEventListener("click", () => {
         dropdown.classList.toggle("open");
     });
@@ -280,29 +286,21 @@ async function loadOperationsMenu() {
         }
     });
 
-    dropdown.dataset.opReq = JSON.stringify(opReq);
-    evaluateOperations();
+    dispatchTheatreChanged();
 }
 
 /* ----------------------------------------------------
    Operations Evaluation
 ---------------------------------------------------- */
-async function evaluateOperations() {
+function evaluateOperations() {
     const dropdown = document.getElementById("operationsDropdown");
     if (!dropdown) return;
 
     const deployed = Array.from(document.querySelectorAll(".equipmentItem"))
-        .filter(el => el.dataset.location === "theatre")
+        .filter(el => el.location === "theatre")
         .map(el => Number(el.dataset.itemId));
 
-    let opReq = {};
-    if (dropdown.dataset.opReq) {
-        try {
-            opReq = JSON.parse(dropdown.dataset.opReq);
-        } catch {
-            opReq = {};
-        }
-    }
+    const opReq = dropdown.opReq || {};
 
     dropdown.querySelectorAll(".operationItem").forEach(div => {
         const opId = Number(div.dataset.opId);
@@ -310,17 +308,19 @@ async function evaluateOperations() {
 
         const presentCount = required.filter(id => deployed.includes(id)).length;
 
-        div.classList.remove("performable", "incomplete", "impossible");
-
+        let status;
         if (required.length === 0) {
-            div.classList.add("impossible");
+            status = "impossible";
         } else if (presentCount === required.length) {
-            div.classList.add("performable");
+            status = "performable";
         } else if (presentCount > 0) {
-            div.classList.add("incomplete");
+            status = "incomplete";
         } else {
-            div.classList.add("impossible");
+            status = "impossible";
         }
+
+        div.classList.remove("performable", "incomplete", "impossible");
+        div.classList.add(status);
     });
 }
 
@@ -386,29 +386,34 @@ async function loadDraggableItemsFromSupabase() {
         if (!unlocked) return;
 
         const img = document.createElement("img");
-        const startingWidth = row.starting_width ?? 200;
-        const startingHeight = row.starting_height ?? 400;
 
         img.src = row.url;
         img.dataset.category = category;
         img.dataset.itemId = String(row.id);
-        img.dataset.scale = "1";
-        img.dataset.virtualScale = "1";
-        img.dataset.flipped = "false";
-        img.dataset.deployed = "false";
-        img.dataset.startingWidth = String(startingWidth);
-        img.dataset.startingHeight = String(startingHeight);
+
+        img.startingWidth = row.starting_width ?? 200;
+        img.startingHeight = row.starting_height ?? 400;
+
+        img.virtualWidth = img.startingWidth;
+        img.virtualHeight = img.startingHeight;
+
+        img.virtualLeft = 0;
+        img.virtualTop = 0;
+
+        img.scale = 1;
+        img.virtualScale = 1;
+
+        img.flipped = false;
+        img.location = "undeployed";
+        img.zIndex = 1;
 
         img.classList.add("equipmentItem", `${category}Item`);
         img.style.display = "none";
         img.style.position = "absolute";
 
         img.addEventListener("load", () => {
-            img.style.width = startingWidth + "px";
-            img.style.height = startingHeight + "px";
-
-            img.dataset.virtualWidth = String(startingWidth);
-            img.dataset.virtualHeight = String(startingHeight);
+            img.style.width = img.startingWidth + "px";
+            img.style.height = img.startingHeight + "px";
         }, { once: true });
 
         frag.appendChild(img);
@@ -437,25 +442,17 @@ async function restoreItemStates() {
         );
         if (!el) return;
 
-        el.dataset.scale = String(state.scale);
-        el.dataset.virtualScale = String(state.scale);
-        el.dataset.flipped = state.flip ? "true" : "false";
+        el.scale = state.scale;
+        el.virtualScale = state.scale;
+        el.flipped = !!state.flip;
         applyTransform(el);
 
-        const applySize = () => {
-            const sw = parseFloat(el.dataset.startingWidth || "200");
-            const sh = parseFloat(el.dataset.startingHeight || "200");
-            el.style.width = sw + "px";
-            el.style.height = sh + "px";
-            el.dataset.virtualWidth = String(sw);
-            el.dataset.virtualHeight = String(sh);
-        };
-
-        if (el.complete) {
-            applySize();
-        } else {
-            el.addEventListener("load", applySize, { once: true });
-        }
+        const sw = el.startingWidth;
+        const sh = el.startingHeight;
+        el.virtualWidth = sw;
+        el.virtualHeight = sh;
+        el.style.width = sw + "px";
+        el.style.height = sh + "px";
 
         if (state.store) {
             const room = (el.dataset.category === "staff")
@@ -463,42 +460,45 @@ async function restoreItemStates() {
                 : document.getElementById("storeroom");
 
             if (room) {
-                el.dataset.location = (room.id === "staffroom") ? "staffroom" : "storeroom";
-                el.dataset.deployed = "true";
+                el.location = room.id === "staffroom" ? "staffroom" : "storeroom";
                 moveItemToRoom(el, room);
             }
             return;
         }
 
-        el.dataset.location = "theatre";
-        el.dataset.deployed = "true";
+        el.location = "theatre";
+
+        el.virtualLeft = state.left;
+        el.virtualTop = state.top;
+        el.zIndex = state.z ?? 1;
+
+        const wrapper = document.getElementById("theatreWrapper");
+        const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) : BASELINE_THEATRE_WIDTH;
+        const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
 
         el.style.display = "block";
-        el.style.left = `${state.left}px`;
-        el.style.top = `${state.top}px`;
-        el.style.zIndex = String(state.z ?? 1);
-
-        el.dataset.originalLeft = state.left;
-        el.dataset.originalTop = state.top;
-        el.dataset.virtualLeft = String(state.left);
-        el.dataset.virtualTop = String(state.top);
+        el.style.left = (el.virtualLeft * factor) + "px";
+        el.style.top = (el.virtualTop * factor) + "px";
+        el.style.zIndex = String(el.zIndex);
 
         makeDraggable(el);
     });
 
     scaleRoomContents();
     updateCategoryButtonColours();
-    evaluateOperations();
+    dispatchTheatreChanged();
 }
 
 /* ----------------------------------------------------
    Save the location of draggable items
 ---------------------------------------------------- */
-let saveTimeout = null;
-
 function scheduleSave(el) {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => saveItemState(el), 120);
+    const id = el.dataset.itemId;
+    const existing = saveQueue.get(id);
+    if (existing) clearTimeout(existing);
+
+    const timeout = setTimeout(() => saveItemState(el), 120);
+    saveQueue.set(id, timeout);
 }
 
 async function saveItemState(el) {
@@ -507,15 +507,12 @@ async function saveItemState(el) {
 
     const itemId = Number(el.dataset.itemId);
 
-    const left = parseInt(el.style.left || "0");
-    const top = parseInt(el.style.top || "0");
-
-    const scale = parseFloat(el.dataset.scale || "1");
-    const flip = (el.dataset.flipped === "true");
-
-    const store = (el.dataset.location === "storeroom" || el.dataset.location === "staffroom");
-
-    const z = parseInt(el.style.zIndex || "1");
+    const left = el.virtualLeft;
+    const top = el.virtualTop;
+    const scale = el.scale;
+    const flip = el.flipped;
+    const store = (el.location === "storeroom" || el.location === "staffroom");
+    const z = el.zIndex || 1;
 
     await supabase
         .from("per_user_theatre_state")
@@ -533,7 +530,7 @@ async function saveItemState(el) {
             onConflict: "userid,itemId"
         });
 
-    document.dispatchEvent(new Event("theatreChanged"));
+    dispatchTheatreChanged();
 }
 
 /* ----------------------------------------------------
@@ -541,11 +538,18 @@ async function saveItemState(el) {
 ---------------------------------------------------- */
 function buildCategoryMap() {
     categoryMap = {
-        room: Array.from(document.querySelectorAll(".equipmentItem[data-category='room']")),
-        anaesthetic: Array.from(document.querySelectorAll(".equipmentItem[data-category='anaesthetic']")),
-        surgical: Array.from(document.querySelectorAll(".equipmentItem[data-category='surgical']")),
-        staff: Array.from(document.querySelectorAll(".equipmentItem[data-category='staff']"))
+        room: [],
+        anaesthetic: [],
+        surgical: [],
+        staff: []
     };
+
+    document.querySelectorAll(".equipmentItem").forEach(el => {
+        const category = el.dataset.category;
+        if (categoryMap[category]) {
+            categoryMap[category].push(el);
+        }
+    });
 
     revealIndex.room = 0;
     revealIndex.anaesthetic = 0;
@@ -577,34 +581,21 @@ function revealNextItem(categoryKey) {
     equipmentContainer.appendChild(item);
 
     item.style.display = "block";
-    item.dataset.scale = item.dataset.scale || "1";
-    item.dataset.virtualScale = item.dataset.virtualScale || item.dataset.scale || "1";
-    item.dataset.flipped = item.dataset.flipped || "false";
+    item.location = "theatre";
 
-    const applySize = () => {
-        const sw = parseFloat(item.dataset.startingWidth || "200");
-        const sh = parseFloat(item.dataset.startingHeight || "200");
-        item.style.width = sw + "px";
-        item.style.height = sh + "px";
-        item.dataset.virtualWidth = String(sw);
-        item.dataset.virtualHeight = String(sh);
-    };
-
-    if (item.complete) {
-        applySize();
-    } else {
-        item.addEventListener("load", applySize, { once: true });
-    }
-
-    item.dataset.deployed = "true";
-    item.dataset.location = "theatre";
+    const sw = item.startingWidth;
+    const sh = item.startingHeight;
+    item.virtualWidth = sw;
+    item.virtualHeight = sh;
+    item.style.width = sw + "px";
+    item.style.height = sh + "px";
 
     centerItemOnBackground(item);
     makeDraggable(item);
 
     revealIndex[categoryKey]++;
     updateCategoryButtonColours();
-    document.dispatchEvent(new Event("theatreChanged"));
+    dispatchTheatreChanged();
 }
 
 /* ----------------------------------------------------
@@ -617,22 +608,23 @@ function centerItemOnBackground(item) {
     const center = () => {
         const wrapperRect = wrapper.getBoundingClientRect();
 
-        const itemWidth = parseFloat(item.dataset.virtualWidth || item.offsetWidth || "200");
-        const itemHeight = parseFloat(item.dataset.virtualHeight || item.offsetHeight || "200");
+        const itemWidth = item.virtualWidth || item.offsetWidth || 200;
+        const itemHeight = item.virtualHeight || item.offsetHeight || 200;
 
         const left = (wrapperRect.width / 2) - (itemWidth / 2);
         const top = (wrapperRect.height / 2) - (itemHeight / 2);
 
-        item.style.left = `${left}px`;
-        item.style.top = `${top}px`;
+        const width = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
+        const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
 
-        item.dataset.originalLeft = left;
-        item.dataset.originalTop = top;
-        item.dataset.virtualLeft = String(left);
-        item.dataset.virtualTop = String(top);
+        item.virtualLeft = left / factor;
+        item.virtualTop = top / factor;
+
+        item.style.left = left + "px";
+        item.style.top = top + "px";
     };
 
-    if (item.complete) {
+    if (item.complete || item.naturalWidth > 0) {
         center();
     } else {
         item.addEventListener("load", center, { once: true });
@@ -647,37 +639,36 @@ function updateCategoryButtonColours() {
         const category = btn.dataset.category;
         const items = categoryMap[category] || [];
 
-        const hasUndeployed = items.some(item => item.dataset.deployed === "false");
+        const hasUndeployed = items.some(item => item.location !== "theatre");
 
         btn.style.backgroundColor = hasUndeployed ? "green" : "";
 
         const badge = btn.querySelector(".levelBadge");
         if (badge) {
-            badge.textContent = String(items.length);
+            const undeployedCount = items.filter(i => i.location !== "theatre").length;
+            badge.textContent = String(undeployedCount);
         }
     });
 }
 
 /* ----------------------------------------------------
-   Drag, Resize, Flip System
+   Drag, Resize, Flip System (Pointer Events)
 ---------------------------------------------------- */
 function makeDraggable(el) {
-    let offsetX = 0;
-    let offsetY = 0;
-    let isDragging = false;
-    let dragStarted = false;
+    let dragActive = false;
     let startX = 0;
     let startY = 0;
+    let offsetX = 0;
+    let offsetY = 0;
 
-    let pinchStartDist = 0;
     let pinchActive = false;
-    let pinchSuppressUntil = 0;
-
+    let pinchStartDist = 0;
     let lastTapTime = 0;
 
-    /* DESKTOP DRAG */
-    el.addEventListener("mousedown", (e) => {
-        if (Date.now() < pinchSuppressUntil) return;
+    el.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0) return;
+
+        el.setPointerCapture(e.pointerId);
 
         if (el.style.display === "none") {
             el.style.display = "block";
@@ -691,194 +682,66 @@ function makeDraggable(el) {
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
 
-        dragStarted = true;
+        dragActive = true;
+        el.zIndex = getNextZIndex();
+        el.style.zIndex = String(el.zIndex);
     });
 
-    document.addEventListener("mousemove", (e) => {
-        if (!dragStarted) return;
+    el.addEventListener("pointermove", (e) => {
+        if (!dragActive) return;
+
+        if (e.pointerType === "touch" && e.isPrimary === false) {
+            return;
+        }
 
         const wrapper = document.getElementById("theatreWrapper");
         if (!wrapper || !initialTheatreWidth) return;
 
         const parentRect = el.parentElement.getBoundingClientRect();
-
-        if (!isDragging) {
-            const dx = Math.abs(e.clientX - startX);
-            const dy = Math.abs(e.clientY - startY);
-            if (dx < 6 && dy < 6) return;
-
-            isDragging = true;
-            el.style.zIndex = getNextZIndex();
-        }
-
         const left = e.clientX - offsetX - parentRect.left;
         const top = e.clientY - offsetY - parentRect.top;
 
+        const width = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
+        const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
+
+        el.virtualLeft = left / factor;
+        el.virtualTop = top / factor;
+
         el.style.left = left + "px";
         el.style.top = top + "px";
-
-        const factor = wrapper.clientWidth / initialTheatreWidth;
-        el.dataset.virtualLeft = String(left / factor);
-        el.dataset.virtualTop = String(top / factor);
 
         highlightRoomOnHover(el);
     });
 
-    document.addEventListener("mouseup", () => {
-        if (dragStarted) {
-            const wrapper = document.getElementById("theatreWrapper");
-            if (wrapper && initialTheatreWidth) {
-                const currentWidth = wrapper.clientWidth;
-                const factor = currentWidth / initialTheatreWidth;
-                const currentLeft = parseFloat(el.style.left || "0");
-                const currentTop = parseFloat(el.style.top || "0");
-                el.dataset.virtualLeft = String(currentLeft / factor);
-                el.dataset.virtualTop = String(currentTop / factor);
-                el.dataset.originalLeft = currentLeft / factor;
-                el.dataset.originalTop = currentTop / factor;
-            }
-
-            attemptRoomDrop(el);
+    el.addEventListener("pointerup", (e) => {
+        if (dragActive) {
+            dragActive = false;
             clearRoomHighlights();
+            attemptRoomDrop(el);
             scheduleSave(el);
         }
 
-        dragStarted = false;
-        isDragging = false;
-    });
+        const now = Date.now();
+        const tapGap = now - lastTapTime;
 
-    /* MOBILE TOUCH DRAG + PINCH */
-    el.addEventListener("touchstart", (e) => {
-        if (e.touches.length === 2) {
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
-            pinchStartDist = Math.hypot(dx, dy);
-            pinchActive = true;
-            dragStarted = false;
-            isDragging = false;
-            return;
-        }
-
-        if (Date.now() < pinchSuppressUntil) return;
-
-        const touch = e.touches[0];
-
-        if (el.style.display === "none") {
-            el.style.display = "block";
-            removeItemFromRooms(el);
-        }
-
-        startX = touch.clientX;
-        startY = touch.clientY;
-
-        const rect = el.getBoundingClientRect();
-        offsetX = touch.clientX - rect.left;
-        offsetY = touch.clientY - rect.top;
-
-        dragStarted = true;
-    }, { passive: false });
-
-    el.addEventListener("touchmove", (e) => {
-        if (e.touches.length === 2) {
-            e.preventDefault();
-
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
-            const newDist = Math.hypot(dx, dy);
-
-            let scale = parseFloat(el.dataset.scale || "1");
-            const delta = newDist / pinchStartDist;
-
-            scale = Math.max(0.3, Math.min(3, scale * delta));
-            el.dataset.scale = String(scale);
-            el.dataset.virtualScale = String(scale);
-
+        if (tapGap < 300 && !dragActive && e.pointerType === "mouse") {
+            el.flipped = !el.flipped;
             applyTransform(el);
             scheduleSave(el);
-
-            pinchStartDist = newDist;
-            pinchActive = true;
-            dragStarted = false;
-            isDragging = false;
-            return;
-        }
-
-        if (!dragStarted) return;
-        e.preventDefault();
-
-        const touch = e.touches[0];
-
-        const wrapper = document.getElementById("theatreWrapper");
-        if (!wrapper || !initialTheatreWidth) return;
-
-        if (!isDragging) {
-            const dx = Math.abs(touch.clientX - startX);
-            const dy = Math.abs(touch.clientY - startY);
-            if (dx < 6 && dy < 6) return;
-
-            isDragging = true;
-            el.style.zIndex = getNextZIndex();
-        }
-
-        const parentRect = el.parentElement.getBoundingClientRect();
-        const left = touch.clientX - offsetX - parentRect.left;
-        const top = touch.clientY - offsetY - parentRect.top;
-
-        el.style.left = left + "px";
-        el.style.top = top + "px";
-
-        const factor = wrapper.clientWidth / initialTheatreWidth;
-        el.dataset.virtualLeft = String(left / factor);
-        el.dataset.virtualTop = String(top / factor);
-
-        highlightRoomOnHover(el);
-    }, { passive: false });
-
-    el.addEventListener("touchend", (e) => {
-        const now = Date.now();
-
-        if (pinchActive && e.touches.length < 2) {
-            pinchActive = false;
-            pinchSuppressUntil = now + 450;
-        }
-
-        if (now >= pinchSuppressUntil) {
-            const tapGap = now - lastTapTime;
-
-            if (tapGap < 300 && !isDragging && e.touches.length === 0) {
-                el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
-                applyTransform(el);
-                scheduleSave(el);
-            }
         }
 
         lastTapTime = now;
+        el.releasePointerCapture(e.pointerId);
+    });
 
-        if (dragStarted) {
-            const wrapper = document.getElementById("theatreWrapper");
-            if (wrapper && initialTheatreWidth) {
-                const currentWidth = wrapper.clientWidth;
-                const factor = currentWidth / initialTheatreWidth;
-                const currentLeft = parseFloat(el.style.left || "0");
-                const currentTop = parseFloat(el.style.top || "0");
-                el.dataset.virtualLeft = String(currentLeft / factor);
-                el.dataset.virtualTop = String(currentTop / factor);
-                el.dataset.originalLeft = currentLeft / factor;
-                el.dataset.originalTop = currentTop / factor;
-            }
+    el.addEventListener("pointercancel", (e) => {
+        dragActive = false;
+        clearRoomHighlights();
+        el.releasePointerCapture(e.pointerId);
+    });
 
-            attemptRoomDrop(el);
-            clearRoomHighlights();
-            scheduleSave(el);
-        }
-
-        dragStarted = false;
-        isDragging = false;
-    }, { passive: false });
-
-    /* DESKTOP WHEEL ZOOM */
     el.addEventListener("wheel", (e) => {
-        if (isDragging) return;
+        if (dragActive) return;
         e.preventDefault();
 
         if (Math.abs(e.deltaY) < 5) return;
@@ -887,44 +750,34 @@ function makeDraggable(el) {
         if (now - (el._lastWheelTime || 0) < 40) return;
         el._lastWheelTime = now;
 
-        let scale = parseFloat(el.dataset.scale || "1");
         const delta = e.deltaY < 0 ? 1.02 : 0.98;
+        const newScale = Math.max(0.3, Math.min(3, el.scale * delta));
 
-        scale = Math.max(0.3, Math.min(3, scale * delta));
-        el.dataset.scale = String(scale);
-        el.dataset.virtualScale = String(scale);
+        el.scale = newScale;
+        el.virtualScale = newScale;
 
         applyTransform(el);
         scheduleSave(el);
     }, { passive: false });
 
-    /* DESKTOP DOUBLE CLICK FLIP */
     el.addEventListener("dblclick", () => {
-        el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
+        el.flipped = !el.flipped;
         applyTransform(el);
         scheduleSave(el);
     });
 }
 
 function applyTransform(el) {
-    const scale = parseFloat(el.dataset.scale || "1");
-    const flipped = (el.dataset.flipped === "true");
+    const scale = el.scale;
+    const flip = el.flipped ? -1 : 1;
 
-    const flipPart = flipped ? "scaleX(-1)" : "scaleX(1)";
     el.style.transformOrigin = "center center";
-    el.style.transform = `${flipPart} scale(${scale})`;
+    el.style.transform = `scale(${flip * scale}, ${scale})`;
 }
 
+let maxZIndex = 1;
 function getNextZIndex() {
-    const items = document.querySelectorAll(".equipmentItem");
-    let maxZ = 0;
-
-    items.forEach(item => {
-        const z = parseInt(window.getComputedStyle(item).zIndex) || 0;
-        if (z > maxZ) maxZ = z;
-    });
-
-    return maxZ + 1;
+    return ++maxZIndex;
 }
 
 /* ----------------------------------------------------
@@ -981,16 +834,16 @@ function attemptRoomDrop(el) {
         elRect.top < staffRect.bottom;
 
     if (droppedInStore) {
-        el.dataset.location = "storeroom";
-        el.dataset.deployed = "true";
+        el.location = "storeroom";
         moveItemToRoom(el, storeRoom);
+    } else if (droppedInStaff) {
+        el.location = "staffroom";
+        moveItemToRoom(el, staffRoom);
+    } else {
+        el.location = "theatre";
     }
 
-    if (droppedInStaff) {
-        el.dataset.location = "staffroom";
-        el.dataset.deployed = "true";
-        moveItemToRoom(el, staffRoom);
-    }
+    dispatchTheatreChanged();
 }
 
 /* ----------------------------------------------------
@@ -1009,15 +862,18 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         return theatre.getBoundingClientRect();
     }
 
-    thumb.addEventListener("mousedown", (e) => {
+    thumb.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0) return;
+
         dragging = true;
+        thumb.setPointerCapture(e.pointerId);
 
         thumb.style.visibility = "hidden";
 
         ghost = document.createElement("img");
         ghost.src = thumb.src;
         ghost.classList.add("storeThumb");
-        ghost.style.position = "absolute";
+        ghost.style.position = "fixed";
         ghost.style.pointerEvents = "none";
         ghost.style.zIndex = "99999";
         ghost.style.width = "40px";
@@ -1032,34 +888,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         ghost.style.top = `${e.clientY - offsetY}px`;
     });
 
-    thumb.addEventListener("touchstart", (e) => {
-        if (e.touches.length !== 1) return;
-
-        dragging = true;
-
-        thumb.style.visibility = "hidden";
-
-        ghost = document.createElement("img");
-        ghost.src = thumb.src;
-        ghost.classList.add("storeThumb");
-        ghost.style.position = "absolute";
-        ghost.style.pointerEvents = "none";
-        ghost.style.zIndex = "99999";
-        ghost.style.width = "40px";
-
-        document.body.appendChild(ghost);
-
-        const rect = thumb.getBoundingClientRect();
-        const touch = e.touches[0];
-
-        offsetX = touch.clientX - rect.left;
-        offsetY = touch.clientY - rect.top;
-
-        ghost.style.left = `${touch.clientX - offsetX}px`;
-        ghost.style.top = `${touch.clientY - offsetY}px`;
-    }, { passive: false });
-
-    document.addEventListener("mousemove", (e) => {
+    thumb.addEventListener("pointermove", (e) => {
         if (!dragging || !ghost) return;
 
         const x = e.clientX - offsetX;
@@ -1083,34 +912,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         }
     });
 
-    document.addEventListener("touchmove", (e) => {
-        if (!dragging || !ghost) return;
-        const touch = e.touches[0];
-
-        const x = touch.clientX - offsetX;
-        const y = touch.clientY - offsetY;
-
-        ghost.style.left = `${x}px`;
-        ghost.style.top = `${y}px`;
-
-        const rect = getTheatreRect();
-
-        const insideTheatre =
-            touch.clientX >= rect.left &&
-            touch.clientX <= rect.right &&
-            touch.clientY >= rect.top &&
-            touch.clientY <= rect.bottom;
-
-        if (!insideTheatre) {
-            ghost.classList.add("noEntryGhost");
-        } else {
-            ghost.classList.remove("noEntryGhost");
-        }
-
-        e.preventDefault();
-    }, { passive: false });
-
-    document.addEventListener("mouseup", (e) => {
+    thumb.addEventListener("pointerup", (e) => {
         if (!dragging) return;
         dragging = false;
 
@@ -1129,6 +931,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         if (!insideTheatre) {
             thumb.style.visibility = "visible";
+            thumb.releasePointerCapture(e.pointerId);
             return;
         }
 
@@ -1140,117 +943,50 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.style.display = "block";
 
         const equipmentContainer = document.getElementById("equipmentContainer");
-        if (!equipmentContainer) return;
-
-        equipmentContainer.appendChild(originalEl);
-
-       const sw = parseFloat(originalEl.dataset.startingWidth);
-const sh = parseFloat(originalEl.dataset.startingHeight);
-
-originalEl.style.width = sw + "px";
-originalEl.style.height = sh + "px";
-
-originalEl.dataset.virtualWidth = String(sw);
-originalEl.dataset.virtualHeight = String(sh);
-
-        originalEl.style.transform = "";
-        originalEl.dataset.scale = "1";
-        originalEl.dataset.virtualScale = "1";
-        originalEl.dataset.flipped = "false";
-        applyTransform(originalEl);
-
-        const parentRect = equipmentContainer.getBoundingClientRect();
-
-        const left = dropX - parentRect.left - (originalEl.offsetWidth / 2);
-        const top = dropY - parentRect.top - (originalEl.offsetHeight / 2);
-
-        originalEl.style.left = `${left}px`;
-        originalEl.style.top = `${top}px`;
-
-        originalEl.dataset.originalLeft = left;
-        originalEl.dataset.originalTop = top;
-        originalEl.dataset.virtualLeft = String(left);
-        originalEl.dataset.virtualTop = String(top);
-        originalEl.dataset.location = "theatre";
-        originalEl.dataset.deployed = "true";
-
-        makeDraggable(originalEl);
-        scheduleSave(originalEl);
-    });
-
-    document.addEventListener("touchend", (e) => {
-        if (!dragging) return;
-        dragging = false;
-
-        if (ghost) ghost.remove();
-
-        const touch = e.changedTouches[0];
-        const dropX = touch.clientX;
-        const dropY = touch.clientY;
-
-        const rect = getTheatreRect();
-
-        const insideTheatre =
-            dropX >= rect.left &&
-            dropX <= rect.right &&
-            dropY >= rect.top &&
-            dropY <= rect.bottom;
-
-        if (!insideTheatre) {
-            thumb.style.visibility = "visible";
+        if (!equipmentContainer) {
+            thumb.releasePointerCapture(e.pointerId);
             return;
         }
 
-        thumb.remove();
-        updateRoomEmoji(room);
-        scaleRoomContents();
-        updateCategoryButtonColours();
-
-        originalEl.style.display = "block";
-
-        const equipmentContainer = document.getElementById("equipmentContainer");
-        if (!equipmentContainer) return;
-        const parentRect = equipmentContainer.getBoundingClientRect();
-
         equipmentContainer.appendChild(originalEl);
 
-      // 🔥 FIXED: no fallback, always use Supabase values
-const sw = parseFloat(originalEl.dataset.startingWidth);
-const sh = parseFloat(originalEl.dataset.startingHeight);
+        const sw = originalEl.startingWidth;
+        const sh = originalEl.startingHeight;
 
-originalEl.style.width = sw + "px";
-originalEl.style.height = sh + "px";
-originalEl.dataset.virtualWidth = String(sw);
-originalEl.dataset.virtualHeight = String(sh);
+        originalEl.virtualWidth = sw;
+        originalEl.virtualHeight = sh;
 
         originalEl.style.width = sw + "px";
         originalEl.style.height = sh + "px";
-        originalEl.dataset.virtualWidth = String(sw);
-        originalEl.dataset.virtualHeight = String(sh);
 
-        originalEl.style.transform = "";
-        originalEl.dataset.scale = "1";
-        originalEl.dataset.virtualScale = "1";
-        originalEl.dataset.flipped = "false";
+        originalEl.scale = 1;
+        originalEl.virtualScale = 1;
+        originalEl.flipped = false;
         applyTransform(originalEl);
 
-        const left = dropX - parentRect.left - (originalEl.offsetWidth / 2);
-        const top = dropY - parentRect.top - (originalEl.offsetHeight / 2);
+        const parentRect = equipmentContainer.getBoundingClientRect();
+        const width = theatre.clientWidth || BASELINE_THEATRE_WIDTH;
+        const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
 
-        originalEl.style.left = `${left}px`;
-        originalEl.style.top = `${top}px`;
+        const left = dropX - parentRect.left - (sw * factor / 2);
+        const top = dropY - parentRect.top - (sh * factor / 2);
 
-        originalEl.dataset.originalLeft = left;
-        originalEl.dataset.originalTop = top;
-        originalEl.dataset.virtualLeft = String(left);
-        originalEl.dataset.virtualTop = String(top);
+        originalEl.virtualLeft = left / factor;
+        originalEl.virtualTop = top / factor;
+
+        originalEl.style.left = left + "px";
+        originalEl.style.top = top + "px";
+
+        originalEl.location = "theatre";
 
         makeDraggable(originalEl);
         scheduleSave(originalEl);
-        evaluateOperations();
-    }, { passive: false });
+        dispatchTheatreChanged();
 
-    evaluateOperations();
+        thumb.releasePointerCapture(e.pointerId);
+    });
+
+    dispatchTheatreChanged();
 }
 
 /* ----------------------------------------------------
@@ -1260,13 +996,13 @@ function moveItemToRoom(el, room) {
     const thumb = document.createElement("img");
     thumb.src = el.src;
     thumb.classList.add("storeThumb");
+    thumb.dataset.itemId = el.dataset.itemId;
 
     room.appendChild(thumb);
 
     el.style.display = "none";
 
-    el.dataset.location = (room.id === "staffroom") ? "staffroom" : "storeroom";
-    el.dataset.deployed = "true";
+    el.location = room.id === "staffroom" ? "staffroom" : "storeroom";
 
     makeThumbnailDraggable(thumb, el, room);
 
@@ -1274,7 +1010,7 @@ function moveItemToRoom(el, room) {
     scaleRoomContents();
     updateCategoryButtonColours();
     scheduleSave(el);
-    evaluateOperations();
+    dispatchTheatreChanged();
 }
 
 function removeItemFromRooms(el) {
@@ -1283,16 +1019,16 @@ function removeItemFromRooms(el) {
     rooms.forEach(room => {
         const thumbs = room.querySelectorAll(".storeThumb");
         thumbs.forEach(t => {
-            if (t.src === el.src) t.remove();
+            if (t.dataset.itemId === el.dataset.itemId) t.remove();
         });
         updateRoomEmoji(room);
     });
 
-    el.dataset.location = "theatre";
+    el.location = "theatre";
 
     scaleRoomContents();
     updateCategoryButtonColours();
-    evaluateOperations();
+    dispatchTheatreChanged();
 }
 
 function updateRoomEmoji(room) {
@@ -1340,44 +1076,48 @@ function applyResponsiveLayout() {
 
     if (!initialTheatreWidth) {
         initialTheatreWidth = currentWidth;
+        currentScaleFactor = 1;
 
         document.querySelectorAll(".equipmentItem").forEach(el => {
             const left = parseFloat(el.style.left || "0");
             const top = parseFloat(el.style.top || "0");
 
-            const baseWidth = el.style.width
-                ? parseFloat(el.style.width)
-                : (el.dataset.startingWidth ? parseFloat(el.dataset.startingWidth) : el.offsetWidth);
+            el.virtualLeft = left;
+            el.virtualTop = top;
 
-            const baseHeight = el.style.height
-                ? parseFloat(el.style.height)
-                : (el.dataset.startingHeight ? parseFloat(el.dataset.startingHeight) : el.offsetHeight);
+            el.virtualWidth = el.startingWidth;
+            el.virtualHeight = el.startingHeight;
 
-            el.dataset.virtualLeft = String(left);
-            el.dataset.virtualTop = String(top);
-            el.dataset.virtualWidth = String(baseWidth);
-            el.dataset.virtualHeight = String(baseHeight);
-            el.dataset.virtualScale = el.dataset.virtualScale || el.dataset.scale || "1";
+            el.virtualScale = el.scale || 1;
         });
 
         return;
     }
 
-    const factor = currentWidth / initialTheatreWidth;
+    currentScaleFactor = currentWidth / initialTheatreWidth;
 
     document.querySelectorAll(".equipmentItem").forEach(el => {
-        const vLeft = parseFloat(el.dataset.virtualLeft || "0");
-        const vTop = parseFloat(el.dataset.virtualTop || "0");
-        const vWidth = parseFloat(el.dataset.virtualWidth || (el.dataset.startingWidth || "200"));
-        const vHeight = parseFloat(el.dataset.virtualHeight || (el.dataset.startingHeight || "200"));
-        const vScale = parseFloat(el.dataset.virtualScale || el.dataset.scale || "1");
+        const vLeft = el.virtualLeft || 0;
+        const vTop = el.virtualTop || 0;
+        const vWidth = el.virtualWidth || el.startingWidth || 200;
+        const vHeight = el.virtualHeight || el.startingHeight || 200;
+        const vScale = el.virtualScale || el.scale || 1;
 
-        el.style.left = (vLeft * factor) + "px";
-        el.style.top = (vTop * factor) + "px";
-        el.style.width = (vWidth * factor) + "px";
-        el.style.height = (vHeight * factor) + "px";
+        el.style.left = (vLeft * currentScaleFactor) + "px";
+        el.style.top = (vTop * currentScaleFactor) + "px";
+        el.style.width = (vWidth * currentScaleFactor) + "px";
+        el.style.height = (vHeight * currentScaleFactor) + "px";
 
-        el.dataset.scale = String(vScale * factor);
+        el.scale = vScale;
         applyTransform(el);
     });
+
+    dispatchTheatreChanged();
+}
+
+/* ----------------------------------------------------
+   Theatre Change Event
+---------------------------------------------------- */
+function dispatchTheatreChanged() {
+    document.dispatchEvent(new CustomEvent("theatreChanged"));
 }
