@@ -1079,37 +1079,36 @@ function applyResponsiveLayout() {
         currentScaleFactor = 1;
 
         document.querySelectorAll(".equipmentItem").forEach(el => {
-            const left = parseFloat(el.style.left || "0");
-            const top = parseFloat(el.style.top || "0");
-
-            el.virtualLeft = left;
-            el.virtualTop = top;
-
+            el.virtualLeft = parseFloat(el.style.left || "0");
+            el.virtualTop = parseFloat(el.style.top || "0");
             el.virtualWidth = el.startingWidth;
             el.virtualHeight = el.startingHeight;
-
             el.virtualScale = el.scale || 1;
         });
 
         return;
     }
 
-    currentScaleFactor = currentWidth / initialTheatreWidth;
+    const responsiveFactor = currentWidth / initialTheatreWidth;
 
     document.querySelectorAll(".equipmentItem").forEach(el => {
-        const vLeft = el.virtualLeft || 0;
-        const vTop = el.virtualTop || 0;
-        const vWidth = el.virtualWidth || el.startingWidth || 200;
-        const vHeight = el.virtualHeight || el.startingHeight || 200;
-        const vScale = el.virtualScale || el.scale || 1;
+        const vLeft = el.virtualLeft;
+        const vTop = el.virtualTop;
+        const vWidth = el.virtualWidth;
+        const vHeight = el.virtualHeight;
+        const userScale = el.scale;
 
-        el.style.left = (vLeft * currentScaleFactor) + "px";
-        el.style.top = (vTop * currentScaleFactor) + "px";
-        el.style.width = (vWidth * currentScaleFactor) + "px";
-        el.style.height = (vHeight * currentScaleFactor) + "px";
+        // Position scales with screen size
+        el.style.left = (vLeft * responsiveFactor) + "px";
+        el.style.top  = (vTop  * responsiveFactor) + "px";
 
-        el.scale = vScale;
-        applyTransform(el);
+        // Base size scales with screen size
+        el.style.width  = (vWidth  * responsiveFactor) + "px";
+        el.style.height = (vHeight * responsiveFactor) + "px";
+
+        // User scaling applies on top
+        el.style.transformOrigin = "center center";
+        el.style.transform = `scale(${userScale})`;
     });
 
     dispatchTheatreChanged();
