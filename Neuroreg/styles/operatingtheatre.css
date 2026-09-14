@@ -65,8 +65,6 @@
   /* Natural size behaviour */
   width: auto;
   height: auto;
-  max-width: 180px;
-  max-height: 180px;
 
   cursor: grab;
   user-select: none;
@@ -287,11 +285,6 @@
 
   #theatreWrapper {
     height: 350px;
-  }
-
-  .equipmentItem {
-    max-width: 90px;
-    max-height: 90px;
   }
 
   .storeThumb {
