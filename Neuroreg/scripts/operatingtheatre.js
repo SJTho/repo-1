@@ -24,11 +24,14 @@ const revealIndex = {
 };
 
 let initialTheatreWidth = null;
+const BASELINE_THEATRE_WIDTH = 1000;
 
 /* ----------------------------------------------------
    MAIN INITIALISATION
 ---------------------------------------------------- */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", initOperatingTheatre);
+
+async function initOperatingTheatre() {
     const nickname = localStorage.getItem("nickname");
     if (!nickname) {
         window.location.href = "login.html";
@@ -36,69 +39,78 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     enforceLandscapeMessage();
+    setupHamburgerToggle();
 
-    const hamburger = document.getElementById("hamburgerMenu");
-    const dropdown = document.getElementById("hamburgerMenuDropdown");
-
-    if (hamburger && dropdown) {
-        hamburger.addEventListener("click", () => {
-            dropdown.style.display =
-                dropdown.style.display === "flex" ? "none" : "flex";
-        });
-
-        document.addEventListener("click", (event) => {
-            if (!hamburger.contains(event.target) &&
-                !dropdown.contains(event.target)) {
-                dropdown.style.display = "none";
-            }
-        });
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) console.error("Auth getUser error:", error);
+    if (!user) {
+        window.location.href = "login.html";
+        return;
     }
 
-    (async () => {
-        const { data: { user }, error } = await supabase.auth.getUser();
+    await Promise.all([
+        loadHamburgerMenu(),
+        loadTopRightIcons()
+    ]);
 
-        if (error) console.error("Auth getUser error:", error);
+    await initTheatre();
 
-        if (!user) {
-            window.location.href = "login.html";
-            return;
-        }
+    const wrapper = document.getElementById("theatreWrapper");
+    if (wrapper) {
+        initialTheatreWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
+    } else {
+        initialTheatreWidth = BASELINE_THEATRE_WIDTH;
+    }
 
-        loadHamburgerMenu();
-        loadTopRightIcons();
-        await initTheatre();
+    applyResponsiveLayout();
+    window.addEventListener("resize", applyResponsiveLayout);
+    window.addEventListener("orientationchange", applyResponsiveLayout);
 
-        const wrapper = document.getElementById("theatreWrapper");
-        if (wrapper) {
-            initialTheatreWidth = wrapper.clientWidth;
-        }
-
-        applyResponsiveLayout();
-
-        window.addEventListener("resize", applyResponsiveLayout);
-        window.addEventListener("orientationchange", applyResponsiveLayout);
-    })();
-});
+    document.addEventListener("theatreChanged", evaluateOperations);
+}
 
 /* ----------------------------------------------------
    ROTATE PHONE MESSAGE
 ---------------------------------------------------- */
 function enforceLandscapeMessage() {
     const overlay = document.getElementById("orientationOverlay");
+    if (!overlay) return;
 
-    function checkOrientation() {
+    function update() {
         const isLandscape = window.innerWidth > window.innerHeight;
-
-        if (isLandscape) {
-            overlay.style.display = "none";
-        } else {
-            overlay.style.display = "flex";
-        }
+        overlay.style.display = isLandscape ? "none" : "flex";
     }
 
-    checkOrientation();
-    window.addEventListener("resize", checkOrientation);
-    window.addEventListener("orientationchange", checkOrientation);
+    let timeout;
+    function debouncedUpdate() {
+        clearTimeout(timeout);
+        timeout = setTimeout(update, 120);
+    }
+
+    update();
+    window.addEventListener("resize", debouncedUpdate);
+    window.addEventListener("orientationchange", update);
+}
+
+/* ----------------------------------------------------
+   Hamburger Toggle
+---------------------------------------------------- */
+function setupHamburgerToggle() {
+    const hamburger = document.getElementById("hamburgerMenu");
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+    if (!hamburger || !dropdown) return;
+
+    hamburger.addEventListener("click", () => {
+        dropdown.style.display =
+            dropdown.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!hamburger.contains(event.target) &&
+            !dropdown.contains(event.target)) {
+            dropdown.style.display = "none";
+        }
+    });
 }
 
 /* ----------------------------------------------------
@@ -126,16 +138,19 @@ async function loadHamburgerMenu() {
         return;
     }
 
+    const filtered = data.filter(item =>
+        (!item.admin || isAdmin) &&
+        item.url !== currentPage
+    );
+
     let currentSection = null;
+    const frag = document.createDocumentFragment();
 
-    data.forEach(item => {
-        if (item.admin && !isAdmin) return;
-        if (item.url === currentPage) return;
-
+    filtered.forEach(item => {
         if (currentSection !== null && item.hamburgersection !== currentSection) {
             const separator = document.createElement("div");
             separator.className = "dropdownSeparator";
-            dropdown.appendChild(separator);
+            frag.appendChild(separator);
         }
 
         currentSection = item.hamburgersection;
@@ -154,8 +169,10 @@ async function loadHamburgerMenu() {
             };
         }
 
-        dropdown.appendChild(div);
+        frag.appendChild(div);
     });
+
+    dropdown.replaceChildren(frag);
 }
 
 async function loadTopRightIcons() {
@@ -178,20 +195,27 @@ async function loadTopRightIcons() {
 
     container.innerHTML = "";
 
-    data.forEach(item => {
-        if (item.admin && !isAdmin) return;
-        if (item.url === currentPage) return;
+    const filtered = data.filter(item =>
+        (!item.admin || isAdmin) &&
+        item.url !== currentPage
+    );
 
+    const frag = document.createDocumentFragment();
+
+    filtered.forEach(item => {
         const icon = document.createElement("div");
         icon.className = "topRightIcon";
         icon.innerText = item.emoji;
+        icon.setAttribute("role", "button");
 
         icon.onclick = () => {
             window.location.href = item.url;
         };
 
-        container.appendChild(icon);
+        frag.appendChild(icon);
     });
+
+    container.replaceChildren(frag);
 }
 
 /* ----------------------------------------------------
@@ -204,38 +228,59 @@ async function loadOperationsMenu() {
 
     if (!wrapper || !button || !dropdown) return;
 
-    const { data, error } = await supabase
-        .from("operation_types")
-        .select("*")
-        .order("id", { ascending: true });
+    const [{ data: ops, error: opsError }, { data: map, error: mapError }] = await Promise.all([
+        supabase
+            .from("operation_types")
+            .select("*")
+            .order("id", { ascending: true }),
+        supabase
+            .from("itemid_operation_type_map")
+            .select("*")
+    ]);
 
-    if (error) {
-        console.error("Failed to load operation types:", error);
+    if (opsError) {
+        console.error("Failed to load operation types:", opsError);
         dropdown.innerHTML = "<div class='operationItem'>Failed to load operations</div>";
         return;
     }
+    if (mapError) {
+        console.error("Failed to load operation map:", mapError);
+    }
 
     dropdown.innerHTML = "";
+    const frag = document.createDocumentFragment();
 
-    data.forEach(op => {
+    ops.forEach(op => {
         const div = document.createElement("div");
         div.className = "operationItem";
         div.dataset.opId = op.id;
         div.textContent = op.name || op.operation_name || `Operation ${op.id}`;
-        dropdown.appendChild(div);
+        frag.appendChild(div);
     });
 
+    dropdown.replaceChildren(frag);
+
+    const opReq = {};
+    if (map) {
+        map.forEach(row => {
+            const opId = row.operationTypeId;
+            const itemId = row.itemId;
+            if (!opReq[opId]) opReq[opId] = [];
+            opReq[opId].push(itemId);
+        });
+    }
+
     button.addEventListener("click", () => {
-        dropdown.style.display =
-            dropdown.style.display === "block" ? "none" : "block";
+        dropdown.classList.toggle("open");
     });
 
     document.addEventListener("click", (e) => {
         if (!wrapper.contains(e.target)) {
-            dropdown.style.display = "none";
+            dropdown.classList.remove("open");
         }
     });
 
+    dropdown.dataset.opReq = JSON.stringify(opReq);
     evaluateOperations();
 }
 
@@ -250,25 +295,14 @@ async function evaluateOperations() {
         .filter(el => el.dataset.location === "theatre")
         .map(el => Number(el.dataset.itemId));
 
-    const { data: map, error: mapError } = await supabase
-        .from("itemid_operation_type_map")
-        .select("*");
-
-    if (mapError) {
-        console.error("Failed to load operation map:", mapError);
-        return;
-    }
-
-    const opReq = {};
-    map.forEach(row => {
-        const opId = row.operationTypeId;
-        const itemId = row.itemId;
-
-        if (!opReq[opId]) {
-            opReq[opId] = [];
+    let opReq = {};
+    if (dropdown.dataset.opReq) {
+        try {
+            opReq = JSON.parse(dropdown.dataset.opReq);
+        } catch {
+            opReq = {};
         }
-        opReq[opId].push(itemId);
-    });
+    }
 
     dropdown.querySelectorAll(".operationItem").forEach(div => {
         const opId = Number(div.dataset.opId);
@@ -300,7 +334,7 @@ async function initTheatre() {
     wireCategoryButtons();
     scaleRoomContents();
     updateCategoryButtonColours();
-    loadOperationsMenu();
+    await loadOperationsMenu();
 }
 
 /* ----------------------------------------------------
@@ -339,11 +373,11 @@ async function loadDraggableItemsFromSupabase() {
         return;
     }
 
+    const frag = document.createDocumentFragment();
+
     data.forEach(row => {
-        const category = (row.category || "").toLowerCase();
-        if (!["room", "anaesthetic", "surgical", "staff"].includes(category)) {
-            return;
-        }
+        const category = row.category?.trim().toLowerCase();
+        if (!["room", "anaesthetic", "surgical", "staff"].includes(category)) return;
 
         const unlocked =
             (streakDays >= (row.streak ?? 0)) ||
@@ -353,42 +387,34 @@ async function loadDraggableItemsFromSupabase() {
 
         const img = document.createElement("img");
         const startingWidth = row.starting_width ?? 200;
+        const startingHeight = row.starting_height ?? 200;
 
         img.src = row.url;
         img.dataset.category = category;
         img.dataset.itemId = String(row.id);
         img.dataset.scale = "1";
+        img.dataset.virtualScale = "1";
         img.dataset.flipped = "false";
         img.dataset.deployed = "false";
-        img.dataset.startingWidth = startingWidth;
+        img.dataset.startingWidth = String(startingWidth);
+        img.dataset.startingHeight = String(startingHeight);
 
         img.classList.add("equipmentItem", `${category}Item`);
         img.style.display = "none";
         img.style.position = "absolute";
 
-        // ⭐ FULLY RELIABLE ASPECT RATIO COMPUTATION
-        img.onload = async () => {
-            try {
-                await img.decode(); // ensures naturalWidth & naturalHeight are valid
-            } catch (e) {
-                console.warn("decode() failed, falling back to naturalWidth", e);
-            }
-
-            const naturalWidth = img.naturalWidth || startingWidth;
-            const naturalHeight = img.naturalHeight || startingWidth;
-
-            const aspectRatio = naturalHeight / naturalWidth;
-            const computedHeight = startingWidth * aspectRatio;
-
+        img.addEventListener("load", () => {
             img.style.width = startingWidth + "px";
-            img.style.height = computedHeight + "px";
+            img.style.height = startingHeight + "px";
 
             img.dataset.virtualWidth = String(startingWidth);
-            img.dataset.virtualHeight = String(computedHeight);
-        };
+            img.dataset.virtualHeight = String(startingHeight);
+        }, { once: true });
 
-        equipmentContainer.appendChild(img);
+        frag.appendChild(img);
     });
+
+    equipmentContainer.replaceChildren(frag);
 }
 
 /* ----------------------------------------------------
@@ -412,18 +438,23 @@ async function restoreItemStates() {
         if (!el) return;
 
         el.dataset.scale = String(state.scale);
+        el.dataset.virtualScale = String(state.scale);
         el.dataset.flipped = state.flip ? "true" : "false";
         applyTransform(el);
 
-        if (el.dataset.startingWidth) {
-            const applySize = () => {
-    el.style.width = el.dataset.startingWidth + "px";
-    el.style.height = "auto";
-};
+        const applySize = () => {
+            const sw = parseFloat(el.dataset.startingWidth || "200");
+            const sh = parseFloat(el.dataset.startingHeight || "200");
+            el.style.width = sw + "px";
+            el.style.height = sh + "px";
+            el.dataset.virtualWidth = String(sw);
+            el.dataset.virtualHeight = String(sh);
+        };
 
-if (el.complete) applySize();
-else el.onload = applySize;
-            el.dataset.virtualWidth = el.dataset.startingWidth;
+        if (el.complete) {
+            applySize();
+        } else {
+            el.addEventListener("load", applySize, { once: true });
         }
 
         if (state.store) {
@@ -457,11 +488,19 @@ else el.onload = applySize;
 
     scaleRoomContents();
     updateCategoryButtonColours();
+    evaluateOperations();
 }
 
 /* ----------------------------------------------------
    Save the location of draggable items
 ---------------------------------------------------- */
+let saveTimeout = null;
+
+function scheduleSave(el) {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => saveItemState(el), 120);
+}
+
 async function saveItemState(el) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -474,7 +513,7 @@ async function saveItemState(el) {
     const scale = parseFloat(el.dataset.scale || "1");
     const flip = (el.dataset.flipped === "true");
 
-    const store = (el.style.display === "none");
+    const store = (el.dataset.location === "storeroom" || el.dataset.location === "staffroom");
 
     const z = parseInt(el.style.zIndex || "1");
 
@@ -494,7 +533,7 @@ async function saveItemState(el) {
             onConflict: "userid,itemId"
         });
 
-    evaluateOperations();
+    document.dispatchEvent(new Event("theatreChanged"));
 }
 
 /* ----------------------------------------------------
@@ -539,20 +578,23 @@ function revealNextItem(categoryKey) {
 
     item.style.display = "block";
     item.dataset.scale = item.dataset.scale || "1";
+    item.dataset.virtualScale = item.dataset.virtualScale || item.dataset.scale || "1";
     item.dataset.flipped = item.dataset.flipped || "false";
 
-   if (item.dataset.startingWidth) {
     const applySize = () => {
-        item.style.width = item.dataset.startingWidth + "px";
-        item.style.height = "auto";   // proportional height AFTER load
+        const sw = parseFloat(item.dataset.startingWidth || "200");
+        const sh = parseFloat(item.dataset.startingHeight || "200");
+        item.style.width = sw + "px";
+        item.style.height = sh + "px";
+        item.dataset.virtualWidth = String(sw);
+        item.dataset.virtualHeight = String(sh);
     };
 
     if (item.complete) {
         applySize();
     } else {
-        item.onload = applySize;
+        item.addEventListener("load", applySize, { once: true });
     }
-}
 
     item.dataset.deployed = "true";
     item.dataset.location = "theatre";
@@ -562,7 +604,7 @@ function revealNextItem(categoryKey) {
 
     revealIndex[categoryKey]++;
     updateCategoryButtonColours();
-    evaluateOperations();
+    document.dispatchEvent(new Event("theatreChanged"));
 }
 
 /* ----------------------------------------------------
@@ -575,8 +617,8 @@ function centerItemOnBackground(item) {
     const center = () => {
         const wrapperRect = wrapper.getBoundingClientRect();
 
-        const itemWidth = item.offsetWidth;
-        const itemHeight = item.offsetHeight;
+        const itemWidth = parseFloat(item.dataset.virtualWidth || item.offsetWidth || "200");
+        const itemHeight = parseFloat(item.dataset.virtualHeight || item.offsetHeight || "200");
 
         const left = (wrapperRect.width / 2) - (itemWidth / 2);
         const top = (wrapperRect.height / 2) - (itemHeight / 2);
@@ -593,7 +635,7 @@ function centerItemOnBackground(item) {
     if (item.complete) {
         center();
     } else {
-        item.onload = center;
+        item.addEventListener("load", center, { once: true });
     }
 }
 
@@ -620,7 +662,6 @@ function updateCategoryButtonColours() {
    Drag, Resize, Flip System
 ---------------------------------------------------- */
 function makeDraggable(el) {
-
     let offsetX = 0;
     let offsetY = 0;
     let isDragging = false;
@@ -656,18 +697,29 @@ function makeDraggable(el) {
     document.addEventListener("mousemove", (e) => {
         if (!dragStarted) return;
 
+        const wrapper = document.getElementById("theatreWrapper");
+        if (!wrapper || !initialTheatreWidth) return;
+
+        const parentRect = el.parentElement.getBoundingClientRect();
+
         if (!isDragging) {
             const dx = Math.abs(e.clientX - startX);
             const dy = Math.abs(e.clientY - startY);
-            if (dx < 3 && dy < 3) return;
+            if (dx < 6 && dy < 6) return;
 
             isDragging = true;
             el.style.zIndex = getNextZIndex();
         }
 
-        const parentRect = el.parentElement.getBoundingClientRect();
-        el.style.left = (e.clientX - offsetX - parentRect.left) + "px";
-        el.style.top = (e.clientY - offsetY - parentRect.top) + "px";
+        const left = e.clientX - offsetX - parentRect.left;
+        const top = e.clientY - offsetY - parentRect.top;
+
+        el.style.left = left + "px";
+        el.style.top = top + "px";
+
+        const factor = wrapper.clientWidth / initialTheatreWidth;
+        el.dataset.virtualLeft = String(left / factor);
+        el.dataset.virtualTop = String(top / factor);
 
         highlightRoomOnHover(el);
     });
@@ -688,40 +740,33 @@ function makeDraggable(el) {
 
             attemptRoomDrop(el);
             clearRoomHighlights();
-            saveItemState(el);
+            scheduleSave(el);
         }
 
         dragStarted = false;
         isDragging = false;
     });
 
-    /* DESKTOP WHEEL ZOOM */
-    el.addEventListener("wheel", (e) => {
-        if (isDragging) return;
-        e.preventDefault();
-
-        if (Math.abs(e.deltaY) < 5) return;
-
-        const now = Date.now();
-        if (now - (el._lastWheelTime || 0) < 40) return;
-        el._lastWheelTime = now;
-
-        let scale = parseFloat(el.dataset.scale || "1");
-        const delta = e.deltaY < 0 ? 1.02 : 0.98;
-
-        scale = Math.max(0.3, Math.min(3, scale * delta));
-        el.dataset.scale = String(scale);
-
-        applyTransform(el);
-        saveItemState(el);
-    }, { passive: false });
-
-    /* MOBILE TOUCH DRAG */
+    /* MOBILE TOUCH DRAG + PINCH */
     el.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            pinchStartDist = Math.hypot(dx, dy);
+            pinchActive = true;
+            dragStarted = false;
+            isDragging = false;
+            return;
+        }
+
         if (Date.now() < pinchSuppressUntil) return;
-        if (e.touches.length === 2) return;
 
         const touch = e.touches[0];
+
+        if (el.style.display === "none") {
+            el.style.display = "block";
+            removeItemFromRooms(el);
+        }
 
         startX = touch.clientX;
         startY = touch.clientY;
@@ -731,40 +776,6 @@ function makeDraggable(el) {
         offsetY = touch.clientY - rect.top;
 
         dragStarted = true;
-    }, { passive: false });
-
-    el.addEventListener("touchmove", (e) => {
-        if (e.touches.length === 2) return;
-
-        if (!dragStarted) return;
-        e.preventDefault();
-
-        const touch = e.touches[0];
-
-        if (!isDragging) {
-            const dx = Math.abs(touch.clientX - startX);
-            const dy = Math.abs(touch.clientY - startY);
-            if (dx < 3 && dy < 3) return;
-
-            isDragging = true;
-            el.style.zIndex = getNextZIndex();
-        }
-
-        const parentRect = el.parentElement.getBoundingClientRect();
-        el.style.left = (touch.clientX - offsetX - parentRect.left) + "px";
-        el.style.top = (touch.clientY - offsetY - parentRect.top) + "px";
-
-        highlightRoomOnHover(el);
-    }, { passive: false });
-
-    /* MOBILE PINCH-TO-ZOOM */
-    el.addEventListener("touchstart", (e) => {
-        if (e.touches.length === 2) {
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
-            pinchStartDist = Math.hypot(dx, dy);
-            pinchActive = true;
-        }
     }, { passive: false });
 
     el.addEventListener("touchmove", (e) => {
@@ -780,23 +791,55 @@ function makeDraggable(el) {
 
             scale = Math.max(0.3, Math.min(3, scale * delta));
             el.dataset.scale = String(scale);
+            el.dataset.virtualScale = String(scale);
 
             applyTransform(el);
-            saveItemState(el);
+            scheduleSave(el);
 
             pinchStartDist = newDist;
             pinchActive = true;
+            dragStarted = false;
+            isDragging = false;
+            return;
         }
+
+        if (!dragStarted) return;
+        e.preventDefault();
+
+        const touch = e.touches[0];
+
+        const wrapper = document.getElementById("theatreWrapper");
+        if (!wrapper || !initialTheatreWidth) return;
+
+        if (!isDragging) {
+            const dx = Math.abs(touch.clientX - startX);
+            const dy = Math.abs(touch.clientY - startY);
+            if (dx < 6 && dy < 6) return;
+
+            isDragging = true;
+            el.style.zIndex = getNextZIndex();
+        }
+
+        const parentRect = el.parentElement.getBoundingClientRect();
+        const left = touch.clientX - offsetX - parentRect.left;
+        const top = touch.clientY - offsetY - parentRect.top;
+
+        el.style.left = left + "px";
+        el.style.top = top + "px";
+
+        const factor = wrapper.clientWidth / initialTheatreWidth;
+        el.dataset.virtualLeft = String(left / factor);
+        el.dataset.virtualTop = String(top / factor);
+
+        highlightRoomOnHover(el);
     }, { passive: false });
 
-    /* MOBILE TOUCH END */
     el.addEventListener("touchend", (e) => {
-
         const now = Date.now();
 
         if (pinchActive && e.touches.length < 2) {
             pinchActive = false;
-            pinchSuppressUntil = now + 300;
+            pinchSuppressUntil = now + 450;
         }
 
         if (now >= pinchSuppressUntil) {
@@ -805,7 +848,7 @@ function makeDraggable(el) {
             if (tapGap < 300 && !isDragging && e.touches.length === 0) {
                 el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
                 applyTransform(el);
-                saveItemState(el);
+                scheduleSave(el);
             }
         }
 
@@ -826,19 +869,40 @@ function makeDraggable(el) {
 
             attemptRoomDrop(el);
             clearRoomHighlights();
-            saveItemState(el);
+            scheduleSave(el);
         }
 
         dragStarted = false;
         isDragging = false;
+    }, { passive: false });
 
+    /* DESKTOP WHEEL ZOOM */
+    el.addEventListener("wheel", (e) => {
+        if (isDragging) return;
+        e.preventDefault();
+
+        if (Math.abs(e.deltaY) < 5) return;
+
+        const now = Date.now();
+        if (now - (el._lastWheelTime || 0) < 40) return;
+        el._lastWheelTime = now;
+
+        let scale = parseFloat(el.dataset.scale || "1");
+        const delta = e.deltaY < 0 ? 1.02 : 0.98;
+
+        scale = Math.max(0.3, Math.min(3, scale * delta));
+        el.dataset.scale = String(scale);
+        el.dataset.virtualScale = String(scale);
+
+        applyTransform(el);
+        scheduleSave(el);
     }, { passive: false });
 
     /* DESKTOP DOUBLE CLICK FLIP */
     el.addEventListener("dblclick", () => {
         el.dataset.flipped = (el.dataset.flipped === "true") ? "false" : "true";
         applyTransform(el);
-        saveItemState(el);
+        scheduleSave(el);
     });
 }
 
@@ -847,6 +911,7 @@ function applyTransform(el) {
     const flipped = (el.dataset.flipped === "true");
 
     const flipPart = flipped ? "scaleX(-1)" : "scaleX(1)";
+    el.style.transformOrigin = "center center";
     el.style.transform = `${flipPart} scale(${scale})`;
 }
 
@@ -940,7 +1005,9 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
     const theatre = document.getElementById("theatreWrapper");
     if (!theatre) return;
 
-    const theatreRect = theatre.getBoundingClientRect();
+    function getTheatreRect() {
+        return theatre.getBoundingClientRect();
+    }
 
     thumb.addEventListener("mousedown", (e) => {
         dragging = true;
@@ -958,11 +1025,11 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         document.body.appendChild(ghost);
 
         const rect = thumb.getBoundingClientRect();
-        offsetX = e.pageX - rect.left;
-        offsetY = e.pageY - rect.top;
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
 
-        ghost.style.left = `${e.pageX - offsetX}px`;
-        ghost.style.top = `${e.pageY - offsetY}px`;
+        ghost.style.left = `${e.clientX - offsetX}px`;
+        ghost.style.top = `${e.clientY - offsetY}px`;
     });
 
     thumb.addEventListener("touchstart", (e) => {
@@ -985,27 +1052,29 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         const rect = thumb.getBoundingClientRect();
         const touch = e.touches[0];
 
-        offsetX = touch.pageX - rect.left;
-        offsetY = touch.pageY - rect.top;
+        offsetX = touch.clientX - rect.left;
+        offsetY = touch.clientY - rect.top;
 
-        ghost.style.left = `${touch.pageX - offsetX}px`;
-        ghost.style.top = `${touch.pageY - offsetY}px`;
+        ghost.style.left = `${touch.clientX - offsetX}px`;
+        ghost.style.top = `${touch.clientY - offsetY}px`;
     }, { passive: false });
 
     document.addEventListener("mousemove", (e) => {
         if (!dragging || !ghost) return;
 
-        const x = e.pageX - offsetX;
-        const y = e.pageY - offsetY;
+        const x = e.clientX - offsetX;
+        const y = e.clientY - offsetY;
 
         ghost.style.left = `${x}px`;
         ghost.style.top = `${y}px`;
 
+        const rect = getTheatreRect();
+
         const insideTheatre =
-            e.pageX >= theatreRect.left &&
-            e.pageX <= theatreRect.right &&
-            e.pageY >= theatreRect.top &&
-            e.pageY <= theatreRect.bottom;
+            e.clientX >= rect.left &&
+            e.clientX <= rect.right &&
+            e.clientY >= rect.top &&
+            e.clientY <= rect.bottom;
 
         if (!insideTheatre) {
             ghost.classList.add("noEntryGhost");
@@ -1018,17 +1087,19 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         if (!dragging || !ghost) return;
         const touch = e.touches[0];
 
-        const x = touch.pageX - offsetX;
-        const y = touch.pageY - offsetY;
+        const x = touch.clientX - offsetX;
+        const y = touch.clientY - offsetY;
 
         ghost.style.left = `${x}px`;
         ghost.style.top = `${y}px`;
 
+        const rect = getTheatreRect();
+
         const insideTheatre =
-            touch.pageX >= theatreRect.left &&
-            touch.pageX <= theatreRect.right &&
-            touch.pageY >= theatreRect.top &&
-            touch.pageY <= theatreRect.bottom;
+            touch.clientX >= rect.left &&
+            touch.clientX <= rect.right &&
+            touch.clientY >= rect.top &&
+            touch.clientY <= rect.bottom;
 
         if (!insideTheatre) {
             ghost.classList.add("noEntryGhost");
@@ -1045,14 +1116,16 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         if (ghost) ghost.remove();
 
-        const dropX = e.pageX;
-        const dropY = e.pageY;
+        const dropX = e.clientX;
+        const dropY = e.clientY;
+
+        const rect = getTheatreRect();
 
         const insideTheatre =
-            dropX >= theatreRect.left &&
-            dropX <= theatreRect.right &&
-            dropY >= theatreRect.top &&
-            dropY <= theatreRect.bottom;
+            dropX >= rect.left &&
+            dropX <= rect.right &&
+            dropY >= rect.top &&
+            dropY <= rect.bottom;
 
         if (!insideTheatre) {
             thumb.style.visibility = "visible";
@@ -1071,14 +1144,17 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         equipmentContainer.appendChild(originalEl);
 
-        if (originalEl.dataset.startingWidth) {
-            originalEl.style.width = originalEl.dataset.startingWidth + "px";
-            originalEl.style.height = "auto";
-            originalEl.dataset.virtualWidth = originalEl.dataset.startingWidth;
-        }
+        const sw = parseFloat(originalEl.dataset.startingWidth || "200");
+        const sh = parseFloat(originalEl.dataset.startingHeight || "200");
+
+        originalEl.style.width = sw + "px";
+        originalEl.style.height = sh + "px";
+        originalEl.dataset.virtualWidth = String(sw);
+        originalEl.dataset.virtualHeight = String(sh);
 
         originalEl.style.transform = "";
         originalEl.dataset.scale = "1";
+        originalEl.dataset.virtualScale = "1";
         originalEl.dataset.flipped = "false";
         applyTransform(originalEl);
 
@@ -1094,9 +1170,11 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.dataset.originalTop = top;
         originalEl.dataset.virtualLeft = String(left);
         originalEl.dataset.virtualTop = String(top);
+        originalEl.dataset.location = "theatre";
+        originalEl.dataset.deployed = "true";
 
         makeDraggable(originalEl);
-        saveItemState(originalEl);
+        scheduleSave(originalEl);
     });
 
     document.addEventListener("touchend", (e) => {
@@ -1106,14 +1184,16 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         if (ghost) ghost.remove();
 
         const touch = e.changedTouches[0];
-        const dropX = touch.pageX;
-        const dropY = touch.pageY;
+        const dropX = touch.clientX;
+        const dropY = touch.clientY;
+
+        const rect = getTheatreRect();
 
         const insideTheatre =
-            dropX >= theatreRect.left &&
-            dropX <= theatreRect.right &&
-            dropY >= theatreRect.top &&
-            dropY <= theatreRect.bottom;
+            dropX >= rect.left &&
+            dropX <= rect.right &&
+            dropY >= rect.top &&
+            dropY <= rect.bottom;
 
         if (!insideTheatre) {
             thumb.style.visibility = "visible";
@@ -1128,6 +1208,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.style.display = "block";
 
         const equipmentContainer = document.getElementById("equipmentContainer");
+        if (!equipmentContainer) return;
         const parentRect = equipmentContainer.getBoundingClientRect();
 
         equipmentContainer.appendChild(originalEl);
@@ -1135,14 +1216,17 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.dataset.location = "theatre";
         originalEl.dataset.deployed = "true";
 
-        if (originalEl.dataset.startingWidth) {
-            originalEl.style.width = originalEl.dataset.startingWidth + "px";
-            originalEl.style.height = "auto";
-            originalEl.dataset.virtualWidth = originalEl.dataset.startingWidth;
-        }
+        const sw = parseFloat(originalEl.dataset.startingWidth || "200");
+        const sh = parseFloat(originalEl.dataset.startingHeight || "200");
+
+        originalEl.style.width = sw + "px";
+        originalEl.style.height = sh + "px";
+        originalEl.dataset.virtualWidth = String(sw);
+        originalEl.dataset.virtualHeight = String(sh);
 
         originalEl.style.transform = "";
         originalEl.dataset.scale = "1";
+        originalEl.dataset.virtualScale = "1";
         originalEl.dataset.flipped = "false";
         applyTransform(originalEl);
 
@@ -1158,7 +1242,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.dataset.virtualTop = String(top);
 
         makeDraggable(originalEl);
-        saveItemState(originalEl);
+        scheduleSave(originalEl);
         evaluateOperations();
     }, { passive: false });
 
@@ -1185,7 +1269,7 @@ function moveItemToRoom(el, room) {
     updateRoomEmoji(room);
     scaleRoomContents();
     updateCategoryButtonColours();
-    saveItemState(el);
+    scheduleSave(el);
     evaluateOperations();
 }
 
@@ -1248,7 +1332,8 @@ function applyResponsiveLayout() {
     const wrapper = document.getElementById("theatreWrapper");
     if (!wrapper) return;
 
-    const currentWidth = wrapper.clientWidth;
+    const currentWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
+
     if (!initialTheatreWidth) {
         initialTheatreWidth = currentWidth;
 
@@ -1260,9 +1345,15 @@ function applyResponsiveLayout() {
                 ? parseFloat(el.style.width)
                 : (el.dataset.startingWidth ? parseFloat(el.dataset.startingWidth) : el.offsetWidth);
 
+            const baseHeight = el.style.height
+                ? parseFloat(el.style.height)
+                : (el.dataset.startingHeight ? parseFloat(el.dataset.startingHeight) : el.offsetHeight);
+
             el.dataset.virtualLeft = String(left);
             el.dataset.virtualTop = String(top);
             el.dataset.virtualWidth = String(baseWidth);
+            el.dataset.virtualHeight = String(baseHeight);
+            el.dataset.virtualScale = el.dataset.virtualScale || el.dataset.scale || "1";
         });
 
         return;
@@ -1274,22 +1365,15 @@ function applyResponsiveLayout() {
         const vLeft = parseFloat(el.dataset.virtualLeft || "0");
         const vTop = parseFloat(el.dataset.virtualTop || "0");
         const vWidth = parseFloat(el.dataset.virtualWidth || (el.dataset.startingWidth || "200"));
+        const vHeight = parseFloat(el.dataset.virtualHeight || (el.dataset.startingHeight || "200"));
+        const vScale = parseFloat(el.dataset.virtualScale || el.dataset.scale || "1");
 
         el.style.left = (vLeft * factor) + "px";
         el.style.top = (vTop * factor) + "px";
         el.style.width = (vWidth * factor) + "px";
-        el.style.height = "auto";
+        el.style.height = (vHeight * factor) + "px";
+
+        el.dataset.scale = String(vScale * factor);
+        applyTransform(el);
     });
 }
-
-/* ----------------------------------------------------
-   Window onload (safety reset)
----------------------------------------------------- */
-window.onload = () => {
-    document.querySelectorAll(".equipmentItem").forEach(item => {
-        item.style.display = "none";
-    });
-
-    scaleRoomContents();
-    updateCategoryButtonColours();
-    };
