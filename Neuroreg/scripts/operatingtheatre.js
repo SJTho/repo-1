@@ -387,7 +387,7 @@ async function loadDraggableItemsFromSupabase() {
 
         const img = document.createElement("img");
         const startingWidth = row.starting_width ?? 200;
-        const startingHeight = row.starting_height ?? 200;
+        const startingHeight = row.starting_height ?? 400;
 
         img.src = row.url;
         img.dataset.category = category;
@@ -1144,13 +1144,14 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         equipmentContainer.appendChild(originalEl);
 
-        const sw = parseFloat(originalEl.dataset.startingWidth || "200");
-        const sh = parseFloat(originalEl.dataset.startingHeight || "200");
+       const sw = parseFloat(originalEl.dataset.startingWidth);
+const sh = parseFloat(originalEl.dataset.startingHeight);
 
-        originalEl.style.width = sw + "px";
-        originalEl.style.height = sh + "px";
-        originalEl.dataset.virtualWidth = String(sw);
-        originalEl.dataset.virtualHeight = String(sh);
+originalEl.style.width = sw + "px";
+originalEl.style.height = sh + "px";
+
+originalEl.dataset.virtualWidth = String(sw);
+originalEl.dataset.virtualHeight = String(sh);
 
         originalEl.style.transform = "";
         originalEl.dataset.scale = "1";
@@ -1213,11 +1214,14 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         equipmentContainer.appendChild(originalEl);
 
-        originalEl.dataset.location = "theatre";
-        originalEl.dataset.deployed = "true";
+      // 🔥 FIXED: no fallback, always use Supabase values
+const sw = parseFloat(originalEl.dataset.startingWidth);
+const sh = parseFloat(originalEl.dataset.startingHeight);
 
-        const sw = parseFloat(originalEl.dataset.startingWidth || "200");
-        const sh = parseFloat(originalEl.dataset.startingHeight || "200");
+originalEl.style.width = sw + "px";
+originalEl.style.height = sh + "px";
+originalEl.dataset.virtualWidth = String(sw);
+originalEl.dataset.virtualHeight = String(sh);
 
         originalEl.style.width = sw + "px";
         originalEl.style.height = sh + "px";
