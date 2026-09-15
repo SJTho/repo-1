@@ -256,8 +256,8 @@
 }
 
 #staffroom .storeThumb {
-  width: 10px;
-  height: 60px;
+  width: 6px;
+  height: auto;
 }
 
 #storeroom.drag-over,
