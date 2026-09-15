@@ -1156,7 +1156,7 @@ function applyResponsiveLayout() {
 });
 
     dispatchTheatreChanged();
-}
+});
 
 /* ----------------------------------------------------
    Theatre Change Event
