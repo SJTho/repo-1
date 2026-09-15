@@ -771,18 +771,33 @@ function makeDraggable(el) {
         scheduleSave(el);
     }, { passive: false });
 
-    el.addEventListener("dblclick", () => {
-        const current = el.dataset.flipped === "true";
-        el.dataset.flipped = current ? "false" : "true";
-        applyTransform(el);
-        scheduleSave(el);
+   el.addEventListener("dblclick", () => {
+    const before = el.dataset.flipped;
+    const after = before === "true" ? "false" : "true";
+
+    console.log("DBLCLICK FLIP:", {
+        itemId: el.dataset.itemId,
+        beforeFlip: before,
+        afterFlip: after
     });
+
+    el.dataset.flipped = after;
+    applyTransform(el);
+    scheduleSave(el);
+});
 }
 
 function applyTransform(el) {
-    const scale = el.scale;
     const flipped = el.dataset.flipped === "true";
+    const scale = el.scale;
     const flipFactor = flipped ? -1 : 1;
+
+    console.log("APPLY TRANSFORM:", {
+        itemId: el.dataset.itemId,
+        flipped,
+        scale,
+        transform: `scale(${flipFactor * scale}, ${scale})`
+    });
 
     el.style.transformOrigin = "center center";
     el.style.transform = `scale(${flipFactor * scale}, ${scale})`;
