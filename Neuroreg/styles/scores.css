@@ -50,6 +50,23 @@ th {
   margin: 0 auto;
 }
 
+.reportBtn {
+  display: block;
+  margin: 20px auto;
+  padding: 12px 20px;
+  background: #1f3b6f;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.reportBtn:hover {
+  background: #2a4c8f;
+}
+
 /* ----------------------------------------------------
    MOBILE IMPROVEMENTS
 ---------------------------------------------------- */
