@@ -964,13 +964,9 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         originalEl.virtualWidth = sw;
         originalEl.virtualHeight = sh;
-
         originalEl.style.width = sw + "px";
         originalEl.style.height = sh + "px";
-
-        originalEl.scale = 1;
-        originalEl.virtualScale = 1;
-        originalEl.flipped = false;
+        
         applyTransform(originalEl);
 
         const parentRect = equipmentContainer.getBoundingClientRect();
