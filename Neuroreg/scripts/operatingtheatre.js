@@ -870,6 +870,12 @@ function attemptRoomDrop(el) {
         el.dataset.location = "theatre";
     }
 
+    console.log("AFTER ROOM DROP:", {
+    itemId: el.dataset.itemId,
+    flipped: el.dataset.flipped,
+    transformAfterDrop: el.style.transform
+});
+
     dispatchTheatreChanged();
 }
 
@@ -1004,6 +1010,14 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.dataset.location = "theatre";
 
         applyTransform(originalEl);
+
+        console.log("AFTER THUMBNAIL DRAG OUT:", {
+    itemId: originalEl.dataset.itemId,
+    flipped: originalEl.dataset.flipped,
+    transformAfterDragOut: originalEl.style.transform
+});
+
+
         makeDraggable(originalEl);
         scheduleSave(originalEl);
         dispatchTheatreChanged();
@@ -1133,7 +1147,13 @@ function applyResponsiveLayout() {
 
         // Apply combined scale + flip transform
         applyTransform(el);
-    });
+       
+       
+        console.log("AFTER RESPONSIVE LAYOUT:", {
+    itemId: el.dataset.itemId,
+    flipped: el.dataset.flipped,
+    transformAfterLayout: el.style.transform
+});
 
     dispatchTheatreChanged();
 }
