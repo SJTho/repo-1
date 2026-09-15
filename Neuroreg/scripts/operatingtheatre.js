@@ -7,9 +7,10 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ----------------------------------------------------
-   GLOBAL STATE
+   GLOBAL CONSTANTS & STATE
 ---------------------------------------------------- */
 const BASELINE_THEATRE_WIDTH = 1000;
+
 let initialTheatreWidth = null;
 let currentScaleFactor = 1;
 
@@ -28,9 +29,11 @@ const revealIndex = {
 };
 
 let saveQueue = new Map();
+let maxZIndex = 1;
+let operationRequirements = {};
 
 /* ----------------------------------------------------
-   MAIN INITIALISATION
+   ENTRY POINT
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", initOperatingTheatre);
 
@@ -45,7 +48,9 @@ async function initOperatingTheatre() {
     setupHamburgerToggle();
 
     const { data: { user }, error } = await supabase.auth.getUser();
-    if (error) console.error("Auth getUser error:", error);
+    if (error) {
+        console.error("Auth getUser error:", error);
+    }
     if (!user) {
         window.location.href = "login.html";
         return;
@@ -56,15 +61,11 @@ async function initOperatingTheatre() {
         loadTopRightIcons()
     ]);
 
-    await initTheatre();
-
     const wrapper = document.getElementById("theatreWrapper");
-    if (wrapper) {
-        initialTheatreWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
-    } else {
-        initialTheatreWidth = BASELINE_THEATRE_WIDTH;
-    }
+    initialTheatreWidth = wrapper?.clientWidth || BASELINE_THEATRE_WIDTH;
     currentScaleFactor = 1;
+
+    await initTheatre();
 
     applyResponsiveLayout();
     window.addEventListener("resize", applyResponsiveLayout);
@@ -74,7 +75,7 @@ async function initOperatingTheatre() {
 }
 
 /* ----------------------------------------------------
-   ROTATE PHONE MESSAGE
+   Orientation Overlay
 ---------------------------------------------------- */
 function enforceLandscapeMessage() {
     const overlay = document.getElementById("orientationOverlay");
@@ -97,7 +98,7 @@ function enforceLandscapeMessage() {
 }
 
 /* ----------------------------------------------------
-   Hamburger Toggle
+   Hamburger Menu Toggle
 ---------------------------------------------------- */
 function setupHamburgerToggle() {
     const hamburger = document.getElementById("hamburgerMenu");
@@ -264,17 +265,15 @@ async function loadOperationsMenu() {
 
     dropdown.replaceChildren(frag);
 
-    const opReq = {};
+    operationRequirements = {};
     if (map) {
         map.forEach(row => {
             const opId = row.operationTypeId;
             const itemId = row.itemId;
-            if (!opReq[opId]) opReq[opId] = [];
-            opReq[opId].push(itemId);
+            if (!operationRequirements[opId]) operationRequirements[opId] = [];
+            operationRequirements[opId].push(itemId);
         });
     }
-
-    dropdown.opReq = opReq;
 
     button.addEventListener("click", () => {
         dropdown.classList.toggle("open");
@@ -297,10 +296,10 @@ function evaluateOperations() {
     if (!dropdown) return;
 
     const deployed = Array.from(document.querySelectorAll(".equipmentItem"))
-        .filter(el => el.location === "theatre")
+        .filter(el => el.dataset.location === "theatre")
         .map(el => Number(el.dataset.itemId));
 
-    const opReq = dropdown.opReq || {};
+    const opReq = operationRequirements || {};
 
     dropdown.querySelectorAll(".operationItem").forEach(div => {
         const opId = Number(div.dataset.opId);
@@ -338,7 +337,7 @@ async function initTheatre() {
 }
 
 /* ----------------------------------------------------
-   Load draggable items from Supabase (reward‑gated)
+   Load draggable items from Supabase (reward-gated)
 ---------------------------------------------------- */
 async function loadDraggableItemsFromSupabase() {
     const equipmentContainer = document.getElementById("equipmentContainer");
@@ -352,7 +351,7 @@ async function loadDraggableItemsFromSupabase() {
     const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("scalpel_points, streak_days")
-        .eq("id", user.id)
+        ..eq("id", user.id)
         .single();
 
     if (profileError) {
@@ -390,21 +389,22 @@ async function loadDraggableItemsFromSupabase() {
         img.src = row.url;
         img.dataset.category = category;
         img.dataset.itemId = String(row.id);
+        img.dataset.location = "undeployed";
+        img.dataset.flipped = "false";
 
-        img.startingWidth = row.starting_width ?? 200;
-        img.startingHeight = row.starting_height ?? 400;
+        const startingWidth = row.starting_width ?? 200;
+        const startingHeight = row.starting_height ?? 400;
 
-        img.virtualWidth = img.startingWidth;
-        img.virtualHeight = img.startingHeight;
+        img.startingWidth = startingWidth;
+        img.startingHeight = startingHeight;
 
+        img.virtualWidth = startingWidth;
+        img.virtualHeight = startingHeight;
         img.virtualLeft = 0;
         img.virtualTop = 0;
-
-        img.scale = 1;
         img.virtualScale = 1;
 
-        img.flipped = false;
-        img.location = "undeployed";
+        img.scale = 1;
         img.zIndex = 1;
 
         img.classList.add("equipmentItem", `${category}Item`);
@@ -412,8 +412,9 @@ async function loadDraggableItemsFromSupabase() {
         img.style.position = "absolute";
 
         img.addEventListener("load", () => {
-            img.style.width = img.startingWidth + "px";
-            img.style.height = img.startingHeight + "px";
+            img.style.width = startingWidth + "px";
+            img.style.height = startingHeight + "px";
+            applyTransform(img);
         }, { once: true });
 
         frag.appendChild(img);
@@ -423,7 +424,7 @@ async function loadDraggableItemsFromSupabase() {
 }
 
 /* ----------------------------------------------------
-   Restore the saved location of draggable items
+   Restore saved location of draggable items
 ---------------------------------------------------- */
 async function restoreItemStates() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -442,17 +443,22 @@ async function restoreItemStates() {
         );
         if (!el) return;
 
-        el.scale = state.scale;
-        el.virtualScale = state.scale;
-        el.flipped = !!state.flip;
-        applyTransform(el);
+        const wrapper = document.getElementById("theatreWrapper");
+        const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) : BASELINE_THEATRE_WIDTH;
+        const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
 
         const sw = el.startingWidth;
         const sh = el.startingHeight;
+
         el.virtualWidth = sw;
         el.virtualHeight = sh;
-        el.style.width = sw + "px";
-        el.style.height = sh + "px";
+        el.virtualScale = state.scale;
+        el.scale = state.scale;
+
+        el.dataset.flipped = state.flip ? "true" : "false";
+
+        el.style.width = (sw * factor) + "px";
+        el.style.height = (sh * factor) + "px";
 
         if (state.store) {
             const room = (el.dataset.category === "staff")
@@ -460,27 +466,24 @@ async function restoreItemStates() {
                 : document.getElementById("storeroom");
 
             if (room) {
-                el.location = room.id === "staffroom" ? "staffroom" : "storeroom";
+                el.dataset.location = room.id === "staffroom" ? "staffroom" : "storeroom";
                 moveItemToRoom(el, room);
             }
             return;
         }
 
-        el.location = "theatre";
+        el.dataset.location = "theatre";
 
         el.virtualLeft = state.left;
         el.virtualTop = state.top;
         el.zIndex = state.z ?? 1;
-
-        const wrapper = document.getElementById("theatreWrapper");
-        const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) : BASELINE_THEATRE_WIDTH;
-        const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
 
         el.style.display = "block";
         el.style.left = (el.virtualLeft * factor) + "px";
         el.style.top = (el.virtualTop * factor) + "px";
         el.style.zIndex = String(el.zIndex);
 
+        applyTransform(el);
         makeDraggable(el);
     });
 
@@ -490,7 +493,7 @@ async function restoreItemStates() {
 }
 
 /* ----------------------------------------------------
-   Save the location of draggable items
+   Save location of draggable items
 ---------------------------------------------------- */
 function scheduleSave(el) {
     const id = el.dataset.itemId;
@@ -510,8 +513,8 @@ async function saveItemState(el) {
     const left = el.virtualLeft;
     const top = el.virtualTop;
     const scale = el.scale;
-    const flip = el.flipped;
-    const store = (el.location === "storeroom" || el.location === "staffroom");
+    const flip = el.dataset.flipped === "true";
+    const store = (el.dataset.location === "storeroom" || el.dataset.location === "staffroom");
     const z = el.zIndex || 1;
 
     await supabase
@@ -551,14 +554,13 @@ function buildCategoryMap() {
         }
     });
 
-    // FIX: revealIndex must start AFTER already-deployed items
     Object.keys(categoryMap).forEach(category => {
         const items = categoryMap[category];
 
         const deployedCount = items.filter(i =>
-            i.location === "theatre" ||
-            i.location === "storeroom" ||
-            i.location === "staffroom"
+            i.dataset.location === "theatre" ||
+            i.dataset.location === "storeroom" ||
+            i.dataset.location === "staffroom"
         ).length;
 
         revealIndex[category] = deployedCount;
@@ -590,16 +592,24 @@ function revealNextItem(categoryKey) {
     equipmentContainer.appendChild(item);
 
     item.style.display = "block";
-    item.location = "theatre";
+    item.dataset.location = "theatre";
 
     const sw = item.startingWidth;
     const sh = item.startingHeight;
+
     item.virtualWidth = sw;
     item.virtualHeight = sh;
-    item.style.width = sw + "px";
-    item.style.height = sh + "px";
+    item.virtualScale = item.scale;
+
+    const wrapper = document.getElementById("theatreWrapper");
+    const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) : BASELINE_THEATRE_WIDTH;
+    const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
+
+    item.style.width = (sw * factor) + "px";
+    item.style.height = (sh * factor) + "px";
 
     centerItemOnBackground(item);
+    applyTransform(item);
     makeDraggable(item);
 
     revealIndex[categoryKey]++;
@@ -624,11 +634,10 @@ function centerItemOnBackground(item) {
         const left = (wrapperRect.width / 2) - (itemWidth / 2);
         const top = (wrapperRect.height / 2) - (itemHeight / 2);
 
-        const width = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
-        const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
+        const baselineFactor = wrapperRect.width / BASELINE_THEATRE_WIDTH;
 
-        item.virtualLeft = left / factor;
-        item.virtualTop = top / factor;
+        item.virtualLeft = left / baselineFactor;
+        item.virtualTop = top / baselineFactor;
 
         item.style.left = left + "px";
         item.style.top = top + "px";
@@ -649,11 +658,10 @@ function updateCategoryButtonColours() {
         const category = btn.dataset.category;
         const items = categoryMap[category] || [];
 
-        // Items still "available" = not on background and not in rooms
         const undeployedCount = items.filter(i =>
-            i.location !== "theatre" &&      // not on background
-            i.location !== "storeroom" &&    // not in store
-            i.location !== "staffroom"       // not in staff room
+            i.dataset.location !== "theatre" &&
+            i.dataset.location !== "storeroom" &&
+            i.dataset.location !== "staffroom"
         ).length;
 
         btn.style.backgroundColor = undeployedCount > 0 ? "green" : "";
@@ -675,8 +683,6 @@ function makeDraggable(el) {
     let offsetX = 0;
     let offsetY = 0;
 
-    let pinchActive = false;
-    let pinchStartDist = 0;
     let lastTapTime = 0;
 
     el.addEventListener("pointerdown", (e) => {
@@ -766,25 +772,22 @@ function makeDraggable(el) {
     }, { passive: false });
 
     el.addEventListener("dblclick", () => {
-        el.flipped = !el.flipped;
+        const current = el.dataset.flipped === "true";
+        el.dataset.flipped = current ? "false" : "true";
         applyTransform(el);
         scheduleSave(el);
     });
 }
 
-
-
-
-
 function applyTransform(el) {
     const scale = el.scale;
-    const flip = el.flipped ? -1 : 1;
+    const flipped = el.dataset.flipped === "true";
+    const flipFactor = flipped ? -1 : 1;
 
     el.style.transformOrigin = "center center";
-    el.style.transform = `scale(${flip * scale}, ${scale})`;
+    el.style.transform = `scale(${flipFactor * scale}, ${scale})`;
 }
 
-let maxZIndex = 1;
 function getNextZIndex() {
     return ++maxZIndex;
 }
@@ -843,13 +846,13 @@ function attemptRoomDrop(el) {
         elRect.top < staffRect.bottom;
 
     if (droppedInStore) {
-        el.location = "storeroom";
+        el.dataset.location = "storeroom";
         moveItemToRoom(el, storeRoom);
     } else if (droppedInStaff) {
-        el.location = "staffroom";
+        el.dataset.location = "staffroom";
         moveItemToRoom(el, staffRoom);
     } else {
-        el.location = "theatre";
+        el.dataset.location = "theatre";
     }
 
     dispatchTheatreChanged();
@@ -964,15 +967,15 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         originalEl.virtualWidth = sw;
         originalEl.virtualHeight = sh;
-        originalEl.style.width = sw + "px";
-        originalEl.style.height = sh + "px";
-        
-        applyTransform(originalEl);
-        scheduleSave(originalEl);
+        originalEl.virtualScale = originalEl.scale;
+
+        const theatreWidth = theatre.clientWidth || BASELINE_THEATRE_WIDTH;
+        const factor = initialTheatreWidth ? theatreWidth / initialTheatreWidth : 1;
+
+        originalEl.style.width = (sw * factor) + "px";
+        originalEl.style.height = (sh * factor) + "px";
 
         const parentRect = equipmentContainer.getBoundingClientRect();
-        const width = theatre.clientWidth || BASELINE_THEATRE_WIDTH;
-        const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
 
         const left = dropX - parentRect.left - (sw * factor / 2);
         const top = dropY - parentRect.top - (sh * factor / 2);
@@ -983,8 +986,9 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.style.left = left + "px";
         originalEl.style.top = top + "px";
 
-        originalEl.location = "theatre";
+        originalEl.dataset.location = "theatre";
 
+        applyTransform(originalEl);
         makeDraggable(originalEl);
         scheduleSave(originalEl);
         dispatchTheatreChanged();
@@ -1008,7 +1012,7 @@ function moveItemToRoom(el, room) {
 
     el.style.display = "none";
 
-    el.location = room.id === "staffroom" ? "staffroom" : "storeroom";
+    el.dataset.location = room.id === "staffroom" ? "staffroom" : "storeroom";
 
     makeThumbnailDraggable(thumb, el, room);
 
@@ -1030,7 +1034,7 @@ function removeItemFromRooms(el) {
         updateRoomEmoji(room);
     });
 
-    el.location = "theatre";
+    el.dataset.location = "theatre";
 
     scaleRoomContents();
     updateCategoryButtonColours();
@@ -1085,17 +1089,18 @@ function applyResponsiveLayout() {
         currentScaleFactor = 1;
 
         document.querySelectorAll(".equipmentItem").forEach(el => {
-            el.virtualLeft = parseFloat(el.style.left || "0");
-            el.virtualTop = parseFloat(el.style.top || "0");
-            el.virtualWidth = el.startingWidth;
-            el.virtualHeight = el.startingHeight;
-            el.virtualScale = el.scale || 1;
+            el.virtualLeft = el.virtualLeft ?? 0;
+            el.virtualTop = el.virtualTop ?? 0;
+            el.virtualWidth = el.virtualWidth ?? el.startingWidth;
+            el.virtualHeight = el.virtualHeight ?? el.startingHeight;
+            el.virtualScale = el.virtualScale ?? el.scale || 1;
         });
 
         return;
     }
 
     const responsiveFactor = currentWidth / initialTheatreWidth;
+    currentScaleFactor = responsiveFactor;
 
     document.querySelectorAll(".equipmentItem").forEach(el => {
         const vLeft = el.virtualLeft;
@@ -1104,17 +1109,13 @@ function applyResponsiveLayout() {
         const vHeight = el.virtualHeight;
         const userScale = el.scale;
 
-        // Position scales with screen size
         el.style.left = (vLeft * responsiveFactor) + "px";
         el.style.top  = (vTop  * responsiveFactor) + "px";
 
-        // Base size scales with screen size
         el.style.width  = (vWidth  * responsiveFactor) + "px";
         el.style.height = (vHeight * responsiveFactor) + "px";
 
-        // User scaling applies on top
-        el.style.transformOrigin = "center center";
-        el.style.transform = `scale(${userScale})`;
+        applyTransform(el);
     });
 
     dispatchTheatreChanged();
@@ -1125,4 +1126,3 @@ function applyResponsiveLayout() {
 ---------------------------------------------------- */
 function dispatchTheatreChanged() {
     document.dispatchEvent(new CustomEvent("theatreChanged"));
-}
