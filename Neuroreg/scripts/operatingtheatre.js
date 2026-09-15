@@ -595,6 +595,7 @@ function revealNextItem(categoryKey) {
 
     revealIndex[categoryKey]++;
     updateCategoryButtonColours();
+    scheduleSave(item);
     dispatchTheatreChanged();
 }
 
