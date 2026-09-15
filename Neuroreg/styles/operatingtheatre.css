@@ -256,7 +256,7 @@
 }
 
 #staffroom .storeThumb {
-  width: 16px;
+  width: 10px;
   /* 40% smaller than the current 26px */
   height: auto;
   /* maintain aspect ratio */
