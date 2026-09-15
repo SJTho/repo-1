@@ -1089,10 +1089,10 @@ function applyResponsiveLayout() {
         currentScaleFactor = 1;
 
         document.querySelectorAll(".equipmentItem").forEach(el => {
-            el.virtualLeft = el.virtualLeft ?? 0;
-            el.virtualTop = el.virtualTop ?? 0;
+            el.virtualLeft  = el.virtualLeft  ?? 0;
+            el.virtualTop   = el.virtualTop   ?? 0;
             el.virtualWidth = el.virtualWidth ?? el.startingWidth;
-            el.virtualHeight = el.virtualHeight ?? el.startingHeight;
+            el.virtualHeight= el.virtualHeight?? el.startingHeight;
             el.virtualScale = el.virtualScale ?? el.scale ?? 1;
         });
 
@@ -1103,18 +1103,20 @@ function applyResponsiveLayout() {
     currentScaleFactor = responsiveFactor;
 
     document.querySelectorAll(".equipmentItem").forEach(el => {
-        const vLeft = el.virtualLeft;
-        const vTop = el.virtualTop;
-        const vWidth = el.virtualWidth;
+        const vLeft   = el.virtualLeft;
+        const vTop    = el.virtualTop;
+        const vWidth  = el.virtualWidth;
         const vHeight = el.virtualHeight;
-        const userScale = el.scale;
 
+        // Position scales with screen size
         el.style.left = (vLeft * responsiveFactor) + "px";
         el.style.top  = (vTop  * responsiveFactor) + "px";
 
+        // Base size scales with screen size
         el.style.width  = (vWidth  * responsiveFactor) + "px";
         el.style.height = (vHeight * responsiveFactor) + "px";
 
+        // Apply combined scale + flip transform
         applyTransform(el);
     });
 
