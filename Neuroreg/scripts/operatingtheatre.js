@@ -457,6 +457,11 @@ async function restoreItemStates() {
 
         el.dataset.flipped = state.flip ? "true" : "false";
 
+        console.log("RESTORE FROM DB:", {
+            itemId: el.dataset.itemId,
+            flipRestored: el.dataset.flipped
+        });
+
         el.style.width = (sw * factor) + "px";
         el.style.height = (sh * factor) + "px";
 
@@ -516,6 +521,14 @@ async function saveItemState(el) {
     const flip = el.dataset.flipped === "true";
     const store = (el.dataset.location === "storeroom" || el.dataset.location === "staffroom");
     const z = el.zIndex || 1;
+
+    console.log("SAVE TO DB:", {
+        itemId: el.dataset.itemId,
+        flipSentToDB: flip,
+        virtualLeft: left,
+        virtualTop: top,
+        scale
+    });
 
     await supabase
         .from("per_user_theatre_state")
@@ -677,6 +690,9 @@ function updateCategoryButtonColours() {
    Drag, Resize, Flip System (Pointer Events)
 ---------------------------------------------------- */
 function makeDraggable(el) {
+    if (el._draggableInitialized) return;
+    el._draggableInitialized = true;
+
     let dragActive = false;
     let startX = 0;
     let startY = 0;
@@ -771,23 +787,28 @@ function makeDraggable(el) {
         scheduleSave(el);
     }, { passive: false });
 
-   el.addEventListener("dblclick", () => {
-    const before = el.dataset.flipped;
-    const after = before === "true" ? "false" : "true";
+    el.addEventListener("dblclick", () => {
+        const before = el.dataset.flipped;
+        const after = before === "true" ? "false" : "true";
 
-    console.log("DBLCLICK FLIP:", {
-        itemId: el.dataset.itemId,
-        beforeFlip: before,
-        afterFlip: after
+        console.log("DBLCLICK FLIP:", {
+            itemId: el.dataset.itemId,
+            beforeFlip: before,
+            afterFlip: after
+        });
+
+        el.dataset.flipped = after;
+        applyTransform(el);
+        scheduleSave(el);
     });
-
-    el.dataset.flipped = after;
-    applyTransform(el);
-    scheduleSave(el);
-});
 }
 
 function applyTransform(el) {
+    console.log("TRANSFORM BEFORE APPLY:", {
+        itemId: el.dataset.itemId,
+        currentTransform: el.style.transform
+    });
+
     const flipped = el.dataset.flipped === "true";
     const scale = el.scale;
     const flipFactor = flipped ? -1 : 1;
@@ -871,10 +892,10 @@ function attemptRoomDrop(el) {
     }
 
     console.log("AFTER ROOM DROP:", {
-    itemId: el.dataset.itemId,
-    flipped: el.dataset.flipped,
-    transformAfterDrop: el.style.transform
-});
+        itemId: el.dataset.itemId,
+        flipped: el.dataset.flipped,
+        transformAfterDrop: el.style.transform
+    });
 
     dispatchTheatreChanged();
 }
@@ -1012,11 +1033,10 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         applyTransform(originalEl);
 
         console.log("AFTER THUMBNAIL DRAG OUT:", {
-    itemId: originalEl.dataset.itemId,
-    flipped: originalEl.dataset.flipped,
-    transformAfterDragOut: originalEl.style.transform
-});
-
+            itemId: originalEl.dataset.itemId,
+            flipped: originalEl.dataset.flipped,
+            transformAfterDragOut: originalEl.style.transform
+        });
 
         makeDraggable(originalEl);
         scheduleSave(originalEl);
@@ -1032,6 +1052,11 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
    Thumbnail System
 ---------------------------------------------------- */
 function moveItemToRoom(el, room) {
+    console.log("MOVE TO ROOM:", {
+        itemId: el.dataset.itemId,
+        flippedBeforeMove: el.dataset.flipped
+    });
+
     const thumb = document.createElement("img");
     thumb.src = el.src;
     thumb.classList.add("storeThumb");
@@ -1053,6 +1078,11 @@ function moveItemToRoom(el, room) {
 }
 
 function removeItemFromRooms(el) {
+    console.log("REMOVE FROM ROOM:", {
+        itemId: el.dataset.itemId,
+        flippedBeforeRemove: el.dataset.flipped
+    });
+
     const rooms = document.querySelectorAll(".roomPanel");
 
     rooms.forEach(room => {
@@ -1131,32 +1161,35 @@ function applyResponsiveLayout() {
     const responsiveFactor = currentWidth / initialTheatreWidth;
     currentScaleFactor = responsiveFactor;
 
+    console.log("RESPONSIVE LAYOUT RUN:", {
+        currentWidth,
+        initialTheatreWidth,
+        responsiveFactor
+    });
+
     document.querySelectorAll(".equipmentItem").forEach(el => {
         const vLeft   = el.virtualLeft;
         const vTop    = el.virtualTop;
         const vWidth  = el.virtualWidth;
         const vHeight = el.virtualHeight;
 
-        // Position scales with screen size
         el.style.left = (vLeft * responsiveFactor) + "px";
         el.style.top  = (vTop  * responsiveFactor) + "px";
 
-        // Base size scales with screen size
         el.style.width  = (vWidth  * responsiveFactor) + "px";
         el.style.height = (vHeight * responsiveFactor) + "px";
 
-        // Apply combined scale + flip transform
         applyTransform(el);
-       
-       
+
         console.log("AFTER RESPONSIVE LAYOUT:", {
-    itemId: el.dataset.itemId,
-    flipped: el.dataset.flipped,
-    transformAfterLayout: el.style.transform
-});
+            itemId: el.dataset.itemId,
+            flipped: el.dataset.flipped,
+            transformAfterLayout: el.style.transform
+        });
+    });
 
     dispatchTheatreChanged();
-})
+}
 
 /* ----------------------------------------------------
    Theatre Change Event
