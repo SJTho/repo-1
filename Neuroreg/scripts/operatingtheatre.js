@@ -1093,7 +1093,7 @@ function applyResponsiveLayout() {
             el.virtualTop = el.virtualTop ?? 0;
             el.virtualWidth = el.virtualWidth ?? el.startingWidth;
             el.virtualHeight = el.virtualHeight ?? el.startingHeight;
-            el.virtualScale = el.virtualScale ?? el.scale || 1;
+            el.virtualScale = el.virtualScale ?? el.scale ?? 1;
         });
 
         return;
