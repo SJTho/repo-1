@@ -722,16 +722,7 @@ function makeDraggable(el) {
             scheduleSave(el);
         }
 
-        const now = Date.now();
-        const tapGap = now - lastTapTime;
-
-        if (tapGap < 300 && !dragActive && e.pointerType === "mouse") {
-            el.flipped = !el.flipped;
-            applyTransform(el);
-            scheduleSave(el);
-        }
-
-        lastTapTime = now;
+        lastTapTime = Date.now();
         el.releasePointerCapture(e.pointerId);
     });
 
@@ -767,6 +758,10 @@ function makeDraggable(el) {
         scheduleSave(el);
     });
 }
+
+
+
+
 
 function applyTransform(el) {
     const scale = el.scale;
