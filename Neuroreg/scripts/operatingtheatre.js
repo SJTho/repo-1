@@ -1126,3 +1126,4 @@ function applyResponsiveLayout() {
 ---------------------------------------------------- */
 function dispatchTheatreChanged() {
     document.dispatchEvent(new CustomEvent("theatreChanged"));
+}
