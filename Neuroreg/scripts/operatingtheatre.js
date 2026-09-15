@@ -797,6 +797,9 @@ function clearRoomHighlights() {
     });
 }
 
+
+
+
 function attemptRoomDrop(el) {
     const elRect = el.getBoundingClientRect();
 
@@ -822,13 +825,34 @@ function attemptRoomDrop(el) {
         elRect.bottom > staffRect.top &&
         elRect.top < staffRect.bottom;
 
-    // ⭐ ENFORCE ROOM RULES
+    // ⭐ Staff incorrectly dropped in store room
+    if (droppedInStore && isStaff) {
+        alert("Staff can only go in the Staff Room.");
+
+        // Move to centre
+        centerItemOnBackground(el);
+        applyTransform(el);
+        scheduleSave(el);
+
+        el.dataset.location = "theatre";
+        return;
+    }
+
+    // ⭐ Non-staff incorrectly dropped in staff room
+    if (droppedInStaff && !isStaff) {
+        alert("Only staff can go in the Staff Room.");
+
+        // Move to centre
+        centerItemOnBackground(el);
+        applyTransform(el);
+        scheduleSave(el);
+
+        el.dataset.location = "theatre";
+        return;
+    }
+
+    // ⭐ Correct room drops
     if (droppedInStore) {
-        if (isStaff) {
-            alert("Staff can only go in the Staff Room.");
-            el.dataset.location = "theatre";
-            return;
-        }
         el.dataset.location = "storeroom";
         moveItemToRoom(el, storeRoom);
         dispatchTheatreChanged();
@@ -836,21 +860,18 @@ function attemptRoomDrop(el) {
     }
 
     if (droppedInStaff) {
-        if (!isStaff) {
-            alert("Only staff can go in the Staff Room.");
-            el.dataset.location = "theatre";
-            return;
-        }
         el.dataset.location = "staffroom";
         moveItemToRoom(el, staffRoom);
         dispatchTheatreChanged();
         return;
     }
 
-    // Not dropped in any room → stays in theatre
+    // ⭐ Not dropped in any room → stays in theatre
     el.dataset.location = "theatre";
     dispatchTheatreChanged();
 }
+
+
 
 /* ----------------------------------------------------
    Thumbnail Drag-Out System
