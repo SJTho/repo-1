@@ -551,10 +551,19 @@ function buildCategoryMap() {
         }
     });
 
-    revealIndex.room = 0;
-    revealIndex.anaesthetic = 0;
-    revealIndex.surgical = 0;
-    revealIndex.staff = 0;
+    // FIX: revealIndex must start AFTER already-deployed items
+    Object.keys(categoryMap).forEach(category => {
+        const items = categoryMap[category];
+
+        const deployedCount = items.filter(i =>
+            i.location === "theatre" ||
+            i.location === "storeroom" ||
+            i.location === "staffroom"
+        ).length;
+
+        revealIndex[category] = deployedCount;
+    });
+
     updateCategoryButtonColours();
 }
 
