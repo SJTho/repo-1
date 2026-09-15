@@ -640,13 +640,18 @@ function updateCategoryButtonColours() {
         const category = btn.dataset.category;
         const items = categoryMap[category] || [];
 
-        const hasUndeployed = items.some(item => item.location !== "theatre");
+        // Count items NOT deployed AND NOT in rooms
+        const undeployedCount = items.filter(i =>
+            i.dataset.location !== "theatre" &&
+            i.dataset.location !== "storeroom" &&
+            i.dataset.location !== "staffroom"
+        ).length;
 
-        btn.style.backgroundColor = hasUndeployed ? "green" : "";
+        // Green only if there are items still locked/hidden
+        btn.style.backgroundColor = undeployedCount > 0 ? "green" : "";
 
         const badge = btn.querySelector(".levelBadge");
         if (badge) {
-            const undeployedCount = items.filter(i => i.location !== "theatre").length;
             badge.textContent = String(undeployedCount);
         }
     });
