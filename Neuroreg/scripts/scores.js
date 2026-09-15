@@ -41,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .order("hamburgerorder", { ascending: true });
 
     if (error) {
-      console.error(error);
       dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
       return;
     }
@@ -89,10 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .eq("topright", true)
       .order("toprightorder", { ascending: true });
 
-    if (error) {
-      console.error(error);
-      return;
-    }
+    if (error) return;
 
     container.innerHTML = "";
 
@@ -135,10 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .eq("userid", userId)
       .order("created_at", { ascending: true });
 
-    if (error) {
-      console.error(error);
-      return;
-    }
+    if (error) return;
 
     const tableBody = document.querySelector("#scoreTable tbody");
 
@@ -219,5 +212,38 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadScores();
+
+  /* ----------------------------------------------------
+     PDF REPORT BUTTON
+  ---------------------------------------------------- */
+  const reportBtn = document.getElementById("downloadReportBtn");
+
+  if (reportBtn) {
+    reportBtn.addEventListener("click", async () => {
+
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: scores } = await supabase
+        .from("userpracticemcqscores")
+        .select("*")
+        .eq("userid", user.id)
+        .gte("created_at", oneYearAgo.toISOString())
+        .order("created_at", { ascending: true });
+
+      generateYearlyPdfReport(scores);
+    });
+  }
+
+  function generateYearlyPdfReport(scores) {
+    // Placeholder for your PDF generation logic
+    // Example:
+    // const doc = new jsPDF();
+    // doc.text("Your Yearly Activity Report", 10, 10);
+    // doc.save("yearly_report.pdf");
+  }
 
 });
