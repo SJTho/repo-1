@@ -968,6 +968,7 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.style.height = sh + "px";
         
         applyTransform(originalEl);
+        scheduleSave(originalEl);
 
         const parentRect = equipmentContainer.getBoundingClientRect();
         const width = theatre.clientWidth || BASELINE_THEATRE_WIDTH;
