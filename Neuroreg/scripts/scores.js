@@ -4,9 +4,6 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const userId = localStorage.getItem("userId");
 
-/* ----------------------------------------------------
-   DOM READY WRAPPER — prevents null element errors
----------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
 
   /* -----------------------------
@@ -214,36 +211,93 @@ document.addEventListener("DOMContentLoaded", () => {
   loadScores();
 
   /* ----------------------------------------------------
-     PDF REPORT BUTTON
+     PDF REPORT BUTTON + MODAL
   ---------------------------------------------------- */
   const reportBtn = document.getElementById("downloadReportBtn");
+  const modal = document.getElementById("reportModal");
+  const modalGenerate = document.getElementById("reportGenerateBtn");
+  const modalCancel = document.getElementById("reportCancelBtn");
 
   if (reportBtn) {
-    reportBtn.addEventListener("click", async () => {
-
-      const oneYearAgo = new Date();
-      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: scores } = await supabase
-        .from("userpracticemcqscores")
-        .select("*")
-        .eq("userid", user.id)
-        .gte("created_at", oneYearAgo.toISOString())
-        .order("created_at", { ascending: true });
-
-      generateYearlyPdfReport(scores);
+    reportBtn.addEventListener("click", () => {
+      modal.style.display = "flex";
     });
   }
 
-  function generateYearlyPdfReport(scores) {
-    // Placeholder for your PDF generation logic
-    // Example:
-    // const doc = new jsPDF();
-    // doc.text("Your Yearly Activity Report", 10, 10);
-    // doc.save("yearly_report.pdf");
+  modalCancel.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  modalGenerate.addEventListener("click", async () => {
+    const name = document.getElementById("reportName").value.trim();
+    const start = document.getElementById("reportStart").value;
+    const end = document.getElementById("reportEnd").value;
+
+    if (!name || !start || !end) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const { data: scores } = await supabase
+      .from("userpracticemcqscores")
+      .select("*")
+      .eq("userid", userId)
+      .gte("created_at", start)
+      .lte("created_at", end)
+      .order("created_at", { ascending: true });
+
+    modal.style.display = "none";
+
+    generatePdfReport(name, start, end, scores);
+  });
+
+  /* ----------------------------------------------------
+     PDF GENERATION
+  ---------------------------------------------------- */
+  async function generatePdfReport(name, start, end, scores) {
+    const doc = new jsPDF();
+
+    // Favicon
+    const favicon = await fetch("favicon.ico")
+      .then(r => r.blob())
+      .then(blob => new Promise(res => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result);
+        reader.readAsDataURL(blob);
+      }));
+
+    doc.addImage(favicon, "PNG", 10, 10, 20, 20);
+
+    doc.setFontSize(18);
+    doc.text("Neuroreg", 40, 22);
+
+    doc.setFontSize(12);
+    doc.text(`Name: ${name}`, 10, 45);
+    doc.text(`Report Dates: ${start} → ${end}`, 10, 55);
+
+    // Chart image
+    const chartCanvas = document.getElementById("scoreChart");
+    const chartImg = chartCanvas.toDataURL("image/png");
+
+    doc.addImage(chartImg, "PNG", 10, 70, 180, 60);
+
+    // Table
+    let y = 140;
+    doc.setFontSize(12);
+    doc.text("Score History", 10, y);
+    y += 10;
+
+    scores.forEach(s => {
+      const percent = Math.round((s.score / s.numberofquestions) * 100);
+      doc.text(
+        `${formatTimestamp(s.created_at)} | Q: ${s.numberofquestions} | Score: ${s.score} | ${percent}%`,
+        10,
+        y
+      );
+      y += 8;
+    });
+
+    doc.save("Neuroreg_Report.pdf");
   }
 
 });
