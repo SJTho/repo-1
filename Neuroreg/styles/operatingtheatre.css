@@ -255,6 +255,14 @@
   display: inline-block;
 }
 
+#staffroom .storeThumb {
+  width: 16px;
+  /* 40% smaller than the current 26px */
+  height: auto;
+  /* maintain aspect ratio */
+  margin: 1px;
+}
+
 #storeroom.drag-over,
 #staffroom.drag-over {
   background: #1f355c;
