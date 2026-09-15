@@ -808,6 +808,8 @@ function attemptRoomDrop(el) {
     const storeRect = storeRoom.getBoundingClientRect();
     const staffRect = staffRoom.getBoundingClientRect();
 
+    const isStaff = el.dataset.category === "staff";
+
     const droppedInStore =
         elRect.right > storeRect.left &&
         elRect.left < storeRect.right &&
@@ -820,16 +822,33 @@ function attemptRoomDrop(el) {
         elRect.bottom > staffRect.top &&
         elRect.top < staffRect.bottom;
 
+    // ⭐ ENFORCE ROOM RULES
     if (droppedInStore) {
+        if (isStaff) {
+            alert("Staff can only go in the Staff Room.");
+            el.dataset.location = "theatre";
+            return;
+        }
         el.dataset.location = "storeroom";
         moveItemToRoom(el, storeRoom);
-    } else if (droppedInStaff) {
-        el.dataset.location = "staffroom";
-        moveItemToRoom(el, staffRoom);
-    } else {
-        el.dataset.location = "theatre";
+        dispatchTheatreChanged();
+        return;
     }
 
+    if (droppedInStaff) {
+        if (!isStaff) {
+            alert("Only staff can go in the Staff Room.");
+            el.dataset.location = "theatre";
+            return;
+        }
+        el.dataset.location = "staffroom";
+        moveItemToRoom(el, staffRoom);
+        dispatchTheatreChanged();
+        return;
+    }
+
+    // Not dropped in any room → stays in theatre
+    el.dataset.location = "theatre";
     dispatchTheatreChanged();
 }
 
