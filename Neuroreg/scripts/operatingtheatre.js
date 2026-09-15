@@ -351,7 +351,7 @@ async function loadDraggableItemsFromSupabase() {
     const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("scalpel_points, streak_days")
-        ..eq("id", user.id)
+        .eq("id", user.id)
         .single();
 
     if (profileError) {
