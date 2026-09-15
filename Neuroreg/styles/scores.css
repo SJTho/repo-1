@@ -1,3 +1,6 @@
+/* ----------------------------------------------------
+   Base table styling (desktop)
+---------------------------------------------------- */
 table {
   width: 100%;
   margin-top: 20px;
@@ -45,4 +48,63 @@ th {
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+}
+
+/* ----------------------------------------------------
+   MOBILE IMPROVEMENTS
+---------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* Make text slightly larger for readability */
+  body {
+    font-size: 1rem;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .chartTitle,
+  .historyTitle {
+    font-size: 1.1rem;
+  }
+
+  /* Chart spacing */
+  #scoreChart {
+    max-width: 100%;
+    margin: 0 auto 20px auto;
+  }
+
+  /* Wrap table in a scroll container */
+  #scoreTable {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    border: 1px solid #3b5ca3;
+    border-radius: 6px;
+  }
+
+  #scoreTable table {
+    width: 600px;
+    /* ensures horizontal scroll */
+  }
+
+  th,
+  td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  /* Make delete button easier to tap */
+  .deleteBtn {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+
+  /* Reduce header thickness */
+  th {
+    padding: 8px;
+  }
 }
