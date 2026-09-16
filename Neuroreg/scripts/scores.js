@@ -397,3 +397,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     doc.save("Neuroreg_Report.pdf");
   }
+
+});
