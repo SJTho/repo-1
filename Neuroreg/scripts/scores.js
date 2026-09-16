@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
      PDF REPORT BUTTON + MODAL
   ---------------------------------------------------- */
 async function generatePdfReport(name, start, end, scores) {
-  const { jsPDF } = window.jspdf;
+  const jsPDF = window.jspdf.jsPDF || window.jspdf;
   const doc = new jsPDF({
     unit: "pt",
     format: "a4"
@@ -330,4 +330,3 @@ async function generatePdfReport(name, start, end, scores) {
 
   doc.save("Neuroreg_Report.pdf");
 }
-});
