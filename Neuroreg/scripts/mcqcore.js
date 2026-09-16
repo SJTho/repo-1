@@ -1,3 +1,10 @@
+/* --- SUPABASE CLIENT (MODULE IMPORTS) --- */
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+
+window.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* --- MAIN LOGIC --- */
 window.addEventListener("DOMContentLoaded", () => {
 
   /* LOGIN CHECK */
