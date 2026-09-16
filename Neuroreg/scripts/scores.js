@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     doc.setFontSize(22);
     doc.setTextColor(255, 255, 255);
-    doc.text("Neuroreg Progress Report", margin + 50, 40);
+    doc.text("Neuroreg Report", margin + 50, 40);
 
     y = 120;
 
@@ -320,14 +320,26 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.text(`${name} (id ${shortId})`, margin, y);
     y += 20;
 
-    doc.text(`Report Dates: ${start} → ${end}`, margin, y);
-    y += 30;
+    // UK date formatter
+    function ukDate(d) {
+      const dt = new Date(d);
+      const dd = String(dt.getDate()).padStart(2, "0");
+      const mm = String(dt.getMonth() + 1).padStart(2, "0");
+      const yyyy = dt.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    // Clean report dates, UK format, no spacing issues
+    doc.text(`Report Dates: ${ukDate(start)} to ${ukDate(end)}`, margin, y);
+    y += 50;
 
     /* -----------------------------
        CHART SECTION
     ----------------------------- */
     doc.setFontSize(12);
-    doc.text("Performance Chart", margin, y);
+    doc.setFont(undefined, "bold");
+    doc.text("Results", margin, y);
+    doc.setFont(undefined, "normal");
     y += 25;
 
     const chartCanvas = document.getElementById("scoreChart");
@@ -340,7 +352,9 @@ document.addEventListener("DOMContentLoaded", () => {
        TABLE HEADER
     ----------------------------- */
     doc.setFontSize(12);
-    doc.text("Score History", margin, y);
+    doc.setFont(undefined, "bold");
+    doc.text("History", margin, y);
+    doc.setFont(undefined, "normal");
     y += 25;
 
     doc.setFontSize(12);
@@ -352,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.text("Score", margin + 250, y + 15);
     doc.text("Percent", margin + 330, y + 15);
 
-    y += 32;
+    y += 38;
 
     /* -----------------------------
        TABLE ROWS
@@ -383,5 +397,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
     doc.save("Neuroreg_Report.pdf");
   }
-  
-});
