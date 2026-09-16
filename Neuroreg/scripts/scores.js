@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.setTextColor(255, 255, 255);
     doc.text("Neuroreg Progress Report", margin + 50, 40);
 
-    y = 300;
+    y = 120;
 
     /* -----------------------------
        USER INFO SECTION
