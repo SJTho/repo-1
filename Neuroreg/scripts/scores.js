@@ -281,32 +281,43 @@ async function generatePdfReport(name, start, end, scores) {
   const margin = 40;
   let y = margin;
 
-  /* -----------------------------
-     HEADER BAR
-  ----------------------------- */
-  doc.setFillColor(42, 76, 138);
-  doc.rect(0, 0, pageWidth, 60, "F");
+/* -----------------------------
+   HEADER BAR
+----------------------------- */
+doc.setFillColor(70, 120, 200);   // lighter blue for better favicon visibility
+doc.rect(0, 0, pageWidth, 60, "F");
 
-  let favicon = null;
-  try {
-    favicon = await fetch("favicon.ico")
-      .then(r => r.blob())
-      .then(blob => new Promise(res => {
-        const reader = new FileReader();
-        reader.onload = () => res(reader.result);
-        reader.readAsDataURL(blob);
-      }));
-  } catch (e) {
-    console.warn("Favicon failed to load:", e);
-  }
+// Load favicon
+let favicon = null;
+try {
+  favicon = await fetch("favicon.ico")
+    .then(r => r.blob())
+    .then(blob => new Promise(res => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result);
+      reader.readAsDataURL(blob);
+    }));
+} catch (e) {
+  console.warn("Favicon failed to load:", e);
+}
 
-  if (favicon) {
-    doc.addImage(favicon, "PNG", margin, 15, 30, 30);
-  }
+// Draw white circular backdrop behind favicon
+if (favicon) {
+  const iconX = margin + 15;   // centre of circle horizontally
+  const iconY = 30;            // centre vertically
 
-  doc.setFontSize(22);
-  doc.setTextColor(255, 255, 255);
-  doc.text("Neuroreg Report", margin + 50, 40);
+  doc.setFillColor(255, 255, 255);  // white
+  doc.circle(iconX, iconY, 22, "F");  // filled circle radius 22px
+
+  // Draw favicon on top
+  doc.addImage(favicon, "PNG", iconX - 15, iconY - 15, 30, 30);
+}
+
+doc.setFontSize(22);
+doc.setTextColor(255, 255, 255);
+doc.text("Neuroreg Report", margin + 50, 40);
+
+
 
   /* -----------------------------
      USER INFO SECTION (centred)
@@ -450,11 +461,11 @@ async function generatePdfReport(name, start, end, scores) {
   ----------------------------- */
   y += 15; // extra spacing above History
 
-  doc.setFontSize(12);
+  doc.setFontSize(14);
   doc.setFont(undefined, "bold");
   doc.text("History", margin, y);
   doc.setFont(undefined, "normal");
-  y += 25;
+  y += 15;
 
   doc.setFillColor(230, 230, 230);
   doc.rect(margin, y, pageWidth - margin * 2, 22, "F");
