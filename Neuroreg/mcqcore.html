@@ -12,30 +12,6 @@
   <!-- Page-specific styles -->
   <link rel="stylesheet" href="./styles/mcqcore.css">
 
-  <!-- Supabase client -->
-  <script type="module">
-    import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
-
-    window.supabaseUrl = SUPABASE_URL;
-    window.supabaseKey = SUPABASE_KEY;
-    window.supabase = createClient(window.supabaseUrl, window.supabaseKey);
-
-    window.fetchQuestionsFromDB = async () => {
-      const {data, error} = await window.supabase
-        .from("mcqquestions")
-        .select("*");
-
-      if (error) {
-        console.error("Supabase fetch error:", error);
-        alert("Error loading questions from database.");
-        return [];
-      }
-
-      return data;
-    };
-  </script>
-
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
@@ -54,8 +30,8 @@
     import {SUPABASE_URL, SUPABASE_KEY} from "./myenv.js";
     import {logout} from "./scripts/logout.js";
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     window.logout = logout;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function loadHamburgerMenu() {
       const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -195,7 +171,7 @@
   </div>
 
   <!-- Page logic -->
-  <script src="./scripts/mcqcore.js"></script>
+  <script type="module" src="./scripts/mcqcore.js"></script>
 
 </body>
 
