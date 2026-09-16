@@ -211,9 +211,9 @@ document.addEventListener("DOMContentLoaded", () => {
             ticks: { color: '#fff', maxRotation: 45, minRotation: 45 }
           }
         },
-        plugins: {
-          legend: { labels: { color: '#fff' } }
-        }
+       plugins: {
+  legend: { display: false }
+}
       }
     });
   }
@@ -318,7 +318,6 @@ async function generatePdfReport(name, start, end, scores) {
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
 
-  // Centre name
   doc.text(`${name} (id ${shortId})`, pageWidth / 2, y, { align: "center" });
   y += 22;
 
@@ -330,14 +329,12 @@ async function generatePdfReport(name, start, end, scores) {
     return `${dd}/${mm}/${yyyy}`;
   }
 
-  // Centre dates, no label
   doc.text(`${ukDate(start)} to ${ukDate(end)}`, pageWidth / 2, y, { align: "center" });
-  y += 40;
+  y += 50;   // increased space above Engagement
 
   /* -----------------------------
      ENGAGEMENT SECTION
   ----------------------------- */
-
   const { data: profile } = await supabase
     .from("profiles")
     .select("streak_days")
@@ -350,7 +347,6 @@ async function generatePdfReport(name, start, end, scores) {
   const totalQuestions = scores.reduce((sum, s) => sum + s.numberofquestions, 0);
   const totalScore = scores.reduce((sum, s) => sum + s.score, 0);
 
-  // Correct average percentage formula
   const avgPercent = totalQuestions === 0
     ? 0
     : Math.round((totalScore / totalQuestions) * 100);
@@ -372,16 +368,16 @@ async function generatePdfReport(name, start, end, scores) {
   y += 20;
 
   doc.text(`Average percentage: ${avgPercent}%`, margin, y);
-  y += 50; // increased spacing above Scores
+  y += 50;
 
   /* -----------------------------
-     SCORES HEADING (restored)
+     SCORES HEADING
   ----------------------------- */
   doc.setFontSize(14);
   doc.setFont(undefined, "bold");
   doc.text("Scores", margin, y);
   doc.setFont(undefined, "normal");
-  y += 30;
+  y += 15;   // reduced spacing before chart
 
   /* ----------------------------------------------------
      PDF-ONLY CHART (off-screen canvas)
@@ -439,9 +435,7 @@ async function generatePdfReport(name, start, end, scores) {
         }
       },
       plugins: {
-        legend: {
-          labels: { color: "black" }
-        }
+        legend: { display: false }   // legend removed
       }
     }
   });
@@ -501,5 +495,4 @@ async function generatePdfReport(name, start, end, scores) {
 
   doc.save("Neuroreg_Report.pdf");
 }
-
 });
