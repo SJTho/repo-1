@@ -285,7 +285,6 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.setFillColor(42, 76, 138);
     doc.rect(0, 0, pageWidth, 60, "F");
 
-    // Favicon (safe)
     let favicon = null;
     try {
       favicon = await fetch("favicon.ico")
@@ -320,7 +319,6 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.text(`${name} (id ${shortId})`, margin, y);
     y += 20;
 
-    // UK date formatter
     function ukDate(d) {
       const dt = new Date(d);
       const dd = String(dt.getDate()).padStart(2, "0");
@@ -329,24 +327,76 @@ document.addEventListener("DOMContentLoaded", () => {
       return `${dd}/${mm}/${yyyy}`;
     }
 
-    // Clean report dates, UK format, no spacing issues
     doc.text(`Report Dates: ${ukDate(start)} to ${ukDate(end)}`, margin, y);
     y += 50;
 
-    /* -----------------------------
-       CHART SECTION
-    ----------------------------- */
-    doc.setFontSize(12);
-    doc.setFont(undefined, "bold");
-    doc.text("Results", margin, y);
-    doc.setFont(undefined, "normal");
-    y += 25;
+    /* ----------------------------------------------------
+       PDF-ONLY CHART (off-screen canvas)
+    ---------------------------------------------------- */
+    const originalCanvas = document.getElementById("scoreChart");
 
-    const chartCanvas = document.getElementById("scoreChart");
-    const chartImg = chartCanvas.toDataURL("image/png", 1.0);
+    const pdfCanvas = document.createElement("canvas");
+    pdfCanvas.width = originalCanvas.width;
+    pdfCanvas.height = originalCanvas.height * 1.5;
 
-    doc.addImage(chartImg, "PNG", margin, y, pageWidth - margin * 2, 150);
-    y += 190;
+    const pdfCtx = pdfCanvas.getContext("2d");
+
+    const chartInstance = Chart.getChart(originalCanvas);
+    const labels = chartInstance.data.labels;
+    const dataPoints = chartInstance.data.datasets[0].data;
+
+    new Chart(pdfCtx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "Score (%)",
+          data: dataPoints,
+          borderColor: "black",
+          backgroundColor: "rgba(0,0,0,0.1)",
+          tension: 0.3,
+          pointRadius: 4,
+          pointBackgroundColor: "black"
+        }]
+      },
+      options: {
+        responsive: false,
+        animation: false,
+        scales: {
+          y: {
+            min: 0,
+            max: 100,
+            grid: { display: false },
+            ticks: {
+              color: "black",
+              stepSize: 10,
+              callback: v => v + "%"
+            }
+          },
+          x: {
+            grid: { display: false },
+            ticks: {
+              color: "black",
+              callback: (value, index) => {
+                const ts = labels[index];
+                const d = new Date(ts);
+                return d.toLocaleDateString("en-GB");
+              }
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: { color: "black" }
+          }
+        }
+      }
+    });
+
+    const chartImg = pdfCanvas.toDataURL("image/png", 1.0);
+
+    doc.addImage(chartImg, "PNG", margin, y, pageWidth - margin * 2, 225);
+    y += 260;
 
     /* -----------------------------
        TABLE HEADER
@@ -357,7 +407,6 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.setFont(undefined, "normal");
     y += 25;
 
-    doc.setFontSize(12);
     doc.setFillColor(230, 230, 230);
     doc.rect(margin, y, pageWidth - margin * 2, 22, "F");
 
