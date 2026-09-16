@@ -35,6 +35,8 @@
       return data;
     };
   </script>
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
 <body>
@@ -49,7 +51,7 @@
   <!-- Menu loader -->
   <script type="module">
     import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-    import {SUPABASE_URL, SUPABASE_KEY} from "../myenv.js";
+    import {SUPABASE_URL, SUPABASE_KEY} from "./myenv.js";
     import {logout} from "./scripts/logout.js";
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
