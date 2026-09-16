@@ -4,6 +4,7 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 document.addEventListener("DOMContentLoaded", () => {
   const userId = localStorage.getItem("userId");
+  const shortId = userId.slice(-6);
 
   if (!userId) {
     console.error("User ID missing:", userId);
@@ -262,7 +263,7 @@ async function generatePdfReport(name, start, end, scores) {
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
 
-  doc.text(`Name: ${name}`, margin, y);
+  doc.text(`Name: ${name} (Id ${shortId})`, margin, y);
   y += 20;
 
   doc.text(`Report Dates: ${start} → ${end}`, margin, y);
