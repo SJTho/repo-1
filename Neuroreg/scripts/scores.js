@@ -266,8 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-  
-  /* ----------------------------------------------------
+/* ----------------------------------------------------
    PDF GENERATION (enhanced layout)
 ---------------------------------------------------- */
 async function generatePdfReport(name, start, end, scores) {
@@ -309,18 +308,19 @@ async function generatePdfReport(name, start, end, scores) {
   doc.setTextColor(255, 255, 255);
   doc.text("Neuroreg Report", margin + 50, 40);
 
-  y = 120;
-
   /* -----------------------------
-     USER INFO SECTION
+     USER INFO SECTION (centred)
   ----------------------------- */
+  y = 105; // moved up ~1 line
+
   const shortId = userId.slice(-6);
 
-  doc.setFontSize(12);
+  doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
 
-  doc.text(`${name} (id ${shortId})`, margin, y);
-  y += 20;
+  // Centre name
+  doc.text(`${name} (id ${shortId})`, pageWidth / 2, y, { align: "center" });
+  y += 22;
 
   function ukDate(d) {
     const dt = new Date(d);
@@ -330,14 +330,14 @@ async function generatePdfReport(name, start, end, scores) {
     return `${dd}/${mm}/${yyyy}`;
   }
 
-  doc.text(`Report Dates: ${ukDate(start)} to ${ukDate(end)}`, margin, y);
+  // Centre dates, no label
+  doc.text(`${ukDate(start)} to ${ukDate(end)}`, pageWidth / 2, y, { align: "center" });
   y += 40;
 
   /* -----------------------------
      ENGAGEMENT SECTION
   ----------------------------- */
 
-  // Fetch streak_days from public.profiles
   const { data: profile } = await supabase
     .from("profiles")
     .select("streak_days")
@@ -348,12 +348,12 @@ async function generatePdfReport(name, start, end, scores) {
 
   const numberOfTests = scores.length;
   const totalQuestions = scores.reduce((sum, s) => sum + s.numberofquestions, 0);
-  const avgPercent = numberOfTests === 0
+  const totalScore = scores.reduce((sum, s) => sum + s.score, 0);
+
+  // Correct average percentage formula
+  const avgPercent = totalQuestions === 0
     ? 0
-    : Math.round(
-        scores.reduce((sum, s) => sum + (s.score / s.numberofquestions) * 100, 0)
-        / numberOfTests
-      );
+    : Math.round((totalScore / totalQuestions) * 100);
 
   doc.setFontSize(14);
   doc.setFont(undefined, "bold");
@@ -372,7 +372,7 @@ async function generatePdfReport(name, start, end, scores) {
   y += 20;
 
   doc.text(`Average percentage: ${avgPercent}%`, margin, y);
-  y += 40;
+  y += 50; // increased spacing above Scores
 
   /* -----------------------------
      SCORES HEADING (restored)
@@ -381,7 +381,7 @@ async function generatePdfReport(name, start, end, scores) {
   doc.setFont(undefined, "bold");
   doc.text("Scores", margin, y);
   doc.setFont(undefined, "normal");
-  y += 25;
+  y += 30;
 
   /* ----------------------------------------------------
      PDF-ONLY CHART (off-screen canvas)
@@ -454,6 +454,8 @@ async function generatePdfReport(name, start, end, scores) {
   /* -----------------------------
      TABLE HEADER
   ----------------------------- */
+  y += 15; // extra spacing above History
+
   doc.setFontSize(12);
   doc.setFont(undefined, "bold");
   doc.text("History", margin, y);
