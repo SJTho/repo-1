@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-const userId = localStorage.getItem("userId");
+const userId = parseInt(localStorage.getItem("userId"), 10);
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -131,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (error) return;
 
     const tableBody = document.querySelector("#scoreTable tbody");
+    tableBody.innerHTML = "";
 
     scores.forEach(entry => {
       const percent = Math.round((entry.score / entry.numberofquestions) * 100);
@@ -173,7 +174,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const ctx = document.getElementById('scoreChart').getContext('2d');
 
-    new Chart(ctx, {
+    if (window.scoreChartInstance) {
+      window.scoreChartInstance.destroy();
+    }
+
+    window.scoreChartInstance = new Chart(ctx, {
       type: 'line',
       data: {
         labels: labels,
@@ -238,12 +243,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const startISO = new Date(start + "T00:00:00").toISOString();
+    const endISO = new Date(end + "T23:59:59").toISOString();
+
     const { data: scores } = await supabase
       .from("userpracticemcqscores")
       .select("*")
       .eq("userid", userId)
-      .gte("created_at", start)
-      .lte("created_at", end)
+      .gte("created_at", startISO)
+      .lte("created_at", endISO)
       .order("created_at", { ascending: true });
 
     modal.style.display = "none";
@@ -255,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
      PDF GENERATION
   ---------------------------------------------------- */
   async function generatePdfReport(name, start, end, scores) {
+    const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
     // Favicon
@@ -275,9 +284,9 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.text(`Name: ${name}`, 10, 45);
     doc.text(`Report Dates: ${start} → ${end}`, 10, 55);
 
-    // Chart image
+    // Chart image (high resolution)
     const chartCanvas = document.getElementById("scoreChart");
-    const chartImg = chartCanvas.toDataURL("image/png");
+    const chartImg = chartCanvas.toDataURL("image/png", 1.0);
 
     doc.addImage(chartImg, "PNG", 10, 70, 180, 60);
 
@@ -289,6 +298,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     scores.forEach(s => {
       const percent = Math.round((s.score / s.numberofquestions) * 100);
+
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+
       doc.text(
         `${formatTimestamp(s.created_at)} | Q: ${s.numberofquestions} | Score: ${s.score} | ${percent}%`,
         10,
@@ -299,5 +314,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
     doc.save("Neuroreg_Report.pdf");
   }
-
-});
