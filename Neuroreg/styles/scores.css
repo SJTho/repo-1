@@ -91,6 +91,28 @@ th {
   padding: 8px;
 }
 
+/* Prevent mobile zoom on text inputs */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+textarea {
+  font-size: 16px !important;
+  /* stops iOS zoom */
+  max-width: 100%;
+  /* prevents expansion */
+  box-sizing: border-box;
+  /* keeps width stable */
+}
+
+/* Ensure the modal container never expands */
+#reportModal .modalContent {
+  width: 90%;
+  max-width: 400px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
 /* ----------------------------------------------------
    MOBILE IMPROVEMENTS
 ---------------------------------------------------- */
