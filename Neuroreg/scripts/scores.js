@@ -264,187 +264,240 @@ document.addEventListener("DOMContentLoaded", () => {
     generatePdfReport(name, start, end, scores);
   });
 
+
+
+  
   /* ----------------------------------------------------
-     PDF GENERATION (enhanced layout)
+   PDF GENERATION (enhanced layout)
+---------------------------------------------------- */
+async function generatePdfReport(name, start, end, scores) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    unit: "pt",
+    format: "a4"
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  let y = margin;
+
+  /* -----------------------------
+     HEADER BAR
+  ----------------------------- */
+  doc.setFillColor(42, 76, 138);
+  doc.rect(0, 0, pageWidth, 60, "F");
+
+  let favicon = null;
+  try {
+    favicon = await fetch("favicon.ico")
+      .then(r => r.blob())
+      .then(blob => new Promise(res => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result);
+        reader.readAsDataURL(blob);
+      }));
+  } catch (e) {
+    console.warn("Favicon failed to load:", e);
+  }
+
+  if (favicon) {
+    doc.addImage(favicon, "PNG", margin, 15, 30, 30);
+  }
+
+  doc.setFontSize(22);
+  doc.setTextColor(255, 255, 255);
+  doc.text("Neuroreg Report", margin + 50, 40);
+
+  y = 120;
+
+  /* -----------------------------
+     USER INFO SECTION
+  ----------------------------- */
+  const shortId = userId.slice(-6);
+
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+
+  doc.text(`${name} (id ${shortId})`, margin, y);
+  y += 20;
+
+  function ukDate(d) {
+    const dt = new Date(d);
+    const dd = String(dt.getDate()).padStart(2, "0");
+    const mm = String(dt.getMonth() + 1).padStart(2, "0");
+    const yyyy = dt.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  doc.text(`Report Dates: ${ukDate(start)} to ${ukDate(end)}`, margin, y);
+  y += 40;
+
+  /* -----------------------------
+     ENGAGEMENT SECTION
+  ----------------------------- */
+
+  // Fetch streak_days from public.profiles
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("streak_days")
+    .eq("id", userId)
+    .single();
+
+  const longestStreak = profile?.streak_days ?? 0;
+
+  const numberOfTests = scores.length;
+  const totalQuestions = scores.reduce((sum, s) => sum + s.numberofquestions, 0);
+  const avgPercent = numberOfTests === 0
+    ? 0
+    : Math.round(
+        scores.reduce((sum, s) => sum + (s.score / s.numberofquestions) * 100, 0)
+        / numberOfTests
+      );
+
+  doc.setFontSize(14);
+  doc.setFont(undefined, "bold");
+  doc.text("Engagement", margin, y);
+  doc.setFont(undefined, "normal");
+  y += 25;
+
+  doc.setFontSize(12);
+  doc.text(`Longest streak (all time): ${longestStreak} days`, margin, y);
+  y += 20;
+
+  doc.text(`Number of tests taken: ${numberOfTests}`, margin, y);
+  y += 20;
+
+  doc.text(`Total questions answered: ${totalQuestions}`, margin, y);
+  y += 20;
+
+  doc.text(`Average percentage: ${avgPercent}%`, margin, y);
+  y += 40;
+
+  /* -----------------------------
+     SCORES HEADING (restored)
+  ----------------------------- */
+  doc.setFontSize(14);
+  doc.setFont(undefined, "bold");
+  doc.text("Scores", margin, y);
+  doc.setFont(undefined, "normal");
+  y += 25;
+
+  /* ----------------------------------------------------
+     PDF-ONLY CHART (off-screen canvas)
   ---------------------------------------------------- */
-  async function generatePdfReport(name, start, end, scores) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
-      unit: "pt",
-      format: "a4"
-    });
+  const originalCanvas = document.getElementById("scoreChart");
 
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 40;
-    let y = margin;
+  const pdfCanvas = document.createElement("canvas");
+  pdfCanvas.width = originalCanvas.width;
+  pdfCanvas.height = originalCanvas.height * 1.5;
 
-    /* -----------------------------
-       HEADER BAR
-    ----------------------------- */
-    doc.setFillColor(42, 76, 138);
-    doc.rect(0, 0, pageWidth, 60, "F");
+  const pdfCtx = pdfCanvas.getContext("2d");
 
-    let favicon = null;
-    try {
-      favicon = await fetch("favicon.ico")
-        .then(r => r.blob())
-        .then(blob => new Promise(res => {
-          const reader = new FileReader();
-          reader.onload = () => res(reader.result);
-          reader.readAsDataURL(blob);
-        }));
-    } catch (e) {
-      console.warn("Favicon failed to load:", e);
-    }
+  const chartInstance = Chart.getChart(originalCanvas);
+  const labels = chartInstance.data.labels;
+  const dataPoints = chartInstance.data.datasets[0].data;
 
-    if (favicon) {
-      doc.addImage(favicon, "PNG", margin, 15, 30, 30);
-    }
-
-    doc.setFontSize(22);
-    doc.setTextColor(255, 255, 255);
-    doc.text("Neuroreg Report", margin + 50, 40);
-
-    y = 120;
-
-    /* -----------------------------
-       USER INFO SECTION
-    ----------------------------- */
-    const shortId = userId.slice(-6);
-
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-
-    doc.text(`${name} (id ${shortId})`, margin, y);
-    y += 20;
-
-    function ukDate(d) {
-      const dt = new Date(d);
-      const dd = String(dt.getDate()).padStart(2, "0");
-      const mm = String(dt.getMonth() + 1).padStart(2, "0");
-      const yyyy = dt.getFullYear();
-      return `${dd}/${mm}/${yyyy}`;
-    }
-
-    doc.text(`Report Dates: ${ukDate(start)} to ${ukDate(end)}`, margin, y);
-    y += 50;
-
-    /* ----------------------------------------------------
-       PDF-ONLY CHART (off-screen canvas)
-    ---------------------------------------------------- */
-    const originalCanvas = document.getElementById("scoreChart");
-
-    const pdfCanvas = document.createElement("canvas");
-    pdfCanvas.width = originalCanvas.width;
-    pdfCanvas.height = originalCanvas.height * 1.5;
-
-    const pdfCtx = pdfCanvas.getContext("2d");
-
-    const chartInstance = Chart.getChart(originalCanvas);
-    const labels = chartInstance.data.labels;
-    const dataPoints = chartInstance.data.datasets[0].data;
-
-    new Chart(pdfCtx, {
-      type: "line",
-      data: {
-        labels,
-        datasets: [{
-          label: "Score (%)",
-          data: dataPoints,
-          borderColor: "black",
-          backgroundColor: "rgba(0,0,0,0.1)",
-          tension: 0.3,
-          pointRadius: 4,
-          pointBackgroundColor: "black"
-        }]
-      },
-      options: {
-        responsive: false,
-        animation: false,
-        scales: {
-          y: {
-            min: 0,
-            max: 100,
-            grid: { display: false },
-            ticks: {
-              color: "black",
-              stepSize: 10,
-              callback: v => v + "%"
-            }
-          },
-          x: {
-            grid: { display: false },
-            ticks: {
-              color: "black",
-              callback: (value, index) => {
-                const ts = labels[index];
-                const d = new Date(ts);
-                return d.toLocaleDateString("en-GB");
-              }
-            }
+  new Chart(pdfCtx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Score (%)",
+        data: dataPoints,
+        borderColor: "black",
+        backgroundColor: "rgba(0,0,0,0.1)",
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: "black"
+      }]
+    },
+    options: {
+      responsive: false,
+      animation: false,
+      scales: {
+        y: {
+          min: 0,
+          max: 100,
+          grid: { display: false },
+          ticks: {
+            color: "black",
+            stepSize: 10,
+            callback: v => v + "%"
           }
         },
-        plugins: {
-          legend: {
-            labels: { color: "black" }
+        x: {
+          grid: { display: false },
+          ticks: {
+            color: "black",
+            callback: (value, index) => {
+              const ts = labels[index];
+              const d = new Date(ts);
+              return d.toLocaleDateString("en-GB");
+            }
           }
         }
+      },
+      plugins: {
+        legend: {
+          labels: { color: "black" }
+        }
       }
-    });
+    }
+  });
 
-    const chartImg = pdfCanvas.toDataURL("image/png", 1.0);
+  const chartImg = pdfCanvas.toDataURL("image/png", 1.0);
 
-    doc.addImage(chartImg, "PNG", margin, y, pageWidth - margin * 2, 225);
-    y += 260;
+  doc.addImage(chartImg, "PNG", margin, y, pageWidth - margin * 2, 225);
+  y += 260;
 
-    /* -----------------------------
-       TABLE HEADER
-    ----------------------------- */
-    doc.setFontSize(12);
-    doc.setFont(undefined, "bold");
-    doc.text("History", margin, y);
-    doc.setFont(undefined, "normal");
-    y += 25;
+  /* -----------------------------
+     TABLE HEADER
+  ----------------------------- */
+  doc.setFontSize(12);
+  doc.setFont(undefined, "bold");
+  doc.text("History", margin, y);
+  doc.setFont(undefined, "normal");
+  y += 25;
 
-    doc.setFillColor(230, 230, 230);
-    doc.rect(margin, y, pageWidth - margin * 2, 22, "F");
+  doc.setFillColor(230, 230, 230);
+  doc.rect(margin, y, pageWidth - margin * 2, 22, "F");
 
-    doc.text("Date", margin + 10, y + 15);
-    doc.text("Questions", margin + 150, y + 15);
-    doc.text("Score", margin + 250, y + 15);
-    doc.text("Percent", margin + 330, y + 15);
+  doc.text("Date", margin + 10, y + 15);
+  doc.text("Questions", margin + 150, y + 15);
+  doc.text("Score", margin + 250, y + 15);
+  doc.text("Percent", margin + 330, y + 15);
 
-    y += 38;
+  y += 38;
 
-    /* -----------------------------
-       TABLE ROWS
-    ----------------------------- */
-    scores.forEach(s => {
-      const percent = Math.round((s.score / s.numberofquestions) * 100);
+  /* -----------------------------
+     TABLE ROWS
+  ----------------------------- */
+  scores.forEach(s => {
+    const percent = Math.round((s.score / s.numberofquestions) * 100);
 
-      if (y > pageHeight - 60) {
-        doc.addPage();
-        y = margin;
-      }
+    if (y > pageHeight - 60) {
+      doc.addPage();
+      y = margin;
+    }
 
-      doc.text(formatTimestamp(s.created_at), margin + 10, y);
-      doc.text(String(s.numberofquestions), margin + 150, y);
-      doc.text(String(s.score), margin + 250, y);
-      doc.text(percent + "%", margin + 330, y);
+    doc.text(formatTimestamp(s.created_at), margin + 10, y);
+    doc.text(String(s.numberofquestions), margin + 150, y);
+    doc.text(String(s.score), margin + 250, y);
+    doc.text(percent + "%", margin + 330, y);
 
-      y += 22;
-    });
+    y += 22;
+  });
 
-    /* -----------------------------
-       FOOTER
-    ----------------------------- */
-    const footerY = pageHeight - 30;
-    doc.setFontSize(10);
-    doc.setTextColor(120, 120, 120);
-    doc.text("Generated by Neuroreg • Confidential", margin, footerY);
+  /* -----------------------------
+     FOOTER
+  ----------------------------- */
+  const footerY = pageHeight - 30;
+  doc.setFontSize(10);
+  doc.setTextColor(120, 120, 120);
+  doc.text("Generated by Neuroreg • Confidential", margin, footerY);
 
-    doc.save("Neuroreg_Report.pdf");
-  }
+  doc.save("Neuroreg_Report.pdf");
+}
 
 });
