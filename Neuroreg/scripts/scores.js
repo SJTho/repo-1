@@ -378,7 +378,7 @@ doc.text("Neuroreg Report", margin + 50, 40);
   doc.text(`Total questions answered: ${totalQuestions}`, margin, y);
   y += 20;
 
-  doc.text(`Average percentage: ${avgPercent}%`, margin, y);
+  doc.text(`Overall percentage: ${avgPercent}%`, margin, y);
   y += 50;
 
   /* -----------------------------
