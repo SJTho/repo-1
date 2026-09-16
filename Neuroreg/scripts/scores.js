@@ -2,9 +2,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-const userId = parseInt(localStorage.getItem("userId"), 10);
-
 document.addEventListener("DOMContentLoaded", () => {
+  const userId = localStorage.getItem("userId");
+
+  if (!userId) {
+    console.error("User ID missing:", userId);
+    return;
+  }
 
   /* -----------------------------
      Hamburger Menu Toggle
