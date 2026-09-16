@@ -307,17 +307,17 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.setTextColor(255, 255, 255);
     doc.text("Neuroreg Progress Report", margin + 50, 40);
 
-    y = 80;
+    y = 300;
 
     /* -----------------------------
        USER INFO SECTION
     ----------------------------- */
     const shortId = userId.slice(-6);
 
-    doc.setFontSize(14);
+    doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
 
-    doc.text(`Name: ${name} (Id ${shortId})`, margin, y);
+    doc.text(`Name: ${name} (id ${shortId})`, margin, y);
     y += 20;
 
     doc.text(`Report Dates: ${start} → ${end}`, margin, y);
@@ -328,20 +328,20 @@ document.addEventListener("DOMContentLoaded", () => {
     ----------------------------- */
     doc.setFontSize(16);
     doc.text("Performance Chart", margin, y);
-    y += 10;
+    y += 25;
 
     const chartCanvas = document.getElementById("scoreChart");
     const chartImg = chartCanvas.toDataURL("image/png", 1.0);
 
     doc.addImage(chartImg, "PNG", margin, y, pageWidth - margin * 2, 150);
-    y += 170;
+    y += 190;
 
     /* -----------------------------
        TABLE HEADER
     ----------------------------- */
     doc.setFontSize(16);
     doc.text("Score History", margin, y);
-    y += 20;
+    y += 25;
 
     doc.setFontSize(12);
     doc.setFillColor(230, 230, 230);
@@ -352,7 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.text("Score", margin + 250, y + 15);
     doc.text("Percent", margin + 330, y + 15);
 
-    y += 30;
+    y += 32;
 
     /* -----------------------------
        TABLE ROWS
