@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
 
-    doc.text(`Name: ${name} (id ${shortId})`, margin, y);
+    doc.text(`${name} (id ${shortId})`, margin, y);
     y += 20;
 
     doc.text(`Report Dates: ${start} → ${end}`, margin, y);
@@ -326,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* -----------------------------
        CHART SECTION
     ----------------------------- */
-    doc.setFontSize(16);
+    doc.setFontSize(12);
     doc.text("Performance Chart", margin, y);
     y += 25;
 
@@ -339,7 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* -----------------------------
        TABLE HEADER
     ----------------------------- */
-    doc.setFontSize(16);
+    doc.setFontSize(12);
     doc.text("Score History", margin, y);
     y += 25;
 
