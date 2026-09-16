@@ -487,7 +487,7 @@ doc.text("Neuroreg Report", margin + 50, 40);
       doc.addPage();
       y = margin;
     }
-
+doc.setFontSize(12);
     doc.text(formatTimestamp(s.created_at), margin + 10, y);
     doc.text(String(s.numberofquestions), margin + 150, y);
     doc.text(String(s.score), margin + 250, y);
