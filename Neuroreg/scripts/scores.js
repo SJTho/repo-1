@@ -174,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.deleteScore = deleteScore;
 
   function buildChart(scores) {
-    const labels = scores.map(s => formatTimestamp(s.created_at));
+    const labels = scores.map(s => formatTimestamp(s.created_at).split(" ")[0]);
     const percentages = scores.map(s => Math.round((s.score / s.numberofquestions) * 100));
 
     const ctx = document.getElementById('scoreChart').getContext('2d');
@@ -190,13 +190,13 @@ document.addEventListener("DOMContentLoaded", () => {
         datasets: [{
           label: 'Score (%)',
           data: percentages,
-          borderColor: '#6fa8ff',
-          backgroundColor: 'rgba(111,168,255,0.2)',
-          borderWidth: 3,
+          borderColor: '#000',
+          backgroundColor: 'rgba(0,0,0,0.05)',
+          borderWidth: 2,
           tension: 0.3,
-          pointRadius: 5,
-          pointBackgroundColor: '#2a4c8a',
-          pointBorderColor: '#6fa8ff'
+          pointRadius: 4,
+          pointBackgroundColor: '#000',
+          pointBorderColor: '#000'
         }]
       },
       options: {
@@ -205,14 +205,17 @@ document.addEventListener("DOMContentLoaded", () => {
           y: {
             beginAtZero: true,
             max: 100,
-            ticks: { color: '#fff' }
+            ticks: { color: '#000', stepSize: 10 },
+            title: { display: true, text: "Percent", color: "#000" },
+            grid: { display: false }
           },
           x: {
-            ticks: { color: '#fff', maxRotation: 45, minRotation: 45 }
+            ticks: { color: '#000' },
+            grid: { display: false }
           }
         },
         plugins: {
-          legend: { labels: { color: '#fff' } }
+          legend: { labels: { color: '#000' } }
         }
       }
     });
@@ -265,10 +268,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ----------------------------------------------------
-     PDF GENERATION (enhanced layout)
+     PDF GENERATION (enhanced)
   ---------------------------------------------------- */
   async function generatePdfReport(name, start, end, scores) {
     const { jsPDF } = window.jspdf;
+
     const doc = new jsPDF({
       unit: "pt",
       format: "a4"
@@ -280,12 +284,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let y = margin;
 
     /* -----------------------------
-       HEADER BAR
+       HEADER BAR (light grey)
     ----------------------------- */
-    doc.setFillColor(42, 76, 138);
+    doc.setFillColor(230, 230, 230);
     doc.rect(0, 0, pageWidth, 60, "F");
 
-    // Favicon (safe)
+    // Favicon
     let favicon = null;
     try {
       favicon = await fetch("favicon.ico")
@@ -303,11 +307,13 @@ document.addEventListener("DOMContentLoaded", () => {
       doc.addImage(favicon, "PNG", margin, 15, 30, 30);
     }
 
+    doc.setFont("Helvetica", "normal");
     doc.setFontSize(22);
-    doc.setTextColor(255, 255, 255);
+    doc.setTextColor(0, 0, 0);
     doc.text("Neuroreg Progress Report", margin + 50, 40);
 
-    y = 80;
+    /* Space below banner */
+    y = 100;
 
     /* -----------------------------
        USER INFO SECTION
@@ -315,44 +321,42 @@ document.addEventListener("DOMContentLoaded", () => {
     const shortId = userId.slice(-6);
 
     doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-
     doc.text(`Name: ${name} (Id ${shortId})`, margin, y);
-    y += 20;
+    y += 25;
 
     doc.text(`Report Dates: ${start} → ${end}`, margin, y);
-    y += 30;
+    y += 35;
 
     /* -----------------------------
        CHART SECTION
     ----------------------------- */
     doc.setFontSize(16);
     doc.text("Performance Chart", margin, y);
-    y += 10;
+    y += 25;
 
     const chartCanvas = document.getElementById("scoreChart");
     const chartImg = chartCanvas.toDataURL("image/png", 1.0);
 
     doc.addImage(chartImg, "PNG", margin, y, pageWidth - margin * 2, 150);
-    y += 170;
+    y += 180;
 
     /* -----------------------------
        TABLE HEADER
     ----------------------------- */
     doc.setFontSize(16);
     doc.text("Score History", margin, y);
-    y += 20;
+    y += 25;
 
-    doc.setFontSize(12);
+    doc.setFontSize(14);
     doc.setFillColor(230, 230, 230);
-    doc.rect(margin, y, pageWidth - margin * 2, 22, "F");
+    doc.rect(margin, y, pageWidth - margin * 2, 26, "F");
 
-    doc.text("Date", margin + 10, y + 15);
-    doc.text("Questions", margin + 150, y + 15);
-    doc.text("Score", margin + 250, y + 15);
-    doc.text("Percent", margin + 330, y + 15);
+    doc.text("Date", margin + 10, y + 18);
+    doc.text("Questions", margin + 150, y + 18);
+    doc.text("Score", margin + 250, y + 18);
+    doc.text("Percent", margin + 330, y + 18);
 
-    y += 30;
+    y += 32;
 
     /* -----------------------------
        TABLE ROWS
@@ -365,7 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
         y = margin;
       }
 
-      doc.text(formatTimestamp(s.created_at), margin + 10, y);
+      doc.text(formatTimestamp(s.created_at).split(" ")[0], margin + 10, y);
       doc.text(String(s.numberofquestions), margin + 150, y);
       doc.text(String(s.score), margin + 250, y);
       doc.text(percent + "%", margin + 330, y);
@@ -383,5 +387,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
     doc.save("Neuroreg_Report.pdf");
   }
-  
 });
