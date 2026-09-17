@@ -1,57 +1,11 @@
-import { initHelpPopup } from "./helpPopup.js";
-let openHelpPopup;   // allow global access
-
 // ----------------------------------------------------
-// Hamburger Menu
-// ----------------------------------------------------
-async function loadHamburgerMenu() {
-    const dropdown = document.getElementById("hamburgerMenuDropdown");
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
-    const currentPage = window.location.pathname.split("/").pop();
-
-    const { data, error } = await supabase
-        .from("menuitems")
-        .select("*")
-        .eq("hamburger", true)
-        .order("hamburgersection", { ascending: true })
-        .order("hamburgerorder", { ascending: true });
-
-    if (error) {
-        dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
-        return;
-    }
-
-    dropdown.innerHTML = "";
-    let currentSection = null;
-
-    data.forEach(item => {
-        if (item.admin && !isAdmin) return;
-        if (item.url === currentPage) return;
-
-        if (currentSection !== null && item.hamburgersection !== currentSection) {
-            const separator = document.createElement("div");
-            separator.className = "dropdownSeparator";
-            dropdown.appendChild(separator);
-        }
-
-        currentSection = item.hamburgersection;
-
-        const div = document.createElement("div");
-        div.className = "dropdownItem";
-
-        const emoji = item.emoji ? item.emoji + " " : "";
-        div.innerText = emoji + item.displayname;
-
-        div.onclick = () => {
-            if (item.url === "logout") logout();
-            else window.location.href = item.url;
-        };
-
-        dropdown.// ----------------------------------------------------
 // Supabase Client
 // ----------------------------------------------------
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+import { initHelpPopup } from "./helpPopup.js";
+
+let openHelpPopup;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -105,7 +59,7 @@ async function loadProfile() {
     document.getElementById("rankDisplay").innerText = rankText;
     document.getElementById("passwordDisplay").innerText = "********";
 
-    // ⭐ NEW: Streak values with correct pluralisation
+    // Streak values with correct pluralisation
     const current = profile.current_streak_days ?? 0;
     const longest = profile.streak_days ?? 0;
 
@@ -115,7 +69,7 @@ async function loadProfile() {
     document.getElementById("longestStreakDisplay").innerText =
         longest + (longest === 1 ? " day" : " days");
 
-    // ⭐ NEW: Load subscription toggle state
+    // Load subscription toggle state
     const emailQuestionToggle = document.getElementById("emailQuestionToggle");
     emailQuestionToggle.checked = profile.subscribed === true;
 }
@@ -215,7 +169,7 @@ function attachEditHandlers() {
 }
 
 // ----------------------------------------------------
-// ⭐ NEW: Subscription Toggle Handler
+// Subscription Toggle Handler
 // ----------------------------------------------------
 function attachSubscriptionToggle() {
     const toggle = document.getElementById("emailQuestionToggle");
@@ -246,7 +200,51 @@ function logout() {
     localStorage.removeItem("isAdmin");
     window.location.href = "login.html";
 }
-appendChild(div);
+
+// ----------------------------------------------------
+// Hamburger Menu Loading
+// ----------------------------------------------------
+async function loadHamburgerMenu() {
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    const currentPage = window.location.pathname.split("/").pop();
+
+    const { data, error } = await supabase
+        .from("menuitems")
+        .select("*")
+        .eq("hamburger", true)
+        .order("hamburgersection", { ascending: true })
+        .order("hamburgerorder", { ascending: true });
+
+    if (error) {
+        dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+        return;
+    }
+
+    let currentSection = null;
+
+    data.forEach(item => {
+        if (item.admin && !isAdmin) return;
+        if (item.url === currentPage) return;
+
+        if (currentSection !== null && item.hamburgersection !== currentSection) {
+            const separator = document.createElement("div");
+            separator.className = "dropdownSeparator";
+            dropdown.appendChild(separator);
+        }
+
+        currentSection = item.hamburgersection;
+
+        const div = document.createElement("div");
+        div.className = "dropdownItem";
+        div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
+
+        div.onclick = () => {
+            if (item.url === "logout") logout();
+            else window.location.href = item.url;
+        };
+
+        dropdown.appendChild(div);
     });
 }
 
@@ -276,20 +274,19 @@ async function loadTopRightIcons() {
         icon.className = "topRightIcon";
         icon.innerText = item.emoji;
 
-       icon.onclick = () => {
-    if (item.url === "help" || item.url === "help.html") {
-        openHelpPopup();
-        return;
-    }
+        icon.onclick = () => {
+            if (item.url === "help" || item.url === "help.html") {
+                openHelpPopup();
+                return;
+            }
 
-    if (item.url === "logout") {
-        logout();
-        return;
-    }
+            if (item.url === "logout") {
+                logout();
+                return;
+            }
 
-    window.location.href = item.url;
-};
-
+            window.location.href = item.url;
+        };
 
         container.appendChild(icon);
     });
@@ -312,7 +309,7 @@ function attachHamburgerHandler() {
 // Page Load
 // ----------------------------------------------------
 window.addEventListener("DOMContentLoaded", () => {
-    openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
+    openHelpPopup = initHelpPopup(supabase);
 
     loadProfile();
     attachEditHandlers();
@@ -320,4 +317,3 @@ window.addEventListener("DOMContentLoaded", () => {
     loadHamburgerMenu();
     loadTopRightIcons();
     attachHamburgerHandler();
-});
