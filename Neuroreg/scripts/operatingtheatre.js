@@ -3,6 +3,8 @@
 ---------------------------------------------------- */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+import { initHelpPopup } from "./helpPopup.js";   // ⭐ NEW
+let openHelpPopup;   // ⭐ NEW
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -36,6 +38,9 @@ let operationRequirements = {};
    ENTRY POINT
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", initOperatingTheatre);
+window.addEventListener("DOMContentLoaded", () => {
+    openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
+
 
 async function initOperatingTheatre() {
     const nickname = localStorage.getItem("nickname");
@@ -202,9 +207,20 @@ async function loadTopRightIcons() {
         icon.innerText = item.emoji;
         icon.setAttribute("role", "button");
 
-        icon.onclick = () => {
-            window.location.href = item.url;
-        };
+       icon.onclick = () => {
+    if (item.url === "help" || item.url === "help.html") {
+        openHelpPopup();   // ⭐ NEW
+        return;
+    }
+
+    if (item.url === "logout") {
+        logout();
+        return;
+    }
+
+    window.location.href = item.url;
+};
+
 
         frag.appendChild(icon);
     });
