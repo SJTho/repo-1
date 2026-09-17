@@ -317,3 +317,5 @@ window.addEventListener("DOMContentLoaded", () => {
     loadHamburgerMenu();
     loadTopRightIcons();
     attachHamburgerHandler();
+
+});
