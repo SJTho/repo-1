@@ -372,15 +372,26 @@ async function loadDraggableItemsFromSupabase() {
         if (!unlocked) return;
 
         const img = document.createElement("img");
-
         img.src = row.url;
         img.dataset.category = category;
         img.dataset.itemId = String(row.id);
         img.dataset.location = "undeployed";
         img.dataset.flipped = "false";
 
-        const startingWidth = row.starting_width ?? 200;
-        const startingHeight = row.starting_height ?? 400;
+        /* ----------------------------------------------------
+           MOBILE LANDSCAPE BASELINE SIZE FIX
+           ---------------------------------------------------- */
+        const isMobileLandscape =
+            window.innerWidth > window.innerHeight &&
+            window.innerHeight < 500;   // landscape phone threshold
+
+        let startingWidth = row.starting_width ?? 200;
+        let startingHeight = row.starting_height ?? 400;
+
+        if (isMobileLandscape) {
+            startingWidth *= 0.55;   // reduce width ~45%
+            startingHeight *= 0.55;  // reduce height ~45%
+        }
 
         img.startingWidth = startingWidth;
         img.startingHeight = startingHeight;
