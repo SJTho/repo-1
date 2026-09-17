@@ -6,5 +6,5 @@ export function logout() {
     localStorage.removeItem("userId");
     localStorage.removeItem("isAdmin");
 
-    window.location.href = "login.html";
+    window.location.replace(`${window.location.origin}/login.html`);
 }
