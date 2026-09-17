@@ -449,6 +449,29 @@ h1 {
   }
 }
 
+/* Landscape mobile fix */
+@media (max-height: 480px) and (orientation: landscape) {
+
+  #helpPopup {
+    align-items: flex-start;
+    /* stop vertical centering */
+    padding-top: 10px;
+    /* small breathing room */
+  }
+
+  #helpPopupWindow {
+    max-height: 80vh;
+    /* fit inside shallow landscape screens */
+    overflow-y: auto;
+    /* scroll inside popup */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #helpContent {
+    overflow-y: auto;
+  }
+}
+
 /* ============================================================
    LOGIN PAGE OVERRIDES — FINAL FIX
    ============================================================ */
