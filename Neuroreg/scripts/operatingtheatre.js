@@ -40,6 +40,7 @@ let operationRequirements = {};
 document.addEventListener("DOMContentLoaded", initOperatingTheatre);
 window.addEventListener("DOMContentLoaded", () => {
     openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
+ });
 
 
 async function initOperatingTheatre() {
