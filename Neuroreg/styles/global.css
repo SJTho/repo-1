@@ -239,106 +239,6 @@ h1 {
 }
 
 /* ============================================================
-   OLD MCQ SYSTEM (LEGACY)
-   ============================================================ */
-
-#mcqArea {
-  background: #14233d;
-  padding: 15px;
-  border-radius: 12px;
-  max-width: 600px;
-  margin: auto;
-}
-
-#mcqArea label {
-  display: block;
-  margin-top: 12px;
-  font-size: 1rem;
-}
-
-#mcqArea input,
-#mcqArea select {
-  width: 100%;
-  padding: 12px;
-  margin-top: 6px;
-  border-radius: 8px;
-  font-size: 1rem;
-  border: none;
-}
-
-#mcqArea .questionBlock {
-  background: #1f3b6f;
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 18px;
-}
-
-#mcqArea .questionBlock p {
-  margin-bottom: 10px;
-  font-size: 1rem;
-}
-
-#mcqArea .optionLabel {
-  display: block;
-  background: #1a2f55;
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  font-size: 1rem;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: 0.2s;
-}
-
-#mcqArea .optionLabel:hover {
-  background: #223b6d;
-}
-
-#mcqArea .optionLabel.selected {
-  background: #2a4c8a;
-  border-color: #6fa8ff;
-}
-
-#mcqArea .optionLabel input[type="radio"] {
-  display: none;
-}
-
-#mcqArea button {
-  margin-top: 20px;
-  padding: 14px 20px;
-  font-size: 1.1rem;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  background: #2a4c8a;
-  color: #fff;
-  width: 100%;
-}
-
-#mcqArea button:hover {
-  background: #3b5ca3;
-}
-
-#mcqArea #closeBtn {
-  background: #8a2a2a;
-  margin: 30px auto;
-  width: 150px;
-  display: block;
-}
-
-#mcqArea #closeBtn:hover {
-  background: #a33b3b;
-}
-
-#mcqArea .explanation {
-  margin-top: 12px;
-  font-size: 0.95rem;
-  background: #0e1d33;
-  padding: 12px;
-  border-radius: 10px;
-}
-
-/* ============================================================
    EVENT CARDS
    ============================================================ */
 
@@ -501,6 +401,7 @@ h1 {
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 15px;
+  color: black;
 }
 
 .closeHelpBtn {
