@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 import { logout } from "./logout.js";
 import { initHelpPopup } from "./helpPopup.js";   // ⭐ NEW
+let openHelpPopup;   // ⭐ NEW — makes it visible to all functions
 
 window.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 window.logout = logout;
@@ -273,7 +274,8 @@ async function loadFlaggedQuestions() {
 /* ----------------------------- INIT ----------------------------- */
 
 window.addEventListener("DOMContentLoaded", () => {
-  const openHelpPopup = initHelpPopup(window.supabase);   // ⭐ NEW
+  openHelpPopup = initHelpPopup(window.supabase);   // ⭐ NEW
+
   loadHamburgerMenu();
   loadTopRightIcons();
   loadFlaggedQuestions();
