@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 import { logout } from "./logout.js";
+import { initHelpPopup } from "./helpPopup.js";   // ⭐ NEW
 
 window.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 window.logout = logout;
@@ -75,8 +76,17 @@ async function loadTopRightIcons() {
     icon.innerText = item.emoji;
 
     icon.onclick = () => {
-      if (item.url === "logout") logout();
-      else window.location.href = item.url;
+      if (item.url === "help" || item.url === "help.html") {
+        openHelpPopup();   // ⭐ NEW
+        return;
+      }
+
+      if (item.url === "logout") {
+        logout();
+        return;
+      }
+
+      window.location.href = item.url;
     };
 
     container.appendChild(icon);
@@ -198,8 +208,6 @@ async function loadFlaggedQuestions() {
       content.style.display = content.style.display === "none" ? "block" : "none";
     });
 
-    /* ----------------------------- SAVE ----------------------------- */
-
     div.querySelector(".saveBtn").onclick = async () => {
 
       const stem = div.querySelector(".editStem")?.value || "";
@@ -243,8 +251,6 @@ async function loadFlaggedQuestions() {
       }
     };
 
-    /* ----------------------------- DELETE ----------------------------- */
-
     div.querySelector(".deleteBtn").onclick = async () => {
       if (!confirm("Delete this question?")) return;
 
@@ -267,6 +273,7 @@ async function loadFlaggedQuestions() {
 /* ----------------------------- INIT ----------------------------- */
 
 window.addEventListener("DOMContentLoaded", () => {
+  const openHelpPopup = initHelpPopup(window.supabase);   // ⭐ NEW
   loadHamburgerMenu();
   loadTopRightIcons();
   loadFlaggedQuestions();
