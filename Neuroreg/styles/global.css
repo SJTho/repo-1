@@ -415,6 +415,40 @@ h1 {
   margin-top: 20px;
 }
 
+/* Mobile-friendly Help Popup */
+@media (max-width: 480px) {
+
+  #helpPopup {
+    padding: 10px;
+    /* reduce outer padding */
+    align-items: flex-start;
+    /* prevent vertical overflow */
+  }
+
+  #helpPopupWindow {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 85vh;
+    /* prevent overflow off-screen */
+    overflow-y: auto;
+    /* allow scrolling inside popup */
+    padding: 18px;
+    /* slightly smaller padding */
+    border-radius: 10px;
+  }
+
+  #helpContent .card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .closeHelpBtn {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}
+
 /* ============================================================
    LOGIN PAGE OVERRIDES — FINAL FIX
    ============================================================ */
