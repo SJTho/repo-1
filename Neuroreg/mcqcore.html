@@ -101,9 +101,19 @@
         icon.innerText = item.emoji;
 
         icon.onclick = () => {
-          if (item.url === "logout") logout();
-          else window.location.href = item.url;
+          if (item.url === "help" || item.url === "help.html") {
+            openHelpPopup();   // ⭐ NEW
+            return;
+          }
+
+          if (item.url === "logout") {
+            logout();
+            return;
+          }
+
+          window.location.href = item.url;
         };
+
 
         container.appendChild(icon);
       });
