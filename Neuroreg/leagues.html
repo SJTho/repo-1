@@ -19,7 +19,7 @@
     <!-- Leagues JS -->
     <script type="module" src="./scripts/leagues.js"></script>
 
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
 </head>
 
 <body>
@@ -67,6 +67,14 @@
             <div id="addFriendBox">
                 <input id="friendInput" type="text" placeholder="Enter friend's nickname">
                 <button onclick="addFriend()">Add Friend</button>
+            </div>
+        </div>
+
+        <!-- Help Popup -->
+        <div id="helpPopup" class="popupOverlay" style="display:none;">
+            <div id="helpPopupWindow" class="popupWindow">
+                <div id="helpContent"></div>
+                <button id="closeHelpBtn" class="closeHelpBtn">Close</button>
             </div>
         </div>
 

@@ -12,6 +12,8 @@
 
   <!-- Page JS -->
   <script type="module" src="./scripts/editflaggedquestions.js"></script>
+
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
 </head>
 
 <body>
@@ -28,6 +30,14 @@
   <div id="flaggedContainer"></div>
 
   <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
+
+  <!-- Help Popup -->
+  <div id="helpPopup" class="popupOverlay" style="display:none;">
+    <div id="helpPopupWindow" class="popupWindow">
+      <div id="helpContent"></div>
+      <button id="closeHelpBtn" class="closeHelpBtn">Close</button>
+    </div>
+  </div>
 
 </body>
 

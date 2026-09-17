@@ -23,7 +23,7 @@
   <!-- Menu loaders -->
   <script type="module" src="scripts/scores.js"></script>
 
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
 </head>
 
 <body>
@@ -77,6 +77,14 @@
 
       <button id="reportGenerateBtn">Generate PDF</button>
       <button id="reportCancelBtn">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Help Popup -->
+  <div id="helpPopup" class="popupOverlay" style="display:none;">
+    <div id="helpPopupWindow" class="popupWindow">
+      <div id="helpContent"></div>
+      <button id="closeHelpBtn" class="closeHelpBtn">Close</button>
     </div>
   </div>
 
