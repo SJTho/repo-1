@@ -93,7 +93,7 @@ function enableEdit(displayId, inputId, editBtnId, saveBtnId) {
 }
 
 // ----------------------------------------------------
-// Save Logic (Corrected for public.profiles + Auth)
+// Save Logic
 // ----------------------------------------------------
 async function saveField(inputEl, displayId, supabaseColumn) {
     const newValue = inputEl.value.trim();
@@ -107,7 +107,6 @@ async function saveField(inputEl, displayId, supabaseColumn) {
 
     let error = null;
 
-    // Update nickname in public.profiles
     if (supabaseColumn === "nickname") {
         const { error: rpcError } = await supabase.rpc("update_nickname", {
             user_id: userId,
@@ -116,7 +115,6 @@ async function saveField(inputEl, displayId, supabaseColumn) {
         error = rpcError;
     }
 
-    // Update email in auth.users
     if (supabaseColumn === "email") {
         const { error: authErr } = await supabase.auth.updateUser({
             email: newValue
@@ -124,7 +122,6 @@ async function saveField(inputEl, displayId, supabaseColumn) {
         error = authErr;
     }
 
-    // Update password in auth.users
     if (supabaseColumn === "password_hash") {
         const { error: passErr } = await supabase.auth.updateUser({
             password: newValue
@@ -169,7 +166,7 @@ function attachEditHandlers() {
 }
 
 // ----------------------------------------------------
-// Subscription Toggle Handler
+// Subscription Toggle
 // ----------------------------------------------------
 function attachSubscriptionToggle() {
     const toggle = document.getElementById("emailQuestionToggle");
@@ -186,7 +183,7 @@ function attachSubscriptionToggle() {
         if (error) {
             console.error("Subscription update failed:", error);
             alert("Failed to update subscription.");
-            toggle.checked = !newValue; // revert visual state
+            toggle.checked = !newValue;
         }
     });
 }
@@ -202,7 +199,7 @@ function logout() {
 }
 
 // ----------------------------------------------------
-// Hamburger Menu Loading
+// Hamburger Menu
 // ----------------------------------------------------
 async function loadHamburgerMenu() {
     const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -317,5 +314,4 @@ window.addEventListener("DOMContentLoaded", () => {
     loadHamburgerMenu();
     loadTopRightIcons();
     attachHamburgerHandler();
-
 });
