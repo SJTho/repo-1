@@ -95,38 +95,52 @@ document.addEventListener("DOMContentLoaded", () => {
        Load Top-Right Icons (Supabase)
     ---------------------------------------------------- */
     async function loadTopRightIcons() {
-        const container = document.getElementById("topRightIcons");
-        const isAdmin = localStorage.getItem("isAdmin") === "true";
-        const currentPage = window.location.pathname.split("/").pop();
+    const container = document.getElementById("topRightIcons");
+    if (!container) return; // defensive
 
-        const { data, error } = await supabase
-            .from("menuitems")
-            .select("*")
-            .eq("topright", true)
-            .order("toprightorder", { ascending: true });
+    container.innerHTML = "";
 
-        if (error) {
-            console.error("Top-right load error:", error);
-            return;
-        }
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    const currentPage = window.location.pathname.split("/").pop();
 
-        container.innerHTML = "";
+    // Fetch top-right menu items
+    const { data: items, error } = await supabase
+        .from("menuitems")
+        .select("*")
+        .eq("topright", true)
+        .order("toprightorder", { ascending: true });
 
-        data.forEach(item => {
-            if (item.admin && !isAdmin) return;
-            if (item.url === currentPage) return;
-
-            const icon = document.createElement("div");
-            icon.className = "topRightIcon";
-            icon.innerText = item.emoji;
-
-            icon.onclick = () => {
-                window.location.href = item.url;
-            };
-
-            container.appendChild(icon);
-        });
+    if (error) {
+        console.error("Top-right load error:", error);
+        return;
     }
+
+    items.forEach(item => {
+        // Skip admin-only items for non-admins
+        if (item.admin && !isAdmin) return;
+
+        // Skip icon for the current page
+        if (item.url === currentPage) return;
+
+        // Create icon element
+        const icon = document.createElement("div");
+        icon.className = "topRightIcon";
+        icon.innerText = item.emoji;
+
+        // Route behaviour based on URL
+        icon.onclick = () => {
+            if (item.url === "help" || item.url === "help.html") {
+                openHelpPopup();     // open modal instead of navigating
+                return;
+            }
+
+            // Normal navigation
+            window.location.href = item.url;
+        };
+
+        container.appendChild(icon);
+    });
+}
 
     /* ----------------------------------------------------
        Rank System
