@@ -3,13 +3,19 @@
 ---------------------------------------------------- */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+import { initHelpPopup } from "./helpPopup.js";
+
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+let openHelpPopup;   // allows all functions to access it
+
 
 /* ----------------------------------------------------
    MAIN APP INITIALISATION
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
+
+    openHelpPopup = initHelpPopup(supabase);
 
     /* ----------------------------------------------------
        Redirect if not logged in
