@@ -1,9 +1,13 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+import { initHelpPopup } from "./helpPopup.js";   // ⭐ NEW
+let openHelpPopup;   // ⭐ NEW
+
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 document.addEventListener("DOMContentLoaded", () => {
+     openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
   const userId = localStorage.getItem("userId");
 
   if (!userId) {
@@ -103,9 +107,19 @@ document.addEventListener("DOMContentLoaded", () => {
       icon.innerText = item.emoji;
 
       icon.onclick = () => {
-        if (item.url === "logout") logout();
-        else window.location.href = item.url;
-      };
+    if (item.url === "help" || item.url === "help.html") {
+        openHelpPopup();   // ⭐ NEW
+        return;
+    }
+
+    if (item.url === "logout") {
+        logout();
+        return;
+    }
+
+    window.location.href = item.url;
+};
+
 
       container.appendChild(icon);
     });
