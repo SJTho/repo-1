@@ -722,11 +722,10 @@ function makeDraggable(el) {
         const left = e.clientX - offsetX - parentRect.left;
         const top = e.clientY - offsetY - parentRect.top;
 
-        const width = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
-        const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
+        const baselineFactor = (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
 
-        el.virtualLeft = left / factor;
-        el.virtualTop = top / factor;
+el.virtualLeft = left / baselineFactor;
+el.virtualTop  = top  / baselineFactor;
 
         el.style.left = left + "px";
         el.style.top = top + "px";
