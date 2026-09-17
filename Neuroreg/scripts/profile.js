@@ -1,4 +1,53 @@
+import { initHelpPopup } from "./helpPopup.js";
+let openHelpPopup;   // allow global access
+
 // ----------------------------------------------------
+// Hamburger Menu
+// ----------------------------------------------------
+async function loadHamburgerMenu() {
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    const currentPage = window.location.pathname.split("/").pop();
+
+    const { data, error } = await supabase
+        .from("menuitems")
+        .select("*")
+        .eq("hamburger", true)
+        .order("hamburgersection", { ascending: true })
+        .order("hamburgerorder", { ascending: true });
+
+    if (error) {
+        dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+        return;
+    }
+
+    dropdown.innerHTML = "";
+    let currentSection = null;
+
+    data.forEach(item => {
+        if (item.admin && !isAdmin) return;
+        if (item.url === currentPage) return;
+
+        if (currentSection !== null && item.hamburgersection !== currentSection) {
+            const separator = document.createElement("div");
+            separator.className = "dropdownSeparator";
+            dropdown.appendChild(separator);
+        }
+
+        currentSection = item.hamburgersection;
+
+        const div = document.createElement("div");
+        div.className = "dropdownItem";
+
+        const emoji = item.emoji ? item.emoji + " " : "";
+        div.innerText = emoji + item.displayname;
+
+        div.onclick = () => {
+            if (item.url === "logout") logout();
+            else window.location.href = item.url;
+        };
+
+        dropdown.// ----------------------------------------------------
 // Supabase Client
 // ----------------------------------------------------
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -197,54 +246,7 @@ function logout() {
     localStorage.removeItem("isAdmin");
     window.location.href = "login.html";
 }
-
-// ----------------------------------------------------
-// Hamburger Menu
-// ----------------------------------------------------
-async function loadHamburgerMenu() {
-    const dropdown = document.getElementById("hamburgerMenuDropdown");
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
-    const currentPage = window.location.pathname.split("/").pop();
-
-    const { data, error } = await supabase
-        .from("menuitems")
-        .select("*")
-        .eq("hamburger", true)
-        .order("hamburgersection", { ascending: true })
-        .order("hamburgerorder", { ascending: true });
-
-    if (error) {
-        dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
-        return;
-    }
-
-    dropdown.innerHTML = "";
-    let currentSection = null;
-
-    data.forEach(item => {
-        if (item.admin && !isAdmin) return;
-        if (item.url === currentPage) return;
-
-        if (currentSection !== null && item.hamburgersection !== currentSection) {
-            const separator = document.createElement("div");
-            separator.className = "dropdownSeparator";
-            dropdown.appendChild(separator);
-        }
-
-        currentSection = item.hamburgersection;
-
-        const div = document.createElement("div");
-        div.className = "dropdownItem";
-
-        const emoji = item.emoji ? item.emoji + " " : "";
-        div.innerText = emoji + item.displayname;
-
-        div.onclick = () => {
-            if (item.url === "logout") logout();
-            else window.location.href = item.url;
-        };
-
-        dropdown.appendChild(div);
+appendChild(div);
     });
 }
 
@@ -274,10 +276,20 @@ async function loadTopRightIcons() {
         icon.className = "topRightIcon";
         icon.innerText = item.emoji;
 
-        icon.onclick = () => {
-            if (item.url === "logout") logout();
-            else window.location.href = item.url;
-        };
+       icon.onclick = () => {
+    if (item.url === "help" || item.url === "help.html") {
+        openHelpPopup();
+        return;
+    }
+
+    if (item.url === "logout") {
+        logout();
+        return;
+    }
+
+    window.location.href = item.url;
+};
+
 
         container.appendChild(icon);
     });
@@ -300,9 +312,11 @@ function attachHamburgerHandler() {
 // Page Load
 // ----------------------------------------------------
 window.addEventListener("DOMContentLoaded", () => {
+    openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
+
     loadProfile();
     attachEditHandlers();
-    attachSubscriptionToggle();   // ⭐ NEW
+    attachSubscriptionToggle();
     loadHamburgerMenu();
     loadTopRightIcons();
     attachHamburgerHandler();
