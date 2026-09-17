@@ -345,6 +345,64 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ----------------------------------------------------
+       HELP POPUP SYSTEM (NEW)
+    ---------------------------------------------------- */
+    async function openHelpPopup() {
+        const popup = document.getElementById("helpPopup");
+        const helpContent = document.getElementById("helpContent");
+
+        helpContent.innerHTML = ""; // clear previous content
+
+        // Determine referring page
+        const refUrl = document.referrer;
+        const refPage = refUrl ? refUrl.split("/").pop() : null;
+
+        // Fetch help items from Supabase
+        let helpItems = [];
+        if (refPage) {
+            const { data, error } = await supabase
+                .from("help")
+                .select("*")
+                .eq("page", refPage);
+
+            if (!error && data) helpItems = data;
+        }
+
+        // Insert help items
+        if (helpItems.length === 0) {
+            helpContent.innerHTML = `
+                <div class="card">
+                    <p>No help available for this page.</p>
+                </div>
+            `;
+        } else {
+            helpItems.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = `
+                    <h2>${item.heading}</h2>
+                    <p>${item.content}</p>
+                `;
+                helpContent.appendChild(card);
+            });
+        }
+
+        popup.style.display = "flex";
+    }
+
+    // Close button
+    document.getElementById("closeHelpBtn").onclick = () => {
+        document.getElementById("helpPopup").style.display = "none";
+    };
+
+    // Click outside to close
+    document.getElementById("helpPopup").addEventListener("click", (e) => {
+        if (e.target.id === "helpPopup") {
+            document.getElementById("helpPopup").style.display = "none";
+        }
+    });
+
+    /* ----------------------------------------------------
        INITIAL LOAD
     ---------------------------------------------------- */
     loadHamburgerMenu();
