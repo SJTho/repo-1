@@ -2,15 +2,18 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 import { initHelpPopup } from "./helpPopup.js";   // ⭐ NEW
-let openHelpPopup;   // ⭐ NEW
+import { logout } from "./logout.js";
 
+let openHelpPopup;
 
-window.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+window.supabase = supabase;
 
 /* --- MAIN LOGIC --- */
 window.addEventListener("DOMContentLoaded", () => {
-openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
 
+  /* HELP POPUP INIT */
+  openHelpPopup = initHelpPopup(supabase);
 
   /* LOGIN CHECK */
   const token = localStorage.getItem("sessionToken");
@@ -19,7 +22,121 @@ openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
     return;
   }
 
-  /* SELECT OPTION */
+  /* ------------------------------
+     HAMBURGER MENU LOADER
+  ------------------------------ */
+  async function loadHamburgerMenu() {
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    const currentPage = window.location.pathname.split("/").pop();
+
+    const { data, error } = await supabase
+      .from("menuitems")
+      .select("*")
+      .eq("hamburger", true)
+      .order("hamburgersection", { ascending: true })
+      .order("hamburgerorder", { ascending: true });
+
+    if (error) {
+      dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
+      return;
+    }
+
+    let currentSection = null;
+
+    data.forEach(item => {
+      if (item.admin && !isAdmin) return;
+      if (item.url === currentPage) return;
+
+      if (currentSection !== null && item.hamburgersection !== currentSection) {
+        const separator = document.createElement("div");
+        separator.className = "dropdownSeparator";
+        dropdown.appendChild(separator);
+      }
+
+      currentSection = item.hamburgersection;
+
+      const div = document.createElement("div");
+      div.className = "dropdownItem";
+      div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
+
+      div.onclick = () => {
+        if (item.url === "logout") logout();
+        else window.location.href = item.url;
+      };
+
+      dropdown.appendChild(div);
+    });
+  }
+
+  /* ------------------------------
+     TOP-RIGHT ICON LOADER
+  ------------------------------ */
+  async function loadTopRightIcons() {
+    const container = document.getElementById("topRightIcons");
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    const currentPage = window.location.pathname.split("/").pop();
+
+    const { data, error } = await supabase
+      .from("menuitems")
+      .select("*")
+      .eq("topright", true)
+      .order("toprightorder", { ascending: true });
+
+    if (error) return;
+
+    container.innerHTML = "";
+
+    data.forEach(item => {
+      if (item.admin && !isAdmin) return;
+      if (item.url === currentPage) return;
+
+      const icon = document.createElement("div");
+      icon.className = "topRightIcon";
+      icon.innerText = item.emoji;
+
+      icon.onclick = () => {
+        if (item.url === "help" || item.url === "help.html") {
+          openHelpPopup();
+          return;
+        }
+        if (item.url === "logout") {
+          logout();
+          return;
+        }
+        window.location.href = item.url;
+      };
+
+      container.appendChild(icon);
+    });
+  }
+
+  /* ------------------------------
+     HAMBURGER TOGGLE
+  ------------------------------ */
+  function initHamburgerToggle() {
+    const hamburger = document.getElementById("hamburgerMenu");
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+
+    hamburger.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+  }
+
+  /* INIT MENUS + TOGGLE */
+  initHamburgerToggle();
+  loadHamburgerMenu();
+  loadTopRightIcons();
+
+  /* ------------------------------
+     MCQ OPTION SELECTOR
+  ------------------------------ */
   window.selectOption = function (qIndex, optIndex, element) {
     const allOptions = document.querySelectorAll(`label.optionLabel[data-q="${qIndex}"]`);
     allOptions.forEach(opt => opt.classList.remove("selected"));
@@ -29,12 +146,14 @@ openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
     radio.checked = true;
   };
 
-  /* STORE SCORE — topic + level removed */
+  /* ------------------------------
+     SCORE STORAGE
+  ------------------------------ */
   window.storeScore = async function (score, numberOfQuestions) {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    const { data, error } = await window.supabase
+    const { error } = await supabase
       .from("userpracticemcqscores")
       .insert({
         userid: userId,
@@ -42,17 +161,17 @@ openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
         numberofquestions: numberOfQuestions
       });
 
-    if (error) {
-      console.error("Score insert failed:", error);
-    }
+    if (error) console.error("Score insert failed:", error);
   };
 
-  /* LOAD EXISTING SCALPEL POINTS FROM SUPABASE */
+  /* ------------------------------
+     SCALPEL POINTS LOAD
+  ------------------------------ */
   window.loadScalpelPoints = async function () {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    const { data, error } = await window.supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("scalpel_points")
       .eq("id", userId)
@@ -66,24 +185,26 @@ openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
     localStorage.setItem("scalpelPoints", String(data.scalpel_points || 0));
   };
 
-  /* UPDATE SCALPEL POINTS IN SUPABASE */
+  /* ------------------------------
+     SCALPEL POINTS UPDATE
+  ------------------------------ */
   window.updateScalpelPoints = async function (newPoints) {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    const { error } = await window.supabase
+    const { error } = await supabase
       .from("profiles")
       .update({ scalpel_points: newPoints })
       .eq("id", userId);
 
-    if (error) {
-      console.error("Failed to update scalpel points:", error);
-    }
+    if (error) console.error("Failed to update scalpel points:", error);
   };
 
-  /* FETCH QUESTIONS FROM DB */
+  /* ------------------------------
+     FETCH QUESTIONS
+  ------------------------------ */
   window.fetchQuestionsFromDB = async function () {
-    const { data, error } = await window.supabase
+    const { data, error } = await supabase
       .from("mcqquestions")
       .select("*");
 
@@ -95,7 +216,9 @@ openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
     return data;
   };
 
-  /* MCQ BUILDER */
+  /* ------------------------------
+     MCQ GENERATOR
+  ------------------------------ */
   window.copilot = {
     generateMCQs: async ({ count, topic, level }) => {
       let pool = await window.fetchQuestionsFromDB();
@@ -149,9 +272,11 @@ openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
     }
   };
 
-  /* FLAG QUESTION */
+  /* ------------------------------
+     FLAG QUESTION
+  ------------------------------ */
   window.flagQuestion = async function (questionId, buttonElement) {
-    const { data, error } = await window.supabase
+    const { data, error } = await supabase
       .from("mcqquestions")
       .select("flaggedset")
       .eq("id", questionId)
@@ -164,7 +289,7 @@ openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
 
     const updated = current + 1;
 
-    const { error: updateError } = await window.supabase
+    const { error: updateError } = await supabase
       .from("mcqquestions")
       .update({ flaggedset: updated })
       .eq("id", questionId);
@@ -176,7 +301,9 @@ openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
     buttonElement.textContent = "Flagged";
   };
 
-  /* RENDER + MARK MCQs */
+  /* ------------------------------
+     RENDER + MARK MCQs
+  ------------------------------ */
   window.generateMCQs = async function () {
     const count = parseInt(document.getElementById("mcqCount").value);
     const topic = document.getElementById("mcqAreas").value;
@@ -289,14 +416,16 @@ openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
         `<p><strong>Score:</strong> ${score}/${blocks.length}</p>
          <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>`;
 
-      /* SCORE SAVING — FIXED */
+      /* SCORE SAVING */
       storeScore(score, blocks.length);
     };
 
     container.appendChild(submitBtn);
   };
 
-  /* LOAD SCALPEL POINTS BEFORE STARTING MCQs */
+  /* ------------------------------
+     START BUTTON
+  ------------------------------ */
   document.getElementById("startSubmitBtn").onclick = async () => {
     await window.loadScalpelPoints();
     window.generateMCQs();
