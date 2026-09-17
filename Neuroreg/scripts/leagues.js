@@ -381,3 +381,4 @@ window.addEventListener("DOMContentLoaded", loadTopRightIcons);
 window.addEventListener("DOMContentLoaded", loadRankPage);
 window.addEventListener("DOMContentLoaded", () => {
     openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
+});
