@@ -773,11 +773,10 @@ function makeDraggable(el) {
 
 function applyTransform(el) {
     const flipped = el.dataset.flipped === "true";
-    const scale = el.scale;
     const flipFactor = flipped ? -1 : 1;
 
     el.style.transformOrigin = "center center";
-    el.style.transform = `scale(${flipFactor * scale}, ${scale})`;
+    el.style.transform = `scale(${flipFactor}, 1)`;  // flip only
 }
 
 function getNextZIndex() {
@@ -1117,15 +1116,16 @@ function applyResponsiveLayout() {
 
     const currentWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
 
+    // First-time baseline capture
     if (!initialTheatreWidth) {
         initialTheatreWidth = currentWidth;
 
         document.querySelectorAll(".equipmentItem").forEach(el => {
-            el.virtualLeft  = el.virtualLeft  ?? 0;
-            el.virtualTop   = el.virtualTop   ?? 0;
-            el.virtualWidth = el.virtualWidth ?? el.startingWidth;
-            el.virtualHeight= el.virtualHeight?? el.startingHeight;
-            el.virtualScale = el.virtualScale ?? el.scale ?? 1;
+            el.virtualLeft   = el.virtualLeft   ?? 0;
+            el.virtualTop    = el.virtualTop    ?? 0;
+            el.virtualWidth  = el.virtualWidth  ?? el.startingWidth;
+            el.virtualHeight = el.virtualHeight ?? el.startingHeight;
+            el.virtualScale  = el.virtualScale  ?? el.scale ?? 1;
         });
 
         return;
@@ -1134,17 +1134,25 @@ function applyResponsiveLayout() {
     const responsiveFactor = currentWidth / initialTheatreWidth;
 
     document.querySelectorAll(".equipmentItem").forEach(el => {
+
+        // Baseline values
         const vLeft   = el.virtualLeft;
         const vTop    = el.virtualTop;
         const vWidth  = el.virtualWidth;
         const vHeight = el.virtualHeight;
 
+        // Combined scale = user zoom × responsive scale
+        const finalScale = el.virtualScale * responsiveFactor;
+
+        // Correct size scaling
+        el.style.width  = (vWidth  * finalScale) + "px";
+        el.style.height = (vHeight * finalScale) + "px";
+
+        // Correct position scaling
         el.style.left = (vLeft * responsiveFactor) + "px";
         el.style.top  = (vTop  * responsiveFactor) + "px";
 
-        el.style.width  = (vWidth  * responsiveFactor) + "px";
-        el.style.height = (vHeight * responsiveFactor) + "px";
-
+        // Flip only — NOT size scaling
         applyTransform(el);
     });
 
