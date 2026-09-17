@@ -361,48 +361,53 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ----------------------------------------------------
        HELP POPUP SYSTEM (NEW)
     ---------------------------------------------------- */
-    async function openHelpPopup() {
-        const popup = document.getElementById("helpPopup");
-        const helpContent = document.getElementById("helpContent");
+  async function openHelpPopup() {
+    const popup = document.getElementById("helpPopup");
+    const helpContent = document.getElementById("helpContent");
 
-        helpContent.innerHTML = ""; // clear previous content
+    helpContent.innerHTML = ""; // clear previous content
 
-        // Determine referring page
-        const refUrl = document.referrer;
-        const refPage = refUrl ? refUrl.split("/").pop() : null;
+    // Correct page detection
+    const refPage = window.location.pathname.split("/").pop();
 
-        // Fetch help items from Supabase
-        let helpItems = [];
-        if (refPage) {
-            const { data, error } = await supabase
-                .from("help")
-                .select("*")
-                .eq("page", refPage);
+    // Fetch help items from Supabase
+    const { data: helpItems, error } = await supabase
+        .from("help")
+        .select("*")
+        .eq("page", refPage);
 
-            if (!error && data) helpItems = data;
-        }
-
-        // Insert help items
-        if (helpItems.length === 0) {
-            helpContent.innerHTML = `
-                <div class="card">
-                    <p>No help available for this page.</p>
-                </div>
-            `;
-        } else {
-            helpItems.forEach(item => {
-                const card = document.createElement("div");
-                card.className = "card";
-                card.innerHTML = `
-                    <h2>${item.heading}</h2>
-                    <p>${item.content}</p>
-                `;
-                helpContent.appendChild(card);
-            });
-        }
-
+    if (error) {
+        console.error("Help load error:", error);
+        helpContent.innerHTML = `
+            <div class="card">
+                <p>Error loading help content.</p>
+            </div>
+        `;
         popup.style.display = "flex";
+        return;
     }
+
+    // Insert help items
+    if (!helpItems || helpItems.length === 0) {
+        helpContent.innerHTML = `
+            <div class="card">
+                <p>No help available for this page.</p>
+            </div>
+        `;
+    } else {
+        helpItems.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+                <h2>${item.heading}</h2>
+                <p>${item.content}</p>
+            `;
+            helpContent.appendChild(card);
+        });
+    }
+
+    popup.style.display = "flex";
+}
 
     // Close button
     document.getElementById("closeHelpBtn").onclick = () => {
