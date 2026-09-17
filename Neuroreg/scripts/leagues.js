@@ -1,5 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
+import { initHelpPopup } from "./helpPopup.js";   // ⭐ NEW
+let openHelpPopup;   // ⭐ NEW
+
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -110,10 +113,20 @@ async function loadTopRightIcons() {
         icon.className = "topRightIcon";
         icon.innerText = item.emoji;
 
-        icon.onclick = () => {
-            if (item.url === "logout") logout();
-            else window.location.href = item.url;
-        };
+      icon.onclick = () => {
+    if (item.url === "help" || item.url === "help.html") {
+        openHelpPopup();   // ⭐ NEW
+        return;
+    }
+
+    if (item.url === "logout") {
+        logout();
+        return;
+    }
+
+    window.location.href = item.url;
+};
+
 
         container.appendChild(icon);
     });
@@ -366,3 +379,5 @@ window.toggleFriendMode = async function () {
 window.addEventListener("DOMContentLoaded", loadHamburgerMenu);
 window.addEventListener("DOMContentLoaded", loadTopRightIcons);
 window.addEventListener("DOMContentLoaded", loadRankPage);
+window.addEventListener("DOMContentLoaded", () => {
+    openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
