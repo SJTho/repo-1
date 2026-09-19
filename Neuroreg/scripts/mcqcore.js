@@ -338,7 +338,7 @@ window.addEventListener("DOMContentLoaded", () => {
             (opt, j) => `
           <label class="optionLabel" data-q="${index}" onclick="selectOption(${index}, ${j}, this)">
             <input type="radio" name="q${index}" value="${j}">
-            ${opt}
+            <span class="optionText">${opt}</span>
           </label>
         `
           )
