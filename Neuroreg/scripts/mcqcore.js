@@ -66,11 +66,8 @@ window.addEventListener("DOMContentLoaded", () => {
           openHelpPopup();
           return;
         }
-        if (item.url === "logout") {
-          logout();
-          return;
-        }
-        window.location.href = item.url;
+        if (item.url === "logout") logout();
+        else window.location.href = item.url;
       };
 
       dropdown.appendChild(div);
@@ -228,50 +225,67 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   /* ------------------------------
-     FETCH RANK DISTRIBUTION
+     FETCH POINTS FOR SCORE
   ------------------------------ */
-window.fetchRankDistribution = async function () {
-  const userId = localStorage.getItem("userId");
-  if (!userId) {
-    console.warn("No userId found, using default distribution.");
-    return { mrcs: 10, frcs: 0, challenge: 0 };
-  }
+  window.fetchPointsForScore = async function (score) {
+    const { data, error } = await supabase
+      .from("points_for_mcqs")
+      .select("points")
+      .eq("score", score)
+      .single();
 
-  // 1. Load scalpel points
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("scalpel_points")
-    .eq("id", userId)
-    .single();
+    if (error || !data) {
+      console.error("Could not fetch points for score:", error);
+      return 0;
+    }
 
-  if (profileError || !profile) {
-    console.error("Could not load scalpel points:", profileError);
-    return { mrcs: 10, frcs: 0, challenge: 0 };
-  }
-
-  const points = profile.scalpel_points ?? 0;
-
-  // 2. Find rank row based on score range
-  const { data: rankRow, error: rankError } = await supabase
-    .from("rank")
-    .select("mrcs_level, frcs_level, challenge_level")
-    .lte("minimum_score", points)
-    .gte("maximum_score", points)
-    .single();
-
-  if (rankError || !rankRow) {
-    console.error("Could not match scalpel_points to rank:", rankError);
-    return { mrcs: 10, frcs: 0, challenge: 0 };
-  }
-
-  return {
-    mrcs: rankRow.mrcs_level ?? 0,
-    frcs: rankRow.frcs_level ?? 0,
-    challenge: rankRow.challenge_level ?? 0
+    return data.points ?? 0;
   };
-};
 
   /* ------------------------------
+     FETCH RANK DISTRIBUTION
+     (based on scalpel_points)
+  ------------------------------ */
+  window.fetchRankDistribution = async function () {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      console.warn("No userId found, using default distribution.");
+      return { mrcs: 10, frcs: 0, challenge: 0 };
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("scalpel_points")
+      .eq("id", userId)
+      .single();
+
+    if (profileError || !profile) {
+      console.error("Could not load scalpel points:", profileError);
+      return { mrcs: 10, frcs: 0, challenge: 0 };
+    }
+
+    const points = profile.scalpel_points ?? 0;
+
+    const { data: rankRow, error: rankError } = await supabase
+      .from("rank")
+      .select("mrcs_level, frcs_level, challenge_level")
+      .lte("minimum_score", points)
+      .gte("maximum_score", points)
+      .single();
+
+    if (rankError || !rankRow) {
+      console.error("Could not match scalpel_points to rank:", rankError);
+      return { mrcs: 10, frcs: 0, challenge: 0 };
+    }
+
+    return {
+      mrcs: rankRow.mrcs_level ?? 0,
+      frcs: rankRow.frcs_level ?? 0,
+      challenge: rankRow.challenge_level ?? 0
+    };
+  };
+
+    /* ------------------------------
      MCQ GENERATOR (RANK-BASED)
   ------------------------------ */
   window.copilot = {
@@ -294,6 +308,7 @@ window.fetchRankDistribution = async function () {
         return [];
       }
 
+      /* Get difficulty distribution from rank table */
       const dist = await window.fetchRankDistribution();
 
       const byLevel = (level) =>
@@ -314,10 +329,12 @@ window.fetchRankDistribution = async function () {
         }
       };
 
+      /* Take questions according to rank distribution */
       takeFromLevel("MRCS", dist.mrcs);
       takeFromLevel("FRCS", dist.frcs);
       takeFromLevel("Challenge", dist.challenge);
 
+      /* Fill remaining slots with any questions */
       if (selected.length < TOTAL_QUESTIONS) {
         const remaining = pool.filter(q => !usedIds.has(q.id));
         for (let i = 0; i < remaining.length && selected.length < TOTAL_QUESTIONS; i++) {
@@ -326,11 +343,12 @@ window.fetchRankDistribution = async function () {
         }
       }
 
+      /* Trim if too many */
       if (selected.length > TOTAL_QUESTIONS) {
         selected.length = TOTAL_QUESTIONS;
       }
 
-      /* Final shuffle of selected questions */
+      /* Final shuffle */
       for (let i = selected.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [selected[i], selected[j]] = [selected[j], selected[i]];
@@ -405,7 +423,7 @@ window.fetchRankDistribution = async function () {
     buttonElement.textContent = "Flagged";
   };
 
-  /* ------------------------------
+    /* ------------------------------
      RENDER + MARK MCQs
   ------------------------------ */
   window.generateMCQs = async function () {
@@ -451,11 +469,10 @@ window.fetchRankDistribution = async function () {
     const submitBtn = document.createElement("button");
     submitBtn.textContent = "Submit";
 
-    submitBtn.onclick = () => {
+    submitBtn.onclick = async () => {
       submitBtn.remove();
 
       let score = 0;
-      let scalpelDelta = 0;
 
       const blocks = document.querySelectorAll(".questionBlock");
 
@@ -469,7 +486,6 @@ window.fetchRankDistribution = async function () {
 
         if (isCorrect) {
           score += 1;
-          scalpelDelta += 1;
           block.style.border = "2px solid #2e8b57";
           block.insertAdjacentHTML(
             "beforeend",
@@ -501,24 +517,30 @@ window.fetchRankDistribution = async function () {
         block.appendChild(flagBtn);
       });
 
-      let currentPoints = parseInt(localStorage.getItem("scalpelPoints")) || 0;
-      let newPoints = Math.max(0, currentPoints + scalpelDelta);
-      localStorage.setItem("scalpelPoints", String(newPoints));
+      /* ------------------------------
+         POINTS AWARDED (REPLACEMENT MODE)
+         score → lookup in points_for_mcqs
+      ------------------------------ */
+      const awardedPoints = await window.fetchPointsForScore(score);
 
+      let currentPoints = parseInt(localStorage.getItem("scalpelPoints")) || 0;
+      let newPoints = Math.max(0, currentPoints + awardedPoints);
+
+      localStorage.setItem("scalpelPoints", String(newPoints));
       window.updateScalpelPoints(newPoints);
 
       scoreDisplay.innerHTML =
         `<p><strong>Score:</strong> ${score}/${blocks.length}</p>
-         <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>`;
+         <p><strong>Points change:</strong> ${awardedPoints}</p>`;
 
       /* SCORE SAVING */
       window.storeScore(score, blocks.length);
     };
 
     container.appendChild(submitBtn);
-  };
+   };
 
-  /* ------------------------------
+     /* ------------------------------
      AUTO-START MCQs
   ------------------------------ */
   (async () => {
@@ -526,4 +548,4 @@ window.fetchRankDistribution = async function () {
     window.generateMCQs();
   })();
 
-});
+}); // END OF DOMContentLoaded
