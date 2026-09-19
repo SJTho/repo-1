@@ -180,6 +180,24 @@ input:checked+.slider:before {
     }
 }
 
+.dangerLink {
+    color: #d9534f;
+    /* Bootstrap danger red */
+    font-weight: 600;
+    margin-top: 30px;
+    cursor: pointer;
+    text-align: center;
+    padding: 10px 0;
+    border: 1px solid #d9534f;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.dangerLink:hover {
+    background-color: #d9534f;
+    color: white;
+}
+
 /* Mobile layout */
 @media (max-width: 600px) {
 
