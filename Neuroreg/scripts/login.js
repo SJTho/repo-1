@@ -8,10 +8,11 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 // ----------------------------------------------------
 // VALIDATION RULES
 // ----------------------------------------------------
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const emailRegex =
+  /^[^\s@]+@([A-Za-z0-9-]{2,}\.)+[A-Za-z]{2,}$/;
 
-const passwordRegex =
-  /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=]{8,}$/;
+
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=]{8,}$/;
 
 const nicknameRegex = /^[A-Za-z0-9_-]{3,20}$/;
 
