@@ -4,6 +4,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 import { initHelpPopup } from "./helpPopup.js";
+import { logout } from "./logout.js";
+
 
 let openHelpPopup;
 
