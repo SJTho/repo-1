@@ -189,16 +189,6 @@ function attachSubscriptionToggle() {
 }
 
 // ----------------------------------------------------
-// Logout
-// ----------------------------------------------------
-function logout() {
-    localStorage.removeItem("sessionToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("isAdmin");
-    window.location.href = "login.html";
-}
-
-// ----------------------------------------------------
 // Hamburger Menu
 // ----------------------------------------------------
 async function loadHamburgerMenu() {
@@ -303,6 +293,35 @@ function attachHamburgerHandler() {
 }
 
 // ----------------------------------------------------
+// Delete Account
+// ----------------------------------------------------
+function attachDeleteAccountHandler() {
+    const link = document.getElementById("deleteAccountLink");
+    if (!link) return;
+
+    link.onclick = async () => {
+        const confirmed = confirm(
+            "Are you sure you want to delete your account? This step is irreversible."
+        );
+
+        if (!confirmed) return;
+
+        const { error } = await supabase.rpc("delete_user_account");
+
+        if (error) {
+            console.error("Account deletion failed:", error);
+            alert("Failed to delete account.");
+            return;
+        }
+
+        await supabase.auth.signOut();
+        localStorage.clear();
+
+        window.location.href = "login.html";
+    };
+}
+
+// ----------------------------------------------------
 // Page Load
 // ----------------------------------------------------
 window.addEventListener("DOMContentLoaded", () => {
@@ -314,4 +333,5 @@ window.addEventListener("DOMContentLoaded", () => {
     loadHamburgerMenu();
     loadTopRightIcons();
     attachHamburgerHandler();
+    attachDeleteAccountHandler();
 });
