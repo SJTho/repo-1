@@ -106,6 +106,10 @@
   white-space: normal;
   display: flex;
   flex-wrap: nowrap;
+  text-align: left;
+  /* ensure text aligns left */
+  justify-content: flex-start;
+  /* ensure flex items align left */
 }
 
 #mcqCorePage .optionLabel span.optionText {
