@@ -6,6 +6,16 @@ import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ----------------------------------------------------
+// VALIDATION RULES
+// ----------------------------------------------------
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const passwordRegex =
+  /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=]{8,}$/;
+
+const nicknameRegex = /^[A-Za-z0-9_-]{3,20}$/;
+
+// ----------------------------------------------------
 // CAPTCHA CALLBACKS
 // ----------------------------------------------------
 window.onSignupCaptcha = function (token) {
@@ -28,13 +38,9 @@ window.signup = async function (email, password, nickname) {
 
     if (signupError) return { error: signupError.message };
 
-    const { data: loginData, error: loginError } =
-      await supabase.auth.signInWithPassword({ email, password });
+    const user = signupData.user;
 
-    if (loginError) return { error: loginError.message };
-
-    const user = loginData.user;
-
+    // Create profile row
     const { error: profileError } = await supabase.from("profiles").insert({
       id: user.id,
       nickname,
@@ -45,6 +51,7 @@ window.signup = async function (email, password, nickname) {
 
     if (profileError) return { error: profileError.message };
 
+    // Create link rows
     const linkRows = Array.from({ length: 8 }, (_, i) => ({
       userid: user.id,
       linkid: i + 1
@@ -55,6 +62,12 @@ window.signup = async function (email, password, nickname) {
       .insert(linkRows);
 
     if (mapError) return { error: mapError.message };
+
+    // Login immediately to get session
+    const { data: loginData, error: loginError } =
+      await supabase.auth.signInWithPassword({ email, password });
+
+    if (loginError) return { error: loginError.message };
 
     localStorage.setItem("sessionToken", loginData.session.access_token);
     localStorage.setItem("nickname", nickname);
@@ -72,7 +85,7 @@ window.signup = async function (email, password, nickname) {
 };
 
 // ----------------------------------------------------
-// SIGNUP HANDLER
+// SIGNUP HANDLER (with validation)
 // ----------------------------------------------------
 window.handleSignup = async function (captchaToken) {
   const email = document.getElementById("signupEmail").value.trim();
@@ -82,6 +95,40 @@ window.handleSignup = async function (captchaToken) {
 
   if (!captchaToken) {
     errorBox.textContent = "Captcha failed. Please try again.";
+    errorBox.style.display = "block";
+    return;
+  }
+
+  // VALIDATION
+  if (!emailRegex.test(email)) {
+    errorBox.textContent = "Please enter a valid email address.";
+    errorBox.style.display = "block";
+    return;
+  }
+
+  if (!passwordRegex.test(password)) {
+    errorBox.textContent =
+      "Password must be at least 8 characters and include letters and numbers.";
+    errorBox.style.display = "block";
+    return;
+  }
+
+  if (!nicknameRegex.test(nickname)) {
+    errorBox.textContent =
+      "Nickname must be 3–20 characters (letters, numbers, _ or -).";
+    errorBox.style.display = "block";
+    return;
+  }
+
+  // Check nickname uniqueness
+  const { data: existing } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("nickname", nickname)
+    .maybeSingle();
+
+  if (existing) {
+    errorBox.textContent = "Nickname already taken.";
     errorBox.style.display = "block";
     return;
   }
