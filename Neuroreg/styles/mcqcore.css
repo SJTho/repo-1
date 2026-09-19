@@ -104,7 +104,15 @@
   padding-left: 12px;
   position: relative;
   white-space: normal;
-  flex-wrap: wrap;
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+#mcqCorePage .optionLabel span.optionText {
+  /* Allow the text itself to wrap */
+  white-space: normal;
+  display: inline-block;
+  flex: 1;
 }
 
 /* Generate a/b/c/d labels */
