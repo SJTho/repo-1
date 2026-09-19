@@ -103,6 +103,8 @@
   background: transparent;
   padding-left: 12px;
   position: relative;
+  white-space: normal;
+  flex-wrap: wrap;
 }
 
 /* Generate a/b/c/d labels */
