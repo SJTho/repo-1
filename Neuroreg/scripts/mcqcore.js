@@ -230,48 +230,46 @@ window.addEventListener("DOMContentLoaded", () => {
   /* ------------------------------
      FETCH RANK DISTRIBUTION
   ------------------------------ */
-  window.fetchRankDistribution = async function () {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      console.warn("No userId in localStorage, using default distribution.");
-      return { mrcs: 10, frcs: 0, challenge: 0 };
-    }
+window.fetchRankDistribution = async function () {
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    console.warn("No userId found, using default distribution.");
+    return { mrcs: 10, frcs: 0, challenge: 0 };
+  }
 
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("rank")
-      .eq("id", userId)
-      .single();
+  // 1. Load scalpel points
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("scalpel_points")
+    .eq("id", userId)
+    .single();
 
-    if (profileError || !profile || !profile.rank) {
-      console.error("Could not load user rank from profiles:", profileError);
-      return { mrcs: 10, frcs: 0, challenge: 0 };
-    }
+  if (profileError || !profile) {
+    console.error("Could not load scalpel points:", profileError);
+    return { mrcs: 10, frcs: 0, challenge: 0 };
+  }
 
-    const { data: rankRow, error: rankError } = await supabase
-      .from("rank")
-      .select("mrcs_level, frcs_level, challenge_level")
-      .eq("rank", profile.rank)
-      .single();
+  const points = profile.scalpel_points ?? 0;
 
-    if (rankError || !rankRow) {
-      console.error("Could not load rank distribution from rank table:", rankError);
-      return { mrcs: 10, frcs: 0, challenge: 0 };
-    }
+  // 2. Find rank row based on score range
+  const { data: rankRow, error: rankError } = await supabase
+    .from("rank")
+    .select("mrcs_level, frcs_level, challenge_level")
+    .lte("minimum_score", points)
+    .gte("maximum_score", points)
+    .single();
 
-    const dist = {
-      mrcs: rankRow.mrcs_level ?? 0,
-      frcs: rankRow.frcs_level ?? 0,
-      challenge: rankRow.challenge_level ?? 0
-    };
+  if (rankError || !rankRow) {
+    console.error("Could not match scalpel_points to rank:", rankError);
+    return { mrcs: 10, frcs: 0, challenge: 0 };
+  }
 
-    const total = dist.mrcs + dist.frcs + dist.challenge;
-    if (total !== 10) {
-      console.warn("Rank distribution does not sum to 10, normalising:", dist);
-    }
-
-    return dist;
+  return {
+    mrcs: rankRow.mrcs_level ?? 0,
+    frcs: rankRow.frcs_level ?? 0,
+    challenge: rankRow.challenge_level ?? 0
   };
+};
 
   /* ------------------------------
      MCQ GENERATOR (RANK-BASED)
