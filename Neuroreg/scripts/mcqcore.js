@@ -38,6 +38,7 @@ window.addEventListener("DOMContentLoaded", () => {
       .order("hamburgerorder", { ascending: true });
 
     if (error) {
+      console.error("Hamburger menu load failed:", error);
       dropdown.innerHTML = "<div class='dropdownItem'>Menu failed to load</div>";
       return;
     }
@@ -65,8 +66,11 @@ window.addEventListener("DOMContentLoaded", () => {
           openHelpPopup();
           return;
         }
-        if (item.url === "logout") logout();
-        else window.location.href = item.url;
+        if (item.url === "logout") {
+          logout();
+          return;
+        }
+        window.location.href = item.url;
       };
 
       dropdown.appendChild(div);
@@ -87,7 +91,10 @@ window.addEventListener("DOMContentLoaded", () => {
       .eq("topright", true)
       .order("toprightorder", { ascending: true });
 
-    if (error) return;
+    if (error) {
+      console.error("Top-right icons load failed:", error);
+      return;
+    }
 
     container.innerHTML = "";
 
@@ -225,38 +232,58 @@ window.addEventListener("DOMContentLoaded", () => {
   ------------------------------ */
   window.fetchRankDistribution = async function () {
     const userId = localStorage.getItem("userId");
-    if (!userId) return { mrcs: 10, frcs: 0, challenge: 0 };
+    if (!userId) {
+      console.warn("No userId in localStorage, using default distribution.");
+      return { mrcs: 10, frcs: 0, challenge: 0 };
+    }
 
-    const { data, error } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("rank")
       .eq("id", userId)
       .single();
 
-    if (error || !data) return { mrcs: 10, frcs: 0, challenge: 0 };
+    if (profileError || !profile || !profile.rank) {
+      console.error("Could not load user rank from profiles:", profileError);
+      return { mrcs: 10, frcs: 0, challenge: 0 };
+    }
 
-    const { data: rankData, error: rankError } = await supabase
+    const { data: rankRow, error: rankError } = await supabase
       .from("rank")
       .select("mrcs_level, frcs_level, challenge_level")
-      .eq("rank", data.rank)
+      .eq("rank", profile.rank)
       .single();
 
-    if (rankError || !rankData)
+    if (rankError || !rankRow) {
+      console.error("Could not load rank distribution from rank table:", rankError);
       return { mrcs: 10, frcs: 0, challenge: 0 };
+    }
 
-    return {
-      mrcs: rankData.mrcs_level,
-      frcs: rankData.frcs_level,
-      challenge: rankData.challenge_level
+    const dist = {
+      mrcs: rankRow.mrcs_level ?? 0,
+      frcs: rankRow.frcs_level ?? 0,
+      challenge: rankRow.challenge_level ?? 0
     };
+
+    const total = dist.mrcs + dist.frcs + dist.challenge;
+    if (total !== 10) {
+      console.warn("Rank distribution does not sum to 10, normalising:", dist);
+    }
+
+    return dist;
   };
 
   /* ------------------------------
-     MCQ GENERATOR (NEW LOGIC)
+     MCQ GENERATOR (RANK-BASED)
   ------------------------------ */
   window.copilot = {
     generateMCQs: async () => {
+      const TOTAL_QUESTIONS = 10;
+
       let pool = await window.fetchQuestionsFromDB();
+
+      /* Remove over-flagged questions */
+      pool = pool.filter(q => (q.flaggedset || 0) < 5);
 
       /* Shuffle pool */
       for (let i = pool.length - 1; i > 0; i--) {
@@ -264,22 +291,48 @@ window.addEventListener("DOMContentLoaded", () => {
         [pool[i], pool[j]] = [pool[j], pool[i]];
       }
 
-      /* Remove over-flagged questions */
-      pool = pool.filter(q => (q.flaggedset || 0) < 5);
+      if (!pool.length) {
+        console.warn("Question pool is empty after filtering.");
+        return [];
+      }
 
-      /* Get difficulty distribution */
       const dist = await window.fetchRankDistribution();
 
-      const pick = (level, count) =>
-        pool.filter(q => q.level.toLowerCase() === level.toLowerCase()).slice(0, count);
+      const byLevel = (level) =>
+        pool.filter(q => q.level && q.level.toLowerCase() === level.toLowerCase());
 
-      const selected = [
-        ...pick("MRCS", dist.mrcs),
-        ...pick("FRCS", dist.frcs),
-        ...pick("Challenge", dist.challenge)
-      ];
+      const selected = [];
+      const usedIds = new Set();
 
-      /* Shuffle final selection */
+      const takeFromLevel = (level, count) => {
+        const candidates = byLevel(level);
+        let taken = 0;
+        for (let i = 0; i < candidates.length && taken < count; i++) {
+          const q = candidates[i];
+          if (usedIds.has(q.id)) continue;
+          selected.push(q);
+          usedIds.add(q.id);
+          taken++;
+        }
+      };
+
+      takeFromLevel("MRCS", dist.mrcs);
+      takeFromLevel("FRCS", dist.frcs);
+      takeFromLevel("Challenge", dist.challenge);
+
+      if (selected.length < TOTAL_QUESTIONS) {
+        const remaining = pool.filter(q => !usedIds.has(q.id));
+        for (let i = 0; i < remaining.length && selected.length < TOTAL_QUESTIONS; i++) {
+          selected.push(remaining[i]);
+          usedIds.add(remaining[i].id);
+        }
+      }
+
+      if (selected.length > TOTAL_QUESTIONS) {
+        selected.length = TOTAL_QUESTIONS;
+      }
+
+      /* Final shuffle of selected questions */
       for (let i = selected.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [selected[i], selected[j]] = [selected[j], selected[i]];
@@ -324,7 +377,10 @@ window.addEventListener("DOMContentLoaded", () => {
       .eq("id", questionId)
       .single();
 
-    if (error) return alert("Could not flag question.");
+    if (error) {
+      console.error("Flag fetch failed:", error);
+      return alert("Could not flag question.");
+    }
 
     const current = data.flaggedset || 0;
     if (current >= 5) {
@@ -341,7 +397,10 @@ window.addEventListener("DOMContentLoaded", () => {
       .update({ flaggedset: updated })
       .eq("id", questionId);
 
-    if (updateError) return alert("Could not update flag count.");
+    if (updateError) {
+      console.error("Flag update failed:", updateError);
+      return alert("Could not update flag count.");
+    }
 
     alert(`Question flagged (${updated}/5)`);
     buttonElement.disabled = true;
@@ -352,17 +411,17 @@ window.addEventListener("DOMContentLoaded", () => {
      RENDER + MARK MCQs
   ------------------------------ */
   window.generateMCQs = async function () {
+    const container = document.getElementById("mcqquestions");
+    const scoreDisplay = document.getElementById("scoreDisplay");
 
-    document.getElementById("mcqquestions").innerHTML = "";
-    document.getElementById("scoreDisplay").innerHTML = "";
+    container.innerHTML = "";
+    scoreDisplay.innerHTML = "";
 
     let questions = await window.copilot.generateMCQs();
     if (!questions.length) {
       alert("No questions available.");
       return;
     }
-
-    const container = document.getElementById("mcqquestions");
 
     /* Render questions */
     questions.forEach((q, index) => {
@@ -450,12 +509,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
       window.updateScalpelPoints(newPoints);
 
-      document.getElementById("scoreDisplay").innerHTML =
+      scoreDisplay.innerHTML =
         `<p><strong>Score:</strong> ${score}/${blocks.length}</p>
          <p><strong>Points change:</strong> ${scalpelDelta > 0 ? "+" : ""}${scalpelDelta}</p>`;
 
       /* SCORE SAVING */
-      storeScore(score, blocks.length);
+      window.storeScore(score, blocks.length);
     };
 
     container.appendChild(submitBtn);
