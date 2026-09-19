@@ -1,7 +1,7 @@
 /* --- SUPABASE CLIENT (MODULE IMPORTS) --- */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
-import { initHelpPopup } from "./helpPopup.js";   // ⭐ NEW
+import { initHelpPopup } from "./helpPopup.js";
 import { logout } from "./logout.js";
 
 let openHelpPopup;
@@ -61,6 +61,10 @@ window.addEventListener("DOMContentLoaded", () => {
       div.innerText = (item.emoji ? item.emoji + " " : "") + item.displayname;
 
       div.onclick = () => {
+        if (item.url === "help" || item.url === "help.html") {
+          openHelpPopup();
+          return;
+        }
         if (item.url === "logout") logout();
         else window.location.href = item.url;
       };
@@ -217,13 +221,72 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   /* ------------------------------
-     MCQ GENERATOR
+     FETCH RANK DISTRIBUTION
+  ------------------------------ */
+  window.fetchRankDistribution = async function () {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return { mrcs: 10, frcs: 0, challenge: 0 };
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("rank")
+      .eq("id", userId)
+      .single();
+
+    if (error || !data) return { mrcs: 10, frcs: 0, challenge: 0 };
+
+    const { data: rankData, error: rankError } = await supabase
+      .from("rank")
+      .select("mrcs_level, frcs_level, challenge_level")
+      .eq("rank", data.rank)
+      .single();
+
+    if (rankError || !rankData)
+      return { mrcs: 10, frcs: 0, challenge: 0 };
+
+    return {
+      mrcs: rankData.mrcs_level,
+      frcs: rankData.frcs_level,
+      challenge: rankData.challenge_level
+    };
+  };
+
+  /* ------------------------------
+     MCQ GENERATOR (NEW LOGIC)
   ------------------------------ */
   window.copilot = {
-    generateMCQs: async ({ count, topic, level }) => {
+    generateMCQs: async () => {
       let pool = await window.fetchQuestionsFromDB();
 
-      pool = pool.map(q => {
+      /* Shuffle pool */
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+
+      /* Remove over-flagged questions */
+      pool = pool.filter(q => (q.flaggedset || 0) < 5);
+
+      /* Get difficulty distribution */
+      const dist = await window.fetchRankDistribution();
+
+      const pick = (level, count) =>
+        pool.filter(q => q.level.toLowerCase() === level.toLowerCase()).slice(0, count);
+
+      const selected = [
+        ...pick("MRCS", dist.mrcs),
+        ...pick("FRCS", dist.frcs),
+        ...pick("Challenge", dist.challenge)
+      ];
+
+      /* Shuffle final selection */
+      for (let i = selected.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [selected[i], selected[j]] = [selected[j], selected[i]];
+      }
+
+      /* Convert to MCQ format */
+      return selected.map(q => {
         const options = [
           { text: q.option1, correct: true },
           { text: q.option2, correct: false },
@@ -248,27 +311,6 @@ window.addEventListener("DOMContentLoaded", () => {
           correctIndex: options.findIndex(o => o.correct)
         };
       });
-
-      /* Remove over-flagged questions */
-      pool = pool.filter(q => (q.flaggedset || 0) < 5);
-
-      /* Topic filter */
-      if (topic !== "all") {
-        pool = pool.filter(q => q.topic.toLowerCase() === topic.toLowerCase());
-      }
-
-      /* Level filter */
-      if (level !== "all") {
-        pool = pool.filter(q => q.level.toLowerCase() === level.toLowerCase());
-      }
-
-      /* Shuffle pool */
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
-      }
-
-      return pool.slice(0, count);
     }
   };
 
@@ -285,7 +327,12 @@ window.addEventListener("DOMContentLoaded", () => {
     if (error) return alert("Could not flag question.");
 
     const current = data.flaggedset || 0;
-    if (current >= 5) return alert("Already flagged 5 times.");
+    if (current >= 5) {
+      alert("Already flagged 5 times.");
+      buttonElement.disabled = true;
+      buttonElement.textContent = "Flagged";
+      return;
+    }
 
     const updated = current + 1;
 
@@ -305,26 +352,17 @@ window.addEventListener("DOMContentLoaded", () => {
      RENDER + MARK MCQs
   ------------------------------ */
   window.generateMCQs = async function () {
-    const count = parseInt(document.getElementById("mcqCount").value);
-    const topic = document.getElementById("mcqAreas").value;
-    const level = document.getElementById("mcqLevel").value;
 
-    if (!count || count < 1) {
-      alert("Please enter a valid number of questions.");
-      return;
-    }
-
-    document.getElementById("mcqSetup").style.display = "none";
-
-    const container = document.getElementById("mcqquestions");
-    container.innerHTML = "";
+    document.getElementById("mcqquestions").innerHTML = "";
     document.getElementById("scoreDisplay").innerHTML = "";
 
-    let questions = await window.copilot.generateMCQs({ count, topic, level });
+    let questions = await window.copilot.generateMCQs();
     if (!questions.length) {
       alert("No questions available.");
       return;
     }
+
+    const container = document.getElementById("mcqquestions");
 
     /* Render questions */
     questions.forEach((q, index) => {
@@ -424,11 +462,11 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   /* ------------------------------
-     START BUTTON
+     AUTO-START MCQs
   ------------------------------ */
-  document.getElementById("startSubmitBtn").onclick = async () => {
+  (async () => {
     await window.loadScalpelPoints();
     window.generateMCQs();
-  };
+  })();
 
 });
