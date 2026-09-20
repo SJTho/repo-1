@@ -156,13 +156,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const percent = Math.round((entry.score / entry.numberofquestions) * 100);
 
       const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${formatTimestamp(entry.created_at)}</td>
-        <td>${entry.numberofquestions}</td>
-        <td>${entry.score}</td>
-        <td>${percent}%</td>
-        <td><button class="deleteBtn" onclick="deleteScore(${entry.id})">Delete</button></td>
-      `;
+    row.innerHTML = `
+  <td>${formatTimestamp(entry.created_at)}</td>
+  <td>${entry.score}</td> 
+  <td>${entry.numberofquestions}</td>
+  <td><button class="deleteBtn" onclick="deleteScore(${entry.id})">Delete</button></td>
+`;
+
       tableBody.appendChild(row);
     });
 
