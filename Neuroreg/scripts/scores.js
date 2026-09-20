@@ -468,8 +468,8 @@ async function generatePdfReport(name, start, end, scores) {
   doc.addImage(chartImg, "PNG", margin, y, pageWidth - margin * 2, 225);
   y += 260;
 
- /* -----------------------------
-   TABLE HEADER
+/* -----------------------------
+   TABLE HEADER (correct width)
 ----------------------------- */
 y += 15;
 
@@ -479,15 +479,22 @@ doc.text("History", margin, y);
 doc.setFont(undefined, "normal");
 y += 15;
 
-// Header background
-doc.setFillColor(230, 230, 230);
-doc.rect(margin, y, pageWidth - margin * 2, 22, "F");
+// Column positions
+const colDateX = margin + 10;
+const colScoreX = margin + 150;
+const colQuestionsX = margin + 250;
 
-// NEW COLUMN ORDER:
-// Date | Score | Questions
-doc.text("Date",       margin + 10,  y + 15);
-doc.text("Score",      margin + 150, y + 15);   // ⭐ moved here
-doc.text("Questions",  margin + 250, y + 15);   // ⭐ moved after Score
+// Calculate header width based on last column + padding
+const headerWidth = (colQuestionsX + 80) - margin;   // ⭐ 80px padding after last column
+
+// Draw correctly sized grey background
+doc.setFillColor(230, 230, 230);
+doc.rect(margin, y, headerWidth, 22, "F");
+
+// Column titles
+doc.text("Date",      colDateX,      y + 15);
+doc.text("Score",     colScoreX,     y + 15);
+doc.text("Questions", colQuestionsX, y + 15);
 
 y += 38;
 
