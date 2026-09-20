@@ -127,18 +127,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadTopRightIcons();
 
-  /* -----------------------------
-     Score Table + Chart
-  ----------------------------- */
-  function formatTimestamp(ts) {
-    const d = new Date(ts);
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const yy = String(d.getFullYear()).slice(-2);
-    const hh = String(d.getHours()).padStart(2, "0");
-    const min = String(d.getMinutes()).padStart(2, "0");
-    return `${dd}/${mm}/${yy} ${hh}:${min}`;
-  }
+/* -----------------------------
+   Score Table + Chart
+----------------------------- */
+function formatTimestamp(ts) {
+  const d = new Date(ts);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yy = String(d.getFullYear()).slice(-2);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${dd}/${mm}/${yy} ${hh}:${min}`;
+}
 
 function formatShortDate(ts) {
   const d = new Date(ts);
@@ -147,41 +147,37 @@ function formatShortDate(ts) {
   const yy = String(d.getFullYear()).slice(-2);
   return `${dd}/${mm}/${yy}`;
 }
-  async function loadScores() {
-    const { data: scores, error } = await supabase
-      .from("userpracticemcqscores")
-      .select("*")
-      .eq("userid", userId)
-      .order("created_at", { ascending: true });
 
-    if (error) return;
+async function loadScores() {
+  const { data: scores, error } = await supabase
+    .from("userpracticemcqscores")
+    .select("*")
+    .eq("userid", userId)
+    .order("created_at", { ascending: true });
 
-    const tableBody = document.querySelector("#scoreTable tbody");
-    tableBody.innerHTML = "";
+  if (error) return;
 
-    scores.forEach(entry => {
-      const percent = Math.round((entry.score / entry.numberofquestions) * 100);
+  const tableBody = document.querySelector("#scoreTable tbody");
+  tableBody.innerHTML = "";
 
-      const row = document.createElement("tr");
+  const isMobile = window.innerWidth < 600;
+
+  scores.forEach(entry => {
+    const percent = Math.round((entry.score / entry.numberofquestions) * 100);
+
+    const row = document.createElement("tr");
     row.innerHTML = `
- const isMobile = window.innerWidth < 600;
+      <td>${isMobile ? formatShortDate(entry.created_at) : formatTimestamp(entry.created_at)}</td>
+      <td>${entry.score}</td>
+      <td>${entry.numberofquestions}</td>
+      <td><button class="deleteBtn" onclick="deleteScore(${entry.id})">Delete</button></td>
+    `;
 
-row.innerHTML = `
-  <td>${isMobile ? formatShortDate(entry.created_at) : formatTimestamp(entry.created_at)}</td>
-  <td>${entry.score}</td>
-  <td>${entry.numberofquestions}</td>
-  <td><button class="deleteBtn" onclick="deleteScore(${entry.id})">Delete</button></td>
-`;
-  <td>${entry.score}</td> 
-  <td>${entry.numberofquestions}</td>
-  <td><button class="deleteBtn" onclick="deleteScore(${entry.id})">Delete</button></td>
-`;
+    tableBody.appendChild(row);
+  });
 
-      tableBody.appendChild(row);
-    });
-
-    buildChart(scores);
-  }
+  buildChart(scores);
+}
 
   async function deleteScore(id) {
     if (!confirm("Are you sure you want to delete this score?")) return;
