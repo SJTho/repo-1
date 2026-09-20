@@ -140,6 +140,13 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${dd}/${mm}/${yy} ${hh}:${min}`;
   }
 
+function formatShortDate(ts) {
+  const d = new Date(ts);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yy = String(d.getFullYear()).slice(-2);
+  return `${dd}/${mm}/${yy}`;
+}
   async function loadScores() {
     const { data: scores, error } = await supabase
       .from("userpracticemcqscores")
@@ -157,7 +164,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const row = document.createElement("tr");
     row.innerHTML = `
-  <td>${formatTimestamp(entry.created_at)}</td>
+ const isMobile = window.innerWidth < 600;
+
+row.innerHTML = `
+  <td>${isMobile ? formatShortDate(entry.created_at) : formatTimestamp(entry.created_at)}</td>
+  <td>${entry.score}</td>
+  <td>${entry.numberofquestions}</td>
+  <td><button class="deleteBtn" onclick="deleteScore(${entry.id})">Delete</button></td>
+`;
   <td>${entry.score}</td> 
   <td>${entry.numberofquestions}</td>
   <td><button class="deleteBtn" onclick="deleteScore(${entry.id})">Delete</button></td>
