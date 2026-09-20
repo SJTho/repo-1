@@ -295,48 +295,43 @@ async function generatePdfReport(name, start, end, scores) {
   const margin = 40;
   let y = margin;
 
-/* -----------------------------
-   HEADER BAR
------------------------------ */
-doc.setFillColor(70, 120, 200);   // lighter blue for better favicon visibility
-doc.rect(0, 0, pageWidth, 60, "F");
+  /* -----------------------------
+     HEADER BAR
+  ----------------------------- */
+  doc.setFillColor(70, 120, 200);
+  doc.rect(0, 0, pageWidth, 60, "F");
 
-// Load favicon
-let favicon = null;
-try {
-  favicon = await fetch("favicon.ico")
-    .then(r => r.blob())
-    .then(blob => new Promise(res => {
-      const reader = new FileReader();
-      reader.onload = () => res(reader.result);
-      reader.readAsDataURL(blob);
-    }));
-} catch (e) {
-  console.warn("Favicon failed to load:", e);
-}
+  let favicon = null;
+  try {
+    favicon = await fetch("favicon.ico")
+      .then(r => r.blob())
+      .then(blob => new Promise(res => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result);
+        reader.readAsDataURL(blob);
+      }));
+  } catch (e) {
+    console.warn("Favicon failed to load:", e);
+  }
 
-// Draw white circular backdrop behind favicon
-if (favicon) {
-  const iconX = margin + 15;   // centre of circle horizontally
-  const iconY = 30;            // centre vertically
+  if (favicon) {
+    const iconX = margin + 15;
+    const iconY = 30;
 
-  doc.setFillColor(255, 255, 255);  // white
-  doc.circle(iconX, iconY, 22, "F");  // filled circle radius 22px
+    doc.setFillColor(255, 255, 255);
+    doc.circle(iconX, iconY, 22, "F");
 
-  // Draw favicon on top
-  doc.addImage(favicon, "PNG", iconX - 15, iconY - 15, 30, 30);
-}
+    doc.addImage(favicon, "PNG", iconX - 15, iconY - 15, 30, 30);
+  }
 
-doc.setFontSize(22);
-doc.setTextColor(255, 255, 255);
-doc.text("Neuroreg Report", margin + 50, 40);
-
-
+  doc.setFontSize(22);
+  doc.setTextColor(255, 255, 255);
+  doc.text("Neuroreg Report", margin + 50, 40);
 
   /* -----------------------------
-     USER INFO SECTION (centred)
+     USER INFO SECTION
   ----------------------------- */
-  y = 105; // moved up ~1 line
+  y = 105;
 
   const shortId = userId.slice(-6);
 
@@ -355,7 +350,7 @@ doc.text("Neuroreg Report", margin + 50, 40);
   }
 
   doc.text(`${ukDate(start)} to ${ukDate(end)}`, pageWidth / 2, y, { align: "center" });
-  y += 50;   // increased space above Engagement
+  y += 50;
 
   /* -----------------------------
      ENGAGEMENT SECTION
@@ -402,22 +397,20 @@ doc.text("Neuroreg Report", margin + 50, 40);
   doc.setFont(undefined, "bold");
   doc.text("Scores", margin, y);
   doc.setFont(undefined, "normal");
-  y += 15;   // reduced spacing before chart
+  y += 15;
 
   /* ----------------------------------------------------
-     PDF-ONLY CHART (off-screen canvas)
+     PDF-ONLY CHART (UK DATE FIX APPLIED)
   ---------------------------------------------------- */
-  const originalCanvas = document.getElementById("scoreChart");
 
   const pdfCanvas = document.createElement("canvas");
-  pdfCanvas.width = originalCanvas.width;
-  pdfCanvas.height = originalCanvas.height * 1.5;
+  pdfCanvas.width = 800;
+  pdfCanvas.height = 350;
 
   const pdfCtx = pdfCanvas.getContext("2d");
 
-  const chartInstance = Chart.getChart(originalCanvas);
-  const labels = chartInstance.data.labels;
-  const dataPoints = chartInstance.data.datasets[0].data;
+  const labels = scores.map(s => s.created_at);
+  const dataPoints = scores.map(s => Math.round((s.score / s.numberofquestions) * 100));
 
   new Chart(pdfCtx, {
     type: "line",
@@ -452,15 +445,20 @@ doc.text("Neuroreg Report", margin + 50, 40);
           ticks: {
             color: "black",
             callback: (value, index) => {
-              const ts = labels[index];
-              const d = new Date(ts);
-              return d.toLocaleDateString("en-GB");
+              const rawTs = scores[index].created_at;
+              const d = new Date(rawTs);
+
+              const dd = String(d.getDate()).padStart(2, "0");
+              const mm = String(d.getMonth() + 1).padStart(2, "0");
+              const yyyy = d.getFullYear();
+
+              return `${dd}/${mm}/${yyyy}`;   // ⭐ UK format
             }
           }
         }
       },
       plugins: {
-        legend: { display: false }   // legend removed
+        legend: { display: false }
       }
     }
   });
@@ -473,7 +471,7 @@ doc.text("Neuroreg Report", margin + 50, 40);
   /* -----------------------------
      TABLE HEADER
   ----------------------------- */
-  y += 15; // extra spacing above History
+  y += 15;
 
   doc.setFontSize(14);
   doc.setFont(undefined, "bold");
@@ -501,8 +499,9 @@ doc.text("Neuroreg Report", margin + 50, 40);
       doc.addPage();
       y = margin;
     }
-doc.setFontSize(12);
-    doc.text(formatTimestamp(s.created_at), margin + 10, y);
+
+    doc.setFontSize(12);
+    doc.text(ukDate(s.created_at), margin + 10, y);  // ⭐ UK format here too
     doc.text(String(s.numberofquestions), margin + 150, y);
     doc.text(String(s.score), margin + 250, y);
     doc.text(percent + "%", margin + 330, y);
