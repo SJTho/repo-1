@@ -468,46 +468,53 @@ async function generatePdfReport(name, start, end, scores) {
   doc.addImage(chartImg, "PNG", margin, y, pageWidth - margin * 2, 225);
   y += 260;
 
-  /* -----------------------------
-     TABLE HEADER
-  ----------------------------- */
-  y += 15;
+ /* -----------------------------
+   TABLE HEADER
+----------------------------- */
+y += 15;
 
-  doc.setFontSize(14);
-  doc.setFont(undefined, "bold");
-  doc.text("History", margin, y);
-  doc.setFont(undefined, "normal");
-  y += 15;
+doc.setFontSize(14);
+doc.setFont(undefined, "bold");
+doc.text("History", margin, y);
+doc.setFont(undefined, "normal");
+y += 15;
 
-  doc.setFillColor(230, 230, 230);
-  doc.rect(margin, y, pageWidth - margin * 2, 22, "F");
+// Header background
+doc.setFillColor(230, 230, 230);
+doc.rect(margin, y, pageWidth - margin * 2, 22, "F");
 
-  doc.text("Date", margin + 10, y + 15);
-  doc.text("Questions", margin + 150, y + 15);
-  doc.text("Score", margin + 250, y + 15);
-  doc.text("Percent", margin + 330, y + 15);
+// NEW COLUMN ORDER:
+// Date | Score | Questions
+doc.text("Date",       margin + 10,  y + 15);
+doc.text("Score",      margin + 150, y + 15);   // ⭐ moved here
+doc.text("Questions",  margin + 250, y + 15);   // ⭐ moved after Score
 
-  y += 38;
+y += 38;
 
-  /* -----------------------------
-     TABLE ROWS
-  ----------------------------- */
-  scores.forEach(s => {
-    const percent = Math.round((s.score / s.numberofquestions) * 100);
+/* -----------------------------
+   TABLE ROWS
+----------------------------- */
+scores.forEach(s => {
 
-    if (y > pageHeight - 60) {
-      doc.addPage();
-      y = margin;
-    }
+  if (y > pageHeight - 60) {
+    doc.addPage();
+    y = margin;
+  }
 
-    doc.setFontSize(12);
-    doc.text(ukDate(s.created_at), margin + 10, y);  // ⭐ UK format here too
-    doc.text(String(s.numberofquestions), margin + 150, y);
-    doc.text(String(s.score), margin + 250, y);
-    doc.text(percent + "%", margin + 330, y);
+  const dd = String(new Date(s.created_at).getDate()).padStart(2, "0");
+  const mm = String(new Date(s.created_at).getMonth() + 1).padStart(2, "0");
+  const yyyy = new Date(s.created_at).getFullYear();
+  const ukDate = `${dd}/${mm}/${yyyy}`;
 
-    y += 22;
-  });
+  doc.setFontSize(12);
+
+  // NEW COLUMN ORDER:
+  doc.text(ukDate,                 margin + 10,  y);
+  doc.text(String(s.score),        margin + 150, y);   // ⭐ Score now second
+  doc.text(String(s.numberofquestions), margin + 250, y);   // ⭐ Questions now third
+
+  y += 22;
+});
 
   /* -----------------------------
      FOOTER
