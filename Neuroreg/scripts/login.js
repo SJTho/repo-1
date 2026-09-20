@@ -28,7 +28,7 @@ window.onPasswordResetCaptcha = function (token) {
 };
 
 // ----------------------------------------------------
-// SIGNUP (with scalpel_points = 200 and link rows)
+// SIGNUP (with scalpel_points = 40 and link rows)
 // ----------------------------------------------------
 window.signup = async function (email, password, nickname) {
   try {
@@ -46,7 +46,7 @@ window.signup = async function (email, password, nickname) {
       id: user.id,
       nickname,
       email,
-      scalpel_points: 200,
+      scalpel_points: 40,
       isadmin: false
     });
 
