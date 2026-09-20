@@ -176,7 +176,7 @@ textarea {
 
   #scoreTable td:nth-child(1) {
     /* Date */
-    width: 70px;
+    width: 55px;
   }
 
   #scoreTable td:nth-child(2) {
