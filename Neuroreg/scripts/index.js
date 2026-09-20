@@ -15,6 +15,12 @@ let openHelpPopup;   // allows all functions to access it
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
 
+    window.addEventListener("pageshow", () => {
+  const dropdown = document.getElementById("hamburgerMenuDropdown");
+  if (dropdown) dropdown.style.display = "none";
+});
+
+
     openHelpPopup = initHelpPopup(supabase);
 
     /* ----------------------------------------------------
