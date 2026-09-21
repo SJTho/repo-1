@@ -382,3 +382,12 @@ window.addEventListener("DOMContentLoaded", loadRankPage);
 window.addEventListener("DOMContentLoaded", () => {
     openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
 });
+
+
+// ----------------------------------------------------
+// Reset hamburger menu when returning via Back button
+// ----------------------------------------------------
+window.addEventListener("pageshow", () => {
+    const dropdown = document.getElementById("hamburgerMenuDropdown");
+    if (dropdown) dropdown.style.display = "none";
+});
