@@ -7,6 +7,13 @@ let openHelpPopup;   // ⭐ NEW
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 document.addEventListener("DOMContentLoaded", () => {
+  
+window.addEventListener("pageshow", () => {
+  const dropdown = document.getElementById("hamburgerMenuDropdown");
+  if (dropdown) dropdown.style.display = "none";
+});
+
+
      openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
   const userId = localStorage.getItem("userId");
 
