@@ -39,6 +39,11 @@ let operationRequirements = {};
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", initOperatingTheatre);
 window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("pageshow", () => {
+  const dropdown = document.getElementById("hamburgerMenuDropdown");
+  if (dropdown) dropdown.style.display = "none";
+});
+
     openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
  });
 
