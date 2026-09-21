@@ -269,6 +269,12 @@ async function loadTopRightIcons() {
    HAMBURGER TOGGLE
 ---------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
+
+  window.addEventListener("pageshow", () => {
+  const dropdown = document.getElementById("hamburgerMenuDropdown");
+  if (dropdown) dropdown.style.display = "none";
+});
+
   const hamburger = document.getElementById("hamburgerMenu");
   const dropdown = document.getElementById("hamburgerMenuDropdown");
 
