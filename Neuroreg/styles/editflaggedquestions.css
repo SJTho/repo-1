@@ -166,10 +166,20 @@
 .deleteBtn:hover {
   background: #d14a4a;
 
-  /* Shift Level, Option 2, and Option 4 labels slightly right */
   label[for^="level_"],
   label[for^="option2_"],
   label[for^="option4_"] {
     margin-left: 6px !important;
     /* adjust value as needed */
   }
+}
+
+
+@media (max-width: 600px) {
+
+  h1 {
+    margin-top: 60px;
+    margin-bottom: 20px;
+  }
+
+}
