@@ -739,25 +739,26 @@ function makeDraggable(el) {
     let pinchOccurred = false;
 
     function startDrag(e) {
-        dragActive = true;
+    dragActive = true;
 
-        el.setPointerCapture(e.pointerId);
+    el.setPointerCapture(e.pointerId);
 
-        if (el.style.display === "none") {
-            el.style.display = "block";
-            removeItemFromRooms(el);
-        }
-
-        startX = e.clientX;
-        startY = e.clientY;
-
-        const rect = el.getBoundingClientRect();
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
-
-        el.zIndex = getNextZIndex();
-        el.style.zIndex = String(el.zIndex);
+    if (el.style.display === "none") {
+        el.style.display = "block";
+        removeItemFromRooms(el);
     }
+
+    // Use parent rect + current style.left/top so drag starts from current position
+    const parentRect = el.parentElement.getBoundingClientRect();
+    const currentLeft = parseFloat(el.style.left) || 0;
+    const currentTop  = parseFloat(el.style.top)  || 0;
+
+    offsetX = e.clientX - (parentRect.left + currentLeft);
+    offsetY = e.clientY - (parentRect.top  + currentTop);
+
+    el.zIndex = getNextZIndex();
+    el.style.zIndex = String(el.zIndex);
+}
 
     /* ----------------------------------------------------
        POINTER DOWN
