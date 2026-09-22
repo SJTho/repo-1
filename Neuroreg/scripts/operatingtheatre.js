@@ -696,6 +696,7 @@ function makeDraggable(el) {
     let activePointers = new Map();   // pointerId → { x, y }
     let initialPinchDistance = null;
     let initialPinchScale = null;
+    let pinchCooldownUntil = 0;
 
     function startDrag(e) {
         dragActive = true;
@@ -818,6 +819,10 @@ function makeDraggable(el) {
             initialPinchScale = null;
         }
 
+        // ⭐ Prevent double‑tap flip immediately after pinch
+pinchCooldownUntil = Date.now() + 300;   // 300ms cooldown
+
+
         if (dragActive) {
             dragActive = false;
             clearRoomHighlights();
@@ -829,18 +834,25 @@ function makeDraggable(el) {
 
         // ⭐ Touch double‑tap flip
         if (e.pointerType === "touch") {
-            if (now - lastTapTime < 250) {
-                const before = el.dataset.flipped;
-                const after = before === "true" ? "false" : "true";
 
-                el.dataset.flipped = after;
-                applyTransform(el);
-                scheduleSave(el);
-            }
-            lastTapTime = now;
-        } else {
-            lastTapTime = now;
-        }
+    // ⭐ Block flips during pinch cooldown
+    if (now < pinchCooldownUntil) {
+        lastTapTime = now;   // reset tap timer
+        return;
+    }
+
+    // Normal double‑tap flip
+    if (now - lastTapTime < 250) {
+        const before = el.dataset.flipped;
+        const after = before === "true" ? "false" : "true";
+
+        el.dataset.flipped = after;
+        applyTransform(el);
+        scheduleSave(el);
+    }
+
+    lastTapTime = now;
+}
 
         el.releasePointerCapture(e.pointerId);
     });
@@ -857,6 +869,9 @@ function makeDraggable(el) {
             initialPinchDistance = null;
             initialPinchScale = null;
         }
+        // ⭐ Prevent double‑tap flip immediately after pinch
+pinchCooldownUntil = Date.now() + 300;   // 300ms cooldown
+
 
         dragActive = false;
         clearRoomHighlights();
