@@ -537,25 +537,6 @@ async function restoreItemStates() {
 
 
 
-    
-    console.log("BEFORE REFRESH", {
-  scale: el.scale,
-  virtualLeft: el.virtualLeft,
-  virtualTop: el.virtualTop,
-  baselineFactor,
-  pixelLeft: el.style.left,
-  pixelTop: el.style.top,
-});
-
-console.log("AFTER RESTORE", {
-  scale: el.scale,
-  virtualLeft: el.virtualLeft,
-  virtualTop: el.virtualTop,
-  baselineFactor,
-  pixelLeft: el.style.left,
-  pixelTop: el.style.top,
-});
-
 
 
 
@@ -605,23 +586,6 @@ async function saveItemState(el) {
     dispatchTheatreChanged();
 
 
-console.log("BEFORE REFRESH", {
-  scale: el.scale,
-  virtualLeft: el.virtualLeft,
-  virtualTop: el.virtualTop,
-  baselineFactor,
-  pixelLeft: el.style.left,
-  pixelTop: el.style.top,
-});
-
-console.log("AFTER RESTORE", {
-  scale: el.scale,
-  virtualLeft: el.virtualLeft,
-  virtualTop: el.virtualTop,
-  baselineFactor,
-  pixelLeft: el.style.left,
-  pixelTop: el.style.top,
-});
 
 
 }
