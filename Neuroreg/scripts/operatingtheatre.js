@@ -480,20 +480,23 @@ async function restoreItemStates() {
 
         const wrapper = document.getElementById("theatreWrapper");
         const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) : BASELINE_THEATRE_WIDTH;
-        const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
+
+        // ⭐ Correct baseline factor (matches drag math)
+        const baselineFactor = width / BASELINE_THEATRE_WIDTH;
 
         const sw = el.startingWidth;
         const sh = el.startingHeight;
 
-        el.virtualWidth = sw;
+        el.virtualWidth  = sw;
         el.virtualHeight = sh;
-        el.virtualScale = state.scale;
-        el.scale = state.scale;
+        el.virtualScale  = state.scale;
+        el.scale         = state.scale;
 
         el.dataset.flipped = state.flip ? "true" : "false";
 
-        el.style.width = (sw * factor) + "px";
-        el.style.height = (sh * factor) + "px";
+        // ⭐ Correct responsive size (no scale multiplier)
+        el.style.width  = (sw * baselineFactor) + "px";
+        el.style.height = (sh * baselineFactor) + "px";
 
         if (state.store) {
             const room = (el.dataset.category === "staff")
@@ -510,18 +513,16 @@ async function restoreItemStates() {
         el.dataset.location = "theatre";
 
         el.virtualLeft = state.left;
-        el.virtualTop = state.top;
-        el.zIndex = state.z ?? 1;
+        el.virtualTop  = state.top;
+        el.zIndex      = state.z ?? 1;
 
         el.style.display = "block";
 
+        const scale = Number(el.dataset.scale ?? el.scale ?? 1);
 
-     const scale = Number(el.dataset.scale ?? el.scale ?? 1);
-
-el.style.left = (el.virtualLeft * factor * scale) + "px";
-el.style.top  = (el.virtualTop  * factor * scale) + "px";
-
-
+        // ⭐ Correct restore position (matches drag math exactly)
+        el.style.left = (el.virtualLeft * baselineFactor * scale) + "px";
+        el.style.top  = (el.virtualTop  * baselineFactor * scale) + "px";
 
         el.style.zIndex = String(el.zIndex);
 
@@ -1009,9 +1010,6 @@ function clearRoomHighlights() {
         room.classList.remove("drag-over");
     });
 }
-
-
-
 
 function attemptRoomDrop(el) {
     const elRect = el.getBoundingClientRect();
