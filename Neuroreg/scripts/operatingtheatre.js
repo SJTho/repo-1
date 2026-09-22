@@ -832,13 +832,15 @@ if (activePointers.size === 2 && initialPinchDistance !== null) {
 
     applyTransform(el);
 
-    // ⭐ Keep centre fixed
+    // ⭐ Update baseline-space size to match scaled size
+    el.virtualWidth  = el.startingWidth  * newScale;
+    el.virtualHeight = el.startingHeight * newScale;
+
+    // ⭐ Keep centre fixed when scaling
     const wrapper = document.getElementById("theatreWrapper");
     if (wrapper) {
         const theatreWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
         const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
-
-        const parentRect = el.parentElement.getBoundingClientRect();
 
         const pixelLeft = parseFloat(el.style.left) || 0;
         const pixelTop  = parseFloat(el.style.top)  || 0;
