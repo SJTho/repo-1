@@ -803,9 +803,13 @@ function makeDraggable(el) {
     ---------------------------------------------------- */
     el.addEventListener("pointermove", (e) => {
        
-        
-       // ⭐ PINCH ZOOM
+
+/* ----------------------------------------------------
+   PINCH ZOOM (Corrected)
+---------------------------------------------------- */
 if (activePointers.size === 2 && initialPinchDistance !== null) {
+
+    // Update pointer positions
     activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
     const pts = [...activePointers.values()];
@@ -814,41 +818,50 @@ if (activePointers.size === 2 && initialPinchDistance !== null) {
         pts[0].y - pts[1].y
     );
 
+    // Compute new scale
     const ratio = newDistance / initialPinchDistance;
     const newScale = Math.max(0.3, Math.min(3, initialPinchScale * ratio));
 
+    // Apply scale
     el.dataset.scale = String(newScale);
     el.scale = newScale;
 
+    // ⭐ Keep baseline-space size in sync with visual size
+    el.virtualWidth  = el.startingWidth  * newScale;
+    el.virtualHeight = el.startingHeight * newScale;
+
     applyTransform(el);
 
-   // ⭐ Recompute baseline-space position from visual top-left
-const wrapper = document.getElementById("theatreWrapper");
-if (wrapper) {
-    const baselineFactor =
-        (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
+    // ⭐ Preserve visual position (no movement)
+    const wrapper = document.getElementById("theatreWrapper");
+    if (wrapper) {
 
-    const parentRect = el.parentElement.getBoundingClientRect();
-    const rect = el.getBoundingClientRect();
+        const baselineFactor =
+            (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
 
-    // Layout box (unscaled)
-    const layoutWidth  = el.offsetWidth;
-    const layoutHeight = el.offsetHeight;
+        const parentRect = el.parentElement.getBoundingClientRect();
+        const rect = el.getBoundingClientRect();
 
-    // Visual box (scaled)
-    const pixelWidth  = layoutWidth  * newScale;
-    const pixelHeight = layoutHeight * newScale;
+        // Layout box (unscaled)
+        const layoutWidth  = el.offsetWidth;
+        const layoutHeight = el.offsetHeight;
 
-    // Visual top-left = layout top-left minus half the scale expansion
-    const visualLeft = rect.left - parentRect.left - ((pixelWidth  - layoutWidth)  / 2);
-    const visualTop  = rect.top  - parentRect.top  - ((pixelHeight - layoutHeight) / 2);
+        // Visual box (scaled)
+        const pixelWidth  = layoutWidth  * newScale;
+        const pixelHeight = layoutHeight * newScale;
 
-    el.virtualLeft = visualLeft / (baselineFactor * newScale);
-    el.virtualTop  = visualTop  / (baselineFactor * newScale);
+        // ⭐ Visual top-left = layout top-left minus half the scale expansion
+        const visualLeft = rect.left - parentRect.left - ((pixelWidth  - layoutWidth)  / 2);
+        const visualTop  = rect.top  - parentRect.top  - ((pixelHeight - layoutHeight) / 2);
 
-    el.style.left = visualLeft + "px";
-    el.style.top  = visualTop + "px";
-}
+        // ⭐ Convert pixel → baseline-space top-left
+        el.virtualLeft = visualLeft / (baselineFactor * newScale);
+        el.virtualTop  = visualTop  / (baselineFactor * newScale);
+
+        // Apply pixel position
+        el.style.left = visualLeft + "px";
+        el.style.top  = visualTop + "px";
+    }
 
     scheduleSave(el);
     return; // prevent drag logic from running
@@ -982,10 +995,12 @@ el.addEventListener("wheel", (e) => {
     el.dataset.scale = String(newScale);
     el.scale = newScale;
 
-    // Just apply scale; do NOT change left/top or virtualLeft/virtualTop
+    // ⭐ Keep baseline size in sync with visual size
+    el.virtualWidth  = el.startingWidth  * newScale;
+    el.virtualHeight = el.startingHeight * newScale;
+
     applyTransform(el);
 
-    // Position is already correct in baseline-space; keep it
     scheduleSave(el);
 }, { passive: false });
 
