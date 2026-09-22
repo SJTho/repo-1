@@ -1318,36 +1318,30 @@ function applyResponsiveLayout() {
             el.virtualTop    = el.virtualTop    ?? 0;
             el.virtualWidth  = el.virtualWidth  ?? el.startingWidth;
             el.virtualHeight = el.virtualHeight ?? el.startingHeight;
-            el.virtualScale  = el.virtualScale  ?? el.scale ?? 1;
+            el.virtualScale  = el.virtualScale  ?? (Number(el.dataset.scale ?? el.scale ?? 1) || 1);
         });
 
         return;
     }
 
-    const responsiveFactor = currentWidth / initialTheatreWidth;
+    // ⭐ MUST MATCH DRAG + RESTORE BASELINE
+    const baselineFactor = currentWidth / BASELINE_THEATRE_WIDTH;
 
     document.querySelectorAll(".equipmentItem").forEach(el => {
-
-        // Baseline values
         const vLeft   = el.virtualLeft;
         const vTop    = el.virtualTop;
         const vWidth  = el.virtualWidth;
         const vHeight = el.virtualHeight;
+        const scale   = Number(el.dataset.scale ?? el.scale ?? 1);
 
-        // Combined scale = user zoom × responsive scale
-        const finalScale = el.virtualScale * responsiveFactor;
+        // ⭐ Size = baseline × user scale
+        el.style.width  = (vWidth  * baselineFactor * scale) + "px";
+        el.style.height = (vHeight * baselineFactor * scale) + "px";
 
-        // Correct size scaling
-        el.style.width  = (vWidth  * finalScale) + "px";
-        el.style.height = (vHeight * finalScale) + "px";
+        // ⭐ Position = baseline × user scale
+        el.style.left = (vLeft * baselineFactor * scale) + "px";
+        el.style.top  = (vTop  * baselineFactor * scale) + "px";
 
-const scale = Number(el.dataset.scale ?? el.scale ?? 1);
-
-// Correct position scaling (must include scale)
-el.style.left = (vLeft * responsiveFactor * scale) + "px";
-el.style.top  = (vTop  * responsiveFactor * scale) + "px";
-
-        // Flip only — NOT size scaling
         applyTransform(el);
     });
 
