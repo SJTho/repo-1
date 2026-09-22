@@ -810,7 +810,7 @@ function makeDraggable(el) {
 
 
 /* ----------------------------------------------------
-   PINCH ZOOM (Corrected)
+   PINCH ZOOM (Final Correct Version)
 ---------------------------------------------------- */
 if (activePointers.size === 2 && initialPinchDistance !== null) {
 
@@ -825,26 +825,46 @@ if (activePointers.size === 2 && initialPinchDistance !== null) {
     const ratio = newDistance / initialPinchDistance;
     const newScale = Math.max(0.3, Math.min(3, initialPinchScale * ratio));
 
+    const currentScale = Number(el.dataset.scale ?? el.scale ?? 1);
+
     el.dataset.scale = String(newScale);
     el.scale = newScale;
 
     applyTransform(el);
 
-    // ⭐ Update baseline-space position to match current pixel position + new scale
+    // ⭐ Keep centre fixed
     const wrapper = document.getElementById("theatreWrapper");
     if (wrapper) {
         const theatreWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
         const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
 
+        const parentRect = el.parentElement.getBoundingClientRect();
+
         const pixelLeft = parseFloat(el.style.left) || 0;
         const pixelTop  = parseFloat(el.style.top)  || 0;
 
-        el.virtualLeft = pixelLeft / (baselineFactor * newScale);
-        el.virtualTop  = pixelTop  / (baselineFactor * newScale);
+        const layoutWidth  = el.offsetWidth;
+        const layoutHeight = el.offsetHeight;
+
+        // Current visual centre
+        const centerX = pixelLeft + (layoutWidth  * currentScale) / 2;
+        const centerY = pixelTop  + (layoutHeight * currentScale) / 2;
+
+        // New pixel top-left to keep centre fixed
+        const newPixelLeft = centerX - (layoutWidth  * newScale) / 2;
+        const newPixelTop  = centerY - (layoutHeight * newScale) / 2;
+
+        // Convert to baseline-space
+        el.virtualLeft = newPixelLeft / (baselineFactor * newScale);
+        el.virtualTop  = newPixelTop  / (baselineFactor * newScale);
+
+        // Apply pixel position
+        el.style.left = newPixelLeft + "px";
+        el.style.top  = newPixelTop + "px";
     }
 
     scheduleSave(el);
-    return; // prevent drag logic from running
+    return;
 }
 
 
