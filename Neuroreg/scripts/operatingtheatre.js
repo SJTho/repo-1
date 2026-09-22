@@ -810,7 +810,7 @@ function makeDraggable(el) {
 
 
 /* ----------------------------------------------------
-   PINCH ZOOM (Final Correct Version)
+   PINCH ZOOM (Aligned with restore)
 ---------------------------------------------------- */
 if (activePointers.size === 2 && initialPinchDistance !== null) {
 
@@ -832,35 +832,26 @@ if (activePointers.size === 2 && initialPinchDistance !== null) {
 
     applyTransform(el);
 
-    // ⭐ Update baseline-space size to match scaled size
-    el.virtualWidth  = el.startingWidth  * newScale;
-    el.virtualHeight = el.startingHeight * newScale;
-
-    // ⭐ Keep centre fixed when scaling
     const wrapper = document.getElementById("theatreWrapper");
     if (wrapper) {
-        const theatreWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
+        const theatreWidth   = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
         const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
 
         const pixelLeft = parseFloat(el.style.left) || 0;
         const pixelTop  = parseFloat(el.style.top)  || 0;
 
-        const layoutWidth  = el.offsetWidth;
-        const layoutHeight = el.offsetHeight;
+        const baselineWidth  = el.startingWidth  * baselineFactor;
+        const baselineHeight = el.startingHeight * baselineFactor;
 
-        // Current visual centre
-        const centerX = pixelLeft + (layoutWidth  * currentScale) / 2;
-        const centerY = pixelTop  + (layoutHeight * currentScale) / 2;
+        const centerX = pixelLeft + (baselineWidth  * currentScale) / 2;
+        const centerY = pixelTop  + (baselineHeight * currentScale) / 2;
 
-        // New pixel top-left to keep centre fixed
-        const newPixelLeft = centerX - (layoutWidth  * newScale) / 2;
-        const newPixelTop  = centerY - (layoutHeight * newScale) / 2;
+        const newPixelLeft = centerX - (baselineWidth  * newScale) / 2;
+        const newPixelTop  = centerY - (baselineHeight * newScale) / 2;
 
-        // Convert to baseline-space
         el.virtualLeft = newPixelLeft / (baselineFactor * newScale);
         el.virtualTop  = newPixelTop  / (baselineFactor * newScale);
 
-        // Apply pixel position
         el.style.left = newPixelLeft + "px";
         el.style.top  = newPixelTop + "px";
     }
@@ -989,7 +980,7 @@ if (pinchOccurred) {
 
 
 /* ----------------------------------------------------
-   DESKTOP WHEEL ZOOM (Final Correct Version)
+   DESKTOP WHEEL ZOOM (Aligned with restore)
 ---------------------------------------------------- */
 el.addEventListener("wheel", (e) => {
     if (dragActive) return;
@@ -1010,42 +1001,36 @@ el.addEventListener("wheel", (e) => {
 
     applyTransform(el);
 
-    // ⭐ Update baseline-space size to match scaled size
-    el.virtualWidth  = el.startingWidth  * newScale;
-    el.virtualHeight = el.startingHeight * newScale;
-
-    // ⭐ Keep centre fixed when scaling
     const wrapper = document.getElementById("theatreWrapper");
     if (wrapper) {
-        const theatreWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
+        const theatreWidth   = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
         const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
 
         const pixelLeft = parseFloat(el.style.left) || 0;
         const pixelTop  = parseFloat(el.style.top)  || 0;
 
-        const layoutWidth  = el.offsetWidth;
-        const layoutHeight = el.offsetHeight;
+        // Baseline (unscaled) width/height used by restore
+        const baselineWidth  = el.startingWidth  * baselineFactor;
+        const baselineHeight = el.startingHeight * baselineFactor;
 
         // Current visual centre
-        const centerX = pixelLeft + (layoutWidth  * currentScale) / 2;
-        const centerY = pixelTop  + (layoutHeight * currentScale) / 2;
+        const centerX = pixelLeft + (baselineWidth  * currentScale) / 2;
+        const centerY = pixelTop  + (baselineHeight * currentScale) / 2;
 
         // New pixel top-left to keep centre fixed
-        const newPixelLeft = centerX - (layoutWidth  * newScale) / 2;
-        const newPixelTop  = centerY - (layoutHeight * newScale) / 2;
+        const newPixelLeft = centerX - (baselineWidth  * newScale) / 2;
+        const newPixelTop  = centerY - (baselineHeight * newScale) / 2;
 
-        // Convert to baseline-space
+        // Baseline-space top-left (what restore uses)
         el.virtualLeft = newPixelLeft / (baselineFactor * newScale);
         el.virtualTop  = newPixelTop  / (baselineFactor * newScale);
 
-        // Apply pixel position
         el.style.left = newPixelLeft + "px";
         el.style.top  = newPixelTop + "px";
     }
 
     scheduleSave(el);
 }, { passive: false });
-
 
 
 
