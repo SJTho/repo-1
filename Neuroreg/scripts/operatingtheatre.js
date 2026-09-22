@@ -802,27 +802,48 @@ function makeDraggable(el) {
        POINTER MOVE
     ---------------------------------------------------- */
     el.addEventListener("pointermove", (e) => {
-        // ⭐ PINCH ZOOM
-        if (activePointers.size === 2 && initialPinchDistance !== null) {
-            activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+       
+        
+       // ⭐ PINCH ZOOM
+if (activePointers.size === 2 && initialPinchDistance !== null) {
+    activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-            const pts = [...activePointers.values()];
-            const newDistance = Math.hypot(
-                pts[0].x - pts[1].x,
-                pts[0].y - pts[1].y
-            );
+    const pts = [...activePointers.values()];
+    const newDistance = Math.hypot(
+        pts[0].x - pts[1].x,
+        pts[0].y - pts[1].y
+    );
 
-            const ratio = newDistance / initialPinchDistance;
-            const newScale = Math.max(0.3, Math.min(3, initialPinchScale * ratio));
+    const ratio = newDistance / initialPinchDistance;
+    const newScale = Math.max(0.3, Math.min(3, initialPinchScale * ratio));
 
-            el.dataset.scale = String(newScale);
-            el.scale = newScale;
+    el.dataset.scale = String(newScale);
+    el.scale = newScale;
 
-            applyTransform(el);
-            scheduleSave(el);
+    applyTransform(el);
 
-            return; // prevent drag logic from running
-        }
+    // ⭐ Recompute baseline-space position from current visual rect
+    const wrapper = document.getElementById("theatreWrapper");
+    if (wrapper) {
+        const baselineFactor =
+            (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
+
+        const parentRect = el.parentElement.getBoundingClientRect();
+        const rect = el.getBoundingClientRect();
+
+        const pixelLeft = rect.left - parentRect.left;
+        const pixelTop  = rect.top  - parentRect.top;
+
+        el.virtualLeft = pixelLeft / (baselineFactor * newScale);
+        el.virtualTop  = pixelTop  / (baselineFactor * newScale);
+
+        el.style.left = pixelLeft + "px";
+        el.style.top  = pixelTop  + "px";
+    }
+
+    scheduleSave(el);
+    return; // prevent drag logic from running
+}
 
         if (!dragActive) return;
 
@@ -935,26 +956,46 @@ if (pinchOccurred) {
     /* ----------------------------------------------------
        DESKTOP WHEEL ZOOM
     ---------------------------------------------------- */
-    el.addEventListener("wheel", (e) => {
-        if (dragActive) return;
-        e.preventDefault();
+el.addEventListener("wheel", (e) => {
+    if (dragActive) return;
+    e.preventDefault();
 
-        if (Math.abs(e.deltaY) < 5) return;
+    if (Math.abs(e.deltaY) < 5) return;
 
-        const now = Date.now();
-        if (now - (el._lastWheelTime || 0) < 40) return;
-        el._lastWheelTime = now;
+    const now = Date.now();
+    if (now - (el._lastWheelTime || 0) < 40) return;
+    el._lastWheelTime = now;
 
-        const currentScale = Number(el.dataset.scale ?? el.scale ?? 1);
-        const delta = e.deltaY < 0 ? 1.02 : 0.98;
-        const newScale = Math.max(0.3, Math.min(3, currentScale * delta));
+    const currentScale = Number(el.dataset.scale ?? el.scale ?? 1);
+    const delta = e.deltaY < 0 ? 1.02 : 0.98;
+    const newScale = Math.max(0.3, Math.min(3, currentScale * delta));
 
-        el.dataset.scale = String(newScale);
-        el.scale = newScale;
+    el.dataset.scale = String(newScale);
+    el.scale = newScale;
 
-        applyTransform(el);
-        scheduleSave(el);
-    }, { passive: false });
+    applyTransform(el);
+
+    // ⭐ Recompute baseline-space position from current visual rect
+    const wrapper = document.getElementById("theatreWrapper");
+    if (wrapper) {
+        const baselineFactor =
+            (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
+
+        const parentRect = el.parentElement.getBoundingClientRect();
+        const rect = el.getBoundingClientRect();
+
+        const pixelLeft = rect.left - parentRect.left;
+        const pixelTop  = rect.top  - parentRect.top;
+
+        el.virtualLeft = pixelLeft / (baselineFactor * newScale);
+        el.virtualTop  = pixelTop  / (baselineFactor * newScale);
+
+        el.style.left = pixelLeft + "px";
+        el.style.top  = pixelTop + "px";
+    }
+
+    scheduleSave(el);
+}, { passive: false });
 
     /* ----------------------------------------------------
        DESKTOP DOUBLE CLICK FLIP
