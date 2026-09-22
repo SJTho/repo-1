@@ -533,6 +533,7 @@ async function restoreItemStates() {
     updateCategoryButtonColours();
     dispatchTheatreChanged();
 }
+
 /* ----------------------------------------------------
    Save location of draggable items
 ---------------------------------------------------- */
@@ -847,6 +848,11 @@ function makeDraggable(el) {
         highlightRoomOnHover(el);
     });
 
+
+
+
+
+
     /* ----------------------------------------------------
        POINTER UP
     ---------------------------------------------------- */
@@ -899,6 +905,12 @@ if (pinchOccurred) {
 
         el.releasePointerCapture(e.pointerId);
     });
+
+
+
+
+
+
 
     /* ----------------------------------------------------
        POINTER CANCEL
@@ -1080,8 +1092,6 @@ function attemptRoomDrop(el) {
     dispatchTheatreChanged();
 }
 
-
-
 /* ----------------------------------------------------
    Thumbnail Drag-Out System
 ---------------------------------------------------- */
@@ -1201,15 +1211,23 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         const parentRect = equipmentContainer.getBoundingClientRect();
 
-        const left = dropX - parentRect.left - (sw * factor / 2);
-        const top = dropY - parentRect.top - (sh * factor / 2);
+   // Correct baseline factor
+const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
 
-        originalEl.virtualLeft = left / factor;
-        originalEl.virtualTop = top / factor;
+// Current scale of the item
+const scale = Number(originalEl.dataset.scale ?? originalEl.scale ?? 1);
 
-        originalEl.style.left = left + "px";
-        originalEl.style.top = top + "px";
+// Compute pixel top-left from centre drop (correct)
+const pixelLeft = dropX - parentRect.left - ((sw * baselineFactor * scale) / 2);
+const pixelTop  = dropY - parentRect.top  - ((sh * baselineFactor * scale) / 2);
 
+// Convert pixel → baseline-space top-left (correct)
+originalEl.virtualLeft = pixelLeft / (baselineFactor * scale);
+originalEl.virtualTop  = pixelTop  / (baselineFactor * scale);
+
+// Apply pixel position
+originalEl.style.left = pixelLeft + "px";
+originalEl.style.top  = pixelTop + "px";
         originalEl.dataset.location = "theatre";
 
         applyTransform(originalEl);
