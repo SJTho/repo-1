@@ -849,11 +849,6 @@ function makeDraggable(el) {
         highlightRoomOnHover(el);
     });
 
-
-
-
-
-
     /* ----------------------------------------------------
        POINTER UP
     ---------------------------------------------------- */
@@ -1205,30 +1200,33 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         originalEl.virtualScale = originalEl.scale;
 
         const theatreWidth = theatre.clientWidth || BASELINE_THEATRE_WIDTH;
-        const factor = initialTheatreWidth ? theatreWidth / initialTheatreWidth : 1;
-
-        originalEl.style.width = (sw * factor) + "px";
-        originalEl.style.height = (sh * factor) + "px";
-
         const parentRect = equipmentContainer.getBoundingClientRect();
 
-   // Correct baseline factor
-const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
+        // Correct baseline factor (same as restore + responsive layout)
+        const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
 
-// Current scale of the item
-const scale = Number(originalEl.dataset.scale ?? originalEl.scale ?? 1);
+        // Current user scale
+        const scale = Number(originalEl.dataset.scale ?? originalEl.scale ?? 1);
 
-// Compute pixel top-left from centre drop (correct)
-const pixelLeft = dropX - parentRect.left - ((sw * baselineFactor * scale) / 2);
-const pixelTop  = dropY - parentRect.top  - ((sh * baselineFactor * scale) / 2);
+        // Correct pixel size
+        const pixelWidth  = sw * baselineFactor * scale;
+        const pixelHeight = sh * baselineFactor * scale;
 
-// Convert pixel → baseline-space top-left (correct)
-originalEl.virtualLeft = pixelLeft / (baselineFactor * scale);
-originalEl.virtualTop  = pixelTop  / (baselineFactor * scale);
+        originalEl.style.width  = pixelWidth + "px";
+        originalEl.style.height = pixelHeight + "px";
 
-// Apply pixel position
-originalEl.style.left = pixelLeft + "px";
-originalEl.style.top  = pixelTop + "px";
+        // Compute pixel top-left from centre drop
+        const pixelLeft = dropX - parentRect.left - (pixelWidth  / 2);
+        const pixelTop  = dropY - parentRect.top  - (pixelHeight / 2);
+
+        // Convert pixel → baseline-space top-left
+        originalEl.virtualLeft = pixelLeft / (baselineFactor * scale);
+        originalEl.virtualTop  = pixelTop  / (baselineFactor * scale);
+
+        // Apply pixel position
+        originalEl.style.left = pixelLeft + "px";
+        originalEl.style.top  = pixelTop + "px";
+
         originalEl.dataset.location = "theatre";
 
         applyTransform(originalEl);
