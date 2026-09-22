@@ -982,8 +982,13 @@ if (pinchOccurred) {
         el.releasePointerCapture(e.pointerId);
     });
 
+
+
+
+
+
 /* ----------------------------------------------------
-   DESKTOP WHEEL ZOOM
+   DESKTOP WHEEL ZOOM (Final Correct Version)
 ---------------------------------------------------- */
 el.addEventListener("wheel", (e) => {
     if (dragActive) return;
@@ -1004,7 +1009,7 @@ el.addEventListener("wheel", (e) => {
 
     applyTransform(el);
 
-    // ⭐ Update baseline-space position to match current pixel position + new scale
+    // ⭐ Keep centre fixed when scaling
     const wrapper = document.getElementById("theatreWrapper");
     if (wrapper) {
         const theatreWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
@@ -1013,12 +1018,34 @@ el.addEventListener("wheel", (e) => {
         const pixelLeft = parseFloat(el.style.left) || 0;
         const pixelTop  = parseFloat(el.style.top)  || 0;
 
-        el.virtualLeft = pixelLeft / (baselineFactor * newScale);
-        el.virtualTop  = pixelTop  / (baselineFactor * newScale);
+        const layoutWidth  = el.offsetWidth;
+        const layoutHeight = el.offsetHeight;
+
+        // Current visual centre
+        const centerX = pixelLeft + (layoutWidth  * currentScale) / 2;
+        const centerY = pixelTop  + (layoutHeight * currentScale) / 2;
+
+        // New pixel top-left to keep centre fixed
+        const newPixelLeft = centerX - (layoutWidth  * newScale) / 2;
+        const newPixelTop  = centerY - (layoutHeight * newScale) / 2;
+
+        // Convert to baseline-space
+        el.virtualLeft = newPixelLeft / (baselineFactor * newScale);
+        el.virtualTop  = newPixelTop  / (baselineFactor * newScale);
+
+        // Apply pixel position
+        el.style.left = newPixelLeft + "px";
+        el.style.top  = newPixelTop + "px";
     }
 
     scheduleSave(el);
 }, { passive: false });
+
+
+
+
+
+
 
     /* ----------------------------------------------------
        DESKTOP DOUBLE CLICK FLIP
