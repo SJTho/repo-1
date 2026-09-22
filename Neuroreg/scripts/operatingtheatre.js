@@ -756,25 +756,26 @@ el.virtualTop  = top  / baselineFactor;
         el.releasePointerCapture(e.pointerId);
     });
 
-    el.addEventListener("wheel", (e) => {
-        if (dragActive) return;
-        e.preventDefault();
+   el.addEventListener("wheel", (e) => {
+    if (dragActive) return;
+    e.preventDefault();
 
-        if (Math.abs(e.deltaY) < 5) return;
+    if (Math.abs(e.deltaY) < 5) return;
 
-        const now = Date.now();
-        if (now - (el._lastWheelTime || 0) < 40) return;
-        el._lastWheelTime = now;
+    const now = Date.now();
+    if (now - (el._lastWheelTime || 0) < 40) return;
+    el._lastWheelTime = now;
 
-        const delta = e.deltaY < 0 ? 1.02 : 0.98;
-        const newScale = Math.max(0.3, Math.min(3, el.scale * delta));
+    const currentScale = Number(el.dataset.scale ?? el.scale ?? 1);
+    const delta = e.deltaY < 0 ? 1.02 : 0.98;
+    const newScale = Math.max(0.3, Math.min(3, currentScale * delta));
 
-        el.scale = newScale;
-        el.virtualScale = newScale;
+    el.dataset.scale = String(newScale);
+    el.scale = newScale;
 
-        applyTransform(el);
-        scheduleSave(el);
-    }, { passive: false });
+    applyTransform(el);
+    scheduleSave(el);
+}, { passive: false });
 
     el.addEventListener("dblclick", () => {
         const before = el.dataset.flipped;
@@ -787,11 +788,13 @@ el.virtualTop  = top  / baselineFactor;
 }
 
 function applyTransform(el) {
+    const scale = Number(el.dataset.scale ?? el.scale ?? 1);
     const flipped = el.dataset.flipped === "true";
-    const flipFactor = flipped ? -1 : 1;
+
+    const flip = flipped ? "rotateY(180deg)" : "";
 
     el.style.transformOrigin = "center center";
-    el.style.transform = `scale(${flipFactor}, 1)`;  // flip only
+    el.style.transform = `${flip} scale(${scale})`;
 }
 
 function getNextZIndex() {
