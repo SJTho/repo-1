@@ -55,6 +55,29 @@ async function initOperatingTheatre() {
         return;
     }
 
+    suppressRoomScrolling();   // ⭐ NOW IT RUNS
+
+    enforceLandscapeMessage();
+    setupHamburgerToggle();
+    ...
+}
+
+function suppressRoomScrolling() {
+    const rooms = document.querySelectorAll(".roomPanel");
+
+    rooms.forEach(room => {
+        room.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        room.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+        }, { passive: false });
+    });
+}
+
+    }
+
     enforceLandscapeMessage();
     setupHamburgerToggle();
 
