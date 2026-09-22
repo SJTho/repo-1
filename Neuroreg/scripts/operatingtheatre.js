@@ -688,11 +688,15 @@ function makeDraggable(el) {
     let startY = 0;
     let offsetX = 0;
     let offsetY = 0;
-
     let lastTapTime = 0;
 
-    el.addEventListener("pointerdown", (e) => {
-        if (e.button !== 0) return;
+    /* ⭐ NEW: pinch detection */
+    let pinchCandidate = false;
+    let pinchTimeout = null;
+    let activePointers = new Set();
+
+    function startDrag(e) {
+        dragActive = true;
 
         el.setPointerCapture(e.pointerId);
 
@@ -708,11 +712,42 @@ function makeDraggable(el) {
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
 
-        dragActive = true;
         el.zIndex = getNextZIndex();
         el.style.zIndex = String(el.zIndex);
+    }
+
+    function startPinch() {
+        dragActive = false;   // suppress drag
+    }
+
+    /* ----------------------------------------------------
+       POINTER DOWN
+    ---------------------------------------------------- */
+    el.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0) return;
+
+        activePointers.add(e.pointerId);
+
+        // First finger → wait briefly to see if a second arrives
+        if (activePointers.size === 1) {
+            pinchCandidate = true;
+
+            pinchTimeout = setTimeout(() => {
+                if (pinchCandidate) {
+                    startDrag(e);
+                }
+            }, 80); // 60–100ms typical
+        } else {
+            // Second finger → pinch gesture
+            pinchCandidate = false;
+            clearTimeout(pinchTimeout);
+            startPinch();
+        }
     });
 
+    /* ----------------------------------------------------
+       POINTER MOVE
+    ---------------------------------------------------- */
     el.addEventListener("pointermove", (e) => {
         if (!dragActive) return;
 
@@ -728,9 +763,10 @@ function makeDraggable(el) {
         const top = e.clientY - offsetY - parentRect.top;
 
         const baselineFactor = (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
+        const scale = Number(el.dataset.scale ?? el.scale ?? 1);
 
-el.virtualLeft = left / baselineFactor;
-el.virtualTop  = top  / baselineFactor;
+        el.virtualLeft = (left / scale) / baselineFactor;
+        el.virtualTop  = (top  / scale) / baselineFactor;
 
         el.style.left = left + "px";
         el.style.top = top + "px";
@@ -738,61 +774,81 @@ el.virtualTop  = top  / baselineFactor;
         highlightRoomOnHover(el);
     });
 
-   el.addEventListener("pointerup", (e) => {
-    if (dragActive) {
-        dragActive = false;
-        clearRoomHighlights();
-        attemptRoomDrop(el);
-        scheduleSave(el);
-    }
+    /* ----------------------------------------------------
+       POINTER UP
+    ---------------------------------------------------- */
+    el.addEventListener("pointerup", (e) => {
+        activePointers.delete(e.pointerId);
+        pinchCandidate = false;
+        clearTimeout(pinchTimeout);
 
-    const now = Date.now();
-
-    // Touch double-tap flip
-    if (e.pointerType === "touch") {
-        if (now - lastTapTime < 250) {  // 2nd tap within 250ms
-            const before = el.dataset.flipped;
-            const after = before === "true" ? "false" : "true";
-
-            el.dataset.flipped = after;
-            applyTransform(el);
+        if (dragActive) {
+            dragActive = false;
+            clearRoomHighlights();
+            attemptRoomDrop(el);
             scheduleSave(el);
         }
-        lastTapTime = now;
-    } else {
-        lastTapTime = now;
-    }
 
-    el.releasePointerCapture(e.pointerId);
-});
+        const now = Date.now();
 
+        // ⭐ Touch double‑tap flip
+        if (e.pointerType === "touch") {
+            if (now - lastTapTime < 250) {
+                const before = el.dataset.flipped;
+                const after = before === "true" ? "false" : "true";
+
+                el.dataset.flipped = after;
+                applyTransform(el);
+                scheduleSave(el);
+            }
+            lastTapTime = now;
+        } else {
+            lastTapTime = now;
+        }
+
+        el.releasePointerCapture(e.pointerId);
+    });
+
+    /* ----------------------------------------------------
+       POINTER CANCEL
+    ---------------------------------------------------- */
     el.addEventListener("pointercancel", (e) => {
+        activePointers.delete(e.pointerId);
+        pinchCandidate = false;
+        clearTimeout(pinchTimeout);
+
         dragActive = false;
         clearRoomHighlights();
         el.releasePointerCapture(e.pointerId);
     });
 
-   el.addEventListener("wheel", (e) => {
-    if (dragActive) return;
-    e.preventDefault();
+    /* ----------------------------------------------------
+       DESKTOP WHEEL ZOOM
+    ---------------------------------------------------- */
+    el.addEventListener("wheel", (e) => {
+        if (dragActive) return;
+        e.preventDefault();
 
-    if (Math.abs(e.deltaY) < 5) return;
+        if (Math.abs(e.deltaY) < 5) return;
 
-    const now = Date.now();
-    if (now - (el._lastWheelTime || 0) < 40) return;
-    el._lastWheelTime = now;
+        const now = Date.now();
+        if (now - (el._lastWheelTime || 0) < 40) return;
+        el._lastWheelTime = now;
 
-    const currentScale = Number(el.dataset.scale ?? el.scale ?? 1);
-    const delta = e.deltaY < 0 ? 1.02 : 0.98;
-    const newScale = Math.max(0.3, Math.min(3, currentScale * delta));
+        const currentScale = Number(el.dataset.scale ?? el.scale ?? 1);
+        const delta = e.deltaY < 0 ? 1.02 : 0.98;
+        const newScale = Math.max(0.3, Math.min(3, currentScale * delta));
 
-    el.dataset.scale = String(newScale);
-    el.scale = newScale;
+        el.dataset.scale = String(newScale);
+        el.scale = newScale;
 
-    applyTransform(el);
-    scheduleSave(el);
-}, { passive: false });
+        applyTransform(el);
+        scheduleSave(el);
+    }, { passive: false });
 
+    /* ----------------------------------------------------
+       DESKTOP DOUBLE CLICK FLIP
+    ---------------------------------------------------- */
     el.addEventListener("dblclick", () => {
         const before = el.dataset.flipped;
         const after = before === "true" ? "false" : "true";
@@ -803,6 +859,9 @@ el.virtualTop  = top  / baselineFactor;
     });
 }
 
+/* ----------------------------------------------------
+   Transform (Flip + Scale)
+---------------------------------------------------- */
 function applyTransform(el) {
     const scale = Number(el.dataset.scale ?? el.scale ?? 1);
     const flipped = el.dataset.flipped === "true";
