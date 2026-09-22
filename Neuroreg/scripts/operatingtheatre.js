@@ -822,24 +822,33 @@ if (activePointers.size === 2 && initialPinchDistance !== null) {
 
     applyTransform(el);
 
-    // ⭐ Recompute baseline-space position from current visual rect
-    const wrapper = document.getElementById("theatreWrapper");
-    if (wrapper) {
-        const baselineFactor =
-            (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
+   // ⭐ Recompute baseline-space position from visual top-left
+const wrapper = document.getElementById("theatreWrapper");
+if (wrapper) {
+    const baselineFactor =
+        (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
 
-        const parentRect = el.parentElement.getBoundingClientRect();
-        const rect = el.getBoundingClientRect();
+    const parentRect = el.parentElement.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
 
-        const pixelLeft = rect.left - parentRect.left;
-        const pixelTop  = rect.top  - parentRect.top;
+    // Layout box (unscaled)
+    const layoutWidth  = el.offsetWidth;
+    const layoutHeight = el.offsetHeight;
 
-        el.virtualLeft = pixelLeft / (baselineFactor * newScale);
-        el.virtualTop  = pixelTop  / (baselineFactor * newScale);
+    // Visual box (scaled)
+    const pixelWidth  = layoutWidth  * newScale;
+    const pixelHeight = layoutHeight * newScale;
 
-        el.style.left = pixelLeft + "px";
-        el.style.top  = pixelTop  + "px";
-    }
+    // Visual top-left = layout top-left minus half the scale expansion
+    const visualLeft = rect.left - parentRect.left - ((pixelWidth  - layoutWidth)  / 2);
+    const visualTop  = rect.top  - parentRect.top  - ((pixelHeight - layoutHeight) / 2);
+
+    el.virtualLeft = visualLeft / (baselineFactor * newScale);
+    el.virtualTop  = visualTop  / (baselineFactor * newScale);
+
+    el.style.left = visualLeft + "px";
+    el.style.top  = visualTop + "px";
+}
 
     scheduleSave(el);
     return; // prevent drag logic from running
@@ -975,24 +984,33 @@ el.addEventListener("wheel", (e) => {
 
     applyTransform(el);
 
-    // ⭐ Recompute baseline-space position from current visual rect
-    const wrapper = document.getElementById("theatreWrapper");
-    if (wrapper) {
-        const baselineFactor =
-            (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
+    // ⭐ Recompute baseline-space position from visual top-left
+const wrapper = document.getElementById("theatreWrapper");
+if (wrapper) {
+    const baselineFactor =
+        (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
 
-        const parentRect = el.parentElement.getBoundingClientRect();
-        const rect = el.getBoundingClientRect();
+    const parentRect = el.parentElement.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
 
-        const pixelLeft = rect.left - parentRect.left;
-        const pixelTop  = rect.top  - parentRect.top;
+    // Layout box (unscaled)
+    const layoutWidth  = el.offsetWidth;
+    const layoutHeight = el.offsetHeight;
 
-        el.virtualLeft = pixelLeft / (baselineFactor * newScale);
-        el.virtualTop  = pixelTop  / (baselineFactor * newScale);
+    // Visual box (scaled)
+    const pixelWidth  = layoutWidth  * newScale;
+    const pixelHeight = layoutHeight * newScale;
 
-        el.style.left = pixelLeft + "px";
-        el.style.top  = pixelTop + "px";
-    }
+    // Visual top-left = layout top-left minus half the scale expansion
+    const visualLeft = rect.left - parentRect.left - ((pixelWidth  - layoutWidth)  / 2);
+    const visualTop  = rect.top  - parentRect.top  - ((pixelHeight - layoutHeight) / 2);
+
+    el.virtualLeft = visualLeft / (baselineFactor * newScale);
+    el.virtualTop  = visualTop  / (baselineFactor * newScale);
+
+    el.style.left = visualLeft + "px";
+    el.style.top  = visualTop + "px";
+}
 
     scheduleSave(el);
 }, { passive: false });
