@@ -514,8 +514,15 @@ async function restoreItemStates() {
         el.zIndex = state.z ?? 1;
 
         el.style.display = "block";
-        el.style.left = (el.virtualLeft * factor) + "px";
-        el.style.top = (el.virtualTop * factor) + "px";
+
+
+     const scale = Number(el.dataset.scale ?? el.scale ?? 1);
+
+el.style.left = (el.virtualLeft * factor * scale) + "px";
+el.style.top  = (el.virtualTop  * factor * scale) + "px";
+
+
+
         el.style.zIndex = String(el.zIndex);
 
         applyTransform(el);
@@ -1338,9 +1345,11 @@ function applyResponsiveLayout() {
         el.style.width  = (vWidth  * finalScale) + "px";
         el.style.height = (vHeight * finalScale) + "px";
 
-        // Correct position scaling
-        el.style.left = (vLeft * responsiveFactor) + "px";
-        el.style.top  = (vTop  * responsiveFactor) + "px";
+const scale = Number(el.dataset.scale ?? el.scale ?? 1);
+
+// Correct position scaling (must include scale)
+el.style.left = (vLeft * responsiveFactor * scale) + "px";
+el.style.top  = (vTop  * responsiveFactor * scale) + "px";
 
         // Flip only — NOT size scaling
         applyTransform(el);
