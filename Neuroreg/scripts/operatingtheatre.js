@@ -1009,6 +1009,10 @@ el.addEventListener("wheel", (e) => {
 
     applyTransform(el);
 
+    // ⭐ Update baseline-space size to match scaled size
+    el.virtualWidth  = el.startingWidth  * newScale;
+    el.virtualHeight = el.startingHeight * newScale;
+
     // ⭐ Keep centre fixed when scaling
     const wrapper = document.getElementById("theatreWrapper");
     if (wrapper) {
