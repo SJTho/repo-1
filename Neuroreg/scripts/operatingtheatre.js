@@ -738,17 +738,33 @@ el.virtualTop  = top  / baselineFactor;
         highlightRoomOnHover(el);
     });
 
-    el.addEventListener("pointerup", (e) => {
-        if (dragActive) {
-            dragActive = false;
-            clearRoomHighlights();
-            attemptRoomDrop(el);
+   el.addEventListener("pointerup", (e) => {
+    if (dragActive) {
+        dragActive = false;
+        clearRoomHighlights();
+        attemptRoomDrop(el);
+        scheduleSave(el);
+    }
+
+    const now = Date.now();
+
+    // Touch double-tap flip
+    if (e.pointerType === "touch") {
+        if (now - lastTapTime < 250) {  // 2nd tap within 250ms
+            const before = el.dataset.flipped;
+            const after = before === "true" ? "false" : "true";
+
+            el.dataset.flipped = after;
+            applyTransform(el);
             scheduleSave(el);
         }
+        lastTapTime = now;
+    } else {
+        lastTapTime = now;
+    }
 
-        lastTapTime = Date.now();
-        el.releasePointerCapture(e.pointerId);
-    });
+    el.releasePointerCapture(e.pointerId);
+});
 
     el.addEventListener("pointercancel", (e) => {
         dragActive = false;
