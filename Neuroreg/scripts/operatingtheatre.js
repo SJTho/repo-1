@@ -875,7 +875,6 @@ if (activePointers.size === 2 && initialPinchDistance !== null) {
 
 
 
-
         if (!dragActive) return;
 
         if (e.pointerType === "touch" && e.isPrimary === false) {
