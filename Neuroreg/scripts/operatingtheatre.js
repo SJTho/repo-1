@@ -828,10 +828,6 @@ if (pinchOccurred) {
     pinchOccurred = false;   // reset
         }
 
-        // ⭐ Prevent double‑tap flip immediately after pinch
-pinchCooldownUntil = Date.now() + 300;   // 300ms cooldown
-
-
         if (dragActive) {
             dragActive = false;
             clearRoomHighlights();
@@ -884,9 +880,6 @@ pinchCooldownUntil = Date.now() + 300;   // 300ms cooldown
 
     pinchOccurred = false;
         }
-        // ⭐ Prevent double‑tap flip immediately after pinch
-pinchCooldownUntil = Date.now() + 300;   // 300ms cooldown
-
 
         dragActive = false;
         clearRoomHighlights();
