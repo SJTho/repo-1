@@ -1195,35 +1195,35 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         const sw = originalEl.startingWidth;
         const sh = originalEl.startingHeight;
 
-        originalEl.virtualWidth = sw;
+        // Reset to default baseline size and scale
+        originalEl.virtualWidth  = sw;
         originalEl.virtualHeight = sh;
-        originalEl.virtualScale = originalEl.scale;
+        originalEl.virtualScale  = 1;
+        originalEl.dataset.scale = "1";
+        originalEl.scale = 1;
 
         const theatreWidth = theatre.clientWidth || BASELINE_THEATRE_WIDTH;
         const parentRect = equipmentContainer.getBoundingClientRect();
 
-        // Correct baseline factor (same as restore + responsive layout)
+        // Baseline factor (same as restore + responsive layout)
         const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
+        const scale = 1; // default size when leaving room
 
-        // Current user scale
-        const scale = Number(originalEl.dataset.scale ?? originalEl.scale ?? 1);
-
-        // Correct pixel size
+        // Pixel size from baseline + scale
         const pixelWidth  = sw * baselineFactor * scale;
         const pixelHeight = sh * baselineFactor * scale;
 
         originalEl.style.width  = pixelWidth + "px";
         originalEl.style.height = pixelHeight + "px";
 
-        // Compute pixel top-left from centre drop
+        // Pixel top-left from centre drop
         const pixelLeft = dropX - parentRect.left - (pixelWidth  / 2);
         const pixelTop  = dropY - parentRect.top  - (pixelHeight / 2);
 
-        // Convert pixel → baseline-space top-left
+        // Baseline-space top-left
         originalEl.virtualLeft = pixelLeft / (baselineFactor * scale);
         originalEl.virtualTop  = pixelTop  / (baselineFactor * scale);
 
-        // Apply pixel position
         originalEl.style.left = pixelLeft + "px";
         originalEl.style.top  = pixelTop + "px";
 
