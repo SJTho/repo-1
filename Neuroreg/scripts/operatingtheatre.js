@@ -1192,12 +1192,13 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         equipmentContainer.appendChild(originalEl);
 
+        // ⭐ Reset to default baseline size permanently
         const sw = originalEl.startingWidth;
         const sh = originalEl.startingHeight;
 
-        // Reset to default baseline size and scale
         originalEl.virtualWidth  = sw;
         originalEl.virtualHeight = sh;
+
         originalEl.virtualScale  = 1;
         originalEl.dataset.scale = "1";
         originalEl.scale = 1;
@@ -1205,24 +1206,23 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         const theatreWidth = theatre.clientWidth || BASELINE_THEATRE_WIDTH;
         const parentRect = equipmentContainer.getBoundingClientRect();
 
-        // Baseline factor (same as restore + responsive layout)
+        // ⭐ Correct baseline factor (same used by restore + responsive layout)
         const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
-        const scale = 1; // default size when leaving room
 
-        // Pixel size from baseline + scale
-        const pixelWidth  = sw * baselineFactor * scale;
-        const pixelHeight = sh * baselineFactor * scale;
+        // ⭐ Pixel size from baseline + scale
+        const pixelWidth  = sw * baselineFactor;
+        const pixelHeight = sh * baselineFactor;
 
         originalEl.style.width  = pixelWidth + "px";
         originalEl.style.height = pixelHeight + "px";
 
-        // Pixel top-left from centre drop
+        // ⭐ Pixel top-left from centre drop
         const pixelLeft = dropX - parentRect.left - (pixelWidth  / 2);
         const pixelTop  = dropY - parentRect.top  - (pixelHeight / 2);
 
-        // Baseline-space top-left
-        originalEl.virtualLeft = pixelLeft / (baselineFactor * scale);
-        originalEl.virtualTop  = pixelTop  / (baselineFactor * scale);
+        // ⭐ Convert pixel → baseline-space top-left
+        originalEl.virtualLeft = pixelLeft / baselineFactor;
+        originalEl.virtualTop  = pixelTop  / baselineFactor;
 
         originalEl.style.left = pixelLeft + "px";
         originalEl.style.top  = pixelTop + "px";
