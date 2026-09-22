@@ -697,6 +697,7 @@ function makeDraggable(el) {
     let initialPinchDistance = null;
     let initialPinchScale = null;
     let pinchCooldownUntil = 0;
+    let pinchOccurred = false;
 
     function startDrag(e) {
         dragActive = true;
@@ -739,7 +740,7 @@ function makeDraggable(el) {
         }
 
         // Second finger → begin pinch
-        else if (activePointers.size === 2) {
+        else if (activePointers.size === 2) {            
             pinchCandidate = false;
             clearTimeout(pinchTimeout);
 
@@ -752,6 +753,8 @@ function makeDraggable(el) {
             );
 
             initialPinchScale = Number(el.dataset.scale ?? el.scale ?? 1);
+
+            pinchOccurred = true;
         }
     });
 
@@ -817,6 +820,12 @@ function makeDraggable(el) {
         if (activePointers.size < 2) {
             initialPinchDistance = null;
             initialPinchScale = null;
+
+if (pinchOccurred) {
+        pinchCooldownUntil = Date.now() + 300;   // ⭐ only after real pinch
+    }
+
+    pinchOccurred = false;   // reset
         }
 
         // ⭐ Prevent double‑tap flip immediately after pinch
@@ -868,6 +877,12 @@ pinchCooldownUntil = Date.now() + 300;   // 300ms cooldown
         if (activePointers.size < 2) {
             initialPinchDistance = null;
             initialPinchScale = null;
+
+              if (pinchOccurred) {
+        pinchCooldownUntil = Date.now() + 300;
+    }
+
+    pinchOccurred = false;
         }
         // ⭐ Prevent double‑tap flip immediately after pinch
 pinchCooldownUntil = Date.now() + 300;   // 300ms cooldown
