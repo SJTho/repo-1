@@ -3,8 +3,8 @@
 ---------------------------------------------------- */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
-import { initHelpPopup } from "./helpPopup.js";
-let openHelpPopup;
+import { initHelpPopup } from "./helpPopup.js";   // ⭐ NEW
+let openHelpPopup;   // ⭐ NEW
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -37,15 +37,29 @@ let operationRequirements = {};
 /* ----------------------------------------------------
    ENTRY POINT
 ---------------------------------------------------- */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", initOperatingTheatre);
+window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("pageshow", () => {
+  const dropdown = document.getElementById("hamburgerMenuDropdown");
+  if (dropdown) dropdown.style.display = "none";
+});
+
+    openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
+ });
+
+/* ----------------------------------------------------
+   ENTRY POINT
+---------------------------------------------------- */
+document.addEventListener("DOMContentLoaded", initOperatingTheatre);
+window.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("pageshow", () => {
         const dropdown = document.getElementById("hamburgerMenuDropdown");
         if (dropdown) dropdown.style.display = "none";
     });
 
-    openHelpPopup = initHelpPopup(supabase);
-    initOperatingTheatre();
+    openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
 });
+
 
 async function initOperatingTheatre() {
     const nickname = localStorage.getItem("nickname");
@@ -54,11 +68,12 @@ async function initOperatingTheatre() {
         return;
     }
 
-    suppressRoomScrolling();
+    suppressRoomScrolling();   // ⭐ NOW IT RUNS
+
     enforceLandscapeMessage();
     setupHamburgerToggle();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error } = await supabase.auth.getUser();
     if (!user) {
         window.location.href = "login.html";
         return;
@@ -69,7 +84,7 @@ async function initOperatingTheatre() {
         loadTopRightIcons()
     ]);
 
-    const wrapper = document.getElementById("theatreWrapper");
+     const wrapper = document.getElementById("theatreWrapper");
     initialTheatreWidth = wrapper?.clientWidth || BASELINE_THEATRE_WIDTH;
 
     await initTheatre();
@@ -89,6 +104,10 @@ function suppressRoomScrolling() {
 
     rooms.forEach(room => {
         room.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        room.addEventListener("touchstart", (e) => {
             e.preventDefault();
         }, { passive: false });
     });
@@ -226,19 +245,20 @@ async function loadTopRightIcons() {
         icon.innerText = item.emoji;
         icon.setAttribute("role", "button");
 
-        icon.onclick = () => {
-            if (item.url === "help" || item.url === "help.html") {
-                openHelpPopup();
-                return;
-            }
+       icon.onclick = () => {
+    if (item.url === "help" || item.url === "help.html") {
+        openHelpPopup();   // ⭐ NEW
+        return;
+    }
 
-            if (item.url === "logout") {
-                import("./logout.js").then(module => module.logout());
-                return;
-            }
+    if (item.url === "logout") {
+        logout();
+        return;
+    }
 
-            window.location.href = item.url;
-        };
+    window.location.href = item.url;
+};
+
 
         frag.appendChild(icon);
     });
@@ -298,6 +318,8 @@ async function loadOperationsMenu() {
             dropdown.classList.remove("open");
         }
     });
+
+    dispatchTheatreChanged();
 }
 
 /* ----------------------------------------------------
@@ -393,16 +415,19 @@ async function loadDraggableItemsFromSupabase() {
         img.dataset.location = "undeployed";
         img.dataset.flipped = "false";
 
+        /* ----------------------------------------------------
+           MOBILE LANDSCAPE BASELINE SIZE FIX
+           ---------------------------------------------------- */
         const isMobileLandscape =
             window.innerWidth > window.innerHeight &&
-            window.innerHeight < 500;
+            window.innerHeight < 500;   // landscape phone threshold
 
         let startingWidth = row.starting_width ?? 200;
         let startingHeight = row.starting_height ?? 400;
 
         if (isMobileLandscape) {
-            startingWidth *= 0.55;
-            startingHeight *= 0.55;
+            startingWidth *= 0.55;   // reduce width ~45%
+            startingHeight *= 0.55;  // reduce height ~45%
         }
 
         img.startingWidth = startingWidth;
@@ -457,6 +482,7 @@ async function restoreItemStates() {
         const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH)
                               : BASELINE_THEATRE_WIDTH;
 
+        // ⭐ MUST MATCH DRAG MATH
         const baselineFactor = width / BASELINE_THEATRE_WIDTH;
 
         const sw = el.startingWidth;
@@ -469,6 +495,7 @@ async function restoreItemStates() {
 
         el.dataset.flipped = state.flip ? "true" : "false";
 
+        // ⭐ Size = baseline × responsive × user scale
         el.style.width  = (sw * baselineFactor * el.scale) + "px";
         el.style.height = (sh * baselineFactor * el.scale) + "px";
 
@@ -492,6 +519,7 @@ async function restoreItemStates() {
 
         el.style.display = "block";
 
+        // ⭐ Position = baseline × user scale
         el.style.left = (el.virtualLeft * baselineFactor * el.scale) + "px";
         el.style.top  = (el.virtualTop  * baselineFactor * el.scale) + "px";
 
@@ -505,7 +533,6 @@ async function restoreItemStates() {
     updateCategoryButtonColours();
     dispatchTheatreChanged();
 }
-
 /* ----------------------------------------------------
    Save location of draggable items
 ---------------------------------------------------- */
@@ -617,10 +644,10 @@ function revealNextItem(categoryKey) {
 
     const wrapper = document.getElementById("theatreWrapper");
     const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) : BASELINE_THEATRE_WIDTH;
-    const baselineFactor = width / BASELINE_THEATRE_WIDTH;
+    const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
 
-    item.style.width = (sw * baselineFactor * item.scale) + "px";
-    item.style.height = (sh * baselineFactor * item.scale) + "px";
+    item.style.width = (sw * factor) + "px";
+    item.style.height = (sh * factor) + "px";
 
     centerItemOnBackground(item);
     applyTransform(item);
@@ -701,9 +728,10 @@ function makeDraggable(el) {
     let offsetY = 0;
     let lastTapTime = 0;
 
+    // ⭐ Pinch detection / tracking
     let pinchCandidate = false;
     let pinchTimeout = null;
-    let activePointers = new Map();
+    let activePointers = new Map();   // pointerId → { x, y }
     let initialPinchDistance = null;
     let initialPinchScale = null;
     let pinchCooldownUntil = 0;
@@ -730,11 +758,15 @@ function makeDraggable(el) {
         el.style.zIndex = String(el.zIndex);
     }
 
+    /* ----------------------------------------------------
+       POINTER DOWN
+    ---------------------------------------------------- */
     el.addEventListener("pointerdown", (e) => {
         if (e.button !== 0) return;
 
         activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
+        // First finger → wait briefly to see if second arrives
         if (activePointers.size === 1) {
             pinchCandidate = true;
 
@@ -743,11 +775,14 @@ function makeDraggable(el) {
                     startDrag(e);
                 }
             }, 80);
-        } else if (activePointers.size === 2) {
+        }
+
+        // Second finger → begin pinch
+        else if (activePointers.size === 2) {            
             pinchCandidate = false;
             clearTimeout(pinchTimeout);
 
-            dragActive = false;
+            dragActive = false; // suppress drag
 
             const pts = [...activePointers.values()];
             initialPinchDistance = Math.hypot(
@@ -761,7 +796,11 @@ function makeDraggable(el) {
         }
     });
 
+    /* ----------------------------------------------------
+       POINTER MOVE
+    ---------------------------------------------------- */
     el.addEventListener("pointermove", (e) => {
+        // ⭐ PINCH ZOOM
         if (activePointers.size === 2 && initialPinchDistance !== null) {
             activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
@@ -780,7 +819,7 @@ function makeDraggable(el) {
             applyTransform(el);
             scheduleSave(el);
 
-            return;
+            return; // prevent drag logic from running
         }
 
         if (!dragActive) return;
@@ -808,6 +847,9 @@ function makeDraggable(el) {
         highlightRoomOnHover(el);
     });
 
+    /* ----------------------------------------------------
+       POINTER UP
+    ---------------------------------------------------- */
     el.addEventListener("pointerup", (e) => {
         activePointers.delete(e.pointerId);
         pinchCandidate = false;
@@ -817,11 +859,11 @@ function makeDraggable(el) {
             initialPinchDistance = null;
             initialPinchScale = null;
 
-            if (pinchOccurred) {
-                pinchCooldownUntil = Date.now() + 300;
-            }
+if (pinchOccurred) {
+        pinchCooldownUntil = Date.now() + 300;   // ⭐ only after real pinch
+    }
 
-            pinchOccurred = false;
+    pinchOccurred = false;   // reset
         }
 
         if (dragActive) {
@@ -833,28 +875,34 @@ function makeDraggable(el) {
 
         const now = Date.now();
 
+        // ⭐ Touch double‑tap flip
         if (e.pointerType === "touch") {
-            if (now < pinchCooldownUntil) {
-                lastTapTime = now;
-                el.releasePointerCapture(e.pointerId);
-                return;
-            }
 
-            if (now - lastTapTime < 250) {
-                const before = el.dataset.flipped;
-                const after = before === "true" ? "false" : "true";
+    // ⭐ Block flips during pinch cooldown
+    if (now < pinchCooldownUntil) {
+        lastTapTime = now;   // reset tap timer
+        return;
+    }
 
-                el.dataset.flipped = after;
-                applyTransform(el);
-                scheduleSave(el);
-            }
+    // Normal double‑tap flip
+    if (now - lastTapTime < 250) {
+        const before = el.dataset.flipped;
+        const after = before === "true" ? "false" : "true";
 
-            lastTapTime = now;
-        }
+        el.dataset.flipped = after;
+        applyTransform(el);
+        scheduleSave(el);
+    }
+
+    lastTapTime = now;
+}
 
         el.releasePointerCapture(e.pointerId);
     });
 
+    /* ----------------------------------------------------
+       POINTER CANCEL
+    ---------------------------------------------------- */
     el.addEventListener("pointercancel", (e) => {
         activePointers.delete(e.pointerId);
         pinchCandidate = false;
@@ -864,11 +912,11 @@ function makeDraggable(el) {
             initialPinchDistance = null;
             initialPinchScale = null;
 
-            if (pinchOccurred) {
-                pinchCooldownUntil = Date.now() + 300;
-            }
+              if (pinchOccurred) {
+        pinchCooldownUntil = Date.now() + 300;
+    }
 
-            pinchOccurred = false;
+    pinchOccurred = false;
         }
 
         dragActive = false;
@@ -876,6 +924,9 @@ function makeDraggable(el) {
         el.releasePointerCapture(e.pointerId);
     });
 
+    /* ----------------------------------------------------
+       DESKTOP WHEEL ZOOM
+    ---------------------------------------------------- */
     el.addEventListener("wheel", (e) => {
         if (dragActive) return;
         e.preventDefault();
@@ -897,6 +948,9 @@ function makeDraggable(el) {
         scheduleSave(el);
     }, { passive: false });
 
+    /* ----------------------------------------------------
+       DESKTOP DOUBLE CLICK FLIP
+    ---------------------------------------------------- */
     el.addEventListener("dblclick", () => {
         const before = el.dataset.flipped;
         const after = before === "true" ? "false" : "true";
@@ -923,6 +977,7 @@ function applyTransform(el) {
 function getNextZIndex() {
     return ++maxZIndex;
 }
+
 
 /* ----------------------------------------------------
    ROOM DROP LOGIC
@@ -979,9 +1034,11 @@ function attemptRoomDrop(el) {
         elRect.bottom > staffRect.top &&
         elRect.top < staffRect.bottom;
 
+    // ⭐ Staff incorrectly dropped in store room
     if (droppedInStore && isStaff) {
         alert("Staff can only go in the Staff Room.");
 
+        // Move to centre
         centerItemOnBackground(el);
         applyTransform(el);
         scheduleSave(el);
@@ -990,9 +1047,11 @@ function attemptRoomDrop(el) {
         return;
     }
 
+    // ⭐ Non-staff incorrectly dropped in staff room
     if (droppedInStaff && !isStaff) {
         alert("Only staff can go in the Staff Room.");
 
+        // Move to centre
         centerItemOnBackground(el);
         applyTransform(el);
         scheduleSave(el);
@@ -1001,6 +1060,7 @@ function attemptRoomDrop(el) {
         return;
     }
 
+    // ⭐ Correct room drops
     if (droppedInStore) {
         el.dataset.location = "storeroom";
         moveItemToRoom(el, storeRoom);
@@ -1015,9 +1075,12 @@ function attemptRoomDrop(el) {
         return;
     }
 
+    // ⭐ Not dropped in any room → stays in theatre
     el.dataset.location = "theatre";
     dispatchTheatreChanged();
 }
+
+
 
 /* ----------------------------------------------------
    Thumbnail Drag-Out System
@@ -1126,27 +1189,26 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
         const sw = originalEl.startingWidth;
         const sh = originalEl.startingHeight;
 
-        const theatreWidth = theatre.clientWidth || BASELINE_THEATRE_WIDTH;
-        const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
-        const scale = Number(originalEl.dataset.scale ?? originalEl.scale ?? 1);
-
-        originalEl.virtualWidth  = sw;
+        originalEl.virtualWidth = sw;
         originalEl.virtualHeight = sh;
-        originalEl.virtualScale  = scale;
+        originalEl.virtualScale = originalEl.scale;
 
-        originalEl.style.width  = (sw * baselineFactor * scale) + "px";
-        originalEl.style.height = (sh * baselineFactor * scale) + "px";
+        const theatreWidth = theatre.clientWidth || BASELINE_THEATRE_WIDTH;
+        const factor = initialTheatreWidth ? theatreWidth / initialTheatreWidth : 1;
+
+        originalEl.style.width = (sw * factor) + "px";
+        originalEl.style.height = (sh * factor) + "px";
 
         const parentRect = equipmentContainer.getBoundingClientRect();
 
-        const left = dropX - parentRect.left - (sw * baselineFactor * scale / 2);
-        const top  = dropY - parentRect.top  - (sh * baselineFactor * scale / 2);
+        const left = dropX - parentRect.left - (sw * factor / 2);
+        const top = dropY - parentRect.top - (sh * factor / 2);
 
-        originalEl.virtualLeft = (left / scale) / baselineFactor;
-        originalEl.virtualTop  = (top  / scale) / baselineFactor;
+        originalEl.virtualLeft = left / factor;
+        originalEl.virtualTop = top / factor;
 
         originalEl.style.left = left + "px";
-        originalEl.style.top  = top + "px";
+        originalEl.style.top = top + "px";
 
         originalEl.dataset.location = "theatre";
 
@@ -1158,6 +1220,8 @@ function makeThumbnailDraggable(thumb, originalEl, room) {
 
         thumb.releasePointerCapture(e.pointerId);
     });
+
+    dispatchTheatreChanged();
 }
 
 /* ----------------------------------------------------
@@ -1245,6 +1309,7 @@ function applyResponsiveLayout() {
 
     const currentWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
 
+    // First-time baseline capture
     if (!initialTheatreWidth) {
         initialTheatreWidth = currentWidth;
 
@@ -1259,6 +1324,7 @@ function applyResponsiveLayout() {
         return;
     }
 
+    // ⭐ MUST MATCH DRAG + RESTORE BASELINE
     const baselineFactor = currentWidth / BASELINE_THEATRE_WIDTH;
 
     document.querySelectorAll(".equipmentItem").forEach(el => {
@@ -1268,9 +1334,11 @@ function applyResponsiveLayout() {
         const vHeight = el.virtualHeight;
         const scale   = Number(el.dataset.scale ?? el.scale ?? 1);
 
+        // ⭐ Size = baseline × user scale
         el.style.width  = (vWidth  * baselineFactor * scale) + "px";
         el.style.height = (vHeight * baselineFactor * scale) + "px";
 
+        // ⭐ Position = baseline × user scale
         el.style.left = (vLeft * baselineFactor * scale) + "px";
         el.style.top  = (vTop  * baselineFactor * scale) + "px";
 
