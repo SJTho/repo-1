@@ -962,9 +962,9 @@ if (pinchOccurred) {
         el.releasePointerCapture(e.pointerId);
     });
 
-    /* ----------------------------------------------------
-       DESKTOP WHEEL ZOOM
-    ---------------------------------------------------- */
+/* ----------------------------------------------------
+   DESKTOP WHEEL ZOOM
+---------------------------------------------------- */
 el.addEventListener("wheel", (e) => {
     if (dragActive) return;
     e.preventDefault();
@@ -982,36 +982,10 @@ el.addEventListener("wheel", (e) => {
     el.dataset.scale = String(newScale);
     el.scale = newScale;
 
+    // Just apply scale; do NOT change left/top or virtualLeft/virtualTop
     applyTransform(el);
 
-    // ⭐ Recompute baseline-space position from visual top-left
-const wrapper = document.getElementById("theatreWrapper");
-if (wrapper) {
-    const baselineFactor =
-        (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
-
-    const parentRect = el.parentElement.getBoundingClientRect();
-    const rect = el.getBoundingClientRect();
-
-    // Layout box (unscaled)
-    const layoutWidth  = el.offsetWidth;
-    const layoutHeight = el.offsetHeight;
-
-    // Visual box (scaled)
-    const pixelWidth  = layoutWidth  * newScale;
-    const pixelHeight = layoutHeight * newScale;
-
-    // Visual top-left = layout top-left minus half the scale expansion
-    const visualLeft = rect.left - parentRect.left - ((pixelWidth  - layoutWidth)  / 2);
-    const visualTop  = rect.top  - parentRect.top  - ((pixelHeight - layoutHeight) / 2);
-
-    el.virtualLeft = visualLeft / (baselineFactor * newScale);
-    el.virtualTop  = visualTop  / (baselineFactor * newScale);
-
-    el.style.left = visualLeft + "px";
-    el.style.top  = visualTop + "px";
-}
-
+    // Position is already correct in baseline-space; keep it
     scheduleSave(el);
 }, { passive: false });
 
