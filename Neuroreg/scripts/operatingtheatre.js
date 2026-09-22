@@ -1025,7 +1025,7 @@ el.addEventListener("wheel", (e) => {
         const baselineWidth  = el.startingWidth  * baselineFactor;
         const baselineHeight = el.startingHeight * baselineFactor;
 
-        // Current visual centre
+        // Current visual centre (matches restore’s size formula)
         const centerX = pixelLeft + (baselineWidth  * currentScale) / 2;
         const centerY = pixelTop  + (baselineHeight * currentScale) / 2;
 
