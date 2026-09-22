@@ -47,6 +47,19 @@ window.addEventListener("DOMContentLoaded", () => {
     openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
  });
 
+/* ----------------------------------------------------
+   ENTRY POINT
+---------------------------------------------------- */
+document.addEventListener("DOMContentLoaded", initOperatingTheatre);
+window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("pageshow", () => {
+        const dropdown = document.getElementById("hamburgerMenuDropdown");
+        if (dropdown) dropdown.style.display = "none";
+    });
+
+    openHelpPopup = initHelpPopup(supabase);   // ⭐ NEW
+});
+
 
 async function initOperatingTheatre() {
     const nickname = localStorage.getItem("nickname");
@@ -56,27 +69,6 @@ async function initOperatingTheatre() {
     }
 
     suppressRoomScrolling();   // ⭐ NOW IT RUNS
-
-    enforceLandscapeMessage();
-    setupHamburgerToggle();
-    ...
-}
-
-function suppressRoomScrolling() {
-    const rooms = document.querySelectorAll(".roomPanel");
-
-    rooms.forEach(room => {
-        room.addEventListener("touchmove", (e) => {
-            e.preventDefault();
-        }, { passive: false });
-
-        room.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-        }, { passive: false });
-    });
-}
-
-    }
 
     enforceLandscapeMessage();
     setupHamburgerToggle();
@@ -92,7 +84,7 @@ function suppressRoomScrolling() {
         loadTopRightIcons()
     ]);
 
-    const wrapper = document.getElementById("theatreWrapper");
+     const wrapper = document.getElementById("theatreWrapper");
     initialTheatreWidth = wrapper?.clientWidth || BASELINE_THEATRE_WIDTH;
 
     await initTheatre();
@@ -102,6 +94,23 @@ function suppressRoomScrolling() {
     window.addEventListener("orientationchange", applyResponsiveLayout);
 
     document.addEventListener("theatreChanged", evaluateOperations);
+}
+
+/* ----------------------------------------------------
+   Touch suppression for room panels
+---------------------------------------------------- */
+function suppressRoomScrolling() {
+    const rooms = document.querySelectorAll(".roomPanel");
+
+    rooms.forEach(room => {
+        room.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        room.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+        }, { passive: false });
+    });
 }
 
 /* ----------------------------------------------------
