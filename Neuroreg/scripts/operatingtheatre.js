@@ -479,9 +479,10 @@ async function restoreItemStates() {
         if (!el) return;
 
         const wrapper = document.getElementById("theatreWrapper");
-        const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) : BASELINE_THEATRE_WIDTH;
+        const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH)
+                              : BASELINE_THEATRE_WIDTH;
 
-        // ⭐ Correct baseline factor (matches drag math)
+        // ⭐ MUST MATCH DRAG MATH
         const baselineFactor = width / BASELINE_THEATRE_WIDTH;
 
         const sw = el.startingWidth;
@@ -494,9 +495,9 @@ async function restoreItemStates() {
 
         el.dataset.flipped = state.flip ? "true" : "false";
 
-        // ⭐ Correct responsive size (no scale multiplier)
-        el.style.width  = (sw * baselineFactor) + "px";
-        el.style.height = (sh * baselineFactor) + "px";
+        // ⭐ Size = baseline × responsive × user scale
+        el.style.width  = (sw * baselineFactor * el.scale) + "px";
+        el.style.height = (sh * baselineFactor * el.scale) + "px";
 
         if (state.store) {
             const room = (el.dataset.category === "staff")
@@ -504,7 +505,7 @@ async function restoreItemStates() {
                 : document.getElementById("storeroom");
 
             if (room) {
-                el.dataset.location = room.id === "staffroom" ? "staffroom" : "storeroom";
+                el.dataset.location = room.id;
                 moveItemToRoom(el, room);
             }
             return;
@@ -518,11 +519,9 @@ async function restoreItemStates() {
 
         el.style.display = "block";
 
-        const scale = Number(el.dataset.scale ?? el.scale ?? 1);
-
-        // ⭐ Correct restore position (matches drag math exactly)
-        el.style.left = (el.virtualLeft * baselineFactor * scale) + "px";
-        el.style.top  = (el.virtualTop  * baselineFactor * scale) + "px";
+        // ⭐ Position = baseline × user scale
+        el.style.left = (el.virtualLeft * baselineFactor * el.scale) + "px";
+        el.style.top  = (el.virtualTop  * baselineFactor * el.scale) + "px";
 
         el.style.zIndex = String(el.zIndex);
 
@@ -534,7 +533,6 @@ async function restoreItemStates() {
     updateCategoryButtonColours();
     dispatchTheatreChanged();
 }
-
 /* ----------------------------------------------------
    Save location of draggable items
 ---------------------------------------------------- */
