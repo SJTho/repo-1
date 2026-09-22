@@ -690,10 +690,12 @@ function makeDraggable(el) {
     let offsetY = 0;
     let lastTapTime = 0;
 
-    /* ⭐ NEW: pinch detection */
+    // ⭐ Pinch detection / tracking
     let pinchCandidate = false;
     let pinchTimeout = null;
-    let activePointers = new Set();
+    let activePointers = new Map();   // pointerId → { x, y }
+    let initialPinchDistance = null;
+    let initialPinchScale = null;
 
     function startDrag(e) {
         dragActive = true;
@@ -716,19 +718,15 @@ function makeDraggable(el) {
         el.style.zIndex = String(el.zIndex);
     }
 
-    function startPinch() {
-        dragActive = false;   // suppress drag
-    }
-
     /* ----------------------------------------------------
        POINTER DOWN
     ---------------------------------------------------- */
     el.addEventListener("pointerdown", (e) => {
         if (e.button !== 0) return;
 
-        activePointers.add(e.pointerId);
+        activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-        // First finger → wait briefly to see if a second arrives
+        // First finger → wait briefly to see if second arrives
         if (activePointers.size === 1) {
             pinchCandidate = true;
 
@@ -736,12 +734,23 @@ function makeDraggable(el) {
                 if (pinchCandidate) {
                     startDrag(e);
                 }
-            }, 80); // 60–100ms typical
-        } else {
-            // Second finger → pinch gesture
+            }, 80);
+        }
+
+        // Second finger → begin pinch
+        else if (activePointers.size === 2) {
             pinchCandidate = false;
             clearTimeout(pinchTimeout);
-            startPinch();
+
+            dragActive = false; // suppress drag
+
+            const pts = [...activePointers.values()];
+            initialPinchDistance = Math.hypot(
+                pts[0].x - pts[1].x,
+                pts[0].y - pts[1].y
+            );
+
+            initialPinchScale = Number(el.dataset.scale ?? el.scale ?? 1);
         }
     });
 
@@ -749,6 +758,28 @@ function makeDraggable(el) {
        POINTER MOVE
     ---------------------------------------------------- */
     el.addEventListener("pointermove", (e) => {
+        // ⭐ PINCH ZOOM
+        if (activePointers.size === 2 && initialPinchDistance !== null) {
+            activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+            const pts = [...activePointers.values()];
+            const newDistance = Math.hypot(
+                pts[0].x - pts[1].x,
+                pts[0].y - pts[1].y
+            );
+
+            const ratio = newDistance / initialPinchDistance;
+            const newScale = Math.max(0.3, Math.min(3, initialPinchScale * ratio));
+
+            el.dataset.scale = String(newScale);
+            el.scale = newScale;
+
+            applyTransform(el);
+            scheduleSave(el);
+
+            return; // prevent drag logic from running
+        }
+
         if (!dragActive) return;
 
         if (e.pointerType === "touch" && e.isPrimary === false) {
@@ -781,6 +812,11 @@ function makeDraggable(el) {
         activePointers.delete(e.pointerId);
         pinchCandidate = false;
         clearTimeout(pinchTimeout);
+
+        if (activePointers.size < 2) {
+            initialPinchDistance = null;
+            initialPinchScale = null;
+        }
 
         if (dragActive) {
             dragActive = false;
@@ -816,6 +852,11 @@ function makeDraggable(el) {
         activePointers.delete(e.pointerId);
         pinchCandidate = false;
         clearTimeout(pinchTimeout);
+
+        if (activePointers.size < 2) {
+            initialPinchDistance = null;
+            initialPinchScale = null;
+        }
 
         dragActive = false;
         clearRoomHighlights();
@@ -875,6 +916,7 @@ function applyTransform(el) {
 function getNextZIndex() {
     return ++maxZIndex;
 }
+
 
 /* ----------------------------------------------------
    ROOM DROP LOGIC
