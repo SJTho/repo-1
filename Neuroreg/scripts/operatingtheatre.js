@@ -529,7 +529,7 @@ async function restoreItemStates() {
         makeDraggable(el);
     });
 
-    scaleRoomContents();
+    /*scaleRoomContents();*/
     updateCategoryButtonColours();
     dispatchTheatreChanged();
 
