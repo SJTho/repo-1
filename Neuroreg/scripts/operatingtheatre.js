@@ -804,12 +804,16 @@ function makeDraggable(el) {
     el.addEventListener("pointermove", (e) => {
        
 
+
+
+
+
+
 /* ----------------------------------------------------
    PINCH ZOOM (Corrected)
 ---------------------------------------------------- */
 if (activePointers.size === 2 && initialPinchDistance !== null) {
 
-    // Update pointer positions
     activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
     const pts = [...activePointers.values()];
@@ -818,54 +822,37 @@ if (activePointers.size === 2 && initialPinchDistance !== null) {
         pts[0].y - pts[1].y
     );
 
-    // Compute new scale
     const ratio = newDistance / initialPinchDistance;
     const newScale = Math.max(0.3, Math.min(3, initialPinchScale * ratio));
 
-    // Apply scale
     el.dataset.scale = String(newScale);
     el.scale = newScale;
 
-    // ⭐ Keep baseline-space size in sync with visual size
-    el.virtualWidth  = el.startingWidth  * newScale;
-    el.virtualHeight = el.startingHeight * newScale;
-
     applyTransform(el);
 
-    // ⭐ Preserve visual position (no movement)
+    // ⭐ Update baseline-space position to match current pixel position + new scale
     const wrapper = document.getElementById("theatreWrapper");
     if (wrapper) {
+        const theatreWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
+        const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
 
-        const baselineFactor =
-            (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) / BASELINE_THEATRE_WIDTH;
+        const pixelLeft = parseFloat(el.style.left) || 0;
+        const pixelTop  = parseFloat(el.style.top)  || 0;
 
-        const parentRect = el.parentElement.getBoundingClientRect();
-        const rect = el.getBoundingClientRect();
-
-        // Layout box (unscaled)
-        const layoutWidth  = el.offsetWidth;
-        const layoutHeight = el.offsetHeight;
-
-        // Visual box (scaled)
-        const pixelWidth  = layoutWidth  * newScale;
-        const pixelHeight = layoutHeight * newScale;
-
-        // ⭐ Visual top-left = layout top-left minus half the scale expansion
-        const visualLeft = rect.left - parentRect.left - ((pixelWidth  - layoutWidth)  / 2);
-        const visualTop  = rect.top  - parentRect.top  - ((pixelHeight - layoutHeight) / 2);
-
-        // ⭐ Convert pixel → baseline-space top-left
-        el.virtualLeft = visualLeft / (baselineFactor * newScale);
-        el.virtualTop  = visualTop  / (baselineFactor * newScale);
-
-        // Apply pixel position
-        el.style.left = visualLeft + "px";
-        el.style.top  = visualTop + "px";
+        el.virtualLeft = pixelLeft / (baselineFactor * newScale);
+        el.virtualTop  = pixelTop  / (baselineFactor * newScale);
     }
 
     scheduleSave(el);
     return; // prevent drag logic from running
 }
+
+
+
+
+
+
+
 
         if (!dragActive) return;
 
@@ -995,11 +982,20 @@ el.addEventListener("wheel", (e) => {
     el.dataset.scale = String(newScale);
     el.scale = newScale;
 
-    // ⭐ Keep baseline size in sync with visual size
-    el.virtualWidth  = el.startingWidth  * newScale;
-    el.virtualHeight = el.startingHeight * newScale;
-
     applyTransform(el);
+
+    // ⭐ Update baseline-space position to match current pixel position + new scale
+    const wrapper = document.getElementById("theatreWrapper");
+    if (wrapper) {
+        const theatreWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
+        const baselineFactor = theatreWidth / BASELINE_THEATRE_WIDTH;
+
+        const pixelLeft = parseFloat(el.style.left) || 0;
+        const pixelTop  = parseFloat(el.style.top)  || 0;
+
+        el.virtualLeft = pixelLeft / (baselineFactor * newScale);
+        el.virtualTop  = pixelTop  / (baselineFactor * newScale);
+    }
 
     scheduleSave(el);
 }, { passive: false });
