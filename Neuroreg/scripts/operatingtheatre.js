@@ -425,11 +425,6 @@ async function loadDraggableItemsFromSupabase() {
         let startingWidth = row.starting_width ?? 200;
         let startingHeight = row.starting_height ?? 400;
 
-        if (isMobileLandscape) {
-            startingWidth *= 0.55;   // reduce width ~45%
-            startingHeight *= 0.55;  // reduce height ~45%
-        }
-
         img.startingWidth = startingWidth;
         img.startingHeight = startingHeight;
 
