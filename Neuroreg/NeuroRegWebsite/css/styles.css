@@ -114,9 +114,9 @@ Hero
 ========================================== */
 
 .hero {
-    background: linear-gradient(135deg,
-            var(--primary),
-            var(--secondary));
+    background:
+        linear-gradient(rgba(15, 61, 94, 0.7),
+            rgba(63, 114, 175, 0.7));
 
     color: white;
     text-align: center;
@@ -221,6 +221,14 @@ Buttons
     color: white;
     font-size: x-large;
     margin-top: 24px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#startbtn:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
 }
 
 /* ==========================================
@@ -237,30 +245,31 @@ Home Page
 
 .icons {
     overflow: hidden;
-    padding: 10px 0;
+    width: 100%;
+    padding: 20px 0;
 }
 
-.icons .container {
+.icon-track {
     display: flex;
-    gap: 8px;
     width: max-content;
-    animation: scrollIcons 50s linear infinite;
+    gap: 8px;
+    animation: marquee 50s linear infinite;
 }
 
-.icons img {
+.icon-track img {
     width: 150px;
     height: 150px;
     object-fit: contain;
     flex-shrink: 0;
 }
 
-@keyframes scrollIcons {
+@keyframes marquee {
     from {
-        transform: translateX(100vw);
+        transform: translateX(0);
     }
 
     to {
-        transform: translateX(-100%);
+        transform: translateX(-50%);
     }
 }
 
@@ -385,5 +394,10 @@ Mobile
     .hero-logo {
         width: 72px;
         height: 72px;
+    }
+
+    .icons img {
+        width: 100px;
+        height: 100px;
     }
 }
