@@ -346,7 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const linkIds = mappings.map(m => m.linkid);
 
         if (linkIds.length === 0) {
-            linksContainer.innerHTML = "<p>No links selected yet.</p>";
+            linksContainer.innerHTML = "<p>No links selected.</p>";
             linksContainer.appendChild(createAddLinkButton());
             return;
         }
@@ -357,7 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .in("id", linkIds);
 
         if (linkError) {
-            console.error("Failed to load index page links:", linkError);
+            console.error("Failed to load links:", linkError);
             return;
         }
 
