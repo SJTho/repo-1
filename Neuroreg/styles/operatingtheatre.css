@@ -40,7 +40,6 @@
 #theatreWrapper {
   width: 100%;
   max-width: 900px;
-  height: 600px;
   position: relative;
   overflow: hidden;
   border-radius: 10px;
@@ -50,7 +49,7 @@
 #theatreBackground {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   border-radius: 10px;
 }
 
@@ -294,7 +293,14 @@
   }
 
   #theatreWrapper {
-    height: 350px;
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 900 / 600;
+    height: auto;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 2px solid #1f355c;
   }
 
   .storeThumb {
