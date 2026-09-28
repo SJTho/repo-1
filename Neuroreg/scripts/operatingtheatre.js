@@ -1415,13 +1415,13 @@ function applyResponsiveLayout() {
 
 const bg = document.getElementById("theatreBackground");
  
-alert({
+alert(
 wrapperWidth: wrapper.clientWidth,
 wrapperHeight: wrapper.clientHeight,
 bgWidth: bg.clientWidth,
 bgHeight: bg.clientHeight,
 ratio: wrapper.clientWidth / wrapper.clientHeight
-});
+);
 
 
 
