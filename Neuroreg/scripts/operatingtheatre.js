@@ -1415,7 +1415,7 @@ function applyResponsiveLayout() {
 
 const bg = document.getElementById("theatreBackground");
  
-console.log({
+alert({
 wrapperWidth: wrapper.clientWidth,
 wrapperHeight: wrapper.clientHeight,
 bgWidth: bg.clientWidth,
