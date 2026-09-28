@@ -490,9 +490,8 @@ async function restoreItemStates() {
 
         el.dataset.flipped = state.flip ? "true" : "false";
 
-        // ⭐ Size = baseline × responsive × user scale
-        el.style.width  = (sw * baselineFactor * el.scale) + "px";
-        el.style.height = (sh * baselineFactor * el.scale) + "px";
+       el.style.width = (sw * baselineFactor) + "px";
+el.style.height = (sh * baselineFactor) + "px";
 
         if (state.store) {
             const room = (el.dataset.category === "staff")
@@ -527,14 +526,6 @@ async function restoreItemStates() {
     /*scaleRoomContents();*/
     updateCategoryButtonColours();
     dispatchTheatreChanged();
-
-
-
-
-
-
-
-
 }
 
 /* ----------------------------------------------------
@@ -652,10 +643,9 @@ function revealNextItem(categoryKey) {
 
     const wrapper = document.getElementById("theatreWrapper");
     const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH) : BASELINE_THEATRE_WIDTH;
-    const factor = initialTheatreWidth ? width / initialTheatreWidth : 1;
-
-    item.style.width = (sw * factor) + "px";
-    item.style.height = (sh * factor) + "px";
+    const baselineFactor = width / BASELINE_THEATRE_WIDTH;
+    item.style.width = (sw * baselineFactor) + "px";
+    item.style.height = (sh * baselineFactor) + "px";
 
     centerItemOnBackground(item);
     applyTransform(item);
@@ -1439,13 +1429,11 @@ function applyResponsiveLayout() {
         const vHeight = el.virtualHeight;
         const scale   = Number(el.dataset.scale ?? el.scale ?? 1);
 
-        // ⭐ Size = baseline × user scale
-        el.style.width  = (vWidth  * baselineFactor * scale) + "px";
-        el.style.height = (vHeight * baselineFactor * scale) + "px";
-
-        // ⭐ Position = baseline × user scale
-        el.style.left = (vLeft * baselineFactor * scale) + "px";
-        el.style.top  = (vTop  * baselineFactor * scale) + "px";
+el.style.width = (vWidth * baselineFactor) + "px";
+el.style.height = (vHeight * baselineFactor) + "px";
+ 
+el.style.left = (vLeft * baselineFactor * scale) + "px";
+el.style.top = (vTop * baselineFactor * scale) + "px";
 
         applyTransform(el);
     });
