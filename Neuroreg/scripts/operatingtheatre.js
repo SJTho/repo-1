@@ -489,8 +489,8 @@ async function restoreItemStates() {
 
         el.dataset.flipped = state.flip ? "true" : "false";
 
-       el.style.width = (sw * baselineFactor) + "px";
-el.style.height = (sh * baselineFactor) + "px";
+       el.style.width = (sw * scaleX) + "px";
+el.style.height = (sh * scaleX) + "px";
 
         if (state.store) {
             const room = (el.dataset.category === "staff")
