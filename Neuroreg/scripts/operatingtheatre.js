@@ -475,10 +475,12 @@ async function restoreItemStates() {
         if (!el) return;
 
         const wrapper = document.getElementById("theatreWrapper");
-        const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH): BASELINE_THEATRE_WIDTH;
-        const height = wrapper ? (wrapper.clientHeight || BASELINE_THEATRE_HEIGHT): BASELINE_THEATRE_HEIGHT;
-        const scaleX = width / BASELINE_THEATRE_WIDTH;
-        const scaleY = height / BASELINE_THEATRE_HEIGHT;
+        const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH)
+                              : BASELINE_THEATRE_WIDTH;
+
+        // ⭐ MUST MATCH DRAG MATH
+        const baselineFactor = width / BASELINE_THEATRE_WIDTH;
+
         const sw = el.startingWidth;
         const sh = el.startingHeight;
 
@@ -489,8 +491,8 @@ async function restoreItemStates() {
 
         el.dataset.flipped = state.flip ? "true" : "false";
 
-       el.style.width = (sw * scaleX) + "px";
-el.style.height = (sh * scaleX) + "px";
+       el.style.width = (sw * baselineFactor) + "px";
+el.style.height = (sh * baselineFactor) + "px";
 
         if (state.store) {
             const room = (el.dataset.category === "staff")
@@ -512,8 +514,9 @@ el.style.height = (sh * scaleX) + "px";
 
         el.style.display = "block";
 
-el.style.left = (el.virtualLeft * scaleX * el.scale) + "px";
-el.style.top = (el.virtualTop * scaleY * el.scale) + "px";
+        // ⭐ Position = baseline × user scale
+        el.style.left = (el.virtualLeft * baselineFactor * el.scale) + "px";
+        el.style.top  = (el.virtualTop  * baselineFactor * el.scale) + "px";
 
         el.style.zIndex = String(el.zIndex);
 
@@ -1418,9 +1421,7 @@ function applyResponsiveLayout() {
     }
 
     // ⭐ MUST MATCH DRAG + RESTORE BASELINE
-    const currentHeight = wrapper.clientHeight || BASELINE_THEATRE_HEIGHT;
-    const scaleX = currentWidth / BASELINE_THEATRE_WIDTH;
-    const scaleY = currentHeight / BASELINE_THEATRE_HEIGHT;
+    const baselineFactor = currentWidth / BASELINE_THEATRE_WIDTH;
 
     document.querySelectorAll(".equipmentItem").forEach(el => {
         const vLeft   = el.virtualLeft;
@@ -1429,11 +1430,11 @@ function applyResponsiveLayout() {
         const vHeight = el.virtualHeight;
         const scale   = Number(el.dataset.scale ?? el.scale ?? 1);
 
-el.style.width = (vWidth * scaleX) + "px";
-el.style.height = (vHeight * scaleX) + "px";
+el.style.width = (vWidth * baselineFactor) + "px";
+el.style.height = (vHeight * baselineFactor) + "px";
  
-el.style.left = (vLeft * scaleX * scale) + "px";
-el.style.top = (vTop * scaleY * scale) + "px";
+el.style.left = (vLeft * baselineFactor * scale) + "px";
+el.style.top = (vTop * baselineFactor * scale) + "px";
 
         applyTransform(el);
     });
