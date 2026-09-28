@@ -1,0 +1,448 @@
+/* ----------------------------------------------------
+   MAIN CONTAINER
+---------------------------------------------------- */
+#profileContainer {
+    width: 80%;
+    max-width: 700px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Fix heading colour (global.css sets h2 to white) */
+#rankHeading {
+    color: #14233d !important;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+/* ----------------------------------------------------
+   TOGGLE SWITCH
+---------------------------------------------------- */
+.toggleContainer {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.toggleWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.toggleLabelText {
+    font-size: 26px;
+    font-weight: bold;
+    color: #14233d;
+}
+
+.toggleLabelText.hidden {
+    visibility: hidden;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 22px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #14233d;
+    transition: .4s;
+    border-radius: 22px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #007bff;
+}
+
+input:checked+.slider:before {
+    transform: translateX(28px);
+}
+
+/* ----------------------------------------------------
+   FRIENDS SECTION
+---------------------------------------------------- */
+#friendsSection {
+    margin-top: 10px;
+    display: none;
+}
+
+#addFriendBox {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+#addFriendBox input {
+    flex: 1;
+    padding: 10px;
+    background-color: #d3d3d3;
+    border: 1px solid #999;
+    border-radius: 6px;
+    color: #000;
+}
+
+#addFriendBox button {
+    width: 140px;
+    padding: 10px;
+}
+
+/* ----------------------------------------------------
+   FRIEND REQUESTS LIST
+---------------------------------------------------- */
+.friendRequestsBox {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.requestRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+
+.requestRow .requestInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: #14233d;
+}
+
+.requestRow .requestInfo strong {
+    font-size: 18px;
+    color: #000;
+}
+
+.requestRow .requestButtons button {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 6px;
+}
+
+.requestRow .requestButtons button:first-child {
+    background: #28a745;
+    color: #fff;
+}
+
+.requestRow .requestButtons button:last-child {
+    background: #b33a3a;
+    color: #fff;
+}
+
+#friendRequestsList,
+#friendRequestsList * {
+    position: relative !important;
+    z-index: 10 !important;
+    color: #000 !important;
+}
+
+/* ----------------------------------------------------
+   LEAGUE TABLE (3 columns)
+---------------------------------------------------- */
+#rankList {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.rankRow {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 18px;
+    align-items: center;
+}
+
+.rankPosition {
+    font-weight: bold;
+    color: #14233d;
+}
+
+.rankNickname {
+    font-weight: 500;
+    color: #000;
+    padding-left: 6px;
+}
+
+.rankPoints {
+    text-align: left;
+    padding-left: 12px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* ----------------------------------------------------
+   FRIENDS TABLE (4 columns, fixed delete column)
+---------------------------------------------------- */
+.rankRow.friendsRow {
+    display: grid;
+    grid-template-columns: 50px 1fr 1fr 70px;
+    align-items: center;
+}
+
+.rankRow.friendsRow> :nth-child(1),
+.rankRow.friendsRow> :nth-child(2),
+.rankRow.friendsRow> :nth-child(3) {
+    text-align: left;
+}
+
+/* ----------------------------------------------------
+   DELETE BUTTON
+---------------------------------------------------- */
+.deleteFriendBtn {
+    background: #b33a3a;
+    color: #fff;
+    border: none;
+    padding: 4px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 67px;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    line-height: 14px;
+}
+
+/* Hard override global.css */
+.rankRow .deleteFriendBtn {
+    margin-top: 0 !important;
+    width: auto !important;
+    padding: 4px 6px !important;
+    font-size: 14px !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 28px !important;
+    line-height: 14px !important;
+}
+
+/* ----------------------------------------------------
+   MOBILE
+---------------------------------------------------- */
+@media (max-width: 600px) {
+
+    #profileContainer {
+        width: 90%;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 110px auto 20px auto;
+    }
+
+    .toggleLabelText {
+        font-size: 16px;
+    }
+
+    .switch {
+        width: 42px;
+        height: 20px;
+        transform: scale(0.80);
+    }
+
+    .slider:before {
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(22px);
+    }
+
+    /* Mobile league + friends rows (fixed delete column preserved) */
+    .rankRow,
+    .rankRow.friendsRow {
+        font-size: 16px;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: 40px 1fr 1fr 60px;
+        align-items: center;
+    }
+
+    #rankHeading {
+        font-size: 22px;
+        margin-bottom: 16px;
+    }
+
+    #rankList {
+        margin-top: 30px;
+    }
+
+    .rankRow {
+        grid-template-columns: 50px 1fr 80px;
+    }
+
+    .rankPosition {
+        font-size: 18px;
+    }
+
+    .rankRow .rankNickname {
+        text-align: left;
+        padding-left: 14px;
+        font-size: 16px;
+    }
+
+    .rankPoints {
+        font-size: 16px;
+    }
+
+    .rankRow.friendsRow> :nth-child(2) {
+        padding-left: 0px;
+    }
+
+    .rankRow.friendsRow> :nth-child(3) {
+        font-size: 15px;
+        padding-left: 4px;
+        text-align: left;
+    }
+
+    .deleteFriendBtn {
+        font-size: 14px;
+        width: 47px;
+        padding: 4px 4px;
+        height: 26px;
+        line-height: 14px;
+    }
+
+    .rankRow .deleteFriendBtn {
+        width: 47px !important;
+        height: 26px !important;
+        padding: 4px 4px !important;
+        margin: 0 !important;
+        line-height: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Mobile friend requests */
+    #friendRequestsList {
+        padding: 12px;
+        margin-top: 16px;
+    }
+
+    .requestRow {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .requestInfo strong {
+        font-size: 17px;
+    }
+
+    .requestButtons {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    .requestButtons button {
+        flex: none;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
+/* ----------------------------------------------------
+   HARD OVERRIDE: FRIEND REQUESTS VISIBILITY
+---------------------------------------------------- */
+#friendRequestsList {
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 20px;
+    color: #000 !important;
+}
+
+.requestRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    color: #000 !important;
+}
+
+.requestRow * {
+    color: #000 !important;
+}
+
+.requestInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.requestInfo strong {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.requestButtons button {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 6px;
+}
+
+.requestButtons button.approveBtn {
+    background: #28a745;
+    color: #fff !important;
+}
+
+.requestButtons button.rejectBtn {
+    background: #b33a3a;
+    color: #fff !important;
+}
