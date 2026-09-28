@@ -1429,8 +1429,8 @@ function applyResponsiveLayout() {
         const vHeight = el.virtualHeight;
         const scale   = Number(el.dataset.scale ?? el.scale ?? 1);
 
-el.style.width = (vWidth * baselineFactor) + "px";
-el.style.height = (vHeight * baselineFactor) + "px";
+el.style.width = (vWidth * scaleX) + "px";
+el.style.height = (vHeight * scaleX) + "px";
  
 el.style.left = (vLeft * scaleX * scale) + "px";
 el.style.top = (vTop * scaleY * scale) + "px";
