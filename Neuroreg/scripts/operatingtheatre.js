@@ -12,6 +12,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
    GLOBAL CONSTANTS & STATE
 ---------------------------------------------------- */
 const BASELINE_THEATRE_WIDTH = 1000;
+const BASELINE_THEATRE_HEIGHT = 600;
 
 let initialTheatreWidth = null;
 let currentScaleFactor = 1;
@@ -474,12 +475,10 @@ async function restoreItemStates() {
         if (!el) return;
 
         const wrapper = document.getElementById("theatreWrapper");
-        const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH)
-                              : BASELINE_THEATRE_WIDTH;
-
-        // ⭐ MUST MATCH DRAG MATH
-        const baselineFactor = width / BASELINE_THEATRE_WIDTH;
-
+        const width = wrapper ? (wrapper.clientWidth || BASELINE_THEATRE_WIDTH): BASELINE_THEATRE_WIDTH;
+        const height = wrapper ? (wrapper.clientHeight || BASELINE_THEATRE_HEIGHT): BASELINE_THEATRE_HEIGHT;
+        const scaleX = width / BASELINE_THEATRE_WIDTH;
+        const scaleY = height / BASELINE_THEATRE_HEIGHT;
         const sw = el.startingWidth;
         const sh = el.startingHeight;
 
@@ -513,9 +512,8 @@ el.style.height = (sh * baselineFactor) + "px";
 
         el.style.display = "block";
 
-        // ⭐ Position = baseline × user scale
-        el.style.left = (el.virtualLeft * baselineFactor * el.scale) + "px";
-        el.style.top  = (el.virtualTop  * baselineFactor * el.scale) + "px";
+el.style.left = (el.virtualLeft * scaleX * el.scale) + "px";
+el.style.top = (el.virtualTop * scaleY * el.scale) + "px";
 
         el.style.zIndex = String(el.zIndex);
 
@@ -1420,7 +1418,9 @@ function applyResponsiveLayout() {
     }
 
     // ⭐ MUST MATCH DRAG + RESTORE BASELINE
-    const baselineFactor = currentWidth / BASELINE_THEATRE_WIDTH;
+    const currentHeight = wrapper.clientHeight || BASELINE_THEATRE_HEIGHT;
+    const scaleX = currentWidth / BASELINE_THEATRE_WIDTH;
+    const scaleY = currentHeight / BASELINE_THEATRE_HEIGHT;
 
     document.querySelectorAll(".equipmentItem").forEach(el => {
         const vLeft   = el.virtualLeft;
@@ -1432,8 +1432,8 @@ function applyResponsiveLayout() {
 el.style.width = (vWidth * baselineFactor) + "px";
 el.style.height = (vHeight * baselineFactor) + "px";
  
-el.style.left = (vLeft * baselineFactor * scale) + "px";
-el.style.top = (vTop * baselineFactor * scale) + "px";
+el.style.left = (vLeft * scaleX * scale) + "px";
+el.style.top = (vTop * scaleY * scale) + "px";
 
         applyTransform(el);
     });
