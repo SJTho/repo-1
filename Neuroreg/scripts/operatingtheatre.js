@@ -1405,6 +1405,31 @@ function applyResponsiveLayout() {
 
     const currentWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
 
+
+
+
+
+
+
+    
+const wrapper = document.getElementById("theatreWrapper");
+const bg = document.getElementById("theatreBackground");
+ 
+console.log({
+wrapperWidth: wrapper.clientWidth,
+wrapperHeight: wrapper.clientHeight,
+bgWidth: bg.clientWidth,
+bgHeight: bg.clientHeight,
+ratio: wrapper.clientWidth / wrapper.clientHeight
+});
+
+
+
+
+
+
+
+
     // First-time baseline capture
     if (!initialTheatreWidth) {
         initialTheatreWidth = currentWidth;
