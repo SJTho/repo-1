@@ -1412,7 +1412,7 @@ function applyResponsiveLayout() {
 
 
     
-const wrapper = document.getElementById("theatreWrapper");
+
 const bg = document.getElementById("theatreBackground");
  
 console.log({
