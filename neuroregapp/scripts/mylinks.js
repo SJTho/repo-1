@@ -72,47 +72,26 @@ return;
 const current = data[currentIndex];
 const target = data[targetIndex];
  
-// temporary value prevents clashes
-const temp = -9999;
+console.log("Current row:", current);
+console.log("Target row:", target);
  
-let result = await supabase
+const test = await supabase
 .from("mapuserstolinks")
-.update({ display_order: temp })
+.select("*")
 .eq("userid", userId)
 .eq("linkid", current.linkid);
  
-if (result.error) {
-console.error(result.error);
-return;
-}
+console.log("MATCH TEST", test);
  
-result = await supabase
+const result1 = await supabase
 .from("mapuserstolinks")
-.update({ display_order: current.display_order })
+.update({ display_order: -9999 })
 .eq("userid", userId)
-.eq("linkid", target.linkid);
+.eq("linkid", current.linkid)
+.select();
  
-if (result.error) {
-console.error(result.error);
-return;
+console.log("RESULT 1", result1);
 }
- 
-result = await supabase
-.from("mapuserstolinks")
-.update({ display_order: target.display_order })
-.eq("userid", userId)
-.eq("linkid", current.linkid);
- 
-if (result.error) {
-console.error(result.error);
-return;
-}
- 
-await loadLinksTable();
-}
-
-
-
 
 
 
