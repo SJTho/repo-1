@@ -335,9 +335,9 @@ const userId = localStorage.getItem("userId");
  
 const { data: mappings, error: mapError } = await supabase
 .from("mapuserstolinks")
-.select("linkid, order")
+.select("linkid, display_order")
 .eq("userid", userId)
-.order("order", { ascending: true });
+.order("display_order", { ascending: true });
  
 if (mapError) {
 console.error("Failed to load user link mappings:", mapError);
