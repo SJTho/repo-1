@@ -11,6 +11,7 @@ window.logout = logout;
 let editMode = false;
 let editLinkId = null;
 
+
 /* -----------------------------------------
 Get next display order for user
 ----------------------------------------- */
@@ -31,10 +32,6 @@ return data.length > 0
 ? data[0].display_order + 1
 : 1;
 }
-
-
-
-
 
 /* -----------------------------------------
    Reorder links
@@ -115,8 +112,6 @@ return;
 await loadLinksTable();
 }
 
-
-
 /* -----------------------------------------
    Emoji list for dropdown
 ----------------------------------------- */
@@ -165,14 +160,10 @@ async function loadLinksTable() {
     }
 
    const { data: selected, error: selectedError } = await supabase
-.from("mapuserstolinks")
-.select("linkid, display_order")
-.eq("userid", userId)
-.order("display_order", { ascending: true });
-
-
-
-
+   .from("mapuserstolinks")
+   .select("linkid, display_order")
+   .eq("userid", userId)
+   .order("display_order", { ascending: true });
 
     if (selectedError) {
         console.error("Error loading user selections:", selectedError);
@@ -180,11 +171,10 @@ async function loadLinksTable() {
         return;
     }
 
-const selectedIds = new Set(selected.map(row => row.linkid));
- 
-const selectedOrderMap = new Map(
-selected.map(row => [row.linkid, row.display_order])
-);
+    const selectedIds = new Set(selected.map(row => row.linkid));
+    const selectedOrderMap = new Map(
+        selected.map(row => [row.linkid, row.display_order])
+    );
 
     const table = document.createElement("table");
     table.className = "links-table";
@@ -195,33 +185,17 @@ selected.map(row => [row.linkid, row.display_order])
         <th>Select</th>
         <th>Actions</th>
     `;
+
     table.appendChild(header);
 
     links.forEach(link => {
         const tr = document.createElement("tr");
         const isChecked = selectedIds.has(link.id);
-const userOrder = selectedOrderMap.get(link.id);
-const selectedLinksCount = selected.length;
- 
-const showUp =
-isChecked &&
-userOrder > 1;
- 
-const showDown =
-isChecked &&
-userOrder < selectedLinksCount;
-
-
-
-
-
-
-
-
-
-
-        const isPrivateOwned =
-            link.ispublic === false && link.addedby === userId;
+        const userOrder = selectedOrderMap.get(link.id);
+        const selectedLinksCount = selected.length;
+        const showUp = isChecked && userOrder > 1;
+        const showDown = isChecked && userOrder < selectedLinksCount;
+        const isPrivateOwned = link.ispublic === false && link.addedby === userId;
 
         tr.innerHTML = `
             <td class="link-cell">
@@ -233,59 +207,46 @@ userOrder < selectedLinksCount;
             </td>
             <td class="action-cell">
 
-
-
-
                ${isPrivateOwned ? `
-<button class="editBtn">Edit</button>
-<button class="deleteBtn">Delete</button>
-<button class="makePublicBtn">Make Public</button>
-` : `
-<span class="public-note">Public link</span>
-`}
- 
-${isChecked ? `
-<div class="orderButtons">
-${showUp ? '<button class="moveUpBtn">⬆️</button>' : ''}
-${showDown ? '<button class="moveDownBtn">⬇️</button>' : ''}
-</div>
-` : ''}
-
-
-
-
+                <button class="editBtn">Edit</button>
+                <button class="deleteBtn">Delete</button>
+                <button class="makePublicBtn">Make Public</button>
+                ` : `
+                <span class="public-note">Public link</span>
+                `}
+                
+               ${isChecked ? `
+                <div class="orderButtons">
+                ${showUp ? '<button class="moveUpBtn">⬆️</button>' : ''}
+                ${showDown ? '<button class="moveDownBtn">⬇️</button>' : ''}
+                </div>
+                ` : '
+                '}
 
             </td>
         `;
 
         /* -----------------------------------------
-           Checkbox behaviour
+             Checkbox behaviour
         ----------------------------------------- */
         const checkbox = tr.querySelector("input[type='checkbox']");
         checkbox.addEventListener("change", async () => {
+           
+            if (checkbox.checked) {
+            const nextOrder = await getNextUserOrder(userId);
+            const { error } = await supabase
+            .from("mapuserstolinks")
+            .insert({
+                userid: userId,
+                linkid: link.id,
+                display_order: nextOrder
+            });
             
-            
-            
-            
-           if (checkbox.checked) {
- 
-const nextOrder = await getNextUserOrder(userId);
- 
-const { error } = await supabase
-.from("mapuserstolinks")
-.insert({
-userid: userId,
-linkid: link.id,
-display_order: nextOrder
-});
- 
-if (error) {
-console.error("Insert error:", error);
-checkbox.checked = false;
-}
-}
-            
-            
+            if (error) {
+                console.error("Insert error:", error);
+                checkbox.checked = false;
+            }
+        }
             
             else {
                 const { error } = await supabase
@@ -301,33 +262,21 @@ checkbox.checked = false;
             }
         });
 
-
-
-
-
-/* -----------------------------------------
-Move Up / Down buttons
------------------------------------------ */
-if (isChecked) {
- 
-const moveUpBtn =
-tr.querySelector(".moveUpBtn");
- 
-const moveDownBtn =
-tr.querySelector(".moveDownBtn");
- 
-moveUpBtn?.addEventListener("click", async () => {
-await moveLink(userId, link.id, "up");
-});
- 
-moveDownBtn?.addEventListener("click", async () => {
-await moveLink(userId, link.id, "down");
-});
-}
-
-
-
-
+        /* -----------------------------------------
+            Move Up / Down buttons
+        ----------------------------------------- */
+        if (isChecked) {
+            const moveUpBtn = tr.querySelector(".moveUpBtn");
+            const moveDownBtn = tr.querySelector(".moveDownBtn");
+            
+            moveUpBtn?.addEventListener("click", async () => {
+                await moveLink(userId, link.id, "up");
+            });
+            
+            moveDownBtn?.addEventListener("click", async () => {
+                await moveLink(userId, link.id, "down");
+            });
+        }
 
         /* -----------------------------------------
            Edit button behaviour
@@ -458,7 +407,6 @@ function renderAddLinkForm() {
 
     document.getElementById("saveNewLinkBtn").addEventListener("click", saveOrUpdateLink);
 
-    // NEW: close form without saving
     document.getElementById("closeFormBtn").addEventListener("click", () => {
         resetForm();
         exitEditMode();
@@ -482,6 +430,7 @@ async function saveOrUpdateLink() {
     }
 
     if (!editMode) {
+
         /* -----------------------------------------
            INSERT MODE (always private)
         ----------------------------------------- */
@@ -505,20 +454,14 @@ async function saveOrUpdateLink() {
         const newLink = inserted[0];
 
         const nextOrder = await getNextUserOrder(userId);
-
-
-
-await supabase
-.from("mapuserstolinks")
-.insert({
-userid: userId,
-linkid: newLink.id,
-display_order: nextOrder
-});
-
-
-
-
+        
+        await supabase
+        .from("mapuserstolinks")
+        .insert({
+            userid: userId,
+            linkid: newLink.id,
+            display_order: nextOrder
+        });
 
     } else {
         /* -----------------------------------------
