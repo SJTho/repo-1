@@ -17,9 +17,9 @@ Get next display order for user
 async function getNextUserOrder(userId) {
 const { data, error } = await supabase
 .from("mapuserstolinks")
-.select("order")
+.select("display_order")
 .eq("userid", userId)
-.order("order", { ascending: false })
+.order("display_order", { ascending: false })
 .limit(1);
  
 if (error) {
@@ -28,7 +28,7 @@ return 1;
 }
  
 return data.length > 0
-? data[0].order + 1
+? data[0].display_order + 1
 : 1;
 }
 
@@ -39,50 +39,76 @@ return data.length > 0
 
 async function moveLink(userId, linkId, direction) {
  
-console.log("MOVE", linkId, direction);
- 
 const { data, error } = await supabase
 .from("mapuserstolinks")
-.select("linkid, order")
+.select("linkid, display_order")
 .eq("userid", userId)
-.order("order", { ascending: true });
+.order("display_order", { ascending: true });
  
 if (error) {
 console.error(error);
 return;
 }
  
-console.log("Rows:", data);
- 
 const currentIndex =
 data.findIndex(
-row => String(row.linkid) === String(linkId)
+row => Number(row.linkid) === Number(linkId)
 );
  
-console.log("Current index:", currentIndex);
- 
-if (currentIndex < 0) {
-console.error("Link not found");
-return;
-}
+if (currentIndex < 0) return;
  
 const targetIndex =
 direction === "up"
 ? currentIndex - 1
 : currentIndex + 1;
  
-console.log("Target index:", targetIndex);
- 
 if (
 targetIndex < 0 ||
 targetIndex >= data.length
 ) {
-console.error("No target row");
 return;
 }
  
-console.log("Current row:", data[currentIndex]);
-console.log("Target row:", data[targetIndex]);
+const current = data[currentIndex];
+const target = data[targetIndex];
+ 
+// temporary value prevents clashes
+const temp = -9999;
+ 
+let result = await supabase
+.from("mapuserstolinks")
+.update({ display_order: temp })
+.eq("userid", userId)
+.eq("linkid", current.linkid);
+ 
+if (result.error) {
+console.error(result.error);
+return;
+}
+ 
+result = await supabase
+.from("mapuserstolinks")
+.update({ display_order: current.display_order })
+.eq("userid", userId)
+.eq("linkid", target.linkid);
+ 
+if (result.error) {
+console.error(result.error);
+return;
+}
+ 
+result = await supabase
+.from("mapuserstolinks")
+.update({ display_order: target.display_order })
+.eq("userid", userId)
+.eq("linkid", current.linkid);
+ 
+if (result.error) {
+console.error(result.error);
+return;
+}
+ 
+await loadLinksTable();
 }
 
 
@@ -139,9 +165,9 @@ async function loadLinksTable() {
 
    const { data: selected, error: selectedError } = await supabase
 .from("mapuserstolinks")
-.select("linkid, order")
+.select("linkid, display_order")
 .eq("userid", userId)
-.order("order", { ascending: true });
+.order("display_order", { ascending: true });
 
 
 
@@ -156,7 +182,7 @@ async function loadLinksTable() {
 const selectedIds = new Set(selected.map(row => row.linkid));
  
 const selectedOrderMap = new Map(
-selected.map(row => [row.linkid, row.order])
+selected.map(row => [row.linkid, row.display_order])
 );
 
     const table = document.createElement("table");
@@ -249,7 +275,7 @@ const { error } = await supabase
 .insert({
 userid: userId,
 linkid: link.id,
-order: nextOrder
+display_order: nextOrder
 });
  
 if (error) {
@@ -486,7 +512,7 @@ await supabase
 .insert({
 userid: userId,
 linkid: newLink.id,
-order: nextOrder
+display_order: nextOrder
 });
 
 
