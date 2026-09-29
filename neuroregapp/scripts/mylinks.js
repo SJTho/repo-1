@@ -36,7 +36,9 @@ return data.length > 0
 
 
 
-
+/* -----------------------------------------
+   Reorder links
+----------------------------------------- */
 async function moveLink(userId, linkId, direction) {
  
 const { data, error } = await supabase
@@ -72,25 +74,45 @@ return;
 const current = data[currentIndex];
 const target = data[targetIndex];
  
-console.log("Current row:", current);
-console.log("Target row:", target);
+const temp = -9999;
  
-const test = await supabase
+// Step 1
+let result = await supabase
 .from("mapuserstolinks")
-.select("*")
+.update({ display_order: temp })
 .eq("userid", userId)
 .eq("linkid", current.linkid);
  
-console.log("MATCH TEST", test);
+if (result.error) {
+console.error(result.error);
+return;
+}
  
-const result1 = await supabase
+// Step 2
+result = await supabase
 .from("mapuserstolinks")
-.update({ display_order: -9999 })
+.update({ display_order: current.display_order })
 .eq("userid", userId)
-.eq("linkid", current.linkid)
-.select();
+.eq("linkid", target.linkid);
  
-console.log("RESULT 1", result1);
+if (result.error) {
+console.error(result.error);
+return;
+}
+ 
+// Step 3
+result = await supabase
+.from("mapuserstolinks")
+.update({ display_order: target.display_order })
+.eq("userid", userId)
+.eq("linkid", current.linkid);
+ 
+if (result.error) {
+console.error(result.error);
+return;
+}
+ 
+await loadLinksTable();
 }
 
 
