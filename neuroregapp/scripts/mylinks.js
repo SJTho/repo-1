@@ -37,10 +37,9 @@ return data.length > 0
 
 
 
-/* -----------------------------------------
-Move link up/down
------------------------------------------ */
 async function moveLink(userId, linkId, direction) {
+ 
+console.log("MOVE", linkId, direction);
  
 const { data, error } = await supabase
 .from("mapuserstolinks")
@@ -49,58 +48,42 @@ const { data, error } = await supabase
 .order("order", { ascending: true });
  
 if (error) {
-console.error("Move link error:", error);
+console.error(error);
 return;
 }
  
-const currentIndex =
-data.findIndex(row => row.linkid === linkId);
+console.log("Rows:", data);
  
-if (currentIndex < 0) return;
+const currentIndex =
+data.findIndex(
+row => String(row.linkid) === String(linkId)
+);
+ 
+console.log("Current index:", currentIndex);
+ 
+if (currentIndex < 0) {
+console.error("Link not found");
+return;
+}
  
 const targetIndex =
 direction === "up"
 ? currentIndex - 1
 : currentIndex + 1;
  
+console.log("Target index:", targetIndex);
+ 
 if (
 targetIndex < 0 ||
 targetIndex >= data.length
 ) {
+console.error("No target row");
 return;
 }
  
-const current = data[currentIndex];
-const target = data[targetIndex];
- 
-const currentOrder = current.order;
-const targetOrder = target.order;
- 
-const { error: firstError } = await supabase
-.from("mapuserstolinks")
-.update({ order: targetOrder })
-.eq("userid", userId)
-.eq("linkid", current.linkid);
- 
-if (firstError) {
-console.error(firstError);
-return;
+console.log("Current row:", data[currentIndex]);
+console.log("Target row:", data[targetIndex]);
 }
- 
-const { error: secondError } = await supabase
-.from("mapuserstolinks")
-.update({ order: currentOrder })
-.eq("userid", userId)
-.eq("linkid", target.linkid);
- 
-if (secondError) {
-console.error(secondError);
-return;
-}
- 
-loadLinksTable();
-}
-
 
 
 
