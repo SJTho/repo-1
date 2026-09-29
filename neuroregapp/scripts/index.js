@@ -325,50 +325,77 @@ document.addEventListener("DOMContentLoaded", () => {
         return card;
     }
 
-    /* ----------------------------------------------------
-       Render user-mapped links from Supabase
-    ---------------------------------------------------- */
-    async function renderLinks() {
-        linksContainer.innerHTML = "";
 
-        const userId = localStorage.getItem("userId");
 
-        const { data: mappings, error: mapError } = await supabase
-            .from("mapuserstolinks")
-            .select("linkid")
-            .eq("userid", userId);
 
-        if (mapError) {
-            console.error("Failed to load user link mappings:", mapError);
-            return;
-        }
 
-        const linkIds = mappings.map(m => m.linkid);
 
-        if (linkIds.length === 0) {
-            linksContainer.innerHTML = "<p>No links selected.</p>";
-            linksContainer.appendChild(createAddLinkButton());
-            return;
-        }
 
-        const { data: links, error: linkError } = await supabase
-            .from("indexpagelinks")
-            .select("*")
-            .in("id", linkIds);
+/* ----------------------------------------------------
+Render user-mapped links from Supabase
+---------------------------------------------------- */
+async function renderLinks() {
+linksContainer.innerHTML = "";
+ 
+const userId = localStorage.getItem("userId");
+ 
+const { data: mappings, error: mapError } = await supabase
+.from("mapuserstolinks")
+.select("linkid, order")
+.eq("userid", userId)
+.order("order", { ascending: true });
+ 
+if (mapError) {
+console.error("Failed to load user link mappings:", mapError);
+return;
+}
+ 
+if (!mappings || mappings.length === 0) {
+linksContainer.innerHTML = "<p>No links selected yet.</p>";
+linksContainer.appendChild(createAddLinkButton());
+return;
+}
+ 
+const linkIds = mappings.map(m => m.linkid);
+ 
+const { data: links, error: linkError } = await supabase
+.from("indexpagelinks")
+.select("*")
+.in("id", linkIds);
+ 
+if (linkError) {
+console.error("Failed to load index page links:", linkError);
+return;
+}
+ 
+// Create lookup table
+const linksById = new Map(
+links.map(link => [link.id, link])
+);
+ 
+// Render in user's chosen order
+mappings.forEach(mapping => {
+const link = linksById.get(mapping.linkid);
+ 
+if (link) {
+linksContainer.appendChild(
+createIconCard(
+link.icon,
+link.name,
+link.url
+)
+);
+}
+});
+ 
+// Always last
+linksContainer.appendChild(createAddLinkButton());
+}
 
-        if (linkError) {
-            console.error("Failed to load links:", linkError);
-            return;
-        }
 
-        links.forEach(link => {
-            linksContainer.appendChild(
-                createIconCard(link.icon, link.name, link.url)
-            );
-        });
 
-        linksContainer.appendChild(createAddLinkButton());
-    }
+
+
 
     /* ----------------------------------------------------
        INITIAL LOAD
