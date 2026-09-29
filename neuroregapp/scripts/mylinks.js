@@ -11,8 +11,6 @@ window.logout = logout;
 let editMode = false;
 let editLinkId = null;
 
-
-
 /* -----------------------------------------
 Get next display order for user
 ----------------------------------------- */
@@ -33,6 +31,76 @@ return data.length > 0
 ? data[0].order + 1
 : 1;
 }
+
+
+
+
+
+
+/* -----------------------------------------
+Move link up/down
+----------------------------------------- */
+async function moveLink(userId, linkId, direction) {
+ 
+const { data, error } = await supabase
+.from("mapuserstolinks")
+.select("linkid, order")
+.eq("userid", userId)
+.order("order", { ascending: true });
+ 
+if (error) {
+console.error("Move link error:", error);
+return;
+}
+ 
+const currentIndex =
+data.findIndex(row => row.linkid === linkId);
+ 
+if (currentIndex < 0) return;
+ 
+const targetIndex =
+direction === "up"
+? currentIndex - 1
+: currentIndex + 1;
+ 
+if (
+targetIndex < 0 ||
+targetIndex >= data.length
+) {
+return;
+}
+ 
+const current = data[currentIndex];
+const target = data[targetIndex];
+ 
+const currentOrder = current.order;
+const targetOrder = target.order;
+ 
+const { error: firstError } = await supabase
+.from("mapuserstolinks")
+.update({ order: targetOrder })
+.eq("userid", userId)
+.eq("linkid", current.linkid);
+ 
+if (firstError) {
+console.error(firstError);
+return;
+}
+ 
+const { error: secondError } = await supabase
+.from("mapuserstolinks")
+.update({ order: currentOrder })
+.eq("userid", userId)
+.eq("linkid", target.linkid);
+ 
+if (secondError) {
+console.error(secondError);
+return;
+}
+ 
+loadLinksTable();
+}
+
 
 
 
@@ -86,10 +154,15 @@ async function loadLinksTable() {
         return;
     }
 
-    const { data: selected, error: selectedError } = await supabase
-        .from("mapuserstolinks")
-        .select("linkid")
-        .eq("userid", userId);
+   const { data: selected, error: selectedError } = await supabase
+.from("mapuserstolinks")
+.select("linkid, order")
+.eq("userid", userId)
+.order("order", { ascending: true });
+
+
+
+
 
     if (selectedError) {
         console.error("Error loading user selections:", selectedError);
@@ -97,7 +170,11 @@ async function loadLinksTable() {
         return;
     }
 
-    const selectedIds = new Set(selected.map(row => row.linkid));
+const selectedIds = new Set(selected.map(row => row.linkid));
+ 
+const selectedOrderMap = new Map(
+selected.map(row => [row.linkid, row.order])
+);
 
     const table = document.createElement("table");
     table.className = "links-table";
@@ -113,6 +190,25 @@ async function loadLinksTable() {
     links.forEach(link => {
         const tr = document.createElement("tr");
         const isChecked = selectedIds.has(link.id);
+const userOrder = selectedOrderMap.get(link.id);
+const selectedLinksCount = selected.length;
+ 
+const showUp =
+isChecked &&
+userOrder > 1;
+ 
+const showDown =
+isChecked &&
+userOrder < selectedLinksCount;
+
+
+
+
+
+
+
+
+
 
         const isPrivateOwned =
             link.ispublic === false && link.addedby === userId;
@@ -126,13 +222,29 @@ async function loadLinksTable() {
                 <input type="checkbox" ${isChecked ? "checked" : ""} />
             </td>
             <td class="action-cell">
-                ${isPrivateOwned ? `
-                    <button class="editBtn">Edit</button>
-                    <button class="deleteBtn">Delete</button>
-                    <button class="makePublicBtn">Make Public</button>
-                ` : `
-                    <span class="public-note">Public link</span>
-                `}
+
+
+
+
+               ${isPrivateOwned ? `
+<button class="editBtn">Edit</button>
+<button class="deleteBtn">Delete</button>
+<button class="makePublicBtn">Make Public</button>
+` : `
+<span class="public-note">Public link</span>
+`}
+ 
+${isChecked ? `
+<div class="orderButtons">
+${showUp ? '<button class="moveUpBtn">⬆️</button>' : ''}
+${showDown ? '<button class="moveDownBtn">⬇️</button>' : ''}
+</div>
+` : ''}
+
+
+
+
+
             </td>
         `;
 
@@ -178,6 +290,34 @@ checkbox.checked = false;
                 }
             }
         });
+
+
+
+
+
+/* -----------------------------------------
+Move Up / Down buttons
+----------------------------------------- */
+if (isChecked) {
+ 
+const moveUpBtn =
+tr.querySelector(".moveUpBtn");
+ 
+const moveDownBtn =
+tr.querySelector(".moveDownBtn");
+ 
+moveUpBtn?.addEventListener("click", async () => {
+await moveLink(userId, link.id, "up");
+});
+ 
+moveDownBtn?.addEventListener("click", async () => {
+await moveLink(userId, link.id, "down");
+});
+}
+
+
+
+
 
         /* -----------------------------------------
            Edit button behaviour

@@ -299,3 +299,13 @@ button {
 #closeFormBtn:hover {
     background: #005fcc !important;
 }
+
+.orderButtons {
+    display: inline-flex;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.orderButtons button {
+    padding: 2px 6px;
+}
