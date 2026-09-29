@@ -11,6 +11,34 @@ window.logout = logout;
 let editMode = false;
 let editLinkId = null;
 
+
+
+/* -----------------------------------------
+Get next display order for user
+----------------------------------------- */
+async function getNextUserOrder(userId) {
+const { data, error } = await supabase
+.from("mapuserstolinks")
+.select("order")
+.eq("userid", userId)
+.order("order", { ascending: false })
+.limit(1);
+ 
+if (error) {
+console.error("Failed to get user order:", error);
+return 1;
+}
+ 
+return data.length > 0
+? data[0].order + 1
+: 1;
+}
+
+
+
+
+
+
 /* -----------------------------------------
    Emoji list for dropdown
 ----------------------------------------- */
@@ -113,19 +141,31 @@ async function loadLinksTable() {
         ----------------------------------------- */
         const checkbox = tr.querySelector("input[type='checkbox']");
         checkbox.addEventListener("change", async () => {
-            if (checkbox.checked) {
-                const { error } = await supabase
-                    .from("mapuserstolinks")
-                    .insert({
-                        userid: userId,
-                        linkid: link.id
-                    });
-
-                if (error) {
-                    console.error("Insert error:", error);
-                    checkbox.checked = false;
-                }
-            } else {
+            
+            
+            
+            
+           if (checkbox.checked) {
+ 
+const nextOrder = await getNextUserOrder(userId);
+ 
+const { error } = await supabase
+.from("mapuserstolinks")
+.insert({
+userid: userId,
+linkid: link.id,
+order: nextOrder
+});
+ 
+if (error) {
+console.error("Insert error:", error);
+checkbox.checked = false;
+}
+}
+            
+            
+            
+            else {
                 const { error } = await supabase
                     .from("mapuserstolinks")
                     .delete()
@@ -314,12 +354,21 @@ async function saveOrUpdateLink() {
 
         const newLink = inserted[0];
 
-        await supabase
-            .from("mapuserstolinks")
-            .insert({
-                userid: userId,
-                linkid: newLink.id
-            });
+        const nextOrder = await getNextUserOrder(userId);
+
+
+
+await supabase
+.from("mapuserstolinks")
+.insert({
+userid: userId,
+linkid: newLink.id,
+order: nextOrder
+});
+
+
+
+
 
     } else {
         /* -----------------------------------------

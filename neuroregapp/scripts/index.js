@@ -325,12 +325,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return card;
     }
 
-
-
-
-
-
-
 /* ----------------------------------------------------
 Render user-mapped links from Supabase
 ---------------------------------------------------- */
@@ -391,12 +385,6 @@ link.url
 // Always last
 linksContainer.appendChild(createAddLinkButton());
 }
-
-
-
-
-
-
     /* ----------------------------------------------------
        INITIAL LOAD
     ---------------------------------------------------- */
