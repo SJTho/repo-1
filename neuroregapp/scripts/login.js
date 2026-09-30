@@ -52,36 +52,15 @@ window.signup = async function (email, password, nickname) {
 
     if (profileError) return { error: profileError.message };
 
+    // Create link rows
+    const linkRows = Array.from({ length: 8 }, (_, i) => ({
+      userid: user.id,
+      linkid: i + 1
+    }));
 
-
-
-
-
-    
-// Load default orders for the first 8 links
-const { data: defaultLinks, error: defaultLinksError } = await supabase
-.from("indexpagelinks")
-.select("id, default_order")
-.in("id", [1, 2, 3, 4, 5, 6, 7, 8]);
- 
-if (defaultLinksError) {
-return { error: defaultLinksError.message };
-}
- 
-// Create mapping rows including display_order
-const linkRows = defaultLinks.map(link => ({
-userid: user.id,
-linkid: link.id,
-display_order: link.default_order
-}));
- 
-const { error: mapError } = await supabase
-.from("mapuserstolinks")
-.insert(linkRows);
-
-
-
-
+    const { error: mapError } = await supabase
+      .from("mapuserstolinks")
+      .insert(linkRows);
 
     if (mapError) return { error: mapError.message };
 
