@@ -143,100 +143,115 @@ function hideForm() {
    Load public links + user's private links
 ----------------------------------------- */
 async function loadLinksTable() {
-    const container = document.getElementById("linksContainer");
-    container.innerHTML = "";
-
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-        container.innerHTML = "<p>No user logged in.</p>";
-        return;
-    }
-
-    const { data: links, error: linksError } = await supabase
-        .from("indexpagelinks")
-        .select("id, name, url, icon, ispublic, addedby")
-        .or(`ispublic.eq.true,addedby.eq.${userId}`)
-        .order("id", { ascending: true });
-
-    if (linksError) {
-        console.error("Error loading links:", linksError);
-        container.innerHTML = "<p>Failed to load links.</p>";
-        return;
-    }
-
-   const { data: selected, error: selectedError } = await supabase
+const container = document.getElementById("linksContainer");
+container.innerHTML = "";
+ 
+const userId = localStorage.getItem("userId");
+ 
+if (!userId) {
+container.innerHTML = "<p>No user logged in.</p>";
+return;
+}
+ 
+const { data: links, error: linksError } = await supabase
+.from("indexpagelinks")
+.select("id, name, url, icon, ispublic, addedby")
+.or(`ispublic.eq.true,addedby.eq.${userId}`)
+.order("name", { ascending: true });
+ 
+if (linksError) {
+console.error("Error loading links:", linksError);
+container.innerHTML = "<p>Failed to load links.</p>";
+return;
+}
+ 
+const { data: selected, error: selectedError } = await supabase
 .from("mapuserstolinks")
 .select("linkid, display_order")
 .eq("userid", userId)
 .order("display_order", { ascending: true });
-
-
-
-
-
-    if (selectedError) {
-        console.error("Error loading user selections:", selectedError);
-        container.innerHTML = "<p>Failed to load selections.</p>";
-        return;
-    }
-
-const selectedIds = new Set(selected.map(row => row.linkid));
+ 
+if (selectedError) {
+console.error("Error loading user selections:", selectedError);
+container.innerHTML = "<p>Failed to load selections.</p>";
+return;
+}
+ 
+const selectedIds = new Set(
+selected.map(row => row.linkid)
+);
  
 const selectedOrderMap = new Map(
 selected.map(row => [row.linkid, row.display_order])
 );
-
-    const table = document.createElement("table");
-    table.className = "links-table";
-
-    const header = document.createElement("tr");
-    header.innerHTML = `
-        <th>Link</th>
-        <th>Select</th>
-        <th>Actions</th>
-    `;
-    table.appendChild(header);
-
-    links.forEach(link => {
-        const tr = document.createElement("tr");
-        const isChecked = selectedIds.has(link.id);
-const userOrder = selectedOrderMap.get(link.id);
-const selectedLinksCount = selected.length;
+ 
+// Sort links into display order
+links.sort((a, b) => {
+ 
+const aSelected = selectedIds.has(a.id);
+const bSelected = selectedIds.has(b.id);
+ 
+if (aSelected && bSelected) {
+return (
+selectedOrderMap.get(a.id) -
+selectedOrderMap.get(b.id)
+);
+}
+ 
+if (aSelected) return -1;
+if (bSelected) return 1;
+ 
+return a.name.localeCompare(b.name);
+});
+ 
+const table = document.createElement("table");
+table.className = "links-table";
+ 
+const header = document.createElement("tr");
+ 
+header.innerHTML = `
+<th>Link</th>
+<th>Select</th>
+<th>Actions</th>
+`;
+ 
+table.appendChild(header);
+ 
+links.forEach(link => {
+ 
+const tr = document.createElement("tr");
+ 
+const isChecked = selectedIds.has(link.id);
+ 
+const rowPosition = selected.findIndex(
+row => Number(row.linkid) === Number(link.id)
+);
  
 const showUp =
 isChecked &&
-userOrder > 1;
+rowPosition > 0;
  
 const showDown =
 isChecked &&
-userOrder < selectedLinksCount;
-
-
-
-
-
-
-
-
-
-
-        const isPrivateOwned =
-            link.ispublic === false && link.addedby === userId;
-
-        tr.innerHTML = `
-            <td class="link-cell">
-                <span class="icon">${link.icon || ""}</span>
-                <span class="name">${link.name}</span>
-            </td>
-            <td class="checkbox-cell">
-                <input type="checkbox" ${isChecked ? "checked" : ""} />
-            </td>
-            <td class="action-cell">
-
-
-
-
-               ${isPrivateOwned ? `
+rowPosition < selected.length - 1;
+ 
+const isPrivateOwned =
+link.ispublic === false &&
+link.addedby === userId;
+ 
+tr.innerHTML = `
+<td class="link-cell">
+<span class="icon">${link.icon || ""}</span>
+<span class="name">${link.name}</span>
+</td>
+ 
+<td class="checkbox-cell">
+<input type="checkbox" ${isChecked ? "checked" : ""} />
+</td>
+ 
+<td class="action-cell">
+ 
+${isPrivateOwned ? `
 <button class="editBtn">Edit</button>
 <button class="deleteBtn">Delete</button>
 <button class="makePublicBtn">Make Public</button>
@@ -250,26 +265,22 @@ ${showUp ? '<button class="moveUpBtn">⬆️</button>' : ''}
 ${showDown ? '<button class="moveDownBtn">⬇️</button>' : ''}
 </div>
 ` : ''}
-
-
-
-
-
-            </td>
-        `;
-
-        /* -----------------------------------------
-           Checkbox behaviour
-        ----------------------------------------- */
-        const checkbox = tr.querySelector("input[type='checkbox']");
-        checkbox.addEventListener("change", async () => {
-            
-            
-            
-            
-           if (checkbox.checked) {
  
-const nextOrder = await getNextUserOrder(userId);
+</td>
+`;
+ 
+/* -----------------------------------------
+Checkbox behaviour
+----------------------------------------- */
+const checkbox =
+tr.querySelector("input[type='checkbox']");
+ 
+checkbox.addEventListener("change", async () => {
+ 
+if (checkbox.checked) {
+ 
+const nextOrder =
+await getNextUserOrder(userId);
  
 const { error } = await supabase
 .from("mapuserstolinks")
@@ -282,31 +293,29 @@ display_order: nextOrder
 if (error) {
 console.error("Insert error:", error);
 checkbox.checked = false;
+return;
+}
+ 
+} else {
+ 
+const { error } = await supabase
+.from("mapuserstolinks")
+.delete()
+.eq("userid", userId)
+.eq("linkid", link.id);
+ 
+if (error) {
+console.error("Delete error:", error);
+checkbox.checked = true;
+return;
 }
 }
-            
-            
-            
-            else {
-                const { error } = await supabase
-                    .from("mapuserstolinks")
-                    .delete()
-                    .eq("userid", userId)
-                    .eq("linkid", link.id);
-
-                if (error) {
-                    console.error("Delete error:", error);
-                    checkbox.checked = true;
-                }
-            }
-        });
-
-
-
-
-
+ 
+loadLinksTable();
+});
+ 
 /* -----------------------------------------
-Move Up / Down buttons
+Move Up / Down
 ----------------------------------------- */
 if (isChecked) {
  
@@ -316,93 +325,126 @@ tr.querySelector(".moveUpBtn");
 const moveDownBtn =
 tr.querySelector(".moveDownBtn");
  
-moveUpBtn?.addEventListener("click", async () => {
-await moveLink(userId, link.id, "up");
+moveUpBtn?.addEventListener(
+"click",
+async () => {
+await moveLink(
+userId,
+link.id,
+"up"
+);
+}
+);
+ 
+moveDownBtn?.addEventListener(
+"click",
+async () => {
+await moveLink(
+userId,
+link.id,
+"down"
+);
+}
+);
+}
+ 
+/* -----------------------------------------
+Edit button
+----------------------------------------- */
+if (isPrivateOwned) {
+ 
+const editBtn =
+tr.querySelector(".editBtn");
+ 
+editBtn.addEventListener(
+"click",
+() => enterEditMode(link)
+);
+}
+ 
+/* -----------------------------------------
+Delete button
+----------------------------------------- */
+if (isPrivateOwned) {
+ 
+const deleteBtn =
+tr.querySelector(".deleteBtn");
+ 
+deleteBtn.addEventListener(
+"click",
+async () => {
+ 
+if (
+!confirm(
+"Delete this private link?"
+)
+) return;
+ 
+await supabase
+.from("mapuserstolinks")
+.delete()
+.eq("userid", userId)
+.eq("linkid", link.id);
+ 
+const { error } = await supabase
+.from("indexpagelinks")
+.delete()
+.eq("id", link.id)
+.eq("addedby", userId);
+ 
+if (error) {
+console.error(error);
+alert("Failed to delete link.");
+return;
+}
+ 
+loadLinksTable();
+}
+);
+}
+ 
+/* -----------------------------------------
+Make Public
+----------------------------------------- */
+if (isPrivateOwned) {
+ 
+const makePublicBtn =
+tr.querySelector(".makePublicBtn");
+ 
+makePublicBtn.addEventListener(
+"click",
+async () => {
+ 
+const proceed = confirm(
+"Public links are available to all users and cannot be deleted or edited.\n\nDo you want to continue?"
+);
+ 
+if (!proceed) return;
+ 
+const { error } = await supabase
+.from("indexpagelinks")
+.update({
+ispublic: true
+})
+.eq("id", link.id)
+.eq("addedby", userId);
+ 
+if (error) {
+console.error(error);
+alert("Failed to update link.");
+return;
+}
+ 
+loadLinksTable();
+}
+);
+}
+ 
+table.appendChild(tr);
 });
  
-moveDownBtn?.addEventListener("click", async () => {
-await moveLink(userId, link.id, "down");
-});
+container.appendChild(table);
 }
-
-
-
-
-
-        /* -----------------------------------------
-           Edit button behaviour
-        ----------------------------------------- */
-        if (isPrivateOwned) {
-            const editBtn = tr.querySelector(".editBtn");
-            editBtn.addEventListener("click", () => {
-                enterEditMode(link);
-            });
-        }
-
-        /* -----------------------------------------
-           Delete button behaviour
-        ----------------------------------------- */
-        if (isPrivateOwned) {
-            const deleteBtn = tr.querySelector(".deleteBtn");
-            deleteBtn.addEventListener("click", async () => {
-                if (!confirm("Delete this private link?")) return;
-
-                await supabase
-                    .from("mapuserstolinks")
-                    .delete()
-                    .eq("userid", userId)
-                    .eq("linkid", link.id);
-
-                const { error } = await supabase
-                    .from("indexpagelinks")
-                    .delete()
-                    .eq("id", link.id)
-                    .eq("addedby", userId);
-
-                if (error) {
-                    console.error("Delete error:", error);
-                    alert("Failed to delete link.");
-                    return;
-                }
-
-                loadLinksTable();
-            });
-        }
-
-        /* -----------------------------------------
-           Make Public button behaviour
-        ----------------------------------------- */
-        if (isPrivateOwned) {
-            const makePublicBtn = tr.querySelector(".makePublicBtn");
-            makePublicBtn.addEventListener("click", async () => {
-
-                const proceed = confirm(
-                    "Public links are available to all users and cannot be deleted or edited.\n\nDo you want to continue?"
-                );
-                if (!proceed) return;
-
-                const { error } = await supabase
-                    .from("indexpagelinks")
-                    .update({ ispublic: true })
-                    .eq("id", link.id)
-                    .eq("addedby", userId);
-
-                if (error) {
-                    console.error("Make public error:", error);
-                    alert("Failed to update link.");
-                    return;
-                }
-
-                loadLinksTable();
-            });
-        }
-
-        table.appendChild(tr);
-    });
-
-    container.appendChild(table);
-}
-
 /* -----------------------------------------
    Enter Edit Mode
 ----------------------------------------- */
