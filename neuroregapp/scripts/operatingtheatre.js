@@ -1403,6 +1403,14 @@ function applyResponsiveLayout() {
     const wrapper = document.getElementById("theatreWrapper");
     if (!wrapper) return;
 
+
+document.title =
+wrapper.clientWidth +
+" x " +
+wrapper.clientHeight;
+
+
+
     const currentWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
     const bg = document.getElementById("theatreBackground");
  
