@@ -220,26 +220,27 @@ return 0;
 
 
 
-
-
-
-
     links.forEach(link => {
         const tr = document.createElement("tr");
         const isChecked = selectedIds.has(link.id);
-const userOrder = selectedOrderMap.get(link.id);
-const selectedLinksCount = selected.length;
+
+
+
+
+const selectedLinkIds = selected.map(
+row => Number(row.linkid)
+);
+ 
+const rowPosition =
+selectedLinkIds.indexOf(Number(link.id));
  
 const showUp =
 isChecked &&
-userOrder > 1;
+rowPosition > 0;
  
 const showDown =
 isChecked &&
-userOrder < selectedLinksCount;
-
-
-
+rowPosition < selectedLinkIds.length - 1;
 
 
 
@@ -259,10 +260,6 @@ userOrder < selectedLinksCount;
                 <input type="checkbox" ${isChecked ? "checked" : ""} />
             </td>
             <td class="action-cell">
-
-
-
-
                ${isPrivateOwned ? `
 <button class="editBtn">Edit</button>
 <button class="deleteBtn">Delete</button>
