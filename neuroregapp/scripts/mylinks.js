@@ -207,14 +207,16 @@ return a.name.localeCompare(b.name);
 const table = document.createElement("table");
 table.className = "links-table";
  
-const header = document.createElement("tr");
+const header = document.createElement("thead");
+const headerRow = document.createElement("tr");
  
-header.innerHTML = `
+headerRow.innerHTML = `
 <th>Link</th>
 <th>Select</th>
 <th>Actions</th>
 `;
  
+header.appendChild(headerRow);
 table.appendChild(header);
  
 links.forEach(link => {
