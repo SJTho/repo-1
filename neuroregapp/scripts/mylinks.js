@@ -197,6 +197,33 @@ selected.map(row => [row.linkid, row.display_order])
     `;
     table.appendChild(header);
 
+
+
+links.sort((a, b) => {
+ 
+const aSelected = selectedIds.has(a.id);
+const bSelected = selectedIds.has(b.id);
+ 
+if (aSelected && bSelected) {
+return (
+selectedOrderMap.get(a.id) -
+selectedOrderMap.get(b.id)
+);
+}
+ 
+if (aSelected) return -1;
+if (bSelected) return 1;
+ 
+return 0;
+});
+
+
+
+
+
+
+
+
     links.forEach(link => {
         const tr = document.createElement("tr");
         const isChecked = selectedIds.has(link.id);
