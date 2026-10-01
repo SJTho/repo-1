@@ -387,6 +387,10 @@ Feature Page Layout
     max-width: 100%;
     object-fit: contain;
     display: block;
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.25),
+        0 8px 16px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
 }
 
 .card_items {
