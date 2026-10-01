@@ -157,6 +157,10 @@ Page Header
     text-align: center;
 }
 
+.menu-toggle {
+    display: none;
+}
+
 /* ==========================================
 Content
 ========================================== */
@@ -429,7 +433,7 @@ Mobile
     }
 
     .menu-toggle {
-        display: none;
+        display: block;
         width: 36px;
         background: none;
         border: none;

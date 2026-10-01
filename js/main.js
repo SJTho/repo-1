@@ -8,11 +8,10 @@ document.addEventListener("DOMContentLoaded",()=>{
         b.style.display="none";
     };
 
-});
-
 /*-------------------------------------
 Hamburger Menu on mobile
 --------------------------------------*/
+
 const menuToggle = document.getElementById("menuToggle");
 const navLinks = document.getElementById("navLinks");
  
@@ -21,3 +20,6 @@ menuToggle.addEventListener("click", () => {
 navLinks.classList.toggle("show");
 });
 }
+
+
+});
