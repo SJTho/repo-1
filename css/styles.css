@@ -466,6 +466,7 @@ Mobile
         width: 100%;
         margin-top: 0;
         padding: 16px;
+        order: 2;
     }
 
     .feature-row .card h3 {
@@ -478,6 +479,7 @@ Mobile
 
     .feature-image {
         width: 100%;
+        order: 1;
     }
 
     .feature-image img {
