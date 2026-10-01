@@ -457,9 +457,13 @@ Mobile
         height: 100px;
     }
 
+    .feature-sections {
+        gap: 20px;
+    }
+
     .feature-row {
         flex-direction: column;
-        gap: 5px;
+        gap: 10px;
     }
 
     .feature-row .card {
@@ -467,6 +471,7 @@ Mobile
         margin-top: 0;
         padding: 16px;
         order: 2;
+        margin-bottom: 0;
     }
 
     .feature-row .card h3 {
@@ -480,6 +485,7 @@ Mobile
     .feature-image {
         width: 100%;
         order: 1;
+        margin-top: 0;
     }
 
     .feature-image img {
