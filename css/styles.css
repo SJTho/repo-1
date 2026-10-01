@@ -377,6 +377,10 @@ Feature Page Layout
     margin-top: 0;
 }
 
+.feature-row .card {
+    padding-top: 20px;
+}
+
 .feature-image {
     display: flex;
     justify-content: center;
