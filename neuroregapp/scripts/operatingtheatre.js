@@ -1402,15 +1402,6 @@ function scaleRoomContents() {
 function applyResponsiveLayout() {
     const wrapper = document.getElementById("theatreWrapper");
     if (!wrapper) return;
-
-
-document.title =
-wrapper.clientWidth +
-" x " +
-wrapper.clientHeight;
-
-
-
     const currentWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
     const bg = document.getElementById("theatreBackground");
  
@@ -1421,18 +1412,26 @@ wrapper.clientHeight;
 
 
 
-
-
-
-
-    
-console.log({
-wrapperWidth: wrapper.clientWidth,
-wrapperHeight: wrapper.clientHeight,
-bgWidth: bg.clientWidth,
-bgHeight: bg.clientHeight,
-ratio: wrapper.clientWidth / wrapper.clientHeight
-});
+let debug = document.getElementById("debugDimensions");
+ 
+if (!debug) {
+debug = document.createElement("div");
+debug.id = "debugDimensions";
+ 
+debug.style.position = "fixed";
+debug.style.bottom = "10px";
+debug.style.left = "10px";
+debug.style.zIndex = "99999";
+debug.style.background = "white";
+debug.style.color = "black";
+debug.style.padding = "6px";
+debug.style.fontSize = "12px";
+ 
+document.body.appendChild(debug);
+}
+ 
+debug.textContent =
+`${wrapper.clientWidth} × ${wrapper.clientHeight}`;
 
 
 
