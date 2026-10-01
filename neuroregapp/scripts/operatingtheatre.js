@@ -513,7 +513,7 @@ el.style.height = (sh * baselineFactor) + "px";
         el.zIndex      = state.z ?? 1;
 
         el.style.display = "block";
-
+        maxZIndex = Math.max(maxZIndex, el.zIndex);
         // ⭐ Position = baseline × user scale
         el.style.left = (el.virtualLeft * baselineFactor * el.scale) + "px";
         el.style.top  = (el.virtualTop  * baselineFactor * el.scale) + "px";
@@ -1404,41 +1404,6 @@ function applyResponsiveLayout() {
     if (!wrapper) return;
     const currentWidth = wrapper.clientWidth || BASELINE_THEATRE_WIDTH;
     const bg = document.getElementById("theatreBackground");
- 
-
-
-
-
-
-
-
-let debug = document.getElementById("debugDimensions");
- 
-if (!debug) {
-debug = document.createElement("div");
-debug.id = "debugDimensions";
- 
-debug.style.position = "fixed";
-debug.style.bottom = "10px";
-debug.style.left = "10px";
-debug.style.zIndex = "99999";
-debug.style.background = "white";
-debug.style.color = "black";
-debug.style.padding = "6px";
-debug.style.fontSize = "12px";
- 
-document.body.appendChild(debug);
-}
- 
-debug.textContent =
-`${wrapper.clientWidth} × ${wrapper.clientHeight}`;
-
-
-
-
-
-
-
 
     // First-time baseline capture
     if (!initialTheatreWidth) {
