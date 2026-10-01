@@ -356,6 +356,45 @@ Cookie Banner
 }
 
 /* ==========================================
+Feature Page Layout
+========================================== */
+
+.feature-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+}
+
+.feature-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.feature-image img {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.card_items {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.card_items li {
+    margin-bottom: 8px;
+}
+
+/* ==========================================
 Mobile
 ========================================== */
 
@@ -399,5 +438,18 @@ Mobile
     .icons img {
         width: 100px;
         height: 100px;
+    }
+
+    .feature-row,
+    .feature-row.reverse {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-row.reverse .feature-image {
+        order: 1;
+    }
+
+    .feature-row.reverse .card {
+        order: 2;
     }
 }
