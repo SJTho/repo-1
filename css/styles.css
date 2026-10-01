@@ -374,6 +374,7 @@ Feature Page Layout
 .feature-row .card,
 .feature-row .feature-image {
     flex: 1;
+    margin-top: 0;
 }
 
 .feature-image {
