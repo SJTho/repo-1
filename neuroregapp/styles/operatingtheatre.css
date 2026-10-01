@@ -40,6 +40,8 @@
 #theatreWrapper {
   width: 100%;
   max-width: 900px;
+  aspect-ratio: 1536 / 936;
+  height: auto;
   position: relative;
   overflow: hidden;
   border-radius: 10px;
@@ -290,17 +292,6 @@
 
   h2 {
     margin-top: 20px;
-  }
-
-  #theatreWrapper {
-    width: 100%;
-    max-width: 900px;
-    aspect-ratio: 900 / 600;
-    height: auto;
-    position: relative;
-    overflow: hidden;
-    border-radius: 10px;
-    border: 2px solid #1f355c;
   }
 
   .storeThumb {
