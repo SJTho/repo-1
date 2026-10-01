@@ -362,25 +362,25 @@ Feature Page Layout
 .feature-sections {
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 50px;
 }
 
 .feature-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 40px;
 }
 
-.feature-image {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.feature-row .card,
+.feature-row .feature-image {
+    flex: 1;
 }
 
 .feature-image img {
     width: 100%;
     max-width: 500px;
+    display: block;
     border-radius: 12px;
     box-shadow: var(--shadow);
 }
