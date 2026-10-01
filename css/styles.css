@@ -457,16 +457,32 @@ Mobile
         height: 100px;
     }
 
-    .feature-row,
-    .feature-row.reverse {
-        grid-template-columns: 1fr;
+    .feature-row {
+        flex-direction: column;
+        gap: 20px;
     }
 
-    .feature-row.reverse .feature-image {
-        order: 1;
+    .feature-row .card {
+        width: 100%;
+        margin-top: 0;
+        padding: 16px;
     }
 
-    .feature-row.reverse .card {
-        order: 2;
+    .feature-row .card h3 {
+        font-size: 1.25rem;
+    }
+
+    .card_items {
+        font-size: 0.9rem;
+    }
+
+    .feature-image {
+        width: 100%;
+    }
+
+    .feature-image img {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
     }
 }
