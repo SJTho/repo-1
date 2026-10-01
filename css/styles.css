@@ -365,6 +365,10 @@ Feature Page Layout
     gap: 50px;
 }
 
+.feature-sections .feature-row:first-child {
+    margin-top: -25px;
+}
+
 .feature-row {
     display: flex;
     align-items: stretch;
