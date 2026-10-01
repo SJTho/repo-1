@@ -1,5 +1,5 @@
 /* ==========================================
-NeuroReg.app Styles
+NeuroReg.net Styles
 ========================================== */
 
 :root {
@@ -107,6 +107,10 @@ Navigation
 .nav-links a.active {
     border-bottom: 2px solid white;
     padding-bottom: 4px;
+}
+
+.menu-toggle {
+    display: none;
 }
 
 /* ==========================================
@@ -417,15 +421,65 @@ Mobile
 
 @media (max-width: 768px) {
 
+
+
+
+
     header .container {
-        flex-direction: column;
-        gap: 15px;
+        position: relative;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .menu-toggle {
+        display: block;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+    }
+
+    nav {
+        width: 100%;
     }
 
     .nav-links {
-        flex-wrap: wrap;
-        justify-content: center;
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 220px;
+
+        flex-direction: column;
+        gap: 0;
+
+        background: var(--primary);
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+        overflow: hidden;
+        z-index: 1000;
     }
+
+    .nav-links.show {
+        display: flex;
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+
+    .nav-links a {
+        display: block;
+        padding: 12px 20px;
+    }
+
+    .nav-links a:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
 
     .footer-content {
         flex-direction: column;
