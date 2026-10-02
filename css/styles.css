@@ -391,6 +391,10 @@ Feature Page Layout
     gap: 50px;
 }
 
+.feature-sections {
+    margin-top: -50px;
+}
+
 .feature-sections .feature-row:first-child {
     margin-top: -25px;
 }
