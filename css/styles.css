@@ -570,4 +570,10 @@ Mobile
         height: auto;
         max-width: 100%;
     }
+
+    .nav-links,
+    .nav-links li,
+    .nav-links a {
+        border: none !important;
+    }
 }
