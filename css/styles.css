@@ -576,4 +576,9 @@ Mobile
     .nav-links a {
         border: none !important;
     }
+
+    .nav-links a.active {
+        border-bottom: none !important;
+        padding-bottom: 0;
+    }
 }
