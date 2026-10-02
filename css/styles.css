@@ -489,6 +489,8 @@ Mobile
     .nav-links a {
         display: block;
         padding: 8px 12px;
+        border: none;
+        text-decoration: none;
     }
 
     .nav-links a:hover {
@@ -496,9 +498,9 @@ Mobile
     }
 
     .nav-links li {
+        border: none;
         margin: 0;
         padding: 0;
-        line-height: 1.2;
     }
 
     .footer-content {
