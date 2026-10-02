@@ -87,7 +87,7 @@ Navigation
 
 .nav-links {
     display: flex;
-    gap: 20px;
+    gap: 5px;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -479,6 +479,9 @@ Mobile
         background: var(--primary);
         box-shadow: 0 8px 16px rgba(0, 0, 0, .2);
         z-index: 1000;
+        padding: 0;
+        margin: 0;
+        list-style: none;
     }
 
     .nav-links.show {
@@ -501,6 +504,7 @@ Mobile
         border: none;
         margin: 0;
         padding: 0;
+        list-style: none;
     }
 
     .footer-content {
