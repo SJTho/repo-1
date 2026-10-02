@@ -451,6 +451,10 @@ Mobile
         min-height: 70px;
     }
 
+    .content {
+        padding-top: 0;
+    }
+
     .menu-toggle {
         display: block;
         position: absolute;
