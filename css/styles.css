@@ -160,6 +160,15 @@ Page Header
     display: none;
 }
 
+header .container {
+    width: 100%;
+    max-width: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 20px;
+}
+
 /* ==========================================
 Content
 ========================================== */
@@ -484,6 +493,12 @@ Mobile
 
     .nav-links a:hover {
         background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-links li {
+        margin: 0;
+        padding: 0;
+        line-height: 1.2;
     }
 
     .footer-content {
