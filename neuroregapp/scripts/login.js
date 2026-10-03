@@ -182,7 +182,7 @@ try {
 const { error } =
 await supabase.auth.resetPasswordForEmail(email, {
 redirectTo:
-"https://YOUR-GITHUB-PAGES-URL/update-password.html"
+"https://www.neuroreg.net/neuroregapp/update-password.html"
 });
  
 if (error) {
