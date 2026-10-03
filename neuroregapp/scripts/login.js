@@ -72,7 +72,7 @@ window.signup = async function (email, password, nickname) {
 
     localStorage.setItem("sessionToken", loginData.session.access_token);
     localStorage.setItem("nickname", nickname);
-    localStorage.setItem("scalpel_points", "200");
+    localStorage.setItem("scalpel_points", "40");
     localStorage.setItem("userId", user.id);
     localStorage.setItem("isAdmin", "false");
 
@@ -146,58 +146,61 @@ window.handleSignup = async function (captchaToken) {
 // PASSWORD RESET HANDLER (protected by captcha)
 // ----------------------------------------------------
 window.handlePasswordReset = async function (captchaToken) {
-  const nickname = document.getElementById("recoverNickname").value.trim();
-  const errorBox = document.getElementById("recover-error");
-  const successBox = document.getElementById("recover-success");
-
-  if (!captchaToken) {
-    errorBox.textContent = "Captcha failed. Please try again.";
-    errorBox.style.display = "block";
-    return;
-  }
-
-  const result = await recoverEmail(nickname);
-
-  if (result.error) {
-    errorBox.textContent = result.error;
-    errorBox.style.display = "block";
-    successBox.style.display = "none";
-    return;
-  }
-
-  errorBox.style.display = "none";
-  successBox.textContent = result.message;
-  successBox.style.display = "block";
+ 
+const email =
+document.getElementById("recoverEmail").value.trim();
+ 
+const errorBox = document.getElementById("recover-error");
+const successBox = document.getElementById("recover-success");
+ 
+if (!captchaToken) {
+errorBox.textContent = "Captcha failed. Please try again.";
+errorBox.style.display = "block";
+return;
+}
+ 
+const result = await recoverPassword(email);
+ 
+if (result.error) {
+errorBox.textContent = result.error;
+errorBox.style.display = "block";
+successBox.style.display = "none";
+return;
+}
+ 
+errorBox.style.display = "none";
+successBox.textContent = result.message;
+successBox.style.display = "block";
 };
 
 // ----------------------------------------------------
-// RECOVER EMAIL (nickname → email lookup)
+// RECOVER PASSWORD
 // ----------------------------------------------------
-window.recoverEmail = async function (nickname) {
-  try {
-    if (!nickname) {
-      return { error: "Please enter your nickname." };
-    }
-
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("email")
-      .eq("nickname", nickname)
-      .single();
-
-    if (error || !data) {
-      return { error: "No user found with that nickname." };
-    }
-
-    return {
-      message:
-        "Recovery email service is not active yet. Your email would be sent to: " +
-        data.email
-    };
-
-  } catch (err) {
-    return { error: "Unable to recover email right now." };
-  }
+window.recoverPassword = async function (email) {
+try {
+ 
+const { error } =
+await supabase.auth.resetPasswordForEmail(email, {
+redirectTo:
+"https://YOUR-GITHUB-PAGES-URL/update-password.html"
+});
+ 
+if (error) {
+return { error: error.message };
+}
+ 
+return {
+message:
+"If an account exists for that email, a password reset link has been sent."
+};
+ 
+} catch (err) {
+console.error(err);
+ 
+return {
+error: "Unable to process password reset."
+};
+}
 };
 
 // ----------------------------------------------------
