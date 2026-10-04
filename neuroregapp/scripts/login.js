@@ -241,6 +241,22 @@ window.login = async function (email, password) {
 };
 
 // ----------------------------------------------------
+// LOAD EMAIL AFTER PASSWORD RESET
+// ----------------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const email = params.get("email");
+  
+  if (email) {
+    const emailInput = document.getElementById("loginEmail");
+    
+    if (emailInput) {emailInput.value = email;}
+  
+  }
+
+});
+
+// ----------------------------------------------------
 // GET CURRENT USER
 // ----------------------------------------------------
 window.getCurrentUser = async function () {
