@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Flagged Questions</title>
+
+  <!-- Global + Page CSS -->
+  <link rel="stylesheet" href="./styles/global.css">
+  <link rel="stylesheet" href="./styles/editemailaquestion.css">
+
+  <!-- Page JS -->
+  <script type="module" src="./scripts/editemailaquestion.js"></script>
+
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+</head>
+
+<body>
+
+  <!-- Hamburger -->
+  <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+  <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
+
+  <!-- Top-right icons -->
+  <div id="topRightIcons"></div>
+
+  <h1>email a question</h1>
+
+  <div id="emailaquestioncontainer"></div>
+
+  <button id="closeBtn" onclick="window.location.href='index.html'">Close</button>
+
+  <!-- Help Popup -->
+  <div id="helpPopup" class="popupOverlay" style="display:none;">
+    <div id="helpPopupWindow" class="popupWindow">
+      <div id="helpContent"></div>
+      <button id="closeHelpBtn" class="closeHelpBtn">Close</button>
+    </div>
+  </div>
+
+</body>
+
+</html>
