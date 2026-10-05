@@ -360,7 +360,8 @@ window.addEventListener("DOMContentLoaded", () => {
           { text: q.option1, correct: true },
           { text: q.option2, correct: false },
           { text: q.option3, correct: false },
-          { text: q.option4, correct: false }
+          { text: q.option4, correct: false },
+          { text: q.option5, correct: false }
         ];
 
         /* Shuffle options */
