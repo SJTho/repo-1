@@ -162,6 +162,11 @@ async function loadFlaggedQuestions() {
       </div>
 
       <div class="collapsibleContent" style="display:none">
+        <div class="explanationRow">
+          <label for="flagtext_${q.id}">Flagtext:</label>
+          <textarea id="flagtext_${q.id}" class="editExplanation" required>${esc(q.flagtext || "")}</textarea>
+        </div>
+
 
         <div class="topicLevelRow">
           <label for="topic_${q.id}">Topic:</label>
@@ -235,6 +240,7 @@ async function loadFlaggedQuestions() {
 
       const updated = {
         stem,
+        flagtext: null,
         topic,
         level,
         explanation,
