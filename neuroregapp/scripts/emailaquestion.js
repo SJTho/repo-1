@@ -1,13 +1,15 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_KEY } from "../myenv.js";
 import { logout } from "./logout.js";
-import { initHelpPopup } from "./helpPopup.js";   // ⭐ NEW
-let openHelpPopup;   // ⭐ NEW — makes it visible to all functions
+import { initHelpPopup } from "./helpPopup.js";
+let openHelpPopup;
 
 window.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 window.logout = logout;
 
-/* ----------------------------- MENU LOADING ----------------------------- */
+/* -------------------------------------
+    LOAD HAMBURGER MENU
+  ------------------------------------- */
 
 async function loadHamburgerMenu() {
   const dropdown = document.getElementById("hamburgerMenuDropdown");
@@ -53,6 +55,9 @@ async function loadHamburgerMenu() {
   });
 }
 
+/* -------------------------------------
+    LOAD TOP RIGHT ITEMS
+  ------------------------------------- */
 async function loadTopRightIcons() {
   const container = document.getElementById("topRightIcons");
   const isAdmin = localStorage.getItem("isAdmin") === "true";
@@ -94,7 +99,9 @@ async function loadTopRightIcons() {
   });
 }
 
-/* Hamburger toggle */
+/* ---------------------------------------
+  TOGGLE HAMBURGER
+  ----------------------------------------*/
 document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("pageshow", () => {
@@ -116,7 +123,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-/* ----------------------------- FLAGGED QUESTIONS ----------------------------- */
+/* ----------------------------- 
+    LOAD QUESTIONS
+  ----------------------------- */
 
 window.fetchQuestions = async () => {
   const { data, error } = await window.supabase
@@ -131,152 +140,23 @@ window.fetchQuestions = async () => {
   return data;
 };
 
-function esc(str) {
-  return (str || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 async function loadQuestions() {
   const flagged = await window.fetchQuestions();
   const container = document.getElementById("emailaquestioncontainer");
 
   container.innerHTML = "";
 
-  id.forEach(q => {
-    const div = document.createElement("div");
-    div.className = "question";
 
-    div.innerHTML = `
-      <div class="stemHeader">
-        <label for="stem_${q.id}">Stem:</label>
-        <textarea id="stem_${q.id}" class="editStem" required>${esc(q.stem || "")}</textarea>
-      </div>
-
-      <div class="collapsibleContent" style="display:none">
-
-        <div class="topicLevelRow">
-          <label for="topic_${q.id}">Topic:</label>
-          <select id="topic_${q.id}" class="editTopic" required>
-            <option value="">Select topic</option>
-            ${["Vascular","Oncology","Skull Base","Trauma","CSF","Spine","Paediatrics","Peripheral Nerve","Functional","Epilepsy"]
-              .map(t => `<option value="${t}" ${q.topic===t?"selected":""}>${t}</option>`).join("")}
-          </select>
-
-          <label for="level_${q.id}">Level:</label>
-          <select id="level_${q.id}" class="editLevel" required>
-            <option value="">Select level</option>
-            <option value="MRCS" ${q.level==="MRCS"?"selected":""}>MRCS</option>
-            <option value="FRCS" ${q.level==="FRCS"?"selected":""}>FRCS</option>
-          </select>
-        </div>
-
-        <div class="explanationRow">
-          <label for="explanation_${q.id}">Explanation:</label>
-          <textarea id="explanation_${q.id}" class="editExplanation" required>${esc(q.explanation || "")}</textarea>
-        </div>
-
-        <div class="optionRow12">
-          <label for="option1_${q.id}">Option 1:</label>
-          <input id="option1_${q.id}" class="editOption1" required value="${esc(q.option1 || "")}">
-
-          <label for="option2_${q.id}">Option 2:</label>
-          <input id="option2_${q.id}" class="editOption2" required value="${esc(q.option2 || "")}">
-        </div>
-
-        <div class="optionRow34">
-          <label for="option3_${q.id}">Option 3:</label>
-          <input id="option3_${q.id}" class="editOption3" required value="${esc(q.option3 || "")}">
-
-          <label for="option4_${q.id}">Option 4:</label>
-          <input id="option4_${q.id}" class="editOption4" required value="${esc(q.option4 || "")}">
-        </div>
-
-        <div class="buttonRow">
-          <button class="saveBtn">Save</button>
-          <button class="deleteBtn">Delete</button>
-        </div>
-
-      </div>
-    `;
-
-    const header = div.querySelector(".stemHeader");
-    const content = div.querySelector(".collapsibleContent");
-
-    header.addEventListener("click", () => {
-      content.style.display = content.style.display === "none" ? "block" : "none";
-    });
-
-    div.querySelector(".saveBtn").onclick = async () => {
-
-      const stem = div.querySelector(".editStem")?.value || "";
-      const topic = div.querySelector(".editTopic")?.value || "";
-      const level = div.querySelector(".editLevel")?.value || "";
-      const explanation = div.querySelector(".editExplanation")?.value || "";
-      const option1 = div.querySelector(".editOption1")?.value || "";
-      const option2 = div.querySelector(".editOption2")?.value || "";
-      const option3 = div.querySelector(".editOption3")?.value || "";
-      const option4 = div.querySelector(".editOption4")?.value || "";
-
-      const updated = {
-        stem,
-        topic,
-        level,
-        explanation,
-        option1,
-        option2,
-        option3,
-        option4,
-        flaggedset: 0
-      };
-
-      if (Object.entries(updated).some(([key, value]) =>
-        key !== "flaggedset" && value.trim().length === 0
-      )) {
-        alert("All fields are mandatory.");
-        return;
-      }
-
-      const { error } = await window.supabase
-        .from("mcqquestions")
-        .update(updated)
-        .eq("id", q.id);
-
-      if (error) {
-        alert("Error saving changes.");
-      } else {
-        alert("Saved.");
-        loadFlaggedQuestions();
-      }
-    };
-
-    div.querySelector(".deleteBtn").onclick = async () => {
-      if (!confirm("Delete this question?")) return;
-
-      const { error } = await window.supabase
-        .rpc("delete_mcqquestion", { question_id: q.id });
-
-      if (error) {
-        alert("Error deleting question.");
-        return;
-      }
-
-      alert("Deleted.");
-      div.remove();
-    };
-
-    container.appendChild(div);
-  });
 }
 
-/* ----------------------------- INIT ----------------------------- */
+/* ----------------------------- 
+  INITIALISATION
+----------------------------- */
 
 window.addEventListener("DOMContentLoaded", () => {
-  openHelpPopup = initHelpPopup(window.supabase);   // ⭐ NEW
+  openHelpPopup = initHelpPopup(window.supabase);
 
   loadHamburgerMenu();
   loadTopRightIcons();
-  loadFlaggedQuestions();
+  loadQuestions();
 });
