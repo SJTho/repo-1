@@ -190,6 +190,7 @@ async function loadFlaggedQuestions() {
 
           <label for="option2_${q.id}">Option 2:</label>
           <input id="option2_${q.id}" class="editOption2" required value="${esc(q.option2 || "")}">
+
         </div>
 
         <div class="optionRow34">
@@ -198,6 +199,11 @@ async function loadFlaggedQuestions() {
 
           <label for="option4_${q.id}">Option 4:</label>
           <input id="option4_${q.id}" class="editOption4" required value="${esc(q.option4 || "")}">
+        </div>
+
+         <div class="optionRow34">
+          <label for="option5_${q.id}">Option 5:</label>
+          <input id="option5_${q.id}" class="editOption5" required value="${esc(q.option5 || "")}">
         </div>
 
         <div class="buttonRow">
@@ -225,6 +231,7 @@ async function loadFlaggedQuestions() {
       const option2 = div.querySelector(".editOption2")?.value || "";
       const option3 = div.querySelector(".editOption3")?.value || "";
       const option4 = div.querySelector(".editOption4")?.value || "";
+      const option5 = div.querySelector(".editOption5")?.value || "";
 
       const updated = {
         stem,
@@ -235,6 +242,7 @@ async function loadFlaggedQuestions() {
         option2,
         option3,
         option4,
+        option5,
         flaggedset: 0
       };
 
