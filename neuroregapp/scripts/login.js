@@ -30,7 +30,7 @@ window.onPasswordResetCaptcha = function (token) {
 // ----------------------------------------------------
 // SIGNUP (with scalpel_points = 40 and link rows)
 // ----------------------------------------------------
-window.signup = async function (email, password, nickname) {
+window.signup = async function (email, password, nickname, subscribed) {
   try {
     const { data: signupData, error: signupError } = await supabase.auth.signUp({
       email,
@@ -46,6 +46,7 @@ window.signup = async function (email, password, nickname) {
       id: user.id,
       nickname,
       email,
+      subscribed,
       scalpel_points: 40,
       isadmin: false
     });
@@ -72,9 +73,7 @@ window.signup = async function (email, password, nickname) {
 
     localStorage.setItem("sessionToken", loginData.session.access_token);
     localStorage.setItem("nickname", nickname);
-    localStorage.setItem("scalpel_points", "40");
     localStorage.setItem("userId", user.id);
-    localStorage.setItem("isAdmin", "false");
 
     window.location.href = "index.html";
 
