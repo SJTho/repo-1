@@ -180,6 +180,7 @@ async function loadFlaggedQuestions() {
             <option value="">Select level</option>
             <option value="MRCS" ${q.level==="MRCS"?"selected":""}>MRCS</option>
             <option value="FRCS" ${q.level==="FRCS"?"selected":""}>FRCS</option>
+            <option value="Challenge" ${q.level==="Challenge"?"selected":""}>Challenge</option>
           </select>
         </div>
 
