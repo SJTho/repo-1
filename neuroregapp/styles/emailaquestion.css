@@ -71,6 +71,31 @@
   align-items: center;
 }
 
+.questionEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.questionEditor textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.questionEditor input[type="text"],
+.questionEditor input[type="date"] {
+  width: 100%;
+}
+
+.navigationRow,
+.buttonRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* Labels */
 #emailaquestioncontainer .flaggedItem label {
   display: block !important;
