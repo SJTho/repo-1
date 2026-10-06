@@ -91,6 +91,7 @@ window.handleSignup = async function (captchaToken) {
   const email = document.getElementById("signupEmail").value.trim();
   const password = document.getElementById("signupPassword").value.trim();
   const nickname = document.getElementById("signupNickname").value.trim();
+  const subscribed = document.getElementById("subscribed").checked;
   const errorBox = document.getElementById("signup-error");
 
   if (!captchaToken) {
@@ -133,7 +134,7 @@ window.handleSignup = async function (captchaToken) {
     return;
   }
 
-  const result = await signup(email, password, nickname);
+  const result = await signup(email, password, nickname, subscribed);
 
   if (result.error) {
     errorBox.textContent = result.error;
