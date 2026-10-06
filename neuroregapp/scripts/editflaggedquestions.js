@@ -164,9 +164,8 @@ async function loadFlaggedQuestions() {
       <div class="collapsibleContent" style="display:none">
         <div class="explanationRow">
           <label for="flagtext_${q.id}">Flagtext:</label>
-          <textarea id="flagtext_${q.id}" class="editExplanation" required>${esc(q.flagtext || "")}</textarea>
+          <textarea id="flagtext_${q.id}" class="editFlagtext" readonly>${esc(q.flagtext || "")}</textarea>
         </div>
-
 
         <div class="topicLevelRow">
           <label for="topic_${q.id}">Topic:</label>
