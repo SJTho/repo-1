@@ -435,6 +435,9 @@ window.addEventListener("DOMContentLoaded", () => {
       return alert("Could not update flag count.");
     }
 
+    buttonElement.disabled = true;
+    buttonElement.textContent = "Flagged";
+
   };
 
     /* ------------------------------
