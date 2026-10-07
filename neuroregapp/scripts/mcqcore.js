@@ -388,11 +388,12 @@ window.addEventListener("DOMContentLoaded", () => {
      FLAG QUESTION
   ------------------------------ */
   window.flagQuestion = async function (questionId, buttonElement) {
+    
     const { data, error } = await supabase
-      .from("mcqquestions")
-      .select("flaggedset")
-      .eq("id", questionId)
-      .single();
+    .from("mcqquestions")
+    .select("flaggedset, flagtext")
+    .eq("id", questionId)
+    .single();
 
     if (error) {
       console.error("Flag fetch failed:", error);
@@ -407,45 +408,33 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-
-
-
     const comment = prompt(
-"Optional: Please tell us why you are flagging this question:"
-);
- 
-if (comment === null) return;
- 
-const currentFlagText = data.flagtext || "";
- 
-const newEntry =
-`${new Date().toLocaleString()}: ${comment}`;
- 
-const updatedFlagText = currentFlagText
-? `${currentFlagText}\n\n${newEntry}`
-: newEntry;
- 
-const updated = current + 1;
- 
-const { error: updateError } = await supabase
-.from("mcqquestions")
-.update({
-flaggedset: updated,
-flagtext: updatedFlagText
-})
-.eq("id", questionId);
-
-
-
+      "Optional: Please tell us why you are flagging this question:"
+    );
+    
+    if (comment === null) return;
+    const currentFlagText = data.flagtext || "";
+    const newEntry =
+    `${new Date().toLocaleString()}: ${comment}`;
+    const updatedFlagText = currentFlagText
+    ? `${currentFlagText}\n\n${newEntry}`
+    : newEntry;
+    
+    const updated = current + 1;
+    
+    const { error: updateError } = await supabase
+    .from("mcqquestions")
+    .update({
+      flaggedset: updated,
+      flagtext: updatedFlagText
+    })
+    .eq("id", questionId);
 
     if (updateError) {
       console.error("Flag update failed:", updateError);
       return alert("Could not update flag count.");
     }
 
-    alert(`Question flagged (${updated}/5)`);
-    buttonElement.disabled = true;
-    buttonElement.textContent = "Flagged";
   };
 
     /* ------------------------------
