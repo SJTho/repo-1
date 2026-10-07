@@ -407,12 +407,36 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const updated = current + 1;
 
-    const { error: updateError } = await supabase
-      .from("mcqquestions")
-      .update({ flaggedset: updated })
-      .eq("id", questionId);
+
+
+    const comment = prompt(
+"Optional: Please tell us why you are flagging this question:"
+);
+ 
+if (comment === null) return;
+ 
+const currentFlagText = data.flagtext || "";
+ 
+const newEntry =
+`${new Date().toLocaleString()}: ${comment}`;
+ 
+const updatedFlagText = currentFlagText
+? `${currentFlagText}\n\n${newEntry}`
+: newEntry;
+ 
+const updated = current + 1;
+ 
+const { error: updateError } = await supabase
+.from("mcqquestions")
+.update({
+flaggedset: updated,
+flagtext: updatedFlagText
+})
+.eq("id", questionId);
+
+
+
 
     if (updateError) {
       console.error("Flag update failed:", updateError);
