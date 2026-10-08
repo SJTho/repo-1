@@ -3,23 +3,64 @@
 
 <head>
     <title>Unsubscribe</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 500px;
+            padding: 40px;
+        }
+
+        #unsubscribeBtn {
+            padding: 18px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            background-color: #c62828;
+            color: white;
+            cursor: pointer;
+            min-width: 240px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        #unsubscribeBtn:hover {
+            background-color: #b71c1c;
+            transform: translateY(-2px);
+        }
+    </style>
+
 </head>
 
 <body>
 
-    <h1>Unsubscribe</h1>
+    <div class="container">
 
-    <a class="logo" href="index.html">
-        <img src="favicon.ico" alt="NeuroReg.app logo">
-        <span>NeuroReg.net</span>
-    </a>
 
-    <p id=" message"></p>
+        <h1>Unsubscribe</h1>
 
-    <button id="unsubscribeBtn">
-        Confirm Unsubscribe
-    </button>
+        <a class="logo" href="index.html">
+            <img src="favicon.ico" alt="NeuroReg.app logo">
+            <span>NeuroReg.net</span>
+        </a>
 
+        <p id=" message"></p>
+
+        <button id="unsubscribeBtn">
+            Confirm Unsubscribe
+        </button>
+    </div>
     <script>
         const params = new URLSearchParams(window.location.search);
         const token = params.get("token");
