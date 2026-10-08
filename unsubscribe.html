@@ -17,10 +17,10 @@
 
     <script>
         const params = new URLSearchParams(window.location.search);
-        const email = params.get("email");
+        const token = params.get("token");
 
         document.getElementById("message").textContent =
-            `Are you sure you wish to unsubscribe ${email}?`;
+            "Are you sure you wish to unsubscribe from Email A Question?";
 
         document.getElementById("unsubscribeBtn").onclick = async () => {
 
@@ -31,14 +31,18 @@
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({email})
+                    body: JSON.stringify({token})
                 }
             );
 
             if (response.ok) {
                 document.body.innerHTML =
-                    "<h1>Successfully unsubscribed</h1>";
+                    "<h1>Successfully unsubscribed</h1><p>You will no longer receive Email A Question emails.</p>";
             } else {
+
+                const error = await response.text();
+                console.log(error);
+
                 alert("Unable to unsubscribe");
             }
         };
