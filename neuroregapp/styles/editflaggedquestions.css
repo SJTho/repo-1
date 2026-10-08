@@ -98,8 +98,8 @@
 
 /* Stem + Explanation: two rows with vertical scroll */
 .editStem {
-  height: 48px !important;
-  min-height: 48px !important;
+  height: 100px !important;
+  min-height: 100px !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   resize: none !important;
@@ -108,8 +108,8 @@
 }
 
 .editExplanation {
-  height: 48px !important;
-  min-height: 48px !important;
+  height: 100px !important;
+  min-height: 100px !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   resize: none !important;
@@ -172,14 +172,19 @@
     margin-left: 6px !important;
     /* adjust value as needed */
   }
-}
 
-
-@media (max-width: 600px) {
-
-  h1 {
-    margin-top: 60px;
-    margin-bottom: 20px;
+  .editFlagText {
+    height: 100px !important;
+    min-height: 100px !important;
+    overflow-y: auto !important;
+    resize: none !important;
   }
 
-}
+  @media (max-width: 600px) {
+
+    h1 {
+      margin-top: 60px;
+      margin-bottom: 20px;
+    }
+
+  }
