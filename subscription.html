@@ -15,7 +15,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>About</title>
+    <title>Subscription</title>
     <meta name="description" content="About Neuroreg.net">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://www.neuroreg.net/about.html">
@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body style="background-image: url('./neuroregapp/images/holdingbackground.png');">
+<body>
 
     <header>
         <div class="container">
@@ -54,34 +54,58 @@
 
     <section class="page-header">
         <div class="container">
-            <h1>About</h1>
+            <h1>Subscription</h1>
         </div>
     </section>
 
-    <section class="content">
+    <section class="content-section">
         <div class="container">
-            <div class="card">
-                <h2>Mission</h2>
-                <p>Designed for Trainees in Neurosurgery by a Retired Consultant Neurosurgeon and
-                    Neurosurgical Trainer, the app presents questions that are suitable for post-graduate clinicians
-                    throughout the world especially those preparing for the FRCS or MRCS examinations. By presenting
-                    MCQs in a gamified environment exam revision becomes effortless and even fun. Features like
-                    friends and weekly emailed questions are designed to produce a community of learners and the links
-                    to other training sites are designed to act as a training hub.</p>
-            </div>
 
-            <div class="card">
-                <h2>Cost</h2>
-                <p>£5 per annum, the first 100 accounts are free in the first year. Cancel your subscription anytime you
-                    like</p>
-            </div>
+            <div class="subscription-card">
 
-            <div class="card">
-                <h2>Your data</h2>
-                <p>The approach to data is to keep as little as possible and you can delete your data whenever you want.
-                    Please
-                    see the <a href="privacy.html">privacy policy</a> for full details.
+                <h2>NeuroReg Membership</h2>
+
+                <p>
+                    A NeuroReg subscription provides access to all educational content,
+                    question banks and the Email-a-Question service.
                 </p>
+
+                <div class="subscription-status">
+
+                    <h3>Current Status</h3>
+
+                    <p>
+                        Status:
+                        <strong id="subscriptionStatus">Loading...</strong>
+                    </p>
+
+                    <p>
+                        Expiry Date:
+                        <strong id="subscriptionExpiry">-</strong>
+                    </p>
+
+                </div>
+
+                <div class="subscription-plan">
+
+                    <h3>Membership Plan</h3>
+
+                    <p>£5 per year</p>
+
+                </div>
+
+                <div class="subscription-actions">
+
+                    <button id="subscribeButton" class="btn-primary">
+                        Subscribe with PayPal
+                    </button>
+
+                    <button id="manageButton" class="btn-secondary">
+                        Manage Subscription
+                    </button>
+
+                </div>
+
             </div>
 
         </div>
