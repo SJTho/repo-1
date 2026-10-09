@@ -89,61 +89,68 @@
             </div>
         </div>
 
-        <!-- Best Streak -->
+        <!-- Current subscription -->
         <div class="profileRow">
             <div class="profileHeader">
-                <strong>Best streak</strong>
-            </div>
-            <div class="profileFieldRow">
-                <span id="longestStreakDisplay">0 days</span>
+                <strong><a href="./subscription.html>Neuroreg subscription</a></strong>
             </div>
         </div>
 
-        <!-- Current Streak -->
-        <div class="profileRow">
-            <div class="profileHeader">
-                <strong>Current streak</strong>
+            <!-- Best Streak -->
+        <div class=" profileRow">
+                        <div class="profileHeader">
+                            <strong>Best streak</strong>
+                        </div>
+                        <div class="profileFieldRow">
+                            <span id="longestStreakDisplay">0 days</span>
+                        </div>
             </div>
-            <div class="profileFieldRow">
-                <span id="currentStreakDisplay">0 days</span>
+
+            <!-- Current Streak -->
+            <div class="profileRow">
+                <div class="profileHeader">
+                    <strong>Current streak</strong>
+                </div>
+                <div class="profileFieldRow">
+                    <span id="currentStreakDisplay">0 days</span>
+                </div>
+            </div>
+
+            <!-- Points -->
+            <div class="profileRow">
+                <div class="profileHeader">
+                    <strong>Points</strong>
+                </div>
+                <div class="profileFieldRow">
+                    <span id="pointsDisplay"></span>
+                </div>
+            </div>
+
+            <!-- Rank -->
+            <div class="profileRow">
+                <div class="profileHeader">
+                    <strong>Rank</strong>
+                </div>
+                <div class="profileFieldRow">
+                    <span id="rankDisplay"></span>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="deleteAccountLink" class="dangerLink">
+            Delete Account
+        </div>
+
+        <!-- Help Popup -->
+        <div id="helpPopup" class="popupOverlay" style="display:none;">
+            <div id="helpPopupWindow" class="popupWindow">
+                <div id="helpContent"></div>
+                <button id="closeHelpBtn" class="closeHelpBtn">Close</button>
             </div>
         </div>
 
-        <!-- Points -->
-        <div class="profileRow">
-            <div class="profileHeader">
-                <strong>Points</strong>
-            </div>
-            <div class="profileFieldRow">
-                <span id="pointsDisplay"></span>
-            </div>
-        </div>
-
-        <!-- Rank -->
-        <div class="profileRow">
-            <div class="profileHeader">
-                <strong>Rank</strong>
-            </div>
-            <div class="profileFieldRow">
-                <span id="rankDisplay"></span>
-            </div>
-        </div>
-
-    </div>
-
-    <div id="deleteAccountLink" class="dangerLink">
-        Delete Account
-    </div>
-
-    <!-- Help Popup -->
-    <div id="helpPopup" class="popupOverlay" style="display:none;">
-        <div id="helpPopupWindow" class="popupWindow">
-            <div id="helpContent"></div>
-            <button id="closeHelpBtn" class="closeHelpBtn">Close</button>
-        </div>
-    </div>
-
-    <script type="module" src="./scripts/profile.js"></script>
+        <script type="module" src="./scripts/profile.js"></script>
 
 </body>
 
