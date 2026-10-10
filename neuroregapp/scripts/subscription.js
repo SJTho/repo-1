@@ -170,6 +170,44 @@ async function loadSubscription() {
     }
 }
 
+// ----------------------------------------------------
+// Paypal subscription
+// ----------------------------------------------------
+
+async function activateSubscription(subscriptionId) {
+
+    const {
+        data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const startDate = new Date();
+
+    const expiryDate = new Date(startDate);
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+
+    const { error } = await supabase
+        .from("profiles")
+        .update({
+            subscription_active: true,
+            subscription_status: "active",
+            subscription_start: startDate.toISOString(),
+            subscription_expiry: expiryDate.toISOString(),
+            paypal_subscription_id: subscriptionId
+        })
+        .eq("id", user.id);
+
+    if (error) {
+        console.error(error);
+        alert("Subscription created but profile update failed.");
+        return;
+    }
+
+    alert("Subscription activated successfully.");
+
+    loadSubscription();
+}
 
 // ----------------------------------------------------
 // Page Load
@@ -183,6 +221,7 @@ window.addEventListener("DOMContentLoaded", () => {
     loadSubscription();
 });
 
+window.activateSubscription = activateSubscription;
 
 // ----------------------------------------------------
 // Reset hamburger menu when returning via Back button
@@ -191,3 +230,4 @@ window.addEventListener("pageshow", () => {
     const dropdown = document.getElementById("hamburgerMenuDropdown");
     if (dropdown) dropdown.style.display = "none";
 });
+

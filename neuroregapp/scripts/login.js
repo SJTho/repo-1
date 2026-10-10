@@ -48,7 +48,12 @@ window.signup = async function (email, password, nickname, subscribed) {
       email,
       subscribed,
       scalpel_points: 40,
-      isadmin: false
+      isadmin: false,
+      subscription_active: false,
+      subscription_status: "inactive",
+      subscription_start: null,
+      subscription_expiry: null,
+      paypal_subscription_id: null
     });
 
     if (profileError) return { error: profileError.message };

@@ -74,6 +74,36 @@
 
                 <div class="subscription-actions">
 
+
+                    <div id="paypal-button-container-P-9WT712156E916593MNLE5FLY"></div>
+                    <script
+                        src="https://www.paypal.com/sdk/js?client-id=BAAU9tp_9EwdsRngH-hXC1jElAY9oBp-MHjvIveelVj-u6z_Bm74XQB0FK0590GuaoCpjr8ILGz3GAR36o&vault=true&intent=subscription"
+                        data-sdk-integration-source="button-factory"></script>
+                    <script>
+                        paypal.Buttons({
+                            style: {
+                                shape: 'pill',
+                                color: 'blue',
+                                layout: 'vertical',
+                                label: 'subscribe'
+                            },
+                            createSubscription: function (data, actions) {
+                                return actions.subscription.create({
+                                    /* Creates the subscription */
+                                    plan_id: 'P-9WT712156E916593MNLE5FLY'
+                                });
+                            },
+                            onApprove: async function (data, actions) {
+
+                                await window.activateSubscription(
+                                    data.subscriptionID
+                                );
+                            }
+                        }).render('#paypal-button-container-P-9WT712156E916593MNLE5FLY'); // Renders the PayPal button
+                    </script>
+
+
+
                     <button id="subscribeButton" class="btn-primary">
                         Subscribe with PayPal
                     </button>
