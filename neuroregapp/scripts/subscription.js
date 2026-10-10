@@ -161,15 +161,15 @@ async function loadSubscription() {
     const manageButton =
         document.getElementById('manageButton');
 
-    if (data.subscription_active) {
+   if (data.subscription_active) {
 
-        subscribeButton.style.display = 'none';
+    paypalContainer.style.display = 'none';
 
-    } else {
+} else {
 
-        manageButton.style.display = 'none';
+    manageButton.style.display = 'none';
 
-    }
+}
 }
 
 // ----------------------------------------------------
