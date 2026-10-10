@@ -158,19 +158,6 @@ async function loadSubscription() {
         'paypal-button-container-P-9WT712156E916593MNLE5FLY'
     );
 
-const manageButton =
-    document.getElementById('manageButton');
-
-if (data.subscription_active) {
-
-    paypalContainer.style.display = 'none';
-
-} else {
-
-    manageButton.style.display = 'none';
-
-}
-
     const manageButton =
         document.getElementById('manageButton');
 
