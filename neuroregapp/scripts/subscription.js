@@ -153,8 +153,23 @@ async function loadSubscription() {
             ? new Date(data.subscription_expiry).toLocaleDateString()
             : '-';
 
-    const subscribeButton =
-        document.getElementById('subscribeButton');
+   const paypalContainer =
+    document.getElementById(
+        'paypal-button-container-P-9WT712156E916593MNLE5FLY'
+    );
+
+const manageButton =
+    document.getElementById('manageButton');
+
+if (data.subscription_active) {
+
+    paypalContainer.style.display = 'none';
+
+} else {
+
+    manageButton.style.display = 'none';
+
+}
 
     const manageButton =
         document.getElementById('manageButton');
