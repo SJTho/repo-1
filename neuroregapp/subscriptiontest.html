@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-834YB4XTQV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-834YB4XTQV');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Subscription</title>
+    <meta name="description" content="About Neuroreg.net">
+    <meta name="robots" content="noindex">
+    <link rel="canonical" href="https://www.neuroreg.net/about.html">
+
+    <!-- Global + Page Styles -->
+    <link rel="stylesheet" href="./styles/global.css">
+    <link rel="stylesheet" href="./styles/subscription.css">
+    <link rel="apple-touch-icon" href="./icon180.png">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+</head>
+
+<body>
+
+    <div id="hamburgerMenu" class="hamburgerIcon">☰</div>
+    <div id="hamburgerMenuDropdown" class="dropdownMenu"></div>
+
+    <div id="topRightIcons"></div>
+
+    <h1>Subscription</h1>
+
+    <section class="content-section">
+        <div class="container">
+
+            <div class="subscription-card">
+
+                <h2>NeuroReg Membership</h2>
+
+                <p>
+                    A NeuroReg subscription provides access to all educational content,
+                    question banks and the Email-a-Question service.
+                </p>
+
+                <div class="subscription-status">
+
+                    <h3>Current Status</h3>
+
+                    <p>
+                        Status:
+                        <strong id="subscriptionStatus">Loading...</strong>
+                    </p>
+
+                    <p>
+                        Expiry Date:
+                        <strong id="subscriptionExpiry">-</strong>
+                    </p>
+
+                </div>
+
+                <div class="subscription-plan">
+
+                    <h3>Membership Plan</h3>
+
+                    <p>£5 per year</p>
+
+                </div>
+
+                <div class="subscription-actions">
+
+                    <div id="paypal-button-container-P-7YJ52579P9406760JNLE6IYI"></div>
+                    <script
+                        src="https://www.paypal.com/sdk/js?client-id=BAAU9tp_9EwdsRngH-hXC1jElAY9oBp-MHjvIveelVj-u6z_Bm74XQB0FK0590GuaoCpjr8ILGz3GAR36o&vault=true&intent=subscription"
+                        data-sdk-integration-source="button-factory"></script>
+                    <script>
+                        paypal.Buttons({
+                            style: {
+                                shape: 'rect',
+                                color: 'gold',
+                                layout: 'vertical',
+                                label: 'subscribe'
+                            },
+                            createSubscription: function (data, actions) {
+                                return actions.subscription.create({
+                                    /* Creates the subscription */
+                                    plan_id: 'P-7YJ52579P9406760JNLE6IYI'
+                                });
+                            },
+
+
+
+
+                            onApprove: async function (data, actions) {
+
+                                await window.activateSubscription(
+                                    data.subscriptionID
+                                );
+
+
+
+                            }
+                        }).render('#paypal-button-container-P-7YJ52579P9406760JNLE6IYI'); // Renders the PayPal button
+                    </script>
+
+
+
+                    <button id="manageButton" class="btn-secondary">
+                        Manage Subscription
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Help Popup -->
+    <div id="helpPopup" class="popupOverlay" style="display:none;">
+        <div id="helpPopupWindow" class="popupWindow">
+            <div id="helpContent"></div>
+            <button id="closeHelpBtn" class="closeHelpBtn">Close</button>
+        </div>
+    </div>
+
+    <script type="module" src="./scripts/subscription.js"></script>
+
+</body>
+
+</html>
